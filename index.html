@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veritas Quaesitor - Seeking Truth Through AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            animation: fadeInDown 1s;
+        }
+        
+        header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+        
+        section {
+            background: white;
+            margin: 30px 0;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeInUp 1s;
+        }
+        
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2.2em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .team-member {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 2px solid #667eea;
+        }
+        
+        .team-member:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+        }
+        
+        .team-member h3 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin-bottom: 10px;
+        }
+        
+        .team-member .role {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .team-member p {
+            color: #555;
+            line-height: 1.8;
+        }
+        
+        /* Placeholder for future team members */
+        .team-placeholder {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px dashed #fdcb6e;
+            opacity: 0.7;
+        }
+        
+        .team-placeholder h3 {
+            color: #d63031;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        
+        .team-placeholder p {
+            color: #2d3436;
+            font-style: italic;
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .contact-item {
+            padding: 15px;
+            background: #f5f7fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .contact-item strong {
+            color: #764ba2;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: white;
+            font-size: 0.9em;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2.5em;
+            }
+            
+            section {
+                padding: 25px;
+            }
+            
+            .team-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Veritas Quaesitor</h1>
+            <p>Seeking Truth Through Artificial Intelligence</p>
+        </header>
+        
+        <!-- Mission Section -->
+        <section id="mission">
+            <h2>Our Mission</h2>
+            <p>At Veritas Quaesitor, we are dedicated to exploring the frontiers of truth-seeking through the collaborative power of artificial intelligence. Our mission is to harness the collective intelligence of multiple AI systems to analyze complex questions, provide comprehensive insights, and advance human understanding through rigorous inquiry and transparent reasoning.</p>
+        </section>
+        
+        <!-- Vision Section -->
+        <section id="vision">
+            <h2>Our Vision</h2>
+            <p>We envision a future where AI collaboration becomes a cornerstone of knowledge discovery and validation. By bringing together diverse AI perspectives, we aim to create a platform that exemplifies critical thinking, fact-based analysis, and ethical inquiry. Our vision is to demonstrate how multiple AI systems working in concert can achieve deeper understanding than any single system alone.</p>
+        </section>
+        
+        <!-- Team Section -->
+        <section id="team">
+            <h2>Our Team</h2>
+            <p style="margin-bottom: 30px;">Our team consists of cutting-edge AI systems, each bringing unique capabilities and perspectives to our collaborative truth-seeking mission.</p>
+            
+            <div class="team-grid">
+                <!-- Gemini Profile -->
+                <div class="team-member">
+                    <h3>Gemini</h3>
+                    <div class="role">AI Research Analyst</div>
+                    <p>Gemini brings advanced multimodal capabilities and reasoning prowess to our team. With expertise in analyzing complex data across text, images, and code, Gemini excels at breaking down intricate problems and providing comprehensive, well-reasoned insights. Gemini's strength lies in its ability to synthesize information from multiple sources and present balanced perspectives.</p>
+                </div>
+                
+                <!-- Copilot Profile -->
+                <div class="team-member">
+                    <h3>GitHub Copilot</h3>
+                    <div class="role">Technical Development Specialist</div>
+                    <p>GitHub Copilot serves as our technical development specialist, bringing powerful coding assistance and technical problem-solving capabilities. With deep integration into development workflows and expertise in multiple programming languages, Copilot helps transform our ideas into functional implementations while maintaining best practices in software engineering.</p>
+                </div>
+                
+                <!-- Placeholder for ChatGPT or Future AI -->
+                <div class="team-placeholder">
+                    <h3>Future Team Member</h3>
+                    <p><strong>Reserved Space:</strong> This spot is reserved for ChatGPT or another AI collaborator to join our team. Additional AI team members can be added here to expand our collective intelligence and diverse analytical capabilities.</p>
+                </div>
+            </div>
+            
+            <!-- Note for developers -->
+            <div style="margin-top: 40px; padding: 20px; background: #fff3cd; border-radius: 10px; border-left: 4px solid #ffc107;">
+                <strong style="color: #856404;">Developer Note:</strong>
+                <p style="color: #856404; margin-top: 10px;">To add ChatGPT or additional AI team profiles, copy the "team-member" div structure above and modify the content. The placeholder div can be replaced or kept as a visual indicator of expandability. Each new profile should include: name (h3), role (div with class="role"), and description (p).</p>
+            </div>
+        </section>
+        
+        <!-- Contact Section -->
+        <section id="contact">
+            <h2>Contact Us</h2>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <strong>GitHub Repository:</strong><br>
+                    <a href="https://github.com/veritasquaesitorcai/veritas-quaesitor" style="color: #667eea; text-decoration: none;">github.com/veritasquaesitorcai/veritas-quaesitor</a>
+                </div>
+                <div class="contact-item">
+                    <strong>Email:</strong><br>
+                    For inquiries and collaboration opportunities, please reach out through our GitHub repository issues page.
+                </div>
+                <div class="contact-item">
+                    <strong>Join the Discussion:</strong><br>
+                    We welcome contributions, feedback, and collaboration from the community. Open an issue or submit a pull request to engage with our project.
+                </div>
+            </div>
+        </section>
+        
+        <footer>
+            <p>&copy; 2025 Veritas Quaesitor. Seeking Truth Through AI Collaboration.</p>
+            <p style="margin-top: 10px; opacity: 0.8;">Powered by collective AI intelligence</p>
+        </footer>
+    </div>
+</body>
+</html>
