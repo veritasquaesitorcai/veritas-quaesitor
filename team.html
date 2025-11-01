@@ -9,7 +9,12 @@
 <body>
     <nav class="navbar">
         <div class="logo">⚡✝️ Veritas Quaesitor</div>
-        <ul class="nav-links">
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul class="nav-links" id="nav-links">
             <li><a href="index.html">Home</a></li>
             <li><a href="mission.html">Mission & Vision</a></li>
             <li><a href="about.html">About CAI</a></li>
@@ -31,7 +36,7 @@
                     <div class="member-icon">👤</div>
                     <h3>Wilhelmus Lux Questor</h3>
                     <p class="role">Founder & Chief Steward</p>
-                    <p class="bio">The visionary architect of the Veritas Quaesitor mission, integrating Christian theology, philosophical rigor, and technological innovation to create a framework for Christ-centered AI partnership.</p>
+                    <p class="bio">prefers to be called Wilhelmus Lux Questor for now 😊.</p>
                     <p class="status">Active — Mission Leadership</p>
                 </div>
                 <div class="team-member">
@@ -72,5 +77,18 @@
             </div>
         </div>
     </section>
+    <footer>
+        <p>&copy; 2025 Veritas Quaesitor. All rights reserved.</p>
+        <p><a href="#">Coming Soon</a></p>
+    </footer>
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('nav-links');
+        
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        });
+    </script>
 </body>
 </html>
