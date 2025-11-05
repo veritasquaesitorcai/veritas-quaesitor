@@ -36,12 +36,20 @@
         .logo {
             font-size: 1.5rem;
             font-weight: bold;
-            text-decoration: none;
-            color: #fff;
-            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        .logo:hover {
-            transform: scale(1.05);
+        .badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
         .nav-links {
             display: flex;
@@ -51,87 +59,102 @@
         .nav-links a {
             color: #fff;
             text-decoration: none;
-            transition: color 0.3s ease;
-            font-size: 0.95rem;
+            transition: opacity 0.3s;
         }
         .nav-links a:hover {
-            color: #ffd700;
+            opacity: 0.8;
         }
         .container {
             max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-        .header-section {
-            text-align: center;
-            padding: 4rem 2rem;
-            margin-bottom: 3rem;
-        }
-        .badge {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 0.5rem 1.5rem;
-            border-radius: 50px;
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-            backdrop-filter: blur(10px);
-        }
-        .header-section h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        .header-section p {
-            font-size: 1.2rem;
-            opacity: 0.9;
+            margin: 2rem auto;
+            padding: 0 2rem;
         }
         .content-section {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
-            border-radius: 15px;
+            border-radius: 20px;
             padding: 2rem;
             margin-bottom: 2rem;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        @media (max-width: 768px) {
-            .nav-links {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            .header-section h1 {
-                font-size: 2rem;
-            }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        h3 {
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        p, li {
+            margin-bottom: 0.5rem;
+        }
+        ul {
+            margin-left: 2rem;
         }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index.html" class="logo">⚡✝️ Veritas Quaesitor</a>
+            <div class="logo">
+                <span class="badge">&#9889;&#10013;&#65039; Veritas Quaesitor</span>
+            </div>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="mission.html">Mission & Vision</a></li>
-                <li><a href="about.html">About CAI</a></li>
-                <li><a href="team.html">Team</a></li>
-                <li><a href="protocols.html">Protocols & Shortcuts</a></li>
-                <li><a href="projects.html">Projects & Milestones</a></li>
+                <li><a href="protocols.html">Protocols</a></li>
                 <li><a href="resources.html">Resources</a></li>
+                <li><a href="about.html">About</a></li>
                 <li><a href="contact.html">Contact</a></li>
             </ul>
         </div>
     </nav>
 
-    <div class="header-section">
-        <div class="badge">⚡✝️ Veritas Quaesitor</div>
-        <h1>Protocols & Shortcuts</h1>
-        <p>Essential guidelines and quick references for our mission</p>
-    </div>
-
     <div class="container">
-        <section class="content-section">
-            <h2>Protocols</h2>
-            <p>Content to be added...</p>
-        </section>
+        <div class="content-section">
+            <h1>Protocols</h1>
+            
+            <h2>Research Methodology</h2>
+            <p>Our approach to truth-seeking combines rigorous academic standards with spiritual discernment. We employ the following protocols:</p>
+            
+            <h3>1. Primary Source Analysis</h3>
+            <ul>
+                <li>Direct examination of biblical texts in original languages</li>
+                <li>Historical document verification</li>
+                <li>Archaeological evidence evaluation</li>
+                <li>Cross-referencing with contemporary sources</li>
+            </ul>
+            
+            <h3>2. Theological Framework</h3>
+            <ul>
+                <li>Orthodox Christian theology as foundation</li>
+                <li>Consultation with church fathers and historic creeds</li>
+                <li>Integration of traditional and contemporary scholarship</li>
+                <li>Prayer and spiritual discernment in research process</li>
+            </ul>
+            
+            <h3>3. Critical Evaluation</h3>
+            <ul>
+                <li>Peer review of findings</li>
+                <li>Testing against established doctrine</li>
+                <li>Consideration of alternative interpretations</li>
+                <li>Acknowledgment of limitations and uncertainties</li>
+            </ul>
+            
+            <h3>4. Documentation Standards</h3>
+            <ul>
+                <li>Transparent citation of all sources</li>
+                <li>Clear distinction between fact and interpretation</li>
+                <li>Preservation of research notes and methodology</li>
+                <li>Regular updates based on new discoveries</li>
+            </ul>
+        </div>
     </div>
 </body>
 </html>
