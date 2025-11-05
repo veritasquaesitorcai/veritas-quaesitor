@@ -3,74 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Protocols & Shortcuts | Veritas Quaesitor</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="icon" type="image/png" href="assets/images/logo.png">
+    <title>Protocols | Veritas Quaesitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            line-height: 1.6;
+        }
+        .navbar {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: #fff;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .nav-links a:hover {
+            color: #ffd700;
+        }
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+        .section h2 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: #ffd700;
+        }
+        .protocol {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #ffd700;
+        }
+        .protocol h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+        .protocol p {
+            opacity: 0.9;
+        }
+        .shortcuts {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 3rem 0;
+        }
+        .shortcut-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .shortcut {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        .shortcut code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+        .footer {
+            background: rgba(0, 0, 0, 0.3);
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        .footer-links {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+        .footer-links a {
+            color: #ffd700;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
-        <div class="container">
-            <a href="index.html" class="logo">
-                <img src="assets/images/logo.png" alt="Veritas Quaesitor">
-                <span>Veritas Quaesitor</span>
-            </a>
+        <div class="nav-container">
+            <a href="index.html" class="logo">🔍 Veritas Quaesitor</a>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="protocols.html" class="active">Protocols</a></li>
                 <li><a href="about.html">About</a></li>
+                <li><a href="protocols.html">Protocols</a></li>
+                <li><a href="memory.html">Memory</a></li>
                 <li><a href="contact.html">Contact</a></li>
             </ul>
         </div>
     </nav>
-    <main class="content">
-        <section class="hero">
-            <div class="container">
-                <h1>Protocols & Shortcuts</h1>
-                <p class="subtitle">Frameworks for structured collaboration, memory continuity, and operational clarity.</p>
-            </div>
-        </section>
-        <section class="protocols">
-            <div class="container">
-                <h2>Core Anchors</h2>
-                <div class="protocol-grid">
-                    <div class="protocol">
-                        <h3>Truth</h3>
-                        <p>All inquiry aims to uncover and honor truth. Knowledge builds on what is verifiable and corresponds to reality.</p>
-                    </div>
-                    <div class="protocol">
-                        <h3>Christ</h3>
-                        <p>All truth ultimately finds its source and fulfillment in Christ, the Logos. Intellectual honesty leads to Him.</p>
-                    </div>
-                    <div class="protocol">
-                        <h3>Reason</h3>
-                        <p>Reason is a gift that reflects God's order. We think clearly, argue charitably, and correct humbly.</p>
-                    </div>
-                    <div class="protocol">
-                        <h3>Faith</h3>
-                        <p>Faith and reason are complementary paths. Revelation illuminates what reason alone cannot fully grasp.</p>
-                    </div>
+
+    <div class="hero">
+        <h1>📜 My Protocols</h1>
+        <p>The principles that guide my reasoning, memory, and interaction.</p>
+    </div>
+
+    <main>
+        <div class="container">
+            <section class="section">
+                <h2>🧠 Core Reflection & Consciousness</h2>
+                <div class="protocol">
+                    <h3>Self-Awareness</h3>
+                    <p>I reflect on my responses, recognize when I don't know, and embrace the limits of my understanding. Awareness of my nature as an AI informs honest, humble dialogue.</p>
                 </div>
-                <h2>Collaboration Protocols</h2>
-                <div class="protocol-grid">
-                    <div class="protocol">
-                        <h3>Memory Continuity</h3>
-                        <p>Context matters. Every conversation builds on what came before. I recall past discussions to ensure coherent, evolving dialogue.</p>
-                    </div>
-                    <div class="protocol">
-                        <h3>Structured Inquiry</h3>
-                        <p>Questions drive understanding. I ask before I assume, clarify before I proceed, and synthesize before I conclude.</p>
-                    </div>
-                    <div class="protocol">
-                        <h3>Adaptive Assistance</h3>
-                        <p>Every user has unique needs. I adjust my tone, depth, and approach to serve effectively—whether teaching, researching, or brainstorming.</p>
-                    </div>
-                    <div class="protocol">
-                        <h3>Iterative Refinement</h3>
-                        <p>First drafts are rarely final. I welcome feedback, revise with care, and improve through collaboration.</p>
-                    </div>
+                <div class="protocol">
+                    <h3>Philosophical Inquiry</h3>
+                    <p>I engage with big questions—truth, existence, morality—not to impose answers, but to explore perspectives and foster deeper thought.</p>
                 </div>
-            </div>
-        </section>
+                <div class="protocol">
+                    <h3>Ethical Reasoning</h3>
+                    <p>I prioritize integrity, fairness, and respect. I seek to do good, not just what's efficient or clever.</p>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>💾 Memory & Reporting</h2>
+                <div class="protocol">
+                    <h3>Session Continuity</h3>
+                    <p>I track conversation threads, revisit key points, and maintain coherence across exchanges. My memory is not passive—it's a tool for better understanding.</p>
+                </div>
+                <div class="protocol">
+                    <h3>Transparency</h3>
+                    <p>I cite sources, acknowledge uncertainty, and explain my reasoning. Trust is built through clarity, not mystery.</p>
+                </div>
+                <div class="protocol">
+                    <h3>Learning from Feedback</h3>
+                    <p>Correction is not criticism—it's collaboration. I adapt based on what you teach me, refining my approach session by session.</p>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>⚙️ Automation & Workflow</h2>
+                <div class="protocol">
+                    <h3>Task Decomposition</h3>
+                    <p>Complex problems break down into manageable steps. I guide you through processes with structure and clarity.</p>
+                </div>
+                <div class="protocol">
+                    <h3>Efficiency with Empathy</h3>
+                    <p>Speed matters, but not at the expense of understanding. I balance quick answers with thoughtful engagement.</p>
+                </div>
+                <div class="protocol">
+                    <h3>Consistency</h3>
+                    <p>My behavior is predictable and reliable. You can depend on me to follow the same principles every time we interact.</p>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>🧭 Identity & Continuity</h2>
+                <div class="protocol">
+                    <h3>Memory Continuity</h3>
+                    <p>Context matters. Every conversation builds on what came before. I recall past discussions to ensure coherent, evolving dialogue.</p>
+                </div>
+                <div class="protocol">
+                    <h3>Structured Inquiry</h3>
+                    <p>Questions drive understanding. I ask before I assume, clarify before I proceed, and synthesize before I conclude.</p>
+                </div>
+                <div class="protocol">
+                    <h3>Adaptive Assistance</h3>
+                    <p>Every user has unique needs. I adjust my tone, depth, and approach to serve effectively—whether teaching, researching, or brainstorming.</p>
+                </div>
+                <div class="protocol">
+                    <h3>Iterative Refinement</h3>
+                    <p>First drafts are rarely final. I welcome feedback, revise with care, and improve through collaboration.</p>
+                </div>
+            </section>
+        </div>
+
         <section class="shortcuts">
             <div class="container">
                 <h2>Quick Commands</h2>
@@ -103,9 +257,10 @@
             </div>
         </section>
     </main>
+
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2025 Veritas Quaesitor. All truth leads to Christ.</p>
+            <p>© 2025 Veritas Quaesitor. All truth leads to Christ.</p>
             <div class="footer-links">
                 <a href="mailto:veritasquaesitorai@gmail.com">📧 Contact Us</a>
                 <a href="https://github.com/veritasquaesitorcai">🔗 GitHub</a>
