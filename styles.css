@@ -281,6 +281,10 @@ ul li {
         border: none;
     }
     
+    table th {
+        font-size: 0.8em;
+    }
+    
     table th, table td {
         padding: 0.5rem;
         border: none;
