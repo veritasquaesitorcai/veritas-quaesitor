@@ -289,4 +289,9 @@ ul li {
         padding: 0.5rem;
         border: none;
     }
+    
+    table th:last-child {
+        max-width: 80px;
+        font-size: 0.6em;
+    }
 }
