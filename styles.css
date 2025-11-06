@@ -264,6 +264,12 @@ ul li {
         font-size: 1.8rem;
     }
 }
+/* ===== DESKTOP BUTTON STYLING ===== */
+@media (min-width: 769px) {
+    .btn {
+        padding: 1.2rem 2rem;
+    }
+}
 /* ===== TABLE RESPONSIVE ===== */
 @media (max-width: 600px) {
     .table-wrapper {
