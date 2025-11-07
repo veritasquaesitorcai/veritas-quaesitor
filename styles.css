@@ -47,6 +47,15 @@ body {
         letter-spacing: 0.03em;
         margin-top: 0.2rem;
     }
+
+.page-slogan {
+        font-size: 1.125rem;
+        color: white;
+        opacity: 0.8;
+        margin-bottom: 1rem;
+        font-weight: normal;
+        letter-spacing: 0.03em;
+    }
 .nav-links {
     display: flex;
     list-style: none;
