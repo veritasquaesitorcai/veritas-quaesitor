@@ -37,6 +37,15 @@ body {
     color: var(--accent);
     letter-spacing: 0.05em;
 }
+
+.logo-slogan {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: normal;
+        opacity: 0.8;
+        letter-spacing: 0.03em;
+        margin-top: 0.2rem;
+    }
 .nav-links {
     display: flex;
     list-style: none;
