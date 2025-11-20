@@ -89,6 +89,7 @@ tr:nth-child(even) {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
+     pointer-events: none;
     background: rgba(0,0,0,0.40);}
 
 .hero h1, .hero p {
