@@ -121,6 +121,30 @@ tr:nth-child(even) {
     box-shadow: 0 8px 25px rgba(255,102,0,0.6);
 }
 
+/* Beta Tools Button */
+.btn-beta-tools {
+  display: inline-block;
+  background: #ff6600;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  margin-bottom: 2rem;
+  border-radius: 0;
+  font-family: 'EB Garamond', serif;
+  font-size: 1.1rem;
+  text-decoration: none;
+  border-bottom: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(255, 102, 0, 0.4);
+  text-align: center;
+}
+
+.btn-beta-tools:hover {
+  background: #ff8833;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(255, 102, 0, 0.6);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
 /* Footer */
 footer {
     text-align: center;
