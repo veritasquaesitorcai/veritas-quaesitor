@@ -162,6 +162,9 @@ footer {
     table { font-size: 0.9rem; }
     .hero { padding: 4rem 1rem; }
     .btn { padding: 0.8rem 1.5rem; font-size: 1.1rem; }
+     /* Fix scrolling jank on mobile */
+ body { background-attachment: scroll; }
+ .hero { background-attachment: scroll; }
 }
 
 /* Nav/* Navigation Bar & Logo */
