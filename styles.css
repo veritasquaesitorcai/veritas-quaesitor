@@ -143,7 +143,8 @@ body {
 }
 
 .btn,
-.btn-primary,
+150
+,
 .btn-secondary {
     padding: 0.8rem 2rem;
     font-size: 1rem;
@@ -183,6 +184,24 @@ body {
     color: var(--primary);
     transform: translateY(-2px);
 }
+
+.btn-beta-tools {
+        padding: 1.2rem 3rem;
+        font-size: 1.2rem;
+        background: var(--accent);
+        color: var(--primary);
+        font-weight: 700;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+.btn-beta-tools:hover {
+        background: var(--accent-hover);
+        transform: scale(1.05);
+        box-shadow: 0 5px 20px rgba(0, 217, 255, 0.4);
+    }
 
 /* ===== SECTIONS ===== */
 .section {
