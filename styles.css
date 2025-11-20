@@ -138,3 +138,27 @@ footer {
     .hero { padding: 4rem 1rem; }
     .btn { padding: 0.8rem 1.5rem; font-size: 1.1rem; }
 }
+
+/* Navigation & Logo */
+.logo {
+    font-size: 1.5rem;
+    color: #ff6600;
+    font-weight: bold;
+    font-family: 'EB Garamond', serif;
+    text-shadow: 0 0 15px rgba(255, 102, 0, 0.3);
+}
+
+.logo-slogan {
+    color: #ff6600;
+    font-weight: bold;
+    font-style: italic;
+    text-shadow: 0 0 10px rgba(255, 102, 0, 0.2);
+    margin-left: 0.5rem;
+}
+
+nav {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
