@@ -5,11 +5,13 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-    background-color: #0a0a0a;
-    background-image: url('assets/background-parchment.png');
+background-color: #0a0a0a;
+    background-image: 
+        repeating-linear-gradient(90deg, transparent, transparent 1px, rgba(200,180,150,0.03) 1px, rgba(200,180,150,0.03) 2px),
+        repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(200,180,150,0.02) 1px, rgba(200,180,150,0.02) 2px),
+        linear-gradient(45deg, transparent 48%, rgba(200,180,150,0.05) 49%, rgba(200,180,150,0.05) 51%, transparent 52%);
     background-attachment: fixed;
-    background-size: cover;
-    background-blend-mode: overlay;
+    background-size: 100% 100%, 100% 100%, 400px 400px;    background-blend-mode: overlay;
     color: #e8e1d9;
     font-family: 'Libre Baskerville', Georgia, serif;
     line-height: 1.7;
