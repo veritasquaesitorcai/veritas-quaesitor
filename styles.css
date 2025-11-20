@@ -89,13 +89,17 @@ tr:nth-child(even) {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.65);
-}
+    background: rgba(0,0,0,0.40);}
 
 .hero h1, .hero p {
     position: relative;
     z-index: 2;
 }
+
+.hero p {
+        color: #ffffff;
+        text-shadow: 0 0 15px rgba(255, 102, 0, 0.3);
+    }
 
 /* Buttons */
 .btn {
