@@ -215,3 +215,54 @@ footer {
     text-shadow: 0 0 10px #ff6600;
     border-bottom-color: #ff6600;
 }
+
+/* 7.FM BUTTON STYLES */
+.seven-fm-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: 1.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #0D7C8C;
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.seven-fm-button:hover {
+    background-color: #0A5A6A;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(13, 124, 140, 0.3);
+}
+
+.seven-fm-button:active {
+    transform: scale(0.98);
+}
+
+.seven-fm-icon {
+    width: 24px;
+    height: 24px;
+    display: flex-shrink: 0;
+}
+
+.seven-fm-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Responsive design for 7.fm button */
+@media (max-width: 768px) {
+    .seven-fm-button {
+        margin-left: 1rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+    
+    .seven-fm-icon {
+        width: 20px;
+        height: 20px;
+    }
+}
