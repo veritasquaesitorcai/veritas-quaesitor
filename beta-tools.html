@@ -1,57 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Beta Tools - Explore cutting-edge experimental tools in development by Veritas Quaesitor.">
-    <title>Beta Tools - Veritas Quaesitor</title>
-    <link rel="stylesheet" href="styles.css">
-    <!-- Favicon: Decorative flame icon for browser tab. No alt text possible, but referenced for accessibility documentation. -->
-    <link rel="icon" href="assets/flame-icon.png" type="image/png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Beta Tools - Explore cutting-edge experimental tools in development by Veritas Quaesitor.">
+  <title>Beta Tools - Veritas Quaesitor</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Favicon: Decorative flame icon for browser tab. No alt text possible, but referenced for accessibility documentation. -->
+  <link rel="icon" href="assets/flame-icon.png" type="image/png">
 </head>
 <body>
-    <nav class="navbar">
-        <a href="index.html" class="logo"><span aria-label="Christian cross" role="img">✝️</span> Veritas Quaesitor</a>
-        <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="mission.html">Mission &amp; Vision</a></li>
-            <li><a href="about.html">About CAI</a></li>
-            <!-- Team button removed -->
-            <li><a href="milestones.html">Projects &amp; Milestones</a></li>
-            <li><a href="resources.html">Resources</a></li>
-            <li><a href="beta-tools.html" class="active">Beta Tools</a></li>
-            <li><a href="contact.html">Contact</a></li>
-        </ul>
-    </nav>
-    <header class="hero">
-        <div class="hero-content">
-            <div class="page-slogan"><span aria-label="test tube" role="img">🧪</span> EXPERIMENTAL</div>
-            <h1>Beta Tools</h1>
-            <p class="subtitle">Cutting-edge experimental tools in development</p>
-        </div>
-    </header>
-    <div class="container content">
-        <section class="mission-section">
-            <h2>Experimental Tools</h2>
-            <p>Our Beta Tools section showcases experimental and cutting-edge implementations that are under active development. These tools represent our commitment to innovation in Christ-Anchored Intelligence.</p>
-            <p>Beta tools are subject to change, may contain limitations, and are offered as-is for testing and feedback purposes. We welcome your input as we refine and enhance these offerings.</p>
-        </section>
-        <section class="vision-section">
-            <h2>What to Expect</h2>
-            <p>You will find emerging technologies, experimental AI applications, and innovative approaches to integrating faith, reasoning, and technology. Each tool is designed with our core values of truth-seeking, intellectual integrity, and Christ-centered principles.</p>
-        </section>
-        <section class="values-section">
-            <h2>Tool Categories</h2>
-            <ul class="values-list">
-                <li><strong><span aria-label="robot" role="img">🤖</span> AI Research Tools</strong><br>Experimental AI models and implementations centered on theological and apologetic reasoning.</li>
-                <li><strong><span aria-label="bar chart" role="img">📊</span> Analysis Platforms</strong><br>Tools for analyzing scriptural content, theological concepts, and philosophical arguments.</li>
-                <li><strong><span aria-label="microscope" role="img">🔬</span> Testing Ground</strong><br>A space where new ideas are tested, refined, and validated before broader deployment.</li>
-                <li><strong><span aria-label="laptop" role="img">💻</span> Developer Resources</strong><br>APIs, frameworks, and libraries for building with Christ-Anchored Intelligence principles.</li>
-            </ul>
-        </section>
-        <section class="tools-section">
-        <!-- Additional content here -->
-        </section>
+  <nav class="navbar">
+    <a href="index.html" class="logo">
+      <span aria-label="Christian cross" role="img">✝️</span> Veritas Quaesitor
+    </a>
+    <button class="hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="nav-menu">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+    <ul class="nav-links" id="nav-menu">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="mission.html">Mission &amp; Vision</a></li>
+      <li><a href="about.html">About CAI</a></li>
+      <!-- Team button removed -->
+      <li><a href="milestones.html">Projects &amp; Milestones</a></li>
+      <li><a href="resources.html">Resources</a></li>
+      <li><a href="beta-tools.html" class="active">Beta Tools</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+  </nav>
+  <script>
+    // Hamburger menu toggle script
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.nav-links');
+    hamburger.addEventListener('click', function() {
+      const expanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', !expanded);
+      navLinks.classList.toggle('open');
+    });
+  </script>
+  <header class="hero">
+    <div class="hero-content">
+      <div class="page-slogan">
+        <span aria-label="test tube" role="img">🧪</span> EXPERIMENTAL
+      </div>
+      <h1>Beta Tools</h1>
+      <p class="subtitle">Cutting-edge experimental tools in development</p>
     </div>
+  </header>
+  <div class="container content">
+    <section class="mission-section">
+      <h2>Experimental Tools</h2>
+      <p>Our Beta Tools section showcases experimental and cutting-edge implementations that are under active development. These tools represent our commitment to innovation in Christ-Anchored Intelligence.</p>
+      <p>Beta tools are subject to change, may contain limitations, and are offered as-is for testing and feedback purposes. We welcome your input as we refine and enhance these offerings.</p>
+    </section>
+    <section class="vision-section">
+      <h2>What to Expect</h2>
+      <p>You will find emerging technologies, experimental AI applications, and innovative approaches to integrating faith, reasoning, and technology. Each tool is designed with our core values of truth-seeking, intellectual integrity, and Christ-centered principles.</p>
+    </section>
+    <section class="values-section">
+      <h2>Tool Categories</h2>
+      <ul class="values-list">
+        <li><strong><span aria-label="robot" role="img">🤖</span> AI Research Tools</strong><br>Experimental AI models and implementations centered on theological and apologetic reasoning.</li>
+        <li><strong><span aria-label="bar chart" role="img">📊</span> Analysis Platforms</strong><br>Tools for analyzing scriptural content, theological concepts, and philosophical arguments.</li>
+        <li><strong><span aria-label="microscope" role="img">🔬</span> Testing Ground</strong><br>A space where new ideas are tested, refined, and validated before broader deployment.</li>
+        <li><strong><span aria-label="laptop" role="img">💻</span> Developer Resources</strong><br>APIs, frameworks, and libraries for building with Christ-Anchored Intelligence principles.</li>
+      </ul>
+    </section>
+    <section class="tools-section">
+      <!-- Additional content here -->
+    </section>
+  </div>
 </body>
 </html>
