@@ -10,7 +10,12 @@
 <body>
     <nav class="navbar">
         <a href="index.html" class="logo">Christ-Anchored Intelligence</a>
-        <ul class="nav-links">
+        <div class="hamburger" id="hamburger-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <ul class="nav-links" id="nav-links">
             <li><a href="index.html">Home</a></li>
             <li><a href="mission.html">Mission & Vision</a></li>
             <li><a href="about.html" class="active">About CAI</a></li>
@@ -21,8 +26,16 @@
             <li><a href="contact.html">Contact</a></li>
         </ul>
     </nav>
+    <script>
+        const hamburger = document.getElementById('hamburger-menu');
+        const navLinks = document.getElementById('nav-links');
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        });
+    </script>
     <header class="hero">
-        <div class="page-slogan">AI<span role="img" aria-label="love">❤️</span>TRUTH</div>
+        <div class="page-slogan">AI <span role="img" aria-label="love">❤️</span> TRUTH</div>
         <h1>About Christ-Anchored Intelligence</h1>
         <p class="tagline">A new vision for artificial intelligence</p>
     </header>
