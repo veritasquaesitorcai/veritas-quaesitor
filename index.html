@@ -18,7 +18,7 @@
   <nav class="navbar">
     <div class="logo">
       <span role="img" aria-label="Christian cross">✝️</span> Veritas Quaesitor
-      <span class="logo-slogan">AI<span role="img" aria-label="love">❤️</span>TRUTH</span>
+      <span class="logo-slogan">AI <span role="img" aria-label="love">❤️</span> TRUTH</span>
       <a href="https://www.grootnieuwsradio.nl/player/sevenfm" class="seven-fm-button" title="7.fm - Listen Live" target="_blank" rel="noopener noreferrer">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" width="32" height="32" class="seven-fm-icon" aria-labelledby="sevenFmIconTitle">
           <title id="sevenFmIconTitle">Seven FM radio icon: blue circle with white play triangle</title>
@@ -28,7 +28,12 @@
         <span class="seven-fm-text">7.fm</span>
       </a>
     </div>
-    <ul class="nav-links">
+    <button class="hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="nav-links" onclick="document.querySelector('.nav-links').classList.toggle('active'); this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="mission.html">Mission & Vision</a></li>
       <li><a href="about.html">About CAI</a></li>
@@ -62,5 +67,24 @@
       </table>
     </div>
   </section>
+  <script>
+    // Hamburger menu accessibility: close menu on outside click or Escape
+    document.addEventListener('DOMContentLoaded', function() {
+      var hamburger = document.querySelector('.hamburger');
+      var navLinks = document.querySelector('.nav-links');
+      document.addEventListener('click', function(e) {
+        if (!hamburger.contains(e.target) && !navLinks.contains(e.target)) {
+          navLinks.classList.remove('active');
+          hamburger.setAttribute('aria-expanded', 'false');
+        }
+      });
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          navLinks.classList.remove('active');
+          hamburger.setAttribute('aria-expanded', 'false');
+        }
+      });
+    });
+  </script>
 </body>
 </html>
