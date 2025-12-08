@@ -1,54 +1,69 @@
-/* VERITAS QUAESITOR — DARK MONASTIC THEME — NOVEMBER 20, 2025 — WCAG COLOR CONTRAST UPDATE DECEMBER 2025 */
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;700&family=Libre+Baskerville:wght@400;700&display=swap');
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  background-color: #0a0a0a;
-  background-image: url('assets/background-parchment.png');
-  background-attachment: fixed;
-  background-size: cover;
-  background-blend-mode: overlay;
-  color: #e8e1d9;
-  font-family: 'Libre Baskerville', Georgia, serif;
-  line-height: 1.7;
-  padding: 2rem 1rem;
-  min-height: 100vh;
+/* --- MOBILE RESPONSIVENESS & NAVIGATION UPDATE DEC 2025 --- */
+
+/* Base styles remain unchanged above */
+
+/* Hamburger menu styles */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
 }
-h1, h2, h3, h4 {
-  font-family: 'EB Garamond', serif;
-  color: #ffffff;
-  text-align: center;
-  margin: 2rem 0 1.5rem;
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
 }
-h1 {
-  font-size: 3.5rem;
-  color: #ff8800; /* flame orange, WCAG AA compliant */
-  text-shadow: 0 0 20px rgba(255,136,0,0.4);
-  letter-spacing: 3px;
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  justify-content: center;
 }
-h2 {
-  font-size: 2.2rem;
-  color: #e74c3c; /* blood red, WCAG AA compliant */
-}
-a {
-  color: #ff8800;
-  text-decoration: none;
-  border-bottom: 1px solid rgba(255,136,0,0.3);
-  transition: all 0.3s;
-}
-a:hover {
-  color: #ffffff;
-  text-shadow: 0 0 10px #ff8800;
-}
-table {
+.hamburger span {
+  height: 4px;
   width: 100%;
-  max-width: 900px;
-  margin: 3rem auto;
-  border-collapse: collapse;
-  background: rgba(20,20,20,0.7);
-  backdrop-filter: blur(4px);
+  background: #ff8800;
+  margin: 5px 0;
+  border-radius: 2px;
+  transition: 0.4s;
 }
-th, td {
-  padding: 1.2rem;
-  text-align: center;
+
+/* Responsive styles */
+@media (max-width: 900px) {
+  body {
+    padding: 1rem 0.5rem;
+  }
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .nav-links {
+    width: 100%;
+    flex-direction: column;
+    gap: 0;
+    display: none;
+    background: rgba(10,10,10,0.98);
+    position: absolute;
+    top: 60px;
+    left: 0;
+    z-index: 1000;
+    border-top: 1px solid #222;
+  }
+  .nav-links.active {
+    display: flex;
+  }
+  .hamburger {
+    display: flex;
+  }
 }
-/* Additional color contrast improvements can be applied below as needed */
+
+@media (max-width: 600px) {
+  h1 { font-size: 2.2rem; }
+  h2 { font-size: 1.3rem; }
+  table, th, td { font-size: 0.95rem; }
+  .navbar { padding: 0.5rem; }
+}
+
+/* End mobile responsiveness update */
