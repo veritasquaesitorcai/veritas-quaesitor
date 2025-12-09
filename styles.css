@@ -1,8 +1,7 @@
 /* Advanced accessibility: Visible focus indicators for all interactive elements */
-
 /* Links, buttons, and menu items: visible focus styles */
-a:focus, a:focus-visible, button:focus, button:focus-visible, [role="button"]:focus, [role="button"]:focus-visible, [role="menuitem"]:focus, [role="menuitem"]:focus-visible, .nav-links a:focus, .nav-links a:focus-visible {
-  outline: 3px solid #ff8800;
+a:focus, a:focus-visible, button:focus, [role="button"]:focus, [role="menuitem"]:focus, [role="menuitem"]:focus-visible, .nav-links a:focus, .nav-links a:focus-visible {
+  outline: 3px solid #c35000; /* Changed from #ff8800 for better contrast */
   outline-offset: 2px;
   background: #fffbe6;
   color: #222 !important;
@@ -27,12 +26,12 @@ a:focus, a:focus-visible, button:focus, button:focus-visible, [role="button"]:fo
 }
 .skip-link:focus, .skip-link:focus-visible {
   transform: translateY(0);
-  outline: 3px solid #ff8800;
+  outline: 3px solid #c35000; /* Changed from #ff8800 for better contrast */
 }
 
 /* Explicit focus management for navigation */
-nav[role="navigation"] a:focus, nav[role="navigation"] a:focus-visible {
-  outline: 3px solid #ff8800;
+nav[role="navigation"] a:focus, nav :focus-visible {
+  outline: 3px solid #c35000; /* Changed from #ff8800 for better contrast */
   background: #fffbe6;
   color: #222 !important;
   border-radius: 4px;
