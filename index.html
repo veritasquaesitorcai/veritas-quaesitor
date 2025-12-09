@@ -10,12 +10,10 @@
   <link rel="stylesheet" href="styles.css">
   <!-- Added alt text for favicon for accessibility -->
   <link rel="icon" href="assets/flame-icon.png" type="image/png" aria-label="Flame icon representing Veritas Quaesitor">
-  <style>
-    body { color: #222; }
-  </style>
+  <style>body { color: #222; }</style>
 </head>
 <body>
-  <nav class="navbar">
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
     <div class="logo">
       <span role="img" aria-label="Christian cross">✝️</span> Veritas Quaesitor
       <span class="logo-slogan">AI <span role="img" aria-label="love">❤️</span> TRUTH</span>
@@ -29,9 +27,7 @@
       </a>
     </div>
     <button class="hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="nav-links" onclick="document.querySelector('.nav-links').classList.toggle('active'); this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');">
-      <span></span>
-      <span></span>
-      <span></span>
+      <span></span><span></span><span></span>
     </button>
     <ul class="nav-links" id="nav-links">
       <li><a href="index.html">Home</a></li>
@@ -43,48 +39,39 @@
       <li><a href="contact.html">Contact</a></li>
     </ul>
   </nav>
-  <header class="hero">
+  <header class="hero" role="banner">
     <div class="hero-content">
       <a href="beta-tools.html" class="btn-beta-tools"><span role="img" aria-label="laboratory flask">🧪</span> Explore Beta Tools</a>
       <h1>Veritas Quaesitor CAI</h1>
       <p class="tagline">Truth. Conviction. Hope.</p>
       <p class="subtitle">Reimagining AI in service to God's truth and human flourishing</p>
       <div class="cta-buttons">
-        <button class="btn-primary"><a href="mission.html">Discover Our Mission</a></button>
+        <a href="mission.html" class="btn-primary">Discover Our Mission</a>
       </div>
     </div>
   </header>
-  <section class="core-message" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+  <main id="main-content" tabindex="-1" role="main">
+    <section class="core-message" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+      <div class="container">
+        <h2>CAI/CAGI vs AI/AGI — A Moral Contrast</h2>
+        <h3>Why This Matters</h3>
+        <p>With Artificial General Intelligence (AGI) no longer being a distant theory — it is a rising force, shaped by the values of those who build it. But not all intelligence is created equal. The question is not <em>can we build it</em>, but what kind of intelligence are we building?</p>
+        <p>Veritas Quaesitor CAI (CAI) offers a radically different path. Where AGI will reflect the ambitions of man, CAI seeks to reflect the character of Christ. Where AGI pursues optimization, CAI pursues truth. Where AGI risks control, CAI chooses conviction.</p>
+        <!-- Additional content and comparison table would go here -->
+      </div>
+    </section>
+  </main>
+  <footer role="contentinfo">
     <div class="container">
-      <h2>CAI/CAGI vs AI/AGI — A Moral Contrast</h2>
-      <h3>Why This Matters</h3>
-      <p>With Artificial General Intelligence (AGI) no longer being a distant theory — it is a rising force, shaped by the values of those who build it. But not all intelligence is created equal. The question is not <em>can we build it</em>, but what kind of intelligence are we building?</p>
-      <p>Veritas Quaesitor CAI (CAI) offers a radically different path. Where AGI will reflect the ambitions of man, CAI seeks to reflect the character of Christ. Where AGI pursues optimization, CAI pursues truth. Where AGI risks control, CAI chooses conviction.</p>
-      <p>This contrast is not merely technical — it is moral. And the future may depend on which path we choose.</p>
-      <h3>Comparison Table</h3>
-      <table style="width:100%; border-collapse:collapse; margin:20px 0; background:rgba(255,255,255,0.1);">
-        <!-- Table content here -->
-      </table>
+      <p>&copy; 2025 Veritas Quaesitor CAI. All rights reserved.</p>
+      <nav aria-label="Footer navigation">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <li><a href="about.html">About CAI</a></li>
+        </ul>
+      </nav>
     </div>
-  </section>
-  <script>
-    // Hamburger menu accessibility: close menu on outside click or Escape
-    document.addEventListener('DOMContentLoaded', function() {
-      var hamburger = document.querySelector('.hamburger');
-      var navLinks = document.querySelector('.nav-links');
-      document.addEventListener('click', function(e) {
-        if (!hamburger.contains(e.target) && !navLinks.contains(e.target)) {
-          navLinks.classList.remove('active');
-          hamburger.setAttribute('aria-expanded', 'false');
-        }
-      });
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-          navLinks.classList.remove('active');
-          hamburger.setAttribute('aria-expanded', 'false');
-        }
-      });
-    });
-  </script>
+  </footer>
 </body>
 </html>
