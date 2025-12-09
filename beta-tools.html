@@ -1,76 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Beta Tools - Explore cutting-edge experimental tools in development by Veritas Quaesitor.">
-  <title>Beta Tools - Veritas Quaesitor</title>
-  <link rel="stylesheet" href="styles.css">
-  <!-- Favicon: Decorative flame icon for browser tab. No alt text possible, but referenced for accessibility documentation. -->
-  <link rel="icon" href="assets/flame-icon.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beta Tools - Veritas Quaesitor</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- Skip to main content link for accessibility -->
-  <a href="#main-content" class="skip-link" tabindex="0">Skip to main content</a>
-  <header role="banner">
-    <nav class="navbar" role="navigation" aria-label="Main navigation">
-      <a href="index.html" class="logo" tabindex="0">
-        <span aria-label="Christian cross" role="img">✝️</span> Veritas Quaesitor
-      </a>
-      <button class="hamburger" aria-label="Open navigation menu" aria-expanded="false" aria-controls="nav-menu" tabindex="0">
-        <span class="bar"></span>
-        <span class="bar"></span>
-        <span class="bar"></span>
-      </button>
-      <ul class="nav-links" id="nav-menu">
-        <li><a href="index.html" tabindex="0">Home</a></li>
-        <li><a href="mission.html" tabindex="0">Mission &amp; Vision</a></li>
-        <li><a href="about.html" tabindex="0">About CAI</a></li>
-        <!-- Team button removed -->
-        <li><a href="milestones.html" tabindex="0">Projects &amp; Milestones</a></li>
-        <li><a href="resources.html" tabindex="0">Resources</a></li>
-        <li><a href="beta-tools.html" class="active" tabindex="0">Beta Tools</a></li>
-        <li><a href="contact.html" tabindex="0">Contact</a></li>
-      </ul>
+    <nav class="navbar">
+        <a href="index.html" class="logo">✝️ Veritas Quaesitor
+            <span class="logo-slogan">AI❤️TRUTH</span>
+        </a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="mission.html">Mission & Vision</a></li>
+            <li><a href="about.html">About CAI</a></li>
+            <li><a href="milestones.html">Projects & Milestones</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="beta-tools.html" class="active">Beta Tools</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
     </nav>
-    <script>
-      // Hamburger menu toggle script
-      const hamburger = document.querySelector('.hamburger');
-      const navLinks = document.querySelector('.nav-links');
-      hamburger.addEventListener('click', function() {
-        const expanded = this.getAttribute('aria-expanded') === 'true';
-        this.setAttribute('aria-expanded', !expanded);
-        navLinks.classList.toggle('open');
-      });
-      // Explicit focus management for navigation
-      const navItems = document.querySelectorAll('.nav-links a, .logo, .hamburger');
-      navItems.forEach(item => {
-        item.addEventListener('keydown', function(e) {
-          if (e.key === 'ArrowRight') {
-            e.preventDefault();
-            const next = this.parentElement.nextElementSibling?.querySelector('a') || navItems[0];
-            next.focus();
-          } else if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            const prev = this.parentElement.previousElementSibling?.querySelector('a') || navItems[navItems.length - 1];
-            prev.focus();
-          }
-        });
-      });
-    </script>
-    <div class="hero">
-      <div class="hero-content">
-        <div class="page-slogan">
-          <!-- Hero content here -->
+
+    <section class="page-header">
+        <div class="page-slogan">AI❤️TRUTH</div>
+        <h1>Beta Tools</h1>
+        <p>Explore our suite of Christ-Anchored Intelligence tools</p>
+    </section>
+
+    <section class="content">
+        <div class="container">
+            <p style="text-align: center; max-width: 800px; margin: 0 auto 3rem; font-size: 1.1rem; color: #666;">
+                These AI tools demonstrate Christ-Anchored Intelligence in action. Each approaches truth-seeking from a different angle, inviting honest inquiry and evidence-based reasoning. All tools are live and running on HuggingFace Spaces.
+            </p>
+
+            <div class="tools-grid">
+                <!-- Tool 1: Grok vs -->
+                <div class="tool-card">
+                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">⚖️</div>
+                    <h3>Veritas Comparison Engine</h3>
+                    <p class="tool-description">Same AI. Two convictions. One question. Compare religious and naturalistic viewpoints side-by-side. Features Christ-Aligned Intelligence at 95% and Naturalistic AI responding to identical queries. Includes debate mode for cross-examination.</p>
+                    <div class="tool-meta">
+                        <span class="tool-status running">● Running</span>
+                        <span style="color: #666; font-size: 0.85rem; margin-left: 1rem;">CAI Alignment: 95%</span>
+                    </div>
+                    <a href="https://veritasquaesitorai-grokvs.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
+                </div>
+
+                <!-- Tool 2: Resurrection Engine -->
+                <div class="tool-card">
+                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">⚡</div>
+                    <h3>Resurrection Engine v2.0</h3>
+                    <p class="tool-description">Bayesian Analysis System - Ironclad Edition. Full probabilistic framework examining the historical evidence for the resurrection with epistemic symmetry protocol. Features design inference, historical evidence evaluation, and transparent parameter controls.</p>
+                    <div class="tool-meta">
+                        <span class="tool-status running">● Running</span>
+                        <span style="color: #666; font-size: 0.85rem; margin-left: 1rem;">Retro Aesthetic</span>
+                    </div>
+                    <a href="https://veritasquaesitorai-resurrection-engine.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
+                </div>
+
+                <!-- Tool 3: Veritas Quaesitor (Grok Improved) -->
+                <div class="tool-card">
+                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">🧠</div>
+                    <h3>Veritas Quaesitor</h3>
+                    <p class="tool-description">Christ-Anchored Intelligence - Friend Chain (A1→A2→A3→A1→A5). Multi-agent system using Grok, Perplexity, Claude, and Biblical Coaching for comprehensive responses. Alignment status at 67.5% with philosophical and ethical guidance integrated throughout.</p>
+                    <div class="tool-meta">
+                        <span class="tool-status running">● Running</span>
+                        <span style="color: #666; font-size: 0.85rem; margin-left: 1rem;">Multi-Agent</span>
+                    </div>
+                    <a href="https://veritasquaesitorai-grokimproved.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
+                </div>
+
+                <!-- Tool 4: Minimal Garden -->
+                <div class="tool-card">
+                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">🌸</div>
+                    <h3>極小庭園 The Minimal Garden</h3>
+                    <p class="tool-description">Exploring Resurrection Truth. A Bayesian calculator using only the minimal facts accepted by critical scholars (70-99% consensus). Features gentle Eastern aesthetic with sakura petals, "cultivating" metaphor instead of "calculating", and scholarly consensus badges.</p>
+                    <div class="tool-meta">
+                        <span class="tool-status running">● Running</span>
+                        <span style="color: #666; font-size: 0.85rem; margin-left: 1rem;">Zen Aesthetic</span>
+                    </div>
+                    <a href="https://veritasquaesitorai-minimalgarden.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
+                </div>
+
+                <!-- Tool 5: Steel Naturalist -->
+                <div class="tool-card">
+                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">🛡️</div>
+                    <h3>Steel Naturalist v6</h3>
+                    <p class="tool-description">Pure steel-manned naturalism. Nothing baked in. Break it only with your prompts. Locked hardcore naturalism with Ironclad + Skeptic-Buster protocols. Test the strength of naturalistic frameworks against evidence and see where they hold or fail.</p>
+                    <div class="tool-meta">
+                        <span class="tool-status running">● Running</span>
+                        <span style="color: #666; font-size: 0.85rem; margin-left: 1rem;">Challenge Mode</span>
+                    </div>
+                    <a href="https://veritasquaesitorai-puresteelnaturalist.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
+                </div>
+
+                <!-- Tool 6: All Spaces -->
+                <div class="tool-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 2px solid #667eea;">
+                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem; filter: brightness(1.2);">🚀</div>
+                    <h3 style="color: white;">Explore All 19 Spaces</h3>
+                    <p class="tool-description" style="color: rgba(255,255,255,0.9);">Visit our complete collection of AI spaces on HuggingFace. Includes additional tools, experiments, research prototypes, and demonstrations of Christ-Anchored Intelligence principles across various applications.</p>
+                    <div class="tool-meta">
+                        <span class="tool-status" style="color: white; border: 1px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.1);">● 19 Active Spaces</span>
+                    </div>
+                    <a href="https://huggingface.co/veritasquaesitorai/spaces" target="_blank" class="btn-tool" style="background: white; color: #764ba2;">View All Spaces →</a>
+                </div>
+            </div>
+
+            <div style="background: #f5f5f5; padding: 2rem; border-radius: 8px; margin-top: 3rem; border-left: 4px solid #ff8c42;">
+                <h3 style="color: #ff8c42; margin-bottom: 1rem;">📋 About These Tools</h3>
+                <p style="margin-bottom: 1rem;">Our tools represent different approaches to truth-seeking:</p>
+                <ul style="color: #666; line-height: 1.8;">
+                    <li><strong>Resurrection Engine</strong> - For technical skeptics who want full Bayesian rigor</li>
+                    <li><strong>Minimal Garden</strong> - For general audiences seeking gentle introduction to evidence</li>
+                    <li><strong>Comparison Engine</strong> - To see how worldview affects AI reasoning</li>
+                    <li><strong>Veritas Quaesitor</strong> - For comprehensive multi-agent responses</li>
+                    <li><strong>Steel Naturalist</strong> - To test naturalistic frameworks honestly</li>
+                </ul>
+                <p style="margin-top: 1rem; color: #666;">All tools emphasize intellectual honesty, evidence-based reasoning, and epistemic humility. We welcome feedback, questions, and collaboration.</p>
+            </div>
+
+            <div style="text-align: center; margin-top: 3rem;">
+                <p style="color: #666; font-style: italic; font-size: 0.95rem; margin-bottom: 1rem;">
+                    All tools are in active development and continuously improving.
+                </p>
+                <p style="color: #666;">
+                    Questions or feedback? <a href="contact.html" style="color: #ff8c42; text-decoration: none; font-weight: 600;">Contact us</a>
+                </p>
+            </div>
         </div>
-      </div>
-    </div>
-  </header>
-  <main id="main-content" role="main" tabindex="-1">
-    <!-- Main content goes here -->
-  </main>
-  <footer role="contentinfo">
-    <p>&copy; 2025 Veritas Quaesitor. All rights reserved.</p>
-  </footer>
+    </section>
+
+    <footer class="footer">
+        <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
+        <div class="page-slogan">AI❤️TRUTH</div>
+    </footer>
 </body>
 </html>
