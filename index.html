@@ -11,12 +11,12 @@
             background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4)), 
                         url('TrumpVQ-1WhiteHouse.jpg');
             background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
+            background-position: center center;
             color: white;
             text-align: center;
             padding: 8rem 2rem;
             position: relative;
+            min-height: 500px;
         }
 
         .hero::before {
@@ -55,6 +55,45 @@
             margin-bottom: 2rem;
             opacity: 0.95;
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Mobile optimization for hero */
+        @media (max-width: 768px) {
+            .hero {
+                background-size: cover;
+                background-position: center 30%;
+                background-attachment: scroll;
+                padding: 4rem 1rem;
+                min-height: 400px;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero .tagline {
+                font-size: 1.3rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero {
+                background-position: center 35%;
+                padding: 3rem 1rem;
+                min-height: 350px;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero .tagline {
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
