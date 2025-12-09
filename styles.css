@@ -588,6 +588,7 @@ a:hover {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
+    /* Typography scaling */
     .hero-content h1,
     .hero h1 {
         font-size: 2rem;
@@ -608,6 +609,129 @@ a:hover {
     .page-header h1 {
         font-size: 1.8rem;
     }
+    
+    /* Mobile-friendly padding */
+    .container {
+        padding: 1rem;
+    }
+    
+    section {
+        padding: 2rem 1rem;
+    }
+    
+    /* Improve touch targets */
+    .btn,
+    .btn-primary,
+    .btn-secondary,
+    button,
+    a {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Navigation improvements */
+    nav ul li a {
+        padding: 0.5rem;
+    }
+    
+    /* Table improvements */
+    .contact-methods {
+        display: block;
+    }
+    
+    .contact-method {
+        margin-bottom: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Extra small screens */
+    body {
+        font-size: 0.9rem;
+    }
+    
+    .hero h1,
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    h2 {
+        font-size: 1.3rem;
+    }
+    
+    .navbar,
+    nav {
+        padding: 0.75rem;
+    }
+    
+    .logo {
+        font-size: 1.2rem;
+    }
+    
+    .nav-links,
+    nav ul {
+        font-size: 0.8rem;
+        gap: 0.5rem;
+    }
+}
+
+/* ===== PAGE-SPECIFIC HERO IMAGES ===== */
+/* These add beautiful VQ-1 background images to each page */
+
+/* Mission & Vision - Teaching VQ-1 */
+body:has([href="mission.html"].active) .page-header,
+body:has([href="mission.html"].active) .hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)), 
+                url('Teachnarrow.png');
+    background-size: cover;
+    background-position: center;
+}
+
+/* About CAI - Companion VQ-1 */
+body:has([href="about.html"].active) .page-header,
+body:has([href="about.html"].active) .hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)), 
+                url('Companionnarrow.png');
+    background-size: cover;
+    background-position: center;
+}
+
+/* Projects & Milestones - Police VQ-1 */
+body:has([href="milestones.html"].active) .page-header,
+body:has([href="milestones.html"].active) .hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)), 
+                url('Policenarrow.png');
+    background-size: cover;
+    background-position: center;
+}
+
+/* Resources - Teaching VQ-1 */
+body:has([href="resources.html"].active) .page-header,
+body:has([href="resources.html"].active) .hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)), 
+                url('Teachnarrow.png');
+    background-size: cover;
+    background-position: center;
+}
+
+/* Beta Tools - Guardian VQ-1 */
+body:has([href="beta-tools.html"].active) .page-header,
+body:has([href="beta-tools.html"].active) .hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)), 
+                url('AGI_guardiannarrow.png');
+    background-size: cover;
+    background-position: center;
+}
+
+/* Contact - Caregiver VQ-1 */
+body:has([href="contact.html"].active) .page-header,
+body:has([href="contact.html"].active) .hero {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)), 
+                url('Caregivernarrow.png');
+    background-size: cover;
+    background-position: center;
 }
 
 /* ===== BETA TOOLS SECTION ===== */
