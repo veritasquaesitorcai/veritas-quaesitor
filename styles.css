@@ -1,43 +1,114 @@
-/* Advanced accessibility: Visible focus indicators for all interactive elements */
-/* Links, buttons, and menu items: visible focus styles */
-a:focus, a:focus-visible, button:focus, [role="button"]:focus, [role="menuitem"]:focus, [role="menuitem"]:focus-visible, .nav-links a:focus, .nav-links a:focus-visible {
-  outline: 3px solid #c35000; /* Changed from #ff8800 for better contrast */
-  outline-offset: 2px;
-  background: #fffbe6;
-  color: #222 !important;
-  box-shadow: 0 0 0 4px #ffe0b2;
-  border-radius: 4px;
-  z-index: 1001;
+/* --- MOBILE RESPONSIVENESS & NAVIGATION UPDATES (2025-12-09) --- */
+
+/* Responsive navigation menu styles */
+.navbar, nav[role="navigation"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
 }
 
-/* Ensure skip link is visible when focused */
-.skip-link {
-  position: absolute;
-  left: 0;
-  top: 0;
-  background: #222;
-  color: #fff;
-  padding: 0.75em 1.5em;
-  z-index: 2000;
-  transform: translateY(-120%);
-  transition: transform 0.2s;
-  text-decoration: none;
-  border-radius: 0 0 8px 8px;
-}
-.skip-link:focus, .skip-link:focus-visible {
-  transform: translateY(0);
-  outline: 3px solid #c35000; /* Changed from #ff8800 for better contrast */
+.nav-links {
+  display: flex;
+  gap: 2em;
 }
 
-/* Explicit focus management for navigation */
-nav[role="navigation"] a:focus, nav :focus-visible {
-  outline: 3px solid #c35000; /* Changed from #ff8800 for better contrast */
-  background: #fffbe6;
-  color: #222 !important;
-  border-radius: 4px;
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  width: 2.5em;
+  height: 2.5em;
+  justify-content: center;
+  align-items: center;
+  z-index: 2001;
+  background: none;
+  border: none;
+}
+.hamburger span {
+  display: block;
+  width: 2em;
+  height: 0.3em;
+  margin: 0.3em 0;
+  background: #c35000;
+  border-radius: 2px;
+  transition: all 0.3s;
 }
 
-/* Remove default outline for mouse users but keep for keyboard */
-:focus:not(:focus-visible) {
-  outline: none;
+/* Hamburger active state (for toggling menu) */
+.hamburger.active span:nth-child(1) {
+  transform: translateY(0.6em) rotate(45deg);
 }
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.active span:nth-child(3) {
+  transform: translateY(-0.6em) rotate(-45deg);
+}
+
+/* Hide nav links on mobile by default */
+@media (max-width: 900px) {
+  .nav-links {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    background: #111;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 2000;
+    padding: 1em 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+  .nav-links.open {
+    display: flex;
+  }
+  .hamburger {
+    display: flex;
+  }
+  .navbar, nav[role="navigation"] {
+    flex-direction: row;
+    position: relative;
+  }
+}
+
+/* General mobile layout adjustments */
+@media (max-width: 900px) {
+  body {
+    font-size: 1em;
+    padding: 0;
+  }
+  header, .header, .main-header {
+    padding: 0.5em 1em;
+    text-align: center;
+  }
+  .container, .main-content, main {
+    padding: 1em 0.5em;
+  }
+  h1, h2, h3 {
+    font-size: 1.2em;
+    word-break: break-word;
+  }
+  table {
+    font-size: 0.95em;
+    overflow-x: auto;
+    display: block;
+    width: 100%;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 600px) {
+  .nav-links {
+    font-size: 1.1em;
+    gap: 1em;
+  }
+  h1, h2, h3 {
+    font-size: 1em;
+  }
+  .container, .main-content, main {
+    padding: 0.5em 0.2em;
+  }
+}
+
+/* End mobile responsiveness & navigation updates */
