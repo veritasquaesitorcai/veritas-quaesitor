@@ -23,6 +23,27 @@
     
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* Mobile Navigation Fix */
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column !important;
+                width: 100% !important;
+                text-align: center !important;
+            }
+            
+            nav li {
+                width: 100% !important;
+                margin: 0.25rem 0 !important;
+            }
+            
+            nav a {
+                display: block !important;
+                padding: 0.75rem 1rem !important;
+            }
+        }
+    </style>
+    <style>
+    <style>
         /* Add gradient background to body - CRITICAL for glass effect to work */
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
@@ -126,6 +147,10 @@
             padding: 2rem !important;
             border-radius: 12px !important;
             transition: transform 0.3s, box-shadow 0.3s !important;
+            box-sizing: border-box !important;
+            max-width: 100% !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
         }
         
         .contact-method:hover {
@@ -175,7 +200,12 @@
             }
             
             .contact-methods {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+            }
+            
+            .contact-method {
+                padding: 1.5rem !important;
             }
         }
         
