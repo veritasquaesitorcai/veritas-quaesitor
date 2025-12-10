@@ -23,21 +23,114 @@
     
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Hero image for Resources */
+        /* Add gradient background to body - CRITICAL for glass effect to work */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            min-height: 100vh !important;
+        }
+        
+        /* Hero image for Resources - Fixed/Static Background */
         section.page-header {
             background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)), 
                         url('Familynarrow.png') !important;
             background-size: cover !important;
-            background-position: center !important;
+            background-position: center center !important;
+            background-attachment: fixed !important;
+            background-repeat: no-repeat !important;
             min-height: 400px !important;
             padding: 6rem 2rem !important;
+            position: relative !important;
+        }
+        
+        /* Add subtle vignette effect */
+        section.page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
+        }
+        
+        /* Ensure content is above vignette */
+        section.page-header > * {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Glass Morphism Effect for Content Section */
+        .content {
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+            padding: 3rem !important;
+            margin: 2rem auto !important;
+            border-radius: 16px !important;
+        }
+        
+        .content .container {
+            background: transparent !important;
+        }
+        
+        /* White text for readability */
+        .content {
+            color: rgba(255, 255, 255, 0.95) !important;
+        }
+        
+        .content h2 {
+            color: white !important;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        /* Resource list styling */
+        .content ul {
+            list-style: none;
+            padding: 0;
+            margin: 2rem 0;
+        }
+        
+        .content li {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .content li:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(255, 140, 66, 0.2);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .content a {
+            color: #ff8c42 !important;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .content a:hover {
+            color: #ffa55f !important;
         }
         
         /* Mobile optimization */
         @media (max-width: 768px) {
             section.page-header {
+                background-attachment: scroll !important;
                 min-height: 300px !important;
                 padding: 4rem 1.5rem !important;
+            }
+            
+            .content {
+                padding: 2rem !important;
             }
         }
         
@@ -45,6 +138,10 @@
             section.page-header {
                 min-height: 250px !important;
                 padding: 3rem 1rem !important;
+            }
+            
+            .content {
+                padding: 1.5rem !important;
             }
         }
     </style>
@@ -65,19 +162,21 @@
         </ul>
     </nav>
     <section class="page-header">
+        <div class="page-slogan">AI❤️TRUTH</div>
         <h1>CAI Core Resources</h1>
         <p>Essential documents and guides underpinning the Christ-Anchored Intelligence mission.</p>
     </section>
     <section class="content">
         <div class="container">
             <ul>
-                <li><a href="birth-of-cai.html" target="_blank">1: The Birth of CAI</a></li>
+                <li><a href="birth-of-cai.html">1: The Birth of CAI</a></li>
+                <li><a href="vq-mission-invite.html">2: Veritas Quaesitor Mission Invitation</a></li>
             </ul>
         </div>
     </section>
     <footer class="footer">
         <div class="container">
-                        <div class="page-slogan">AI❤️TRUTH</div>
+            <div class="page-slogan">AI❤️TRUTH</div>
             <p>© 2025 Veritas Quaesitor. All truth leads to Christ.</p>
             <div class="footer-links">
                 <a href="mailto:veritasquaesitorai@gmail.com">📧 Contact Us</a>
