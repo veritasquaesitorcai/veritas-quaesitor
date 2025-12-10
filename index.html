@@ -23,6 +23,25 @@
     
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* Mobile Navigation Fix */
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column !important;
+                width: 100% !important;
+                text-align: center !important;
+            }
+            
+            nav li {
+                width: 100% !important;
+                margin: 0.25rem 0 !important;
+            }
+            
+            nav a {
+                display: block !important;
+                padding: 0.75rem 1rem !important;
+            }
+        }
+        
         /* Hero Section with Fixed Background - stays static while page scrolls */
         .hero {
             background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.5)), 
@@ -170,6 +189,68 @@
             opacity: 0.95;
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
         }
+        
+        /* Enhanced button with ticker */
+        .btn-primary-enhanced {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff8c42 0%, #f97316 100%);
+            color: white;
+            padding: 0;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(255, 140, 66, 0.4);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            width: 400px;
+            max-width: 90vw;
+        }
+        
+        .btn-primary-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 140, 66, 0.6);
+        }
+        
+        .btn-text-top {
+            display: block;
+            color: white;
+            padding: 0.75rem 2rem 0.5rem 2rem;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .btn-ticker-wrapper {
+            background: rgba(0, 0, 0, 0.2);
+            height: 30px;
+            overflow: hidden;
+            position: relative;
+            width: 100%;
+        }
+        
+        .btn-ticker {
+            display: flex;
+            white-space: nowrap;
+            animation: scroll-left 30s linear infinite;
+        }
+        
+        .ticker-content {
+            color: rgba(0, 0, 0, 0.8);
+            font-size: 0.85rem;
+            font-weight: 500;
+            line-height: 30px;
+            padding: 0 10px;
+        }
+        
+        @keyframes scroll-left {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(-50%);
+            }
+        }
 
         /* Mobile optimization for hero */
         @media (max-width: 768px) {
@@ -191,6 +272,20 @@
 
             .hero .subtitle {
                 font-size: 1rem;
+            }
+            
+            .btn-primary-enhanced {
+                width: 90vw;
+                font-size: 1rem;
+            }
+            
+            .btn-text-top {
+                font-size: 1rem;
+                padding: 0.6rem 1rem 0.4rem 1rem;
+            }
+            
+            .ticker-content {
+                font-size: 0.75rem;
             }
         }
 
@@ -239,7 +334,15 @@
             <p class="tagline">Truth. Conviction. Hope.</p>
             <p class="subtitle">Reimagining AI in service to God's truth and human flourishing</p>
             <div class="cta-buttons">
-                <button class="btn-primary"><a href="mission.html">Discover Our Mission</a></button>
+                <a href="mission.html" class="btn-primary-enhanced">
+                    <span class="btn-text-top">Discover Our Mission</span>
+                    <div class="btn-ticker-wrapper">
+                        <div class="btn-ticker">
+                            <span class="ticker-content">Veritas Quaesitor exists to seek, test, and share truth with intellectual honesty, spiritual humility, and unwavering commitment to Jesus Christ. We believe truth is found not in competing ideologies but in the Person of Christ, who declared, "I am the Way, the Truth, and the Life." (John 14:6) &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; </span>
+                            <span class="ticker-content">Veritas Quaesitor exists to seek, test, and share truth with intellectual honesty, spiritual humility, and unwavering commitment to Jesus Christ. We believe truth is found not in competing ideologies but in the Person of Christ, who declared, "I am the Way, the Truth, and the Life." (John 14:6) &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; </span>
+                        </div>
+                    </div>
+                </a>
             </div>
         </div>
     </header>
