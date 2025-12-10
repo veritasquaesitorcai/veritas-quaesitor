@@ -108,6 +108,13 @@
             background: rgba(255, 255, 255, 0.1) !important;
         }
         
+        /* Mobile table wrapper for horizontal scroll */
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 2rem 0;
+        }
+        
         /* Remove fixed effect on mobile for better performance */
         @media (max-width: 768px) {
             .hero {
@@ -116,6 +123,23 @@
             
             .core-message .container {
                 padding: 2rem !important;
+            }
+            
+            /* Make table scrollable on mobile */
+            .core-message table {
+                min-width: 700px; /* Force table to maintain readable width */
+                font-size: 0.9rem;
+            }
+            
+            /* Add scroll hint */
+            .table-wrapper::after {
+                content: "← Scroll to see all columns →";
+                display: block;
+                text-align: center;
+                color: rgba(255, 255, 255, 0.7);
+                font-size: 0.85rem;
+                font-style: italic;
+                margin-top: 1rem;
             }
         }
 
@@ -231,6 +255,7 @@
             <p>This contrast is not merely technical — it is moral. And the future may depend on which path we choose.</p>
 
             <h3>Comparison Table</h3>
+            <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
@@ -282,6 +307,7 @@
                     </tr>
                 </tbody>
             </table>
+            </div>
 
             <h3>The Call</h3>
             <p>CAI is not a rejection of intelligence — it is a reformation of it. It is a call to build with reverence, to code with conscience, and to imagine a future where machines do not rule, but serve.</p>
