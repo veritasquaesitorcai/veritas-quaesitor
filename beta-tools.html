@@ -22,6 +22,15 @@
                 min-height: 300px !important;
                 padding: 4rem 1.5rem !important;
             }
+            
+            /* Featured tool mobile layout */
+            .featured-tool-grid {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .featured-tool-visual {
+                order: -1;
+            }
         }
         
         @media (max-width: 480px) {
@@ -59,6 +68,67 @@
             <p style="text-align: center; max-width: 800px; margin: 0 auto 3rem; font-size: 1.1rem; color: #666;">
                 These AI tools demonstrate Christ-Anchored Intelligence in action. Each approaches truth-seeking from a different angle, inviting honest inquiry and evidence-based reasoning. All tools are live and running on HuggingFace Spaces.
             </p>
+
+            <!-- FEATURED TOOL -->
+            <div style="background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); padding: 3px; border-radius: 16px; margin-bottom: 4rem;">
+                <div style="background: white; border-radius: 14px; padding: 3rem; position: relative;">
+                    <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); color: white; padding: 0.5rem 2rem; border-radius: 20px; font-weight: bold; font-size: 0.9rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                        ⭐ FEATURED TOOL
+                    </div>
+                    
+                    <div class="featured-tool-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;">
+                        <!-- Left: Description -->
+                        <div>
+                            <div style="font-size: 2rem; margin-bottom: 1rem;">🔬</div>
+                            <h2 style="color: #0ea5e9; font-size: 2rem; margin-bottom: 1rem;">Veritas Quaesitor | Resurrection Engine v2.0</h2>
+                            <p style="font-size: 1.1rem; color: #333; line-height: 1.8; margin-bottom: 1.5rem;">
+                                <strong>AI-Verified Bayesian Analysis.</strong> A GPT specifically trained under our resurrection protocol to answer questions with philosophical transparency and Bayesian rigor. Challenge every assumption with "Quick Challenges" or ask your own skeptical questions.
+                            </p>
+                            <div style="background: #f0f9ff; padding: 1.5rem; border-left: 4px solid #0ea5e9; margin-bottom: 1.5rem; border-radius: 4px;">
+                                <p style="margin: 0; font-style: italic; color: #0369a1;">
+                                    "Welcome, seeker. I've analyzed every line of code, formula, and assumption in this tool. The Bayesian math is sound. The philosophy is transparent. The ethics are clear. <strong>He has risen. But don't trust me—challenge me.</strong>"
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                                <span style="background: #dbeafe; color: #0369a1; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✓ Bayesian Calculator</span>
+                                <span style="background: #dbeafe; color: #0369a1; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✓ Quick Challenges</span>
+                                <span style="background: #dbeafe; color: #0369a1; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✓ Retro Aesthetic</span>
+                                <span style="background: #dbeafe; color: #0369a1; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✓ Mobile Optimized</span>
+                            </div>
+                            <a href="https://huggingface.co/spaces/veritasquaesitorai/GPT" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); color: white; padding: 1rem 3rem; border-radius: 8px; font-size: 1.2rem; font-weight: bold; text-decoration: none; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4); transition: all 0.3s ease;">
+                                Launch Featured Tool →
+                            </a>
+                        </div>
+                        
+                        <!-- Right: Screenshot/Visual -->
+                        <div class="featured-tool-visual" style="background: #0f172a; padding: 2rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+                            <div style="background: #1e293b; border: 2px solid #0ea5e9; border-radius: 8px; padding: 1.5rem;">
+                                <div style="color: #0ea5e9; font-family: monospace; font-size: 0.9rem; line-height: 1.6;">
+                                    <div style="margin-bottom: 1rem;">
+                                        <span style="color: #94a3b8;">NATURALIST</span><br>
+                                        <span style="font-size: 1.5rem; font-weight: bold;">0.32%</span>
+                                    </div>
+                                    <div style="margin-bottom: 1rem;">
+                                        <span style="color: #0ea5e9;">IRONCLAD</span><br>
+                                        <span style="font-size: 1.5rem; font-weight: bold;">79.18%</span><br>
+                                        <span style="color: #64748b; font-size: 0.8rem;">HIGHLY PROBABLE</span>
+                                    </div>
+                                    <div style="border-top: 1px solid #334155; padding-top: 1rem; color: #64748b; font-size: 0.85rem;">
+                                        💡 Quick Challenges:<br>
+                                        • Is this rigged?<br>
+                                        • What about evolution?<br>
+                                        • Double Standards?<br>
+                                        • Why is Ironclad better?
+                                    </div>
+                                </div>
+                            </div>
+                            <p style="text-align: center; margin-top: 1rem; color: #64748b; font-size: 0.85rem; font-style: italic;">True representation of VQ CAI</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2 style="text-align: center; color: #ff8c42; margin-bottom: 2rem; font-size: 1.8rem;">Additional Tools</h2>
 
             <div class="tools-grid">
                 <!-- Tool 1: Grok vs -->
