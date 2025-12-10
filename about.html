@@ -23,23 +23,101 @@
     
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Hero image for About CAI */
+        /* Add gradient background to body - CRITICAL for glass effect to work */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            min-height: 100vh !important;
+        }
+        
+        /* Hero image for About CAI - Fixed/Static Background */
         header.hero,
         section.page-header {
             background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)), 
                         url('Companionnarrow.png') !important;
             background-size: cover !important;
-            background-position: center !important;
+            background-position: center center !important;
+            background-attachment: fixed !important; /* Makes background stay static while content scrolls */
+            background-repeat: no-repeat !important;
             min-height: 400px !important;
             padding: 6rem 2rem !important;
+            position: relative !important;
         }
         
-        /* Mobile optimization */
+        /* Add subtle vignette effect */
+        header.hero::before,
+        section.page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
+        }
+        
+        /* Ensure content is above vignette */
+        header.hero > *,
+        section.page-header > * {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Glass Morphism Effect for Content Sections - matching homepage style */
+        .container.content {
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        /* Ensure text is readable - white text like homepage */
+        .container.content {
+            color: rgba(255, 255, 255, 0.95) !important;
+        }
+        
+        .container.content h2 {
+            color: white !important;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        .container.content p,
+        .container.content li {
+            color: rgba(255, 255, 255, 0.95) !important;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
+        }
+        
+        .container.content strong {
+            color: #ff8c42 !important;
+        }
+        
+        /* Subtle section backgrounds - lighter for layered effect */
+        .core-message {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .intro {
+            font-size: 1.1em;
+            line-height: 1.8;
+        }
+        
+        /* Mobile optimization - switch to scroll on mobile for better performance */
         @media (max-width: 768px) {
             header.hero,
             section.page-header {
+                background-attachment: scroll !important; /* Fixed backgrounds can be choppy on mobile */
                 min-height: 300px !important;
                 padding: 4rem 1.5rem !important;
+            }
+            
+            .core-message {
+                padding: 1.5rem;
             }
         }
         
@@ -48,6 +126,10 @@
             section.page-header {
                 min-height: 250px !important;
                 padding: 3rem 1rem !important;
+            }
+            
+            .core-message {
+                padding: 1rem;
             }
         }
     </style>
@@ -68,7 +150,7 @@
         </ul>
     </nav>
     <header class="hero">
-                <div class="page-slogan">AI❤️TRUTH</div>
+        <div class="page-slogan">AI❤️TRUTH</div>
         <h1> About Christ-Anchored Intelligence</h1>
         <p class="tagline">A new vision for artificial intelligence</p>
     </header>
