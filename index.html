@@ -23,17 +23,19 @@
     
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Hero Section with Guardian VQ-1 Background */
+        /* Hero Section with Fixed Background - stays static while page scrolls */
         .hero {
-            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4)), 
-                        url('AGI_guardiannarrow.png');
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.5)), 
+                        url('AGI_guardian.png');
             background-size: cover;
             background-position: center center;
+            background-attachment: fixed; /* This makes it stay static */
+            background-repeat: no-repeat;
             color: white;
             text-align: center;
-            padding: 8rem 2rem;
+            padding: 6rem 2rem;
             position: relative;
-            min-height: 500px;
+            min-height: 400px;
         }
 
         .hero::before {
@@ -43,7 +45,14 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+            background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
+        }
+        
+        /* Remove fixed effect on mobile for better performance */
+        @media (max-width: 768px) {
+            .hero {
+                background-attachment: scroll;
+            }
         }
 
         .hero-content {
