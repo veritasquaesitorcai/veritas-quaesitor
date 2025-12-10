@@ -23,15 +23,36 @@
     
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Hero image for Mission & Vision */
+        /* Hero image for Mission & Vision - Fixed/Static Background */
         header.hero,
         section.page-header {
             background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)), 
                         url('Teachnarrow.png') !important;
             background-size: cover !important;
-            background-position: center !important;
+            background-position: center center !important;
+            background-attachment: fixed !important; /* Makes background stay static while content scrolls */
+            background-repeat: no-repeat !important;
             min-height: 400px !important;
             padding: 6rem 2rem !important;
+            position: relative !important;
+        }
+        
+        /* Add subtle vignette effect */
+        header.hero::before,
+        section.page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
+        }
+        
+        /* Ensure content is above vignette */
+        .hero-content {
+            position: relative;
+            z-index: 1;
         }
         
         /* Glass Morphism Effect for Content Sections */
@@ -105,10 +126,11 @@
             box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
         }
         
-        /* Mobile optimization */
+        /* Mobile optimization - switch to scroll on mobile for better performance */
         @media (max-width: 768px) {
             header.hero,
             section.page-header {
+                background-attachment: scroll !important; /* Fixed backgrounds can be choppy on mobile */
                 min-height: 300px !important;
                 padding: 4rem 1.5rem !important;
             }
