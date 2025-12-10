@@ -23,19 +23,83 @@
     
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* Hero image for Projects & Milestones */
+        /* Hero image for Projects & Milestones - Fixed/Static Background */
         section.page-header {
             background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)), 
                         url('Policenarrow.png') !important;
             background-size: cover !important;
-            background-position: center !important;
+            background-position: center center !important;
+            background-attachment: fixed !important; /* Makes background stay static while content scrolls */
+            background-repeat: no-repeat !important;
             min-height: 400px !important;
             padding: 6rem 2rem !important;
+            position: relative !important;
         }
         
-        /* Mobile optimization */
+        /* Add subtle vignette effect */
+        section.page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
+        }
+        
+        /* Ensure content is above vignette */
+        section.page-header > * {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Glass Morphism Effect for Content Sections */
+        .content {
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        /* Soften text colors */
+        .content {
+            color: #2c3e50 !important;
+        }
+        
+        .content h3 {
+            color: #1a1a3e !important;
+        }
+        
+        .content strong {
+            color: #667eea !important;
+        }
+        
+        /* Subtle milestone card backgrounds */
+        .milestone {
+            background: rgba(255, 255, 255, 0.4) !important;
+            backdrop-filter: blur(5px) !important;
+            -webkit-backdrop-filter: blur(5px) !important;
+            padding: 2rem !important;
+            border-radius: 12px !important;
+            margin-bottom: 2rem !important;
+            border: 1px solid rgba(255, 255, 255, 0.5) !important;
+            transition: transform 0.2s, box-shadow 0.2s !important;
+        }
+        
+        .milestone:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(102, 126, 234, 0.15) !important;
+        }
+        
+        .milestone-date {
+            color: #667eea !important;
+        }
+        
+        /* Mobile optimization - switch to scroll on mobile for better performance */
         @media (max-width: 768px) {
             section.page-header {
+                background-attachment: scroll !important; /* Fixed backgrounds can be choppy on mobile */
                 min-height: 300px !important;
                 padding: 4rem 1.5rem !important;
             }
