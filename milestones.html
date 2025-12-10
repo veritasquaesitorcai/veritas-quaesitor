@@ -23,6 +23,27 @@
     
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* Mobile Navigation Fix */
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column !important;
+                width: 100% !important;
+                text-align: center !important;
+            }
+            
+            nav li {
+                width: 100% !important;
+                margin: 0.25rem 0 !important;
+            }
+            
+            nav a {
+                display: block !important;
+                padding: 0.75rem 1rem !important;
+            }
+        }
+    </style>
+    <style>
+    <style>
         /* Add gradient background to body - CRITICAL for glass effect to work */
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
@@ -66,6 +87,19 @@
             -webkit-backdrop-filter: blur(10px) !important;
             border: 1px solid rgba(255, 255, 255, 0.25) !important;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+        
+        /* Ensure all content respects container width */
+        .content *,
+        .milestone *,
+        .container * {
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
         }
         
         /* Varied text colors for visual interest - matching homepage */
@@ -138,12 +172,30 @@
                 min-height: 300px !important;
                 padding: 4rem 1.5rem !important;
             }
+            
+            .content {
+                padding: 1.5rem !important;
+                margin: 1rem !important;
+            }
+            
+            .milestone {
+                padding: 1.5rem !important;
+            }
         }
         
         @media (max-width: 480px) {
             section.page-header {
                 min-height: 250px !important;
                 padding: 3rem 1rem !important;
+            }
+            
+            .content {
+                padding: 1rem !important;
+                margin: 0.5rem !important;
+            }
+            
+            .milestone {
+                padding: 1rem !important;
             }
         }
     </style>
