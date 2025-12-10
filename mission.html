@@ -23,6 +23,12 @@
     
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* Add gradient background to body - CRITICAL for glass effect to work */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            min-height: 100vh !important;
+        }
+        
         /* Hero image for Mission & Vision - Fixed/Static Background */
         header.hero,
         section.page-header {
@@ -64,14 +70,22 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
         }
         
-        /* Ensure text is readable - white text like homepage */
+        /* Varied text colors for visual interest - matching homepage */
         .container.content {
             color: rgba(255, 255, 255, 0.95) !important;
         }
         
+        /* Orange headings like homepage table categories */
         .container.content h2 {
-            color: white !important;
+            color: #ff8c42 !important;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4) !important;
+            font-weight: 600 !important;
+        }
+        
+        .container.content h3 {
+            color: #ff8c42 !important;
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3) !important;
+            font-weight: 600 !important;
         }
         
         .container.content p,
@@ -80,27 +94,29 @@
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
         }
         
+        /* Orange strong tags for emphasis */
         .container.content strong {
             color: #ff8c42 !important;
+            font-weight: 600 !important;
         }
         
-        /* Subtle section backgrounds - lighter for layered effect */
+        /* Subtle section backgrounds with light purple tint - like homepage table rows */
         .mission-section,
         .vision-section,
         .values-section,
         .protocol-section {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(200, 180, 255, 0.15);
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
             padding: 2rem;
             border-radius: 12px;
             margin-bottom: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.25);
         }
         
-        /* Blockquote styling with glass effect */
+        /* Blockquote styling with glass effect and orange accent */
         blockquote {
-            background: rgba(255, 255, 255, 0.1) !important;
+            background: rgba(255, 140, 66, 0.15) !important;
             backdrop-filter: blur(5px) !important;
             -webkit-backdrop-filter: blur(5px) !important;
             border-left: 4px solid #ff8c42 !important;
@@ -108,31 +124,37 @@
             margin: 1.5rem 0 !important;
             border-radius: 8px !important;
             font-style: italic !important;
-            color: rgba(255, 255, 255, 0.95) !important;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
+            color: white !important;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
         }
         
-        /* Values list styling */
+        /* Values list styling with variety */
         .values-list {
             list-style: none;
             padding: 0;
         }
         
         .values-list li {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(200, 180, 255, 0.2);
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
             padding: 1.25rem;
             margin-bottom: 1rem;
             border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
         }
         
         .values-list li:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(255, 140, 66, 0.2);
-            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 6px 24px rgba(255, 140, 66, 0.3);
+            background: rgba(255, 140, 66, 0.2);
+        }
+        
+        .values-list li strong {
+            font-size: 1.1em;
+            display: block;
+            margin-bottom: 0.5rem;
         }
         
         /* Mobile optimization - switch to scroll on mobile for better performance */
