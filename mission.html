@@ -55,53 +55,61 @@
             z-index: 1;
         }
         
-        /* Glass Morphism Effect for Content Sections */
+        /* Glass Morphism Effect for Content Sections - matching homepage style */
         .container.content {
-            background: rgba(255, 255, 255, 0.85) !important;
+            background: rgba(255, 255, 255, 0.15) !important;
             backdrop-filter: blur(10px) !important;
             -webkit-backdrop-filter: blur(10px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
         }
         
-        /* Soften text colors */
+        /* Ensure text is readable - white text like homepage */
         .container.content {
-            color: #2c3e50 !important;
+            color: rgba(255, 255, 255, 0.95) !important;
         }
         
         .container.content h2 {
-            color: #1a1a3e !important;
+            color: white !important;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3) !important;
+        }
+        
+        .container.content p,
+        .container.content li {
+            color: rgba(255, 255, 255, 0.95) !important;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
         }
         
         .container.content strong {
-            color: #667eea !important;
+            color: #ff8c42 !important;
         }
         
-        /* Subtle section backgrounds */
+        /* Subtle section backgrounds - lighter for layered effect */
         .mission-section,
         .vision-section,
         .values-section,
         .protocol-section {
-            background: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
             padding: 2rem;
             border-radius: 12px;
             margin-bottom: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         /* Blockquote styling with glass effect */
         blockquote {
-            background: rgba(102, 126, 234, 0.1) !important;
+            background: rgba(255, 255, 255, 0.1) !important;
             backdrop-filter: blur(5px) !important;
             -webkit-backdrop-filter: blur(5px) !important;
-            border-left: 4px solid #667eea !important;
+            border-left: 4px solid #ff8c42 !important;
             padding: 1.5rem !important;
             margin: 1.5rem 0 !important;
             border-radius: 8px !important;
             font-style: italic !important;
-            color: #2c3e50 !important;
+            color: rgba(255, 255, 255, 0.95) !important;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
         }
         
         /* Values list styling */
@@ -111,19 +119,20 @@
         }
         
         .values-list li {
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
             padding: 1.25rem;
             margin-bottom: 1rem;
             border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             transition: transform 0.2s, box-shadow 0.2s;
         }
         
         .values-list li:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+            box-shadow: 0 4px 20px rgba(255, 140, 66, 0.2);
+            background: rgba(255, 255, 255, 0.15);
         }
         
         /* Mobile optimization - switch to scroll on mobile for better performance */
