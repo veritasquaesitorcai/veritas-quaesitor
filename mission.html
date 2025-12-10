@@ -34,12 +34,90 @@
             padding: 6rem 2rem !important;
         }
         
+        /* Glass Morphism Effect for Content Sections */
+        .container.content {
+            background: rgba(255, 255, 255, 0.85) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        /* Soften text colors */
+        .container.content {
+            color: #2c3e50 !important;
+        }
+        
+        .container.content h2 {
+            color: #1a1a3e !important;
+        }
+        
+        .container.content strong {
+            color: #667eea !important;
+        }
+        
+        /* Subtle section backgrounds */
+        .mission-section,
+        .vision-section,
+        .values-section,
+        .protocol-section {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Blockquote styling with glass effect */
+        blockquote {
+            background: rgba(102, 126, 234, 0.1) !important;
+            backdrop-filter: blur(5px) !important;
+            -webkit-backdrop-filter: blur(5px) !important;
+            border-left: 4px solid #667eea !important;
+            padding: 1.5rem !important;
+            margin: 1.5rem 0 !important;
+            border-radius: 8px !important;
+            font-style: italic !important;
+            color: #2c3e50 !important;
+        }
+        
+        /* Values list styling */
+        .values-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .values-list li {
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .values-list li:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+        }
+        
         /* Mobile optimization */
         @media (max-width: 768px) {
             header.hero,
             section.page-header {
                 min-height: 300px !important;
                 padding: 4rem 1.5rem !important;
+            }
+            
+            .mission-section,
+            .vision-section,
+            .values-section,
+            .protocol-section {
+                padding: 1.5rem;
             }
         }
         
@@ -48,6 +126,13 @@
             section.page-header {
                 min-height: 250px !important;
                 padding: 3rem 1rem !important;
+            }
+            
+            .mission-section,
+            .vision-section,
+            .values-section,
+            .protocol-section {
+                padding: 1rem;
             }
         }
     </style>
@@ -69,7 +154,7 @@
     </nav>
     <header class="hero">
         <div class="hero-content">
-                        <div class="page-slogan">AI❤️TRUTH</div>
+            <div class="page-slogan">AI❤️TRUTH</div>
             <h1>Mission & Vision</h1>
             <p class="subtitle">Our commitment to seeking truth at the intersection of faith and reason</p>
         </div>
