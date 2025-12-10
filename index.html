@@ -36,6 +36,7 @@
             padding: 6rem 2rem;
             position: relative;
             min-height: 400px;
+            margin: 0; /* Remove any margin */
         }
 
         .hero::before {
@@ -46,6 +47,12 @@
             right: 0;
             bottom: 0;
             background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
+        }
+        
+        /* Remove gap between sections */
+        .core-message {
+            margin-top: 0 !important;
+            padding-top: 4rem;
         }
         
         /* Remove fixed effect on mobile for better performance */
