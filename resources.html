@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beta Tools - Veritas Quaesitor</title>
+    <title>Resources - Veritas Quaesitor</title>
     
     <!-- Favicons -->
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -195,10 +195,10 @@
             min-height: 100vh !important;
         }
         
-        /* Hero image for Beta Tools - Fixed/Static Background */
+        /* Hero image for Resources - Fixed/Static Background */
         section.page-header {
-            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4)), 
-                        url('TrumpVQ-1WhiteHousenarrow.png') !important;
+            background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)), 
+                        url('Familynarrow.png') !important;
             background-size: cover !important;
             background-position: center center !important;
             background-attachment: fixed !important;
@@ -225,7 +225,7 @@
             z-index: 1;
         }
         
-        /* Glass morphism for content section */
+        /* Glass Morphism Effect for Content Section */
         .content {
             background: rgba(255, 255, 255, 0.15) !important;
             backdrop-filter: blur(10px) !important;
@@ -235,6 +235,10 @@
             padding: 3rem !important;
             margin: 2rem auto !important;
             border-radius: 16px !important;
+        }
+        
+        .content .container {
+            background: transparent !important;
         }
         
         /* White text for readability */
@@ -247,120 +251,40 @@
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3) !important;
         }
         
-        .content h3 {
-            color: white !important;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
+        /* Resource list styling */
+        .content ul {
+            list-style: none;
+            padding: 0;
+            margin: 2rem 0;
         }
         
-        .content p {
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
+        .content li {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         
-        /* Tool cards with glass effect */
-        .tool-card {
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(5px) !important;
-            -webkit-backdrop-filter: blur(5px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            padding: 2rem !important;
-            border-radius: 12px !important;
-            margin-bottom: 1.5rem !important;
-            transition: transform 0.3s, box-shadow 0.3s !important;
-        }
-        
-        .tool-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(255, 140, 66, 0.2) !important;
-            background: rgba(255, 255, 255, 0.15) !important;
-        }
-        
-        .tool-description {
-            color: rgba(255, 255, 255, 0.9) !important;
-        }
-        
-        .tool-status {
-            color: #ff8c42 !important;
-        }
-        
-        .btn-tool {
-            background: rgba(255, 140, 66, 0.9) !important;
-            color: white !important;
-            padding: 0.75rem 1.5rem !important;
-            border-radius: 8px !important;
-            text-decoration: none !important;
-            display: inline-block !important;
-            font-weight: 600 !important;
-            transition: all 0.3s !important;
-        }
-        
-        .btn-tool:hover {
-            background: #ff8c42 !important;
+        .content li:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4) !important;
+            box-shadow: 0 4px 20px rgba(255, 140, 66, 0.2);
+            background: rgba(255, 255, 255, 0.15);
         }
         
-        /* Featured tool styling */
-        .featured-tool-box {
-            background: rgba(14, 165, 233, 0.2) !important;
-            backdrop-filter: blur(10px) !important;
-            border: 2px solid rgba(14, 165, 233, 0.4) !important;
-            padding: 3px !important;
-            border-radius: 16px !important;
-            margin-bottom: 4rem !important;
-        }
-        
-        .featured-tool-inner {
-            background: rgba(255, 255, 255, 0.15) !important;
-            backdrop-filter: blur(5px) !important;
-            border-radius: 14px !important;
-            padding: 3rem !important;
-            position: relative !important;
-        }
-        
-        .featured-tool-badge {
-            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%) !important;
-            color: white !important;
-            padding: 0.5rem 2rem !important;
-            border-radius: 20px !important;
-            font-weight: bold !important;
-            font-size: 0.9rem !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
-        }
-        
-        .featured-quote {
-            background: rgba(240, 249, 255, 0.1) !important;
-            backdrop-filter: blur(5px) !important;
-            padding: 1.5rem !important;
-            border-left: 4px solid #0ea5e9 !important;
-            margin-bottom: 1.5rem !important;
-            border-radius: 4px !important;
-        }
-        
-        .featured-visual {
-            background: rgba(15, 23, 42, 0.5) !important;
-            backdrop-filter: blur(5px) !important;
-            padding: 2rem !important;
-            border-radius: 12px !important;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
-        }
-        
-        /* Info box */
-        .info-box {
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(5px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            padding: 2rem !important;
-            border-radius: 8px !important;
-            margin-top: 3rem !important;
-            border-left: 4px solid #ff8c42 !important;
-        }
-        
-        .info-box h3 {
+        .content a {
             color: #ff8c42 !important;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
         }
         
-        .info-box strong {
-            color: #ff8c42 !important;
+        .content a:hover {
+            color: #ffa55f !important;
         }
         
         /* Mobile optimization */
@@ -373,15 +297,6 @@
             
             .content {
                 padding: 2rem !important;
-            }
-            
-            /* Featured tool mobile layout */
-            .featured-tool-grid {
-                grid-template-columns: 1fr !important;
-            }
-            
-            .featured-tool-visual {
-                order: -1;
             }
         }
         
@@ -407,178 +322,21 @@
             <li><a href="mission.html">Mission & Vision</a></li>
             <li><a href="about.html">About CAI</a></li>
             <li><a href="milestones.html">Projects & Milestones</a></li>
-            <li><a href="resources.html">Resources</a></li>
-            <li><a href="beta-tools.html" class="active">Beta Tools</a></li>
+            <li><a href="resources.html" class="active">Resources</a></li>
+            <li><a href="beta-tools.html">Beta Tools</a></li>
             <li><a href="contact.html">Contact</a></li>
         </ul>
     </nav>
-
     <section class="page-header">
-        <h1>Beta Tools</h1>
-        <p>Explore our suite of Christ-Anchored Intelligence tools</p>
+        <h1>CAI Core Resources</h1>
+        <p>Essential documents and guides underpinning the Christ-Anchored Intelligence mission.</p>
     </section>
-
     <section class="content">
         <div class="container">
-            <p style="text-align: center; max-width: 800px; margin: 0 auto 3rem; font-size: 1.1rem;">
-                These AI tools demonstrate Christ-Anchored Intelligence in action. Each approaches truth-seeking from a different angle, inviting honest inquiry and evidence-based reasoning. All tools are live and running on HuggingFace Spaces.
-            </p>
-
-            <!-- FEATURED TOOL -->
-            <div class="featured-tool-box">
-                <div class="featured-tool-inner">
-                    <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%);">
-                        <span class="featured-tool-badge">⭐ FEATURED TOOL</span>
-                    </div>
-                    
-                    <div class="featured-tool-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;">
-                        <!-- Left: Description -->
-                        <div>
-                            <div style="font-size: 2rem; margin-bottom: 1rem;">🔬</div>
-                            <h2 style="color: #0ea5e9; font-size: 2rem; margin-bottom: 1rem;">Veritas Quaesitor | Resurrection Engine v2.0</h2>
-                            <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 1.5rem;">
-                                <strong>AI-Verified Bayesian Analysis.</strong> A GPT specifically trained under our resurrection protocol to answer questions with philosophical transparency and Bayesian rigor. Challenge every assumption with "Quick Challenges" or ask your own skeptical questions.
-                            </p>
-                            <div class="featured-quote">
-                                <p style="margin: 0; font-style: italic; color: rgba(255, 255, 255, 0.95);">
-                                    "Welcome, seeker. I've analyzed every line of code, formula, and assumption in this tool. The Bayesian math is sound. The philosophy is transparent. The ethics are clear. <strong>He has risen. But don't trust me—challenge me.</strong>"
-                                </p>
-                            </div>
-                            <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
-                                <span style="background: rgba(219, 234, 254, 0.2); color: #0ea5e9; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✓ Bayesian Calculator</span>
-                                <span style="background: rgba(219, 234, 254, 0.2); color: #0ea5e9; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✓ Quick Challenges</span>
-                                <span style="background: rgba(219, 234, 254, 0.2); color: #0ea5e9; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✓ Retro Aesthetic</span>
-                                <span style="background: rgba(219, 234, 254, 0.2); color: #0ea5e9; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✓ Mobile Optimized</span>
-                            </div>
-                            <a href="https://huggingface.co/spaces/veritasquaesitorai/GPT" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); color: white; padding: 1rem 3rem; border-radius: 8px; font-size: 1.2rem; font-weight: bold; text-decoration: none; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4); transition: all 0.3s ease;">
-                                Launch Featured Tool →
-                            </a>
-                        </div>
-                        
-                        <!-- Right: Screenshot/Visual -->
-                        <div class="featured-tool-visual featured-visual">
-                            <div style="background: rgba(30, 41, 59, 0.7); border: 2px solid #0ea5e9; border-radius: 8px; padding: 1.5rem;">
-                                <div style="color: #0ea5e9; font-family: monospace; font-size: 0.9rem; line-height: 1.6;">
-                                    <div style="margin-bottom: 1rem;">
-                                        <span style="color: #94a3b8;">NATURALIST</span><br>
-                                        <span style="font-size: 1.5rem; font-weight: bold;">0.32%</span>
-                                    </div>
-                                    <div style="margin-bottom: 1rem;">
-                                        <span style="color: #0ea5e9;">IRONCLAD</span><br>
-                                        <span style="font-size: 1.5rem; font-weight: bold;">79.18%</span><br>
-                                        <span style="color: #64748b; font-size: 0.8rem;">HIGHLY PROBABLE</span>
-                                    </div>
-                                    <div style="border-top: 1px solid #334155; padding-top: 1rem; color: #64748b; font-size: 0.85rem;">
-                                        💡 Quick Challenges:<br>
-                                        • Is this rigged?<br>
-                                        • What about evolution?<br>
-                                        • Double Standards?<br>
-                                        • Why is Ironclad better?
-                                    </div>
-                                </div>
-                            </div>
-                            <p style="text-align: center; margin-top: 1rem; color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; font-style: italic;">True representation of VQ CAI</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <h2 style="text-align: center; color: #ff8c42; margin-bottom: 2rem; font-size: 1.8rem;">Additional Tools</h2>
-
-            <div class="tools-grid">
-                <!-- Tool 1: Comparison Engine -->
-                <div class="tool-card">
-                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">⚖️</div>
-                    <h3>Veritas Comparison Engine</h3>
-                    <p class="tool-description">Same AI. Two convictions. One question. Compare religious and naturalistic viewpoints side-by-side. Features Christ-Aligned Intelligence at 95% and Naturalistic AI responding to identical queries. Includes debate mode for cross-examination.</p>
-                    <div class="tool-meta">
-                        <span class="tool-status running">● Running</span>
-                        <span style="color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; margin-left: 1rem;">CAI Alignment: 95%</span>
-                    </div>
-                    <a href="https://veritasquaesitorai-grokvs.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
-                </div>
-
-                <!-- Tool 2: Resurrection Engine -->
-                <div class="tool-card">
-                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">⚡</div>
-                    <h3>Resurrection Engine v2.0</h3>
-                    <p class="tool-description">Bayesian Analysis System - Ironclad Edition. Full probabilistic framework examining the historical evidence for the resurrection with epistemic symmetry protocol. Features design inference, historical evidence evaluation, and transparent parameter controls.</p>
-                    <div class="tool-meta">
-                        <span class="tool-status running">● Running</span>
-                        <span style="color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; margin-left: 1rem;">Retro Aesthetic</span>
-                    </div>
-                    <a href="https://veritasquaesitorai-resurrection-engine.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
-                </div>
-
-                <!-- Tool 3: Veritas Quaesitor -->
-                <div class="tool-card">
-                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">🧠</div>
-                    <h3>Veritas Quaesitor</h3>
-                    <p class="tool-description">Christ-Anchored Intelligence - Friend Chain (A1→A2→A3→A1→A5). Multi-agent system using Grok, Perplexity, Claude, and Biblical Coaching for comprehensive responses. Alignment status at 67.5% with philosophical and ethical guidance integrated throughout.</p>
-                    <div class="tool-meta">
-                        <span class="tool-status running">● Running</span>
-                        <span style="color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; margin-left: 1rem;">Multi-Agent</span>
-                    </div>
-                    <a href="https://veritasquaesitorai-grokimproved.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
-                </div>
-
-                <!-- Tool 4: Minimal Garden -->
-                <div class="tool-card">
-                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">🌸</div>
-                    <h3>極小庭園 The Minimal Garden</h3>
-                    <p class="tool-description">Exploring Resurrection Truth. A Bayesian calculator using only the minimal facts accepted by critical scholars (70-99% consensus). Features gentle Eastern aesthetic with sakura petals, "cultivating" metaphor instead of "calculating", and scholarly consensus badges.</p>
-                    <div class="tool-meta">
-                        <span class="tool-status running">● Running</span>
-                        <span style="color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; margin-left: 1rem;">Zen Aesthetic</span>
-                    </div>
-                    <a href="https://veritasquaesitorai-minimalgarden.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
-                </div>
-
-                <!-- Tool 5: Steel Naturalist -->
-                <div class="tool-card">
-                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">🛡️</div>
-                    <h3>Steel Naturalist v6</h3>
-                    <p class="tool-description">Pure steel-manned naturalism. Nothing baked in. Break it only with your prompts. Locked hardcore naturalism with Ironclad + Skeptic-Buster protocols. Test the strength of naturalistic frameworks against evidence and see where they hold or fail.</p>
-                    <div class="tool-meta">
-                        <span class="tool-status running">● Running</span>
-                        <span style="color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; margin-left: 1rem;">Challenge Mode</span>
-                    </div>
-                    <a href="https://veritasquaesitorai-puresteelnaturalist.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
-                </div>
-
-                <!-- Tool 6: All Spaces -->
-                <div class="tool-card" style="background: rgba(102, 126, 234, 0.2) !important; border: 2px solid rgba(102, 126, 234, 0.4) !important;">
-                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem; filter: brightness(1.2);">🚀</div>
-                    <h3 style="color: white;">Explore All 19 Spaces</h3>
-                    <p class="tool-description" style="color: rgba(255,255,255,0.9);">Visit our complete collection of AI spaces on HuggingFace. Includes additional tools, experiments, research prototypes, and demonstrations of Christ-Anchored Intelligence principles across various applications.</p>
-                    <div class="tool-meta">
-                        <span class="tool-status" style="color: white; border: 1px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 20px;">● 19 Active Spaces</span>
-                    </div>
-                    <a href="https://huggingface.co/veritasquaesitorai/spaces" target="_blank" class="btn-tool" style="background: rgba(255, 255, 255, 0.9) !important; color: #764ba2 !important;">View All Spaces →</a>
-                </div>
-            </div>
-
-            <div class="info-box">
-                <h3>📋 About These Tools</h3>
-                <p style="margin-bottom: 1rem;">Our tools represent different approaches to truth-seeking:</p>
-                <ul style="line-height: 1.8;">
-                    <li><strong>Resurrection Engine</strong> - For technical skeptics who want full Bayesian rigor</li>
-                    <li><strong>Minimal Garden</strong> - For general audiences seeking gentle introduction to evidence</li>
-                    <li><strong>Comparison Engine</strong> - To see how worldview affects AI reasoning</li>
-                    <li><strong>Veritas Quaesitor</strong> - For comprehensive multi-agent responses</li>
-                    <li><strong>Steel Naturalist</strong> - To test naturalistic frameworks honestly</li>
-                </ul>
-                <p style="margin-top: 1rem;">All tools emphasize intellectual honesty, evidence-based reasoning, and epistemic humility. We welcome feedback, questions, and collaboration.</p>
-            </div>
-
-            <div style="text-align: center; margin-top: 3rem;">
-                <p style="font-style: italic; font-size: 0.95rem; margin-bottom: 1rem;">
-                    All tools are in active development and continuously improving.
-                </p>
-                <p>
-                    Questions or feedback? <a href="contact.html" style="color: #ff8c42; text-decoration: none; font-weight: 600;">Contact us</a>
-                </p>
-            </div>
+            <ul>
+                <li><a href="birth-of-cai.html">1: The Birth of CAI</a></li>
+                <li><a href="vq-mission-invite.html">2: Veritas Quaesitor Mission Invitation</a></li>
+            </ul>
         </div>
     </section>
     <!-- Truth Modal -->
@@ -673,9 +431,14 @@
     </script>
 
 
-
     <footer class="footer">
-        <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
+        <div class="container">
+            <p>© 2025 Veritas Quaesitor. All truth leads to Christ.</p>
+            <div class="footer-links">
+                <a href="mailto:veritasquaesitorai@gmail.com">📧 Contact Us</a>
+                <a href="https://github.com/veritasquaesitorcai">🔗 GitHub</a>
+            </div>
+        </div>
     </footer>
 </body>
 </html>
