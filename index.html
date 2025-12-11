@@ -335,15 +335,15 @@
         .btn-text-top {
             display: block;
             color: white;
-            padding: 0.75rem 2rem 0.5rem 2rem;
+            padding: 0.5rem 2rem 0.3rem 2rem;
             text-align: center;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
         }
         
         .btn-ticker-wrapper {
             background: rgba(0, 0, 0, 0.2);
-            height: 30px;
+            height: 24px;
             overflow: hidden;
             position: relative;
             width: 100%;
@@ -352,7 +352,7 @@
         .btn-ticker {
             display: flex;
             white-space: nowrap;
-            animation: scroll-left 7.5s linear infinite;
+            animation: scroll-left 20s linear infinite;
         }
         
         /* Paused state for ticker */
@@ -362,9 +362,9 @@
         
         .ticker-content {
             color: rgba(0, 0, 0, 0.8);
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 500;
-            line-height: 30px;
+            line-height: 24px;
             padding: 0 10px;
         }
         
@@ -409,8 +409,13 @@
                 padding: 0.6rem 1rem 0.4rem 1rem;
             }
             
+            .btn-ticker-wrapper {
+                height: 22px;
+            }
+            
             .ticker-content {
-                font-size: 0.75rem;
+                font-size: 0.7rem;
+                line-height: 22px;
             }
         }
 
