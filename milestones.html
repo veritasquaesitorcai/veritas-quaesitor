@@ -23,6 +23,47 @@
     
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* Make navbar AI❤️TRUTH clickable and compact */
+        .clickable-ai-truth {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.75rem !important;
+            padding: 0.15rem 0.5rem !important;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        
+        .clickable-ai-truth:hover {
+            color: #ff8c42 !important;
+            transform: scale(1.05);
+        }
+        
+        /* Ensure logo container stays compact */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Mobile adjustments for navbar */
+        @media (max-width: 768px) {
+            .clickable-ai-truth {
+                font-size: 0.65rem !important;
+                padding: 0.1rem 0.4rem !important;
+            }
+            
+            .logo {
+                font-size: 1rem !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .clickable-ai-truth {
+                font-size: 0.6rem !important;
+                padding: 0.1rem 0.3rem !important;
+            }
+        }
+        
         /* Add gradient background to body - CRITICAL for glass effect to work */
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
@@ -57,37 +98,6 @@
         section.page-header > * {
             position: relative;
             z-index: 1;
-        }
-        
-        /* Position AI❤️TRUTH at the very top of hero */
-        .page-slogan {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-            font-size: 1rem;
-            font-weight: 600;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-            background: rgba(0, 0, 0, 0.3);
-            padding: 0.5rem 1.5rem;
-            border-radius: 20px;
-            backdrop-filter: blur(5px);
-        }
-        
-        /* Make AI❤️TRUTH clickable */
-        .clickable-slogan {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .clickable-slogan:hover {
-            background: rgba(255, 140, 66, 0.5);
-            transform: translateX(-50%) scale(1.05);
-            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4);
         }
         
         /* Modal styles */
@@ -310,7 +320,7 @@
 <body>
     <nav class="navbar">
         <a href="index.html" class="logo">✝️ Veritas Quaesitor
-            <span class="logo-slogan">AI❤️TRUTH</span>
+            <span class="logo-slogan clickable-ai-truth" onclick="openTruthModal(event)">AI❤️TRUTH</span>
         </a>
         <ul class="nav-links">
             <li><a href="index.html">Home</a></li>
@@ -323,7 +333,6 @@
         </ul>
     </nav>
     <section class="page-header">
-        <a href="#" class="page-slogan clickable-slogan" onclick="openTruthModal(event)">AI❤️TRUTH</a>
         <h1>Projects & Milestones</h1>
         <p>Celebrating breakthroughs in Christ-centered AI partnership.</p>
     </section>
