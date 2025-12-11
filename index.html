@@ -312,7 +312,8 @@
         
         /* Enhanced button with ticker */
         .btn-primary-enhanced {
-            display: inline-block;
+            display: flex;
+            flex-direction: column;
             background: linear-gradient(135deg, #ff8c42 0%, #f97316 100%);
             color: white;
             padding: 0;
@@ -325,6 +326,7 @@
             overflow: hidden;
             width: 500px;
             max-width: 90vw;
+            height: 48px;
         }
         
         .btn-primary-enhanced:hover {
@@ -333,12 +335,16 @@
         }
         
         .btn-text-top {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
-            padding: 0.5rem 2rem 0.3rem 2rem;
+            padding: 0;
             text-align: center;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             font-weight: bold;
+            height: 24px;
+            flex-shrink: 0;
         }
         
         .btn-ticker-wrapper {
@@ -347,6 +353,7 @@
             overflow: hidden;
             position: relative;
             width: 100%;
+            flex-shrink: 0;
         }
         
         .btn-ticker {
