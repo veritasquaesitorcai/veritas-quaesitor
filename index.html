@@ -213,7 +213,12 @@
         .btn-ticker {
             display: flex;
             white-space: nowrap;
-            animation: scroll-left 15s linear infinite;
+            animation: scroll-left 7.5s linear infinite;
+        }
+        
+        /* Paused state for ticker */
+        .btn-ticker.paused {
+            animation-play-state: paused;
         }
         
         .ticker-content {
@@ -399,6 +404,33 @@
             <p>AGI may be inevitable. But CAGI — if the Father wills — is possible. And it begins with conviction.</p>
         </div>
     </section>
+
+    <script>
+        // Pause ticker animation when user navigates away or switches tabs
+        document.addEventListener('DOMContentLoaded', function() {
+            const ticker = document.querySelector('.btn-ticker');
+            
+            if (ticker) {
+                // Listen for visibility changes
+                document.addEventListener('visibilitychange', function() {
+                    if (document.hidden) {
+                        // Page is hidden (user switched tabs or clicked a link)
+                        ticker.classList.add('paused');
+                    } else {
+                        // Page is visible again
+                        ticker.classList.remove('paused');
+                    }
+                });
+                
+                // Also pause when clicking any link (before navigation completes)
+                document.querySelectorAll('a').forEach(function(link) {
+                    link.addEventListener('click', function() {
+                        ticker.classList.add('paused');
+                    });
+                });
+            }
+        });
+    </script>
 
 </body>
 </html>
