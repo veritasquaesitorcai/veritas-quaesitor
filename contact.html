@@ -342,6 +342,72 @@
             .content {
                 padding: 1.5rem !important;
             }
+
+        /* Mobile hero text adjustments */
+        @media (max-width: 768px) {
+            .hero h1,
+            .page-header h1,
+            section.page-header h1 {
+                font-size: 1.8rem !important;
+                top: 15px !important;
+            }
+            
+            .hero .subtitle,
+            .hero p,
+            .page-header p,
+            section.page-header p {
+                font-size: 0.9rem !important;
+                bottom: 20px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero h1,
+            .page-header h1,
+            section.page-header h1 {
+                font-size: 1.5rem !important;
+                top: 10px !important;
+            }
+            
+            .hero .subtitle,
+            .hero p,
+            .page-header p,
+            section.page-header p {
+                font-size: 0.8rem !important;
+                bottom: 15px !important;
+            }
+        }
+        }
+    
+        
+        .scroll-indicator svg {
+            width: 30px;
+            height: 30px;
+            opacity: 0.7;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .scroll-indicator {
+                bottom: 20px;
+            }
+            
+            .scroll-indicator svg {
+                width: 24px;
+                height: 24px;
+            }
         }
     </style>
 </head>
@@ -350,14 +416,14 @@
         <a href="index.html" class="logo">✝️ Veritas Quaesitor
             <span class="logo-slogan clickable-ai-truth" onclick="openTruthModal(event)">AI❤️TRUTH</span>
         </a>
-        <ul class="nav-links">
+                        <ul class="nav-links">
             <li><a href="index.html">Home</a></li>
-            <li><a href="mission.html">Mission & Vision</a></li>
-            <li><a href="about.html">About CAI</a></li>
-            <li><a href="milestones.html">Projects & Milestones</a></li>
-            <li><a href="resources.html">Resources</a></li>
             <li><a href="beta-tools.html">Beta Tools</a></li>
-            <li><a href="contact.html" class="active">Contact</a></li>
+            <li><a href="milestones.html">Projects & Milestones</a></li>
+            <li><a href="mission.html">Mission & Vision</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="about.html">About CAI</a></li>
         </ul>
     </nav>
 
