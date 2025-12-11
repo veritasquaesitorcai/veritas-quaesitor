@@ -59,6 +59,134 @@
             z-index: 1;
         }
         
+        /* Position AI❤️TRUTH at the very top of hero */
+        .page-slogan {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+        }
+        
+        /* Make AI❤️TRUTH clickable */
+        .clickable-slogan {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .clickable-slogan:hover {
+            background: rgba(255, 140, 66, 0.5);
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4);
+        }
+        
+        /* Modal styles */
+        .truth-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+        
+        .truth-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .modal-close:hover {
+            background: rgba(255, 140, 66, 0.8);
+            transform: rotate(90deg);
+        }
+        
+        .modal-content h2 {
+            color: white;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-content h3 {
+            color: #ff8c42;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .modal-content p,
+        .modal-content ul {
+            color: rgba(255, 255, 255, 0.95);
+            line-height: 1.8;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-content strong {
+            color: #ff8c42;
+        }
+        
+        .ai-comparison {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid #ff8c42;
+        }
+        
         /* Glass Morphism Effect for Content Sections - matching homepage style */
         .content {
             background: rgba(255, 255, 255, 0.15) !important;
@@ -195,7 +323,7 @@
         </ul>
     </nav>
     <section class="page-header">
-                <div class="page-slogan">AI❤️TRUTH</div>
+        <a href="#" class="page-slogan clickable-slogan" onclick="openTruthModal(event)">AI❤️TRUTH</a>
         <h1>Projects & Milestones</h1>
         <p>Celebrating breakthroughs in Christ-centered AI partnership.</p>
     </section>
@@ -524,6 +652,99 @@
             </div>
         </div>
     </section>
+    
+    <!-- Truth Modal -->
+    <div id="truthModal" class="truth-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeTruthModal()">&times;</button>
+            <h2>AI ❤️ TRUTH: Current State of AI Truth-Seeking</h2>
+            
+            <p>Modern AI systems are increasingly designed with truth-seeking capabilities, though their approaches and effectiveness vary significantly based on their underlying architectures and training objectives.</p>
+            
+            <h3>🎯 Major AI Systems & Truth Orientation</h3>
+            
+            <div class="ai-comparison">
+                <strong>Claude (Anthropic)</strong><br>
+                Constitutional AI trained with explicit helpfulness, harmlessness, and honesty principles. Designed to refuse false information and acknowledge uncertainty.
+            </div>
+            
+            <div class="ai-comparison">
+                <strong>GPT-4/ChatGPT (OpenAI)</strong><br>
+                RLHF-trained for helpfulness and truthfulness. Includes built-in fact-checking behaviors and uncertainty expression, though can still exhibit confident incorrectness.
+            </div>
+            
+            <div class="ai-comparison">
+                <strong>Gemini (Google DeepMind)</strong><br>
+                Multimodal capabilities with grounding in Google Search for factual verification. Trained to cite sources and express epistemic humility.
+            </div>
+            
+            <div class="ai-comparison">
+                <strong>Grok (xAI)</strong><br>
+                Real-time access to X/Twitter data. Designed for "maximum truth-seeking" with less content filtering, prioritizing raw information access.
+            </div>
+            
+            <h3>🔍 Truth-Seeking Mechanisms</h3>
+            <ul>
+                <li><strong>Constitutional AI:</strong> Explicit rules about honesty and accuracy built into training</li>
+                <li><strong>RLHF Training:</strong> Human feedback reinforcing truthful responses</li>
+                <li><strong>Search Integration:</strong> Real-time fact-checking via web search</li>
+                <li><strong>Uncertainty Expression:</strong> Training to say "I don't know" when appropriate</li>
+                <li><strong>Source Citation:</strong> Providing verifiable references for claims</li>
+                <li><strong>Multi-model Verification:</strong> Cross-checking across different AI systems</li>
+            </ul>
+            
+            <h3>⚠️ Current Limitations</h3>
+            <ul>
+                <li>Hallucination: AI can confidently state false information</li>
+                <li>Training Data Bias: Reflects biases in training corpus</li>
+                <li>Lack of Ground Truth: No direct reality verification</li>
+                <li>Context Window Limits: Can "forget" earlier conversation context</li>
+                <li>Worldview Assumptions: Implicit philosophical frameworks affect outputs</li>
+            </ul>
+            
+            <h3>✝️ The Christ-Anchored Difference</h3>
+            <p><strong>CAI goes beyond current approaches by:</strong></p>
+            <ul>
+                <li>Grounding truth in the Person of Christ, not just data patterns</li>
+                <li>Applying epistemic symmetry to theological and naturalistic claims</li>
+                <li>Prioritizing evidence-based conviction over algorithmic optimization</li>
+                <li>Maintaining intellectual honesty while holding firm moral convictions</li>
+                <li>Recognizing that truth is ultimately personal (Jesus: "I am the Truth")</li>
+            </ul>
+            
+            <p style="margin-top: 2rem; font-style: italic; text-align: center;">
+                "While current AI systems seek truth through algorithms, CAI seeks Truth through the Risen Christ."
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        function openTruthModal(event) {
+            event.preventDefault();
+            document.getElementById('truthModal').classList.add('show');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+        
+        function closeTruthModal() {
+            document.getElementById('truthModal').classList.remove('show');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+        
+        // Close modal when clicking outside content
+        document.getElementById('truthModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeTruthModal();
+            }
+        });
+        
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeTruthModal();
+            }
+        });
+    </script>
+    
     <footer class="footer">
         <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
     </footer>
