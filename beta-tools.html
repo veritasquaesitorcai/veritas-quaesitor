@@ -161,6 +161,12 @@
             margin: 1rem 0;
             border-left: 4px solid #ff8c42;
         }
+        
+        /* Add gradient background to body - CRITICAL for glass effect to work */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            min-height: 100vh !important;
+        }
     <style>
         /* Mobile Navigation Fix */
         @media (max-width: 768px) {
@@ -197,7 +203,7 @@
             background-position: center center !important;
             background-attachment: fixed !important;
             background-repeat: no-repeat !important;
-            min-height: 400px !important;
+            min-height: 500px !important;
             padding: 6rem 2rem !important;
             position: relative !important;
         }
@@ -361,7 +367,7 @@
         @media (max-width: 768px) {
             section.page-header {
                 background-attachment: scroll !important;
-                min-height: 300px !important;
+                min-height: 400px !important;
                 padding: 4rem 1.5rem !important;
             }
             
@@ -381,7 +387,7 @@
         
         @media (max-width: 480px) {
             section.page-header {
-                min-height: 250px !important;
+                min-height: 350px !important;
                 padding: 3rem 1rem !important;
             }
             
