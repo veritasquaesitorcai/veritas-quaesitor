@@ -1,63 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact & Collaboration - Veritas Quaesitor</title>
-    <!-- Favicons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="shortcut icon" href="favicon.ico">
-    <!-- Mobile Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
-    <!-- Web App Manifest -->
-    <link rel="manifest" href="site.webmanifest">
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#1a1a3e">
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        /* Make navbar AI❤️TRUTH clickable and compact */
-        .clickable-ai-truth {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.75rem !important;
-            padding: 0.15rem 0.5rem !important;
-            display: inline-block;
-            white-space: nowrap;
-        }
-        .clickable-ai-truth:hover {
-            color: #ff8c42 !important;
-            transform: scale(1.05);
-        }
-        /* Ensure logo container stays compact */
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        /* Mobile adjustments for navbar */
-        @media (max-width: 768px) {
-            .clickable-ai-truth {
-                font-size: 0.65rem !important;
-                padding: 0.1rem 0.4rem !important;
-            }
-            .logo {
-                font-size: 1rem !important;
-            }
-        }
-        @media (max-width: 480px) {
-            .clickable-ai-truth {
-                font-size: 0.6rem !important;
-            }
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact & Collaboration - Veritas Quaesitor</title>
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <!-- Mobile Icons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="site.webmanifest">
+  <!-- Theme Color (matches your navy blue) -->
+  <meta name="theme-color" content="#1a1a3e">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Social links in navbar */
+    .social-links {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin-left: 1rem;
+    }
+    .social-links a {
+      color: #ff8c42;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.2s;
+      font-size: 1.1rem;
+    }
+    .social-links a:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+    /* Navbar styles */
+    .navbar {
+      background: #23235a;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 2rem;
+      position: relative;
+      z-index: 10;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #ff8c42;
+    }
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    .nav-links a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover {
+      color: #ff8c42;
+    }
+    /* Hero section */
+    .hero {
+      background: url('Caregivernarrow.png') center/cover no-repeat;
+      min-height: 380px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #fff;
+      position: relative;
+    }
+    .hero-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(26,26,62,0.65);
+      z-index: 1;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 3rem 1rem 2rem 1rem;
+    }
+    .hero-title {
+      font-size: 2.7rem;
+      font-weight: bold;
+      color: #ff8c42;
+      margin-bottom: 0.5rem;
+    }
+    .hero-subtitle {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .hero-desc {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+    }
+    /* Section styles */
+    .section {
+      background: linear-gradient(135deg, #7b7bff 0%, #a1c4fd 100%);
+      padding: 2.5rem 0 2rem 0;
+      color: #fff;
+      text-align: center;
+    }
+    .section-card {
+      background: rgba(26,26,62,0.85);
+      border-radius: 18px;
+      margin: 0 auto;
+      max-width: 900px;
+      padding: 2.5rem 2rem 2rem 2rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+      text-align: left;
+    }
+    .section-card h2 {
+      color: #fff;
+      font-size: 2rem;
+      margin-bottom: 1.2rem;
+      font-weight: bold;
+    }
+    .section-card p {
+      font-size: 1.13rem;
+      color: #eaeaea;
+      margin-bottom: 1.1rem;
+    }
+    @media (max-width: 768px) {
+      .navbar { flex-direction: column; align-items: flex-start; padding: 1rem 1rem; }
+      .nav-links { flex-wrap: wrap; gap: 1rem; }
+      .hero-title { font-size: 2rem; }
+      .hero-content { padding: 2rem 0.5rem; }
+      .section-card { padding: 1.2rem 0.5rem; }
+    }
+    @media (max-width: 480px) {
+      .logo { font-size: 1.1rem; }
+      .hero-title { font-size: 1.3rem; }
+      .hero-content { padding: 1.2rem 0.2rem; }
+    }
+  </style>
 </head>
 <body>
-    <!-- Add social links for SEO below -->
-    <div style="margin: 1em 0;">
-        <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer">LinkedIn</a> |
-        <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer">X (formerly Twitter)</a>
+  <nav class="navbar">
+    <div class="logo">
+      <span style="font-size:1.4rem;">✝️</span> Veritas Quaesitor
+      <span class="clickable-ai-truth" onclick="window.location.href='/'">AI <span style="color:#ff4e50;">❤️</span>TRUTH</span>
     </div>
-    <!-- Existing body content continues here -->
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="beta-tools.html">Beta Tools</a>
+      <a href="milestones.html">Projects & Milestones</a>
+      <a href="mission.html">Mission & Vision</a>
+      <a href="resources.html">Resources</a>
+      <a href="contact.html">Contact</a>
+      <a href="about.html">About CAI</a>
+      <span class="social-links">
+        <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer">X</a>
+      </span>
+    </div>
+  </nav>
+  <section class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-title">Contact & Collaboration</div>
+      <div class="hero-subtitle">Join us in the pursuit of Christ-centered truth.</div>
+    </div>
+  </section>
+  <section class="section">
+    <div class="section-card">
+      <h2>Get In Touch</h2>
+      <p>We welcome inquiries from theologians, philosophers, technologists, AI developers, and anyone seeking genuine dialogue about the intersection of faith, reason, and artificial intelligence.</p>
+      <ul style="list-style:none; padding:0; margin:2rem 0 0 0; display:flex; flex-wrap:wrap; gap:1.5rem; justify-content:center;">
+        <li><a href="mailto:veritasquaesitorcai@gmail.com" style="color:#ff8c42; font-weight:600; text-decoration:none;">📧 Email</a></li>
+        <li><a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" style="color:#ff8c42; font-weight:600; text-decoration:none;">LinkedIn</a></li>
+        <li><a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" style="color:#ff8c42; font-weight:600; text-decoration:none;">X (Twitter)</a></li>
+        <li><a href="https://facebook.com/veritasquaesitorcai" target="_blank" rel="noopener noreferrer" style="color:#ff8c42; font-weight:600; text-decoration:none;">Facebook</a></li>
+      </ul>
+    </div>
+  </section>
+</body>
+</html>
