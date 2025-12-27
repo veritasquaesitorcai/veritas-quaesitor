@@ -451,6 +451,32 @@
             color: white !important;
             transform: translateY(-2px);
         }
+        /* Mobile social icon fixes - Better rounded style */
+        @media (max-width: 768px) {
+            .social-nav {
+                margin-left: 0;
+                gap: 0.5rem;
+            }
+            
+            .social-link {
+                width: 32px !important;
+                height: 32px !important;
+                font-size: 0.85rem !important;
+                background: rgba(255, 140, 66, 0.25) !important;
+                border-radius: 50% !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .social-link {
+                width: 30px !important;
+                height: 30px !important;
+                font-size: 0.8rem !important;
+            }
+        }
+
+        
+
 
     
         /* Active Page Indicator - Living Stone + Light Trail */
