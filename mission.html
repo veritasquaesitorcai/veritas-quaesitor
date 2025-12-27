@@ -422,15 +422,16 @@
                 height: 24px;
             }
         }        
-        /* Social links in navbar - Orange style */
-        /* Fix social icon vertical alignment */
-        .social-nav {
+        /* Social links in navbar - Orange style */nav {
             display: flex;
             gap: 0.5rem;
             align-items: center;
             margin-left: auto;
-            align-self: center; /* Ensure vertical centering in flex parent */
         }
+
+
+        /* Fix social icon vertical alignment */
+        .social-
         
         .nav-links {
             display: flex;
@@ -440,7 +441,14 @@
         .nav-links li {
             display: flex;
             align-items: center; /* Center content within each li */
+        }nav {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-left: auto;
         }
+
+
 
 
         
@@ -467,15 +475,16 @@
         }
         
         /* Mobile social icon fixes - Better rounded style */
-        @media (max-width: 768px) {
-        /* Fix social icon vertical alignment */
-        .social-nav {
+        @media (max-width: 768px) {nav {
             display: flex;
             gap: 0.5rem;
             align-items: center;
             margin-left: auto;
-            align-self: center; /* Ensure vertical centering in flex parent */
         }
+
+
+        /* Fix social icon vertical alignment */
+        .social-
         
         .nav-links {
             display: flex;
@@ -485,7 +494,14 @@
         .nav-links li {
             display: flex;
             align-items: center; /* Center content within each li */
+        }nav {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-left: auto;
         }
+
+
 
 
             
@@ -499,15 +515,16 @@
             }
         }
         
-        @media (max-width: 480px) {
-        /* Fix social icon vertical alignment */
-        .social-nav {
+        @media (max-width: 480px) {nav {
             display: flex;
             gap: 0.5rem;
             align-items: center;
             margin-left: auto;
-            align-self: center; /* Ensure vertical centering in flex parent */
         }
+
+
+        /* Fix social icon vertical alignment */
+        .social-
         
         .nav-links {
             display: flex;
@@ -517,7 +534,14 @@
         .nav-links li {
             display: flex;
             align-items: center; /* Center content within each li */
+        }nav {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-left: auto;
         }
+
+
 
 
             .social-link {
@@ -632,11 +656,14 @@
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <a href="index.html" class="logo">✝️ Veritas Quaesitor
-            <span class="logo-slogan clickable-ai-truth" onclick="openTruthModal(event)">AI❤️TRUTH</span>
-        </a>
-                        <ul class="nav-links">
+    <nav>
+        <div>
+            <a href="index.html" class="logo">
+                ✝️ Veritas Quaesitor
+                <span class="logo-slogan clickable-ai-truth" onclick="openTruthModal(event)">AI❤️TRUTH</span>
+            </a>
+        </div>
+                <ul >
             <li><a href="index.html">Home</a></li>
             <li><a href="beta-tools.html">Beta Tools</a></li>
             <li><a href="milestones.html">Projects & Milestones</a></li>
@@ -645,7 +672,7 @@
             <li><a href="contact.html">Contact</a></li>
             <li><a href="about.html">About CAI</a></li>
             <li><a href="social.html">Social</a></li>
-                    <li class="social-nav">
+            <li class="social-nav">
                 <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" title="LinkedIn" class="social-link">in</a>
                 <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" title="X (Twitter)" class="social-link">𝕏</a>
             </li>
