@@ -421,8 +421,7 @@
                 width: 24px;
                 height: 24px;
             }
-        }
-            
+        }        
         /* Social links in navbar - Orange style */
         .social-nav {
             display: flex;
@@ -451,6 +450,7 @@
             color: white !important;
             transform: translateY(-2px);
         }
+        
         /* Mobile social icon fixes - Better rounded style */
         @media (max-width: 768px) {
             .social-nav {
@@ -474,6 +474,10 @@
                 font-size: 0.8rem !important;
             }
         }
+
+
+            
+        
 
         
 
@@ -559,12 +563,17 @@
             }
         }
         
-        /* Mobile: Simple cross marker */
+                /* Mobile: Simple cross marker */
         @media (max-width: 480px) {
             nav a.active::before {
-                content: '✝️ ';
-                font-size: 0.7rem;
-                margin-right: 2px;
+                content: '✝️ ' !important;
+                position: static !important;
+                left: auto !important;
+                top: auto !important;
+                transform: none !important;
+                font-size: 0.7rem !important;
+                margin-right: 2px !important;
+                animation: none !important;
             }
         }
 
