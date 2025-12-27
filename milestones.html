@@ -418,6 +418,36 @@
                 height: 24px;
             }
         }
+            
+        /* Social links in navbar - Orange style */
+        .social-nav {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            margin-left: auto;
+        }
+        
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255, 140, 66, 0.2);
+            color: #ff8c42 !important;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none !important;
+        }
+        
+        .social-link:hover {
+            background: #ff8c42;
+            color: white !important;
+            transform: translateY(-2px);
+        }
+
     </style>
 </head>
 <body>
@@ -433,6 +463,11 @@
             <li><a href="resources.html">Resources</a></li>
             <li><a href="contact.html">Contact</a></li>
             <li><a href="about.html">About CAI</a></li>
+            <li><a href="social.html">Social</a></li>
+                    <li class="social-nav">
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" title="LinkedIn" class="social-link">in</a>
+                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" title="X (Twitter)" class="social-link">𝕏</a>
+            </li>
         </ul>
     </nav>
     <section class="page-header">
