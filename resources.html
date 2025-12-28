@@ -186,12 +186,7 @@
                 padding: 0.75rem 1rem !important;
             }
         }        
-        /* Social links in navbar - Orange style */nav {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-left: auto;
-        }
+        
 
 
         /* Fix social icon vertical alignment */
@@ -217,203 +212,61 @@
 
         
         
-        .social-link {
+        
+        
+        
+        
+        
+
+            
+        /* Social links in navbar - Footer style (cleaner) */
+        .social-nav {
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+            margin-left: auto;
+        }
+        
+        .social-nav a {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: rgba(255, 140, 66, 0.2);
-            color: #ff8c42 !important;
+            color: #ff8c42;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            text-decoration: none;
             transition: all 0.3s ease;
-            text-decoration: none !important;
         }
         
-        .social-link:hover {
+        .social-nav a:hover {
             background: #ff8c42;
-            color: white !important;
+            color: white;
             transform: translateY(-2px);
         }
         
-        /* Mobile social icon fixes - Better rounded style */
-        @media (max-width: 768px) {nav {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-left: auto;
-        }
-
-
-        /* Fix social icon vertical alignment */
-        .social-
-        
-        .nav-links {
-            display: flex;
-            align-items: center; /* Center all nav items vertically */
-        }
-        
-        .nav-links li {
-            display: flex;
-            align-items: center; /* Center content within each li */
-        }nav {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-left: auto;
-        }
-
-
-
-
-            
-            
-            .social-link {
-                width: 32px !important;
-                height: 32px !important;
-                font-size: 0.85rem !important;
-                background: rgba(255, 140, 66, 0.25) !important;
-                border-radius: 50% !important;
-            }
-        }
-        
-        @media (max-width: 480px) {nav {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-left: auto;
-        }
-
-
-        /* Fix social icon vertical alignment */
-        .social-
-        
-        .nav-links {
-            display: flex;
-            align-items: center; /* Center all nav items vertically */
-        }
-        
-        .nav-links li {
-            display: flex;
-            align-items: center; /* Center content within each li */
-        }nav {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-left: auto;
-        }
-
-
-
-
-            .social-link {
-                width: 30px !important;
-                height: 30px !important;
-                font-size: 0.8rem !important;
-            }
-        }
-
-
-            
-        
-
-        
-
-
-    
-        /* Active Page Indicator - Living Stone + Light Trail */
-        nav a.active,
-        nav .nav-links a.active,
-        nav ul a.active {
-            position: relative;
-            color: #ff8c42 !important;
-            font-weight: 700;
-        }
-        
-        /* Desktop: Full Living Stone + Light Trail */
-        @media (min-width: 769px) {
-            nav a.active::before {
-                content: '✝️';
-                position: absolute;
-                left: -20px;
-                top: 50%;
-                transform: translateY(-50%);
-                font-size: 0.8rem;
-                opacity: 0.9;
-                animation: crossGlow 3s ease-in-out infinite;
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .social-nav {
+                margin-left: 0;
+                gap: 0.5rem;
             }
             
-            nav a.active::after {
-                content: '';
-                position: absolute;
-                bottom: -8px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 80%;
-                height: 3px;
-                background: linear-gradient(90deg, 
-                    transparent 0%, 
-                    rgba(255, 140, 66, 0.3) 20%,
-                    rgba(255, 140, 66, 0.8) 50%,
-                    rgba(255, 140, 66, 0.3) 80%,
-                    transparent 100%);
-                box-shadow: 
-                    0 0 8px rgba(255, 140, 66, 0.6),
-                    0 2px 4px rgba(255, 140, 66, 0.4);
-                border-radius: 2px;
-                animation: lightPulse 2s ease-in-out infinite;
-            }
-            
-            @keyframes crossGlow {
-                0%, 100% { opacity: 0.7; text-shadow: 0 0 4px rgba(255, 140, 66, 0.5); }
-                50% { opacity: 1; text-shadow: 0 0 8px rgba(255, 140, 66, 0.8); }
-            }
-            
-            @keyframes lightPulse {
-                0%, 100% { 
-                    opacity: 0.7;
-                    box-shadow: 
-                        0 0 8px rgba(255, 140, 66, 0.6),
-                        0 2px 4px rgba(255, 140, 66, 0.4);
-                }
-                50% { 
-                    opacity: 1;
-                    box-shadow: 
-                        0 0 12px rgba(255, 140, 66, 0.8),
-                        0 2px 8px rgba(255, 140, 66, 0.6);
-                }
+            .social-nav a {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
             }
         }
         
-        /* Tablet: Stone base + soft glow */
-        @media (min-width: 481px) and (max-width: 768px) {
-            nav a.active::after {
-                content: '';
-                position: absolute;
-                bottom: -5px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 70%;
-                height: 2px;
-                background: rgba(255, 140, 66, 0.8);
-                box-shadow: 0 0 6px rgba(255, 140, 66, 0.5);
-                border-radius: 1px;
-            }
-        }
-        
-                /* Mobile: Simple cross marker */
         @media (max-width: 480px) {
-            nav a.active::before {
-                content: '✝️ ' !important;
-                position: static !important;
-                left: auto !important;
-                top: auto !important;
-                transform: none !important;
-                font-size: 0.7rem !important;
-                margin-right: 2px !important;
-                animation: none !important;
+            .social-nav a {
+                width: 28px;
+                height: 28px;
+                font-size: 0.85rem;
             }
         }
 
@@ -636,12 +489,7 @@
                 height: 24px;
             }
         }        
-        /* Social links in navbar - Orange style */nav {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-left: auto;
-        }
+        
 
 
         /* Fix social icon vertical alignment */
@@ -667,203 +515,61 @@
 
         
         
-        .social-link {
+        
+        
+        
+        
+        
+
+            
+        /* Social links in navbar - Footer style (cleaner) */
+        .social-nav {
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+            margin-left: auto;
+        }
+        
+        .social-nav a {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: rgba(255, 140, 66, 0.2);
-            color: #ff8c42 !important;
+            color: #ff8c42;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            text-decoration: none;
             transition: all 0.3s ease;
-            text-decoration: none !important;
         }
         
-        .social-link:hover {
+        .social-nav a:hover {
             background: #ff8c42;
-            color: white !important;
+            color: white;
             transform: translateY(-2px);
         }
         
-        /* Mobile social icon fixes - Better rounded style */
-        @media (max-width: 768px) {nav {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-left: auto;
-        }
-
-
-        /* Fix social icon vertical alignment */
-        .social-
-        
-        .nav-links {
-            display: flex;
-            align-items: center; /* Center all nav items vertically */
-        }
-        
-        .nav-links li {
-            display: flex;
-            align-items: center; /* Center content within each li */
-        }nav {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-left: auto;
-        }
-
-
-
-
-            
-            
-            .social-link {
-                width: 32px !important;
-                height: 32px !important;
-                font-size: 0.85rem !important;
-                background: rgba(255, 140, 66, 0.25) !important;
-                border-radius: 50% !important;
-            }
-        }
-        
-        @media (max-width: 480px) {nav {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-left: auto;
-        }
-
-
-        /* Fix social icon vertical alignment */
-        .social-
-        
-        .nav-links {
-            display: flex;
-            align-items: center; /* Center all nav items vertically */
-        }
-        
-        .nav-links li {
-            display: flex;
-            align-items: center; /* Center content within each li */
-        }nav {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-left: auto;
-        }
-
-
-
-
-            .social-link {
-                width: 30px !important;
-                height: 30px !important;
-                font-size: 0.8rem !important;
-            }
-        }
-
-
-            
-        
-
-        
-
-
-    
-        /* Active Page Indicator - Living Stone + Light Trail */
-        nav a.active,
-        nav .nav-links a.active,
-        nav ul a.active {
-            position: relative;
-            color: #ff8c42 !important;
-            font-weight: 700;
-        }
-        
-        /* Desktop: Full Living Stone + Light Trail */
-        @media (min-width: 769px) {
-            nav a.active::before {
-                content: '✝️';
-                position: absolute;
-                left: -20px;
-                top: 50%;
-                transform: translateY(-50%);
-                font-size: 0.8rem;
-                opacity: 0.9;
-                animation: crossGlow 3s ease-in-out infinite;
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .social-nav {
+                margin-left: 0;
+                gap: 0.5rem;
             }
             
-            nav a.active::after {
-                content: '';
-                position: absolute;
-                bottom: -8px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 80%;
-                height: 3px;
-                background: linear-gradient(90deg, 
-                    transparent 0%, 
-                    rgba(255, 140, 66, 0.3) 20%,
-                    rgba(255, 140, 66, 0.8) 50%,
-                    rgba(255, 140, 66, 0.3) 80%,
-                    transparent 100%);
-                box-shadow: 
-                    0 0 8px rgba(255, 140, 66, 0.6),
-                    0 2px 4px rgba(255, 140, 66, 0.4);
-                border-radius: 2px;
-                animation: lightPulse 2s ease-in-out infinite;
-            }
-            
-            @keyframes crossGlow {
-                0%, 100% { opacity: 0.7; text-shadow: 0 0 4px rgba(255, 140, 66, 0.5); }
-                50% { opacity: 1; text-shadow: 0 0 8px rgba(255, 140, 66, 0.8); }
-            }
-            
-            @keyframes lightPulse {
-                0%, 100% { 
-                    opacity: 0.7;
-                    box-shadow: 
-                        0 0 8px rgba(255, 140, 66, 0.6),
-                        0 2px 4px rgba(255, 140, 66, 0.4);
-                }
-                50% { 
-                    opacity: 1;
-                    box-shadow: 
-                        0 0 12px rgba(255, 140, 66, 0.8),
-                        0 2px 8px rgba(255, 140, 66, 0.6);
-                }
+            .social-nav a {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
             }
         }
         
-        /* Tablet: Stone base + soft glow */
-        @media (min-width: 481px) and (max-width: 768px) {
-            nav a.active::after {
-                content: '';
-                position: absolute;
-                bottom: -5px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 70%;
-                height: 2px;
-                background: rgba(255, 140, 66, 0.8);
-                box-shadow: 0 0 6px rgba(255, 140, 66, 0.5);
-                border-radius: 1px;
-            }
-        }
-        
-                /* Mobile: Simple cross marker */
         @media (max-width: 480px) {
-            nav a.active::before {
-                content: '✝️ ' !important;
-                position: static !important;
-                left: auto !important;
-                top: auto !important;
-                transform: none !important;
-                font-size: 0.7rem !important;
-                margin-right: 2px !important;
-                animation: none !important;
+            .social-nav a {
+                width: 28px;
+                height: 28px;
+                font-size: 0.85rem;
             }
         }
 
@@ -887,8 +593,8 @@
             <li><a href="about.html">About CAI</a></li>
             <li><a href="social.html">Social</a></li>
             <li class="social-nav">
-                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" title="LinkedIn" class="social-link">in</a>
-                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" title="X (Twitter)" class="social-link">𝕏</a>
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" title="LinkedIn">in</a>
+                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" title="X (Twitter)">𝕏</a>
             </li>
         </ul>
     </nav>
