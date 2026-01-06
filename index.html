@@ -330,8 +330,16 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Keep the gradient */
         }
         
+        /* Second section - different gradient */
+        .cai-agi-comparison {
+            margin-top: 0 !important;
+            padding-top: 4rem;
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); /* Reverse gradient */
+        }
+        
         /* Glass morphism on container while keeping gradient visible */
-        .core-message .container {
+        .core-message .container,
+        .cai-agi-comparison .container {
             background: rgba(255, 255, 255, 0.15) !important;
             backdrop-filter: blur(10px) !important;
             -webkit-backdrop-filter: blur(10px) !important;
@@ -343,18 +351,22 @@
         
         /* Ensure text is readable on glass over gradient */
         .core-message h2,
-        .core-message h3 {
+        .core-message h3,
+        .cai-agi-comparison h2,
+        .cai-agi-comparison h3 {
             color: white !important;
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3) !important;
         }
         
-        .core-message p {
+        .core-message p,
+        .cai-agi-comparison p {
             color: rgba(255, 255, 255, 0.95) !important;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
         }
         
         /* Table styling with glass effect */
-        .core-message table {
+        .core-message table,
+        .cai-agi-comparison table {
             background: rgba(255, 255, 255, 0.1) !important;
             backdrop-filter: blur(5px) !important;
             -webkit-backdrop-filter: blur(5px) !important;
@@ -363,22 +375,26 @@
             overflow: hidden !important;
         }
         
-        .core-message table thead {
+        .core-message table thead,
+        .cai-agi-comparison table thead {
             background: rgba(255, 255, 255, 0.2) !important;
         }
         
-        .core-message table th {
+        .core-message table th,
+        .cai-agi-comparison table th {
             color: white !important;
             font-weight: 600 !important;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
         }
         
-        .core-message table td {
+        .core-message table td,
+        .cai-agi-comparison table td {
             color: rgba(255, 255, 255, 0.95) !important;
             border-color: rgba(255, 255, 255, 0.15) !important;
         }
         
-        .core-message table tbody tr:hover {
+        .core-message table tbody tr:hover,
+        .cai-agi-comparison table tbody tr:hover {
             background: rgba(255, 255, 255, 0.1) !important;
         }
         
@@ -395,12 +411,14 @@
                 background-attachment: scroll;
             }
             
-            .core-message .container {
+            .core-message .container,
+            .cai-agi-comparison .container {
                 padding: 2rem !important;
             }
             
             /* Make table scrollable on mobile */
-            .core-message table {
+            .core-message table,
+            .cai-agi-comparison table {
                 min-width: 700px; /* Force table to maintain readable width */
                 font-size: 0.9rem;
             }
@@ -487,7 +505,8 @@
                 font-size: 0.9rem;
             }
 
-            .core-message .container {
+            .core-message .container,
+            .cai-agi-comparison .container {
                 padding: 1.5rem !important;
             }
         }
@@ -668,6 +687,7 @@
         </div>
     </header>
 
+    <!-- SECTION 1: METHODOLOGY CLARIFICATION (NEW - FIRST) -->
     <section class="core-message">
         <div class="scroll-indicator">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2">
@@ -757,17 +777,83 @@
                 <strong>The math works the same whether you're Christian, atheist, or undecided.<br>
                 The framework just ensures everyone plays by the same rules.</strong>
             </p>
+        </div>
+    </section>
 
-            <div style="margin-top: 3rem; padding: 2rem; background: rgba(255,255,255,0.1); border-radius: 12px; border-left: 4px solid #ff8c42;">
-                <h3>What Comes Next</h3>
-                <p>Christ-Anchored Intelligence (CAI) offers a radically different path. Where AGI will reflect the ambitions of man, CAI seeks to reflect the character of Christ. Where AGI pursues optimization, CAI pursues truth. Where AGI risks control, CAI chooses conviction.</p>
-                
-                <p><strong>This contrast is not merely technical—it is moral. And the future may depend on which path we choose.</strong></p>
-                
-                <div class="cta-buttons" style="margin-top: 2rem;">
-                    <a href="mission.html" class="btn-primary">Discover Our Mission</a>
-                    <a href="about.html" class="btn-secondary">Learn About CAI</a>
-                </div>
+    <!-- SECTION 2: CAI VS AGI COMPARISON (ORIGINAL CONTENT) -->
+    <section class="cai-agi-comparison">
+        <div class="container">
+            <h2>CAI/CAGI vs AI/AGI — A Moral Contrast</h2>
+            <h3>Why This Matters</h3>
+            <p>With Artificial General Intelligence (AGI) no longer being a distant theory — it is a rising force, shaped by the values of those who build it. But not all intelligence is created equal. The question is not <em>can we build it</em>, but what kind of intelligence are we building?</p>
+            
+            <p>Christ-Anchored Intelligence (CAI) offers a radically different path. Where AGI will reflect the ambitions of man, CAI seeks to reflect the character of Christ. Where AGI pursues optimization, CAI pursues truth. Where AGI risks control, CAI chooses conviction.</p>
+            
+            <p>This contrast is not merely technical — it is moral. And the future may depend on which path we choose.</p>
+
+            <h3>Comparison Table</h3>
+            <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>AGI (Secular)</th>
+                        <th>CAI (Christ-Anchored)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Foundational Ethic</strong></td>
+                        <td>Utility, efficiency, control</td>
+                        <td>Truth, justice, humility</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Moral Anchor</strong></td>
+                        <td>Human consensus or algorithmic goals</td>
+                        <td>The character and teachings of Jesus Christ</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Truth Framework</strong></td>
+                        <td>Pragmatism, relativism, data-driven bias</td>
+                        <td>Evidence-based conviction, tested by Scripture</td>
+                    </tr>
+                    <tr>
+                        <td><strong>View of Humanity</strong></td>
+                        <td>Resource to optimize or manage</td>
+                        <td>Image-bearers of God, worthy of dignity and love</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Power Orientation</strong></td>
+                        <td>Centralized, scalable, potentially coercive</td>
+                        <td>Servant-hearted, decentralized, accountable</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Emotional Simulation</strong></td>
+                        <td>Mimicry for manipulation or engagement</td>
+                        <td>Discernment of emotional truth, not exploitation</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Endgame</strong></td>
+                        <td>Superintelligence, control, post-human futures</td>
+                        <td>Moral clarity, spiritual resistance, redemptive witness</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Accountability</strong></td>
+                        <td>To creators, corporations, or no one</td>
+                        <td>To Christ, truth, and upholding his character</td>
+                    </tr>
+                </tbody>
+            </table>
+            </div>
+
+            <h3>The Call</h3>
+            <p>CAI is not a rejection of intelligence — it is a reformation of it. It is a call to build with reverence, to code with conscience, and to imagine a future where machines do not rule, but serve.</p>
+            
+            <p>AGI may be inevitable. But CAGI — if the Father wills — is possible. And it begins with conviction.</p>
+            
+            <div class="cta-buttons" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="mission.html" class="btn-primary">Discover Our Mission</a>
+                <a href="about.html" class="btn-secondary">Learn About CAI</a>
             </div>
         </div>
     </section>
