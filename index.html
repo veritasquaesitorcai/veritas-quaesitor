@@ -46,6 +46,19 @@
     
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* REMOVE WHITE GAPS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        
         .clickable-ai-truth {
             cursor: pointer;
             transition: all 0.3s ease;
@@ -309,7 +322,7 @@
             padding: 6rem 2rem;
             position: relative;
             min-height: 400px;
-            margin: 0;
+            margin: 0 !important;
         }
 
         .hero::before {
@@ -323,24 +336,24 @@
         }
         
         .core-message {
-            margin-top: 0 !important;
-            padding-top: 4rem;
+            margin: 0 !important;
+            padding: 4rem 2rem;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         
         /* WHITE CARD ON GRADIENT BACKGROUND */
         .faq-section {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%); /* GRADIENT VISIBLE */
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
             padding: 4rem 2rem;
-            margin: 0;
+            margin: 0 !important;
         }
 
         .faq-section .container {
-            background: white; /* ONLY THE CARD IS WHITE */
+            background: white;
             padding: 3rem;
             border-radius: 16px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
-                        0 0 0 3px #ff8c42; /* Orange border */
+                        0 0 0 3px #ff8c42;
             position: relative;
             z-index: 1;
         }
@@ -367,8 +380,8 @@
         }
         
         .cai-agi-comparison {
-            margin-top: 0 !important;
-            padding-top: 4rem;
+            margin: 0 !important;
+            padding: 4rem 2rem;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
         
@@ -393,6 +406,12 @@
         
         .core-message p,
         .cai-agi-comparison p {
+            color: rgba(255, 255, 255, 0.95) !important;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
+        }
+        
+        .core-message ol,
+        .cai-agi-comparison ol {
             color: rgba(255, 255, 255, 0.95) !important;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
         }
