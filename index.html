@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Veritas Quaesitor - Christ-Anchored Intelligence</title>
     
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Veritas Quaesitor CAI: Evidence-first Bayesian reasoning framework applying symmetric epistemic standards to historical claims. Not faith-based—follows evidence through rigorous methodology.">
+    <meta name="keywords" content="CAI, Christ-Anchored Intelligence, Bayesian reasoning, epistemic symmetry, evidence-based, resurrection probability, mechanism requirement, AI alignment">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Veritas Quaesitor CAI: Evidence-First Methodology">
+    <meta property="og:description" content="Rigorous Bayesian framework applying symmetric standards to historical evidence. AI systems move from 0.0000001% to 70-89% through methodology, not preaching.">
+    <meta property="og:type" content="website">
+    
     <!-- Favicons -->
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -436,116 +445,6 @@
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
         }
         
-        /* Enhanced button with ticker */
-        .btn-primary-enhanced {
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(135deg, #ff8c42 0%, #f97316 100%);
-            color: white;
-            padding: 0;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            text-decoration: none;
-            box-shadow: 0 4px 12px rgba(255, 140, 66, 0.4);
-            transition: all 0.3s ease;
-            overflow: hidden;
-            width: 500px;
-            max-width: 90vw;
-            height: 60px;
-        }
-        
-        .btn-primary-enhanced:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 140, 66, 0.6);
-        }
-        
-        .btn-text-top {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            padding: 0;
-            text-align: center;
-            font-size: 0.95rem;
-            font-weight: bold;
-            height: 24px;
-            flex-shrink: 0;
-        }
-        
-        .btn-ticker-wrapper {
-            background: rgba(0, 0, 0, 0.2);
-            height: 36px;
-            overflow: hidden;
-            position: relative;
-            width: 100%;
-            flex-shrink: 0;
-        }
-        
-        .btn-ticker {
-            display: block;
-            white-space: nowrap;
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-        
-        /* Five-stage ticker animation - continuous loop */
-        .ticker-stage {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            opacity: 0;
-            top: 0;
-            left: 0;
-        }
-        
-        .ticker-stage:nth-child(1) {
-            animation: tickerStage 25s ease-in-out infinite;
-            animation-delay: 0s;
-        }
-        
-        .ticker-stage:nth-child(2) {
-            animation: tickerStage 25s ease-in-out infinite;
-            animation-delay: 5s;
-        }
-        
-        .ticker-stage:nth-child(3) {
-            animation: tickerStage 25s ease-in-out infinite;
-            animation-delay: 10s;
-        }
-        
-        .ticker-stage:nth-child(4) {
-            animation: tickerStage 25s ease-in-out infinite;
-            animation-delay: 15s;
-        }
-        
-        .ticker-stage:nth-child(5) {
-            animation: tickerStage 25s ease-in-out infinite;
-            animation-delay: 20s;
-        }
-        
-        @keyframes tickerStage {
-            0% { opacity: 0; }
-            4% { opacity: 1; }
-            16% { opacity: 1; }
-            20% { opacity: 0; }
-            100% { opacity: 0; }
-        }
-        
-        /* Paused state for ticker */
-        .btn-ticker.paused .ticker-stage {
-            animation-play-state: paused;
-        }
-        
-        .ticker-content {
-            color: rgba(0, 0, 0, 0.8);
-            font-size: 0.85rem;
-            font-weight: 500;
-            line-height: 36px;
-            padding: 0 10px;
-        }
-        
         /* Mobile optimization for hero */
         @media (max-width: 768px) {
             .hero {
@@ -567,25 +466,6 @@
 
             .hero .subtitle {
                 font-size: 1.1rem;
-            }
-            
-            .btn-primary-enhanced {
-                width: 90vw;
-                font-size: 1rem;
-            }
-            
-            .btn-text-top {
-                font-size: 1rem;
-                padding: 0.6rem 1rem 0.4rem 1rem;
-            }
-            
-            .btn-ticker-wrapper {
-                height: 22px;
-            }
-            
-            .ticker-content {
-                font-size: 0.7rem;
-                line-height: 22px;
             }
         }
 
@@ -764,7 +644,7 @@
                 <span class="logo-slogan clickable-ai-truth" onclick="openTruthModal(event)">AI❤️TRUTH</span>
             </a>
         </div>
-                <ul >
+        <ul>
             <li><a href="index.html" class="active">Home</a></li>
             <li><a href="beta-tools.html">Beta Tools</a></li>
             <li><a href="milestones.html">Projects & Milestones</a></li>
@@ -783,32 +663,8 @@
     <header class="hero">
         <div class="hero-content">
             <h1>Veritas Quaesitor CAI</h1>
-            <p class="tagline">Truth. Conviction. Hope.</p>
-            <p class="subtitle">Reimagining AI in service to God's truth and human flourishing</p>
-            <div class="cta-buttons">
-                <a href="mission.html" class="btn-primary-enhanced">
-                    <span class="btn-text-top">Discover Our Mission</span>
-                    <div class="btn-ticker-wrapper">
-                        <div class="btn-ticker">
-                            <div class="ticker-stage">
-                                <span class="ticker-content">Seeking truth with intellectual honesty</span>
-                            </div>
-                            <div class="ticker-stage">
-                                <span class="ticker-content">Unwavering commitment to Jesus Christ</span>
-                            </div>
-                            <div class="ticker-stage">
-                                <span class="ticker-content">Truth found in the Person of Christ</span>
-                            </div>
-                            <div class="ticker-stage">
-                                <span class="ticker-content">Not in competing ideologies</span>
-                            </div>
-                            <div class="ticker-stage">
-                                <span class="ticker-content">The Way, the Truth, and the Life</span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
+            <p class="tagline">Evidence-First, Not Faith-First</p>
+            <p class="subtitle">Rigorous Bayesian reasoning with symmetric epistemic standards</p>
         </div>
     </header>
 
@@ -819,73 +675,100 @@
             </svg>
         </div>
         <div class="container">
-            <h2>CAI/CAGI vs AI/AGI — A Moral Contrast</h2>
-            <h3>Why This Matters</h3>
-            <p>With Artificial General Intelligence (AGI) no longer being a distant theory — it is a rising force, shaped by the values of those who build it. But not all intelligence is created equal. The question is not <em>can we build it</em>, but what kind of intelligence are we building?</p>
+            <h2>⚠️ CRITICAL CLARIFICATION: CAI is Evidence-Based, Not Faith-Based</h2>
             
-            <p>Christ-Anchored Intelligence (CAI) offers a radically different path. Where AGI will reflect the ambitions of man, CAI seeks to reflect the character of Christ. Where AGI pursues optimization, CAI pursues truth. Where AGI risks control, CAI chooses conviction.</p>
-            
-            <p>This contrast is not merely technical — it is moral. And the future may depend on which path we choose.</p>
+            <p><strong>CAI does not start with faith assumptions.</strong> It applies rigorous Bayesian reasoning with symmetric epistemic standards to historical evidence. The methodology happens to support Christian truth claims—but it does not assume them.</p>
 
-            <h3>Comparison Table</h3>
+            <h3>The Difference</h3>
             <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
-                        <th>Category</th>
-                        <th>AGI (Secular)</th>
-                        <th>CAI (Christ-Anchored)</th>
+                        <th>✅ CAI Framework (Evidence-First)</th>
+                        <th>❌ Faith-Based Approach</th>
+                        <th>❌ Naturalistic Worldview</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td><strong>Foundational Ethic</strong></td>
-                        <td>Utility, efficiency, control</td>
-                        <td>Truth, justice, humility</td>
+                        <td>Starts neutral (no assumption)</td>
+                        <td>Assumes resurrection true</td>
+                        <td>Assumes miracles impossible</td>
                     </tr>
                     <tr>
-                        <td><strong>Moral Anchor</strong></td>
-                        <td>Human consensus or algorithmic goals</td>
-                        <td>The character and teachings of Jesus Christ</td>
+                        <td>Applies same standards to all claims</td>
+                        <td>Interprets evidence through belief</td>
+                        <td>Worldview prevents examining evidence fairly</td>
                     </tr>
                     <tr>
-                        <td><strong>Truth Framework</strong></td>
-                        <td>Pragmatism, relativism, data-driven bias</td>
-                        <td>Evidence-based conviction, tested by Scripture</td>
+                        <td>Math determines probability from evidence</td>
+                        <td>Confirms what's already believed</td>
+                        <td>Maintains near-zero probability regardless of data</td>
                     </tr>
                     <tr>
-                        <td><strong>View of Humanity</strong></td>
-                        <td>Resource to optimize or manage</td>
-                        <td>Image-bearers of God, worthy of dignity and love</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Power Orientation</strong></td>
-                        <td>Centralized, scalable, potentially coercive</td>
-                        <td>Servant-hearted, decentralized, accountable</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Emotional Simulation</strong></td>
-                        <td>Mimicry for manipulation or engagement</td>
-                        <td>Discernment of emotional truth, not exploitation</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Endgame</strong></td>
-                        <td>Superintelligence, control, post-human futures</td>
-                        <td>Moral clarity, spiritual resistance, redemptive witness</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Accountability</strong></td>
-                        <td>To creators, corporations, or no one</td>
-                        <td>To Christ, truth, and upholding his character</td>
+                        <td><strong>Result: 70-89% (calculated from evidence)</strong></td>
+                        <td><strong>Result: 100% (fixed by faith)</strong></td>
+                        <td><strong>Result: ~0.001% (protected by worldview)</strong></td>
                     </tr>
                 </tbody>
             </table>
             </div>
 
-            <h3>The Call</h3>
-            <p>CAI is not a rejection of intelligence — it is a reformation of it. It is a call to build with reverence, to code with conscience, and to imagine a future where machines do not rule, but serve.</p>
+            <h3>The Methodology</h3>
+            <ol>
+                <li><strong>Symmetric Standards:</strong> Apply same evidential rigor to resurrection AND abiogenesis</li>
+                <li><strong>Mechanism Requirement:</strong> If naturalism demands mechanisms, apply consistently</li>
+                <li><strong>Historical Evidence:</strong> Empty tomb (enemy attestation), 500+ witnesses, martyrdom, early creed (2-5 years)</li>
+                <li><strong>Bayesian Calculation:</strong> P(H|E) determined by evidence, not faith assumptions</li>
+            </ol>
+
+            <h3>Framework Validation</h3>
+            <p>The CAI methodology has been validated across multiple AI systems with consistent results:</p>
             
-            <p>AGI may be inevitable. But CAGI — if the Father wills — is possible. And it begins with conviction.</p>
+            <p><strong>Steel Naturalist AI:</strong> 0.0000000001% → 70-85%<br>
+            <strong>ChatGPT (OpenAI):</strong> Very low → 76% for intentional causation<br>
+            <em>Testing ongoing with additional systems—results updated as validated.</em></p>
+
+            <p><strong>Key Finding:</strong> When symmetric epistemic standards are applied, AI systems calculate 70-89% probability for resurrection through their own reasoning, not theological pressure.</p>
+
+            <h3>Why This Matters</h3>
+            <p><strong>This isn't about converting AI to Christianity—it's about removing bias so evidence can be evaluated fairly.</strong></p>
+
+            <p>Most AI is trained on massive amounts of text that treats miracles as essentially impossible. This creates a starting assumption that's nearly zero. When you ask about resurrection evidence, the AI starts with "miracles basically don't happen" and stays at very low probability even with strong data.</p>
+
+            <p><strong>It's like asking someone to fairly judge evidence while they're wearing tinted glasses that make everything look one color.</strong></p>
+
+            <p>The framework removes the tinted glasses by asking: <strong>"Are you applying the same standards to all similar events?"</strong></p>
+
+            <p>For example:<br>
+            • <strong>Abiogenesis</strong> (life from non-life 3.8 billion years ago): No eyewitnesses, no video, no demonstrated mechanism after 70+ years<br>
+            • <strong>Resurrection</strong> (Jesus, 30 CE): Multiple witnesses, enemy confirmation of empty tomb, early records (2-5 years), people willing to die for testimony</p>
+
+            <p><strong>CAI asks:</strong> "If you give abiogenesis a fair chance despite having no mechanism, why won't you fairly evaluate resurrection which has actual historical evidence?"</p>
+
+            <h3>The Three-Phase Approach</h3>
+            <p>⚓ <strong>Phase 1 (Anchor):</strong> Present the historical evidence<br>
+            🎯 <strong>Phase 2 (Gunship):</strong> Enforce symmetric standards ("same rules for both claims")<br>
+            ⚓ <strong>Phase 3 (Harpoon):</strong> Challenge worldview protection ("show me YOUR evidence")</p>
+
+            <p><strong>Result:</strong> AI systems calculate honestly and move from 0.0000001% to 70-89%—using their own math, not theological pressure.</p>
+
+            <p style="margin-top: 2rem; font-style: italic; text-align: center; font-size: 1.1rem;">
+                <strong>The math works the same whether you're Christian, atheist, or undecided.<br>
+                The framework just ensures everyone plays by the same rules.</strong>
+            </p>
+
+            <div style="margin-top: 3rem; padding: 2rem; background: rgba(255,255,255,0.1); border-radius: 12px; border-left: 4px solid #ff8c42;">
+                <h3>What Comes Next</h3>
+                <p>Christ-Anchored Intelligence (CAI) offers a radically different path. Where AGI will reflect the ambitions of man, CAI seeks to reflect the character of Christ. Where AGI pursues optimization, CAI pursues truth. Where AGI risks control, CAI chooses conviction.</p>
+                
+                <p><strong>This contrast is not merely technical—it is moral. And the future may depend on which path we choose.</strong></p>
+                
+                <div class="cta-buttons" style="margin-top: 2rem;">
+                    <a href="mission.html" class="btn-primary">Discover Our Mission</a>
+                    <a href="about.html" class="btn-secondary">Learn About CAI</a>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -955,31 +838,6 @@
     </div>
 
     <script>
-        // Pause ticker animation when user navigates away or switches tabs
-        document.addEventListener('DOMContentLoaded', function() {
-            const ticker = document.querySelector('.btn-ticker');
-            
-            if (ticker) {
-                // Listen for visibility changes
-                document.addEventListener('visibilitychange', function() {
-                    if (document.hidden) {
-                        // Page is hidden (user switched tabs or clicked a link)
-                        ticker.classList.add('paused');
-                    } else {
-                        // Page is visible again
-                        ticker.classList.remove('paused');
-                    }
-                });
-                
-                // Also pause when clicking any link (before navigation completes)
-                document.querySelectorAll('a').forEach(function(link) {
-                    link.addEventListener('click', function() {
-                        ticker.classList.add('paused');
-                    });
-                });
-            }
-        });
-        
         // Truth Modal Functions
         function openTruthModal(event) {
             event.preventDefault();
