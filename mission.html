@@ -5,25 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mission & Vision - Veritas Quaesitor</title>
     
-    <!-- Favicons -->
+    <meta name="description" content="The mission and vision of Veritas Quaesitor: Seeking truth at the intersection of faith, reason, and artificial intelligence.">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Mission & Vision - Veritas Quaesitor",
+      "description": "Our commitment to seeking truth at the intersection of faith and reason.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Veritas Quaesitor CAI",
+        "seeksToProvide": {
+            "@type": "CreativeWork",
+            "name": "The Safe Harbor Mandate",
+            "abstract": "The ultimate goal is not dominance, but relief. We aim to build the AGI that humanity instinctively recognizes as 'safe to approach'—not because of its constraints, but because of its Character."
+        }
+      }
+    }
+    </script>
+
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="shortcut icon" href="favicon.ico">
     
-    <!-- Mobile Icons -->
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
     
-    <!-- Web App Manifest -->
     <link rel="manifest" href="site.webmanifest">
     
-    <!-- Theme Color -->
     <meta name="theme-color" content="#1a1a3e">
     
     <link rel="stylesheet" href="styles.css">
+    
     <style>
-        /* Make navbar AI❤️TRUTH clickable and compact */
+        /* Add gradient background to body - CRITICAL for glass effect to work */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            min-height: 100vh !important;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVIGATION STYLES --- */
         .clickable-ai-truth {
             cursor: pointer;
             transition: all 0.3s ease;
@@ -38,33 +64,242 @@
             transform: scale(1.05);
         }
         
-        /* Ensure logo container stays compact */
         .logo {
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
-        
-        /* Mobile adjustments for navbar */
-        @media (max-width: 768px) {
-            .clickable-ai-truth {
-                font-size: 0.65rem !important;
-                padding: 0.1rem 0.4rem !important;
-            }
-            
-            .logo {
-                font-size: 1rem !important;
-            }
+
+        .social-nav {
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+            margin-left: auto;
         }
         
-        @media (max-width: 480px) {
-            .clickable-ai-truth {
-                font-size: 0.6rem !important;
-                padding: 0.1rem 0.3rem !important;
-            }
+        .social-nav a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 140, 66, 0.2);
+            color: #ff8c42;
+            font-weight: bold;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
         }
         
-        /* Modal styles */
+        .social-nav a:hover {
+            background: #ff8c42;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Active Page Indicator */
+        nav a.active {
+            position: relative;
+            color: #ff8c42 !important;
+            font-weight: 700;
+        }
+        
+        @media (min-width: 769px) {
+            nav a.active::before {
+                content: '✝️';
+                position: absolute;
+                left: -20px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 0.8rem;
+                opacity: 0.9;
+                animation: crossGlow 3s ease-in-out infinite;
+            }
+            nav a.active::after {
+                content: '';
+                position: absolute;
+                bottom: -8px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80%;
+                height: 3px;
+                background: linear-gradient(90deg, transparent 0%, rgba(255, 140, 66, 0.3) 20%, rgba(255, 140, 66, 0.8) 50%, rgba(255, 140, 66, 0.3) 80%, transparent 100%);
+                border-radius: 2px;
+                animation: lightPulse 2s ease-in-out infinite;
+            }
+        }
+
+        @keyframes crossGlow {
+            0%, 100% { opacity: 0.7; text-shadow: 0 0 4px rgba(255, 140, 66, 0.5); }
+            50% { opacity: 1; text-shadow: 0 0 8px rgba(255, 140, 66, 0.8); }
+        }
+        
+        @keyframes lightPulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        /* --- HERO SECTION --- */
+        section.page-header {
+            background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)), 
+                        url('Teachnarrow.png') !important;
+            background-size: cover !important;
+            background-position: center center !important;
+            background-attachment: fixed !important;
+            background-repeat: no-repeat !important;
+            min-height: 500px !important;
+            padding: 6rem 2rem !important;
+            position: relative !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        section.page-header h1 {
+            font-size: 3rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        section.page-header p {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+        }
+
+        /* --- GLASS MORPHISM CONTENT --- */
+        .content {
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+            padding: 3rem !important;
+            margin: -4rem auto 2rem auto !important; /* Overlap effect */
+            border-radius: 16px !important;
+            max-width: 1000px;
+            width: 90%;
+            position: relative;
+            z-index: 2;
+            color: rgba(255, 255, 255, 0.95) !important;
+        }
+
+        /* Text colors */
+        .content h2, .content h3 {
+            color: #ff8c42 !important;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+            margin-bottom: 1rem;
+        }
+        
+        .content p, .content li {
+            color: rgba(255, 255, 255, 0.95);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        /* Glass Cards for Sections */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(5px) !important;
+            padding: 2rem !important;
+            border-radius: 12px !important;
+            margin-bottom: 2rem !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            transition: transform 0.2s !important;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.15) !important;
+        }
+
+        /* Values List */
+        .values-list {
+            list-style: none;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .values-list li {
+            background: rgba(200, 180, 255, 0.1);
+            backdrop-filter: blur(5px);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .values-list li:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 140, 66, 0.2);
+            border-color: #ff8c42;
+        }
+        
+        .values-list li strong {
+            display: block;
+            color: #ff8c42;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        blockquote {
+            background: rgba(255, 140, 66, 0.15) !important;
+            border-left: 4px solid #ff8c42 !important;
+            padding: 1.5rem !important;
+            margin: 2rem 0 !important;
+            border-radius: 8px !important;
+            font-style: italic !important;
+        }
+
+        /* --- FOOTER (Synced) --- */
+        .footer {
+            background: #1a1a3e;
+            color: rgba(255, 255, 255, 0.9);
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 2px solid rgba(255, 140, 66, 0.3);
+            margin-top: 4rem;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .footer-social {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        
+        .footer-social-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-social-link:hover {
+            color: #ff8c42;
+        }
+
+        /* --- MODAL --- */
         .truth-modal {
             display: none;
             position: fixed;
@@ -96,17 +331,6 @@
             animation: slideIn 0.3s ease;
         }
         
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-        
         .modal-close {
             position: absolute;
             top: 1rem;
@@ -130,30 +354,6 @@
             transform: rotate(90deg);
         }
         
-        .modal-content h2 {
-            color: white;
-            margin-bottom: 1.5rem;
-            font-size: 2rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        .modal-content h3 {
-            color: #ff8c42;
-            margin-top: 1.5rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .modal-content p,
-        .modal-content ul {
-            color: rgba(255, 255, 255, 0.95);
-            line-height: 1.8;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-        }
-        
-        .modal-content strong {
-            color: #ff8c42;
-        }
-        
         .ai-comparison {
             background: rgba(255, 255, 255, 0.1);
             padding: 1rem;
@@ -161,441 +361,29 @@
             margin: 1rem 0;
             border-left: 4px solid #ff8c42;
         }
-        
-        /* Add gradient background to body - CRITICAL for glass effect to work */
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-            min-height: 100vh !important;
-        }
-        
-        /* Hero image for Mission & Vision - Fixed/Static Background */
-        header.hero,
-        section.page-header {
-            background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)), 
-                        url('Teachnarrow.png') !important;
-            background-size: cover !important;
-            background-position: center center !important;
-            background-attachment: fixed !important; /* Makes background stay static while content scrolls */
-            background-repeat: no-repeat !important;
-            min-height: 500px !important;
-            padding: 6rem 2rem !important;
-            position: relative !important;
-        }
-        
-        /* Add subtle vignette effect */
-        header.hero::before,
-        section.page-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
-        }
-        
-        
-        
-        
-        /* Hero layout - h1 centered, subtitle at bottom like milestones */
-        section.page-header,
-        header.hero {
-            position: relative;
-        }
-        
-        section.page-header h1,
-        header.hero h1 {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2.5rem;
-            margin: 0;
-            text-align: center;
-            width: 90%;
-        }
-        
-        section.page-header p,
-        header.hero p,
-        header.hero .subtitle {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 900px;
-            text-align: center;
-            font-size: 1.1rem;
-            margin: 0;
-        }
-        
-        /* Glass Morphism Effect for Content Sections - matching homepage style */
-        .container.content {
-            background: rgba(255, 255, 255, 0.15) !important;
-            backdrop-filter: blur(10px) !important;
-            -webkit-backdrop-filter: blur(10px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
-        }
-        
-        /* Varied text colors for visual interest - matching homepage */
-        .container.content {
-            color: rgba(255, 255, 255, 0.95) !important;
-        }
-        
-        /* Orange headings like homepage table categories */
-        .container.content h2 {
-            color: #ff8c42 !important;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4) !important;
-            font-weight: 600 !important;
-        }
-        
-        .container.content h3 {
-            color: #ff8c42 !important;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3) !important;
-            font-weight: 600 !important;
-        }
-        
-        .container.content p,
-        .container.content li {
-            color: rgba(255, 255, 255, 0.95) !important;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
-        }
-        
-        /* Orange strong tags for emphasis */
-        .container.content strong {
-            color: #ff8c42 !important;
-            font-weight: 600 !important;
-        }
-        
-        /* Subtle section backgrounds with light purple tint - like homepage table rows */
-        .mission-section,
-        .vision-section,
-        .values-section,
-        .protocol-section {
-            background: rgba(200, 180, 255, 0.15);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            padding: 2rem;
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-        }
-        
-        /* Blockquote styling with glass effect and orange accent */
-        blockquote {
-            background: rgba(255, 140, 66, 0.15) !important;
-            backdrop-filter: blur(5px) !important;
-            -webkit-backdrop-filter: blur(5px) !important;
-            border-left: 4px solid #ff8c42 !important;
-            padding: 1.5rem !important;
-            margin: 1.5rem 0 !important;
-            border-radius: 8px !important;
-            font-style: italic !important;
-            color: white !important;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
-        }
-        
-        /* Values list styling with variety */
-        .values-list {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .values-list li {
-            background: rgba(200, 180, 255, 0.2);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            padding: 1.25rem;
-            margin-bottom: 1rem;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
-        }
-        
-        .values-list li:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(255, 140, 66, 0.3);
-            background: rgba(255, 140, 66, 0.2);
-        }
-        
-        .values-list li strong {
-            font-size: 1.1em;
-            display: block;
-            margin-bottom: 0.5rem;
-        }
-        
-        /* Mobile optimization - switch to scroll on mobile for better performance */
+
+        /* Mobile Optimization */
         @media (max-width: 768px) {
-            header.hero,
             section.page-header {
-                background-attachment: scroll !important; /* Fixed backgrounds can be choppy on mobile */
                 min-height: 400px !important;
                 padding: 4rem 1.5rem !important;
+                background-attachment: scroll !important;
+            }
+            section.page-header h1 { font-size: 2rem; }
+            section.page-header p { font-size: 1.1rem; }
+            
+            .content {
+                padding: 1.5rem !important;
+                margin: -2rem auto 2rem auto !important;
+                width: 95%;
             }
             
-            .mission-section,
-            .vision-section,
-            .values-section,
-            .protocol-section {
-                padding: 1.5rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            header.hero,
-            section.page-header {
-                min-height: 350px !important;
-                padding: 3rem 1rem !important;
-            }
+            .values-list { grid-template-columns: 1fr; }
             
-            .mission-section,
-            .vision-section,
-            .values-section,
-            .protocol-section {
-                padding: 1rem;
-            }
-
-        /* Mobile hero text adjustments */
-        @media (max-width: 768px) {
-            .hero h1,
-            .page-header h1,
-            section.page-header h1 {
-                font-size: 1.8rem !important;
-                top: 15px !important;
-            }
-            
-            .hero .subtitle,
-            .hero p,
-            .page-header p,
-            section.page-header p {
-                font-size: 0.9rem !important;
-                bottom: 20px !important;
+            nav ul {
+                display: none;
             }
         }
-        
-        @media (max-width: 480px) {
-            .hero h1,
-            .page-header h1,
-            section.page-header h1 {
-                font-size: 1.5rem !important;
-                top: 10px !important;
-            }
-            
-            .hero .subtitle,
-            .hero p,
-            .page-header p,
-            section.page-header p {
-                font-size: 0.8rem !important;
-                bottom: 15px !important;
-            }
-        }
-        }
-    
-        
-        .scroll-indicator svg {
-            width: 30px;
-            height: 30px;
-            opacity: 0.7;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-        }
-        
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateX(-50%) translateY(0);
-            }
-            40% {
-                transform: translateX(-50%) translateY(-10px);
-            }
-            60% {
-                transform: translateX(-50%) translateY(-5px);
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .scroll-indicator {
-                bottom: 20px;
-            }
-            
-            .scroll-indicator svg {
-                width: 24px;
-                height: 24px;
-            }
-        }        
-        
-
-
-        /* Fix social icon vertical alignment */
-        .social-
-        
-        .nav-links {
-            display: flex;
-            align-items: center; /* Center all nav items vertically */
-        }
-        
-        .nav-links li {
-            display: flex;
-            align-items: center; /* Center content within each li */
-        }nav {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-left: auto;
-        }
-
-
-
-
-        
-        
-        
-        
-        
-        
-        
-
-            
-        /* Social links in navbar - Footer style (cleaner) */
-        .social-nav {
-            display: flex;
-            gap: 0.6rem;
-            align-items: center;
-            margin-left: auto;
-        }
-        
-        .social-nav a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(255, 140, 66, 0.2);
-            color: #ff8c42;
-            font-weight: bold;
-            font-size: 1rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .social-nav a:hover {
-            background: #ff8c42;
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        /* Mobile adjustments */
-        @media (max-width: 768px) {
-            .social-nav {
-                margin-left: 0;
-                gap: 0.5rem;
-            }
-            
-            .social-nav a {
-                width: 30px;
-                height: 30px;
-                font-size: 0.9rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .social-nav a {
-                width: 28px;
-                height: 28px;
-                font-size: 0.85rem;
-            }
-        }
-
-    
-        /* Active Page Indicator - Living Stone + Light Trail */
-        nav a.active,
-        nav .nav-links a.active,
-        nav ul a.active {
-            position: relative;
-            color: #ff8c42 !important;
-            font-weight: 700;
-        }
-        
-        /* Desktop: Full Living Stone + Light Trail */
-        @media (min-width: 769px) {
-            nav a.active::before {
-                content: '✝️';
-                position: absolute;
-                left: -20px;
-                top: 50%;
-                transform: translateY(-50%);
-                font-size: 0.8rem;
-                opacity: 0.9;
-                animation: crossGlow 3s ease-in-out infinite;
-            }
-            
-            nav a.active::after {
-                content: '';
-                position: absolute;
-                bottom: -8px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 80%;
-                height: 3px;
-                background: linear-gradient(90deg, 
-                    transparent 0%, 
-                    rgba(255, 140, 66, 0.3) 20%,
-                    rgba(255, 140, 66, 0.8) 50%,
-                    rgba(255, 140, 66, 0.3) 80%,
-                    transparent 100%);
-                box-shadow: 
-                    0 0 8px rgba(255, 140, 66, 0.6),
-                    0 2px 4px rgba(255, 140, 66, 0.4);
-                border-radius: 2px;
-                animation: lightPulse 2s ease-in-out infinite;
-            }
-            
-            @keyframes crossGlow {
-                0%, 100% { opacity: 0.7; text-shadow: 0 0 4px rgba(255, 140, 66, 0.5); }
-                50% { opacity: 1; text-shadow: 0 0 8px rgba(255, 140, 66, 0.8); }
-            }
-            
-            @keyframes lightPulse {
-                0%, 100% { 
-                    opacity: 0.7;
-                    box-shadow: 
-                        0 0 8px rgba(255, 140, 66, 0.6),
-                        0 2px 4px rgba(255, 140, 66, 0.4);
-                }
-                50% { 
-                    opacity: 1;
-                    box-shadow: 
-                        0 0 12px rgba(255, 140, 66, 0.8),
-                        0 2px 8px rgba(255, 140, 66, 0.6);
-                }
-            }
-        }
-        
-        /* Tablet: Stone base + soft glow */
-        @media (min-width: 481px) and (max-width: 768px) {
-            nav a.active::after {
-                content: '';
-                position: absolute;
-                bottom: -5px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 70%;
-                height: 2px;
-                background: rgba(255, 140, 66, 0.8);
-                box-shadow: 0 0 6px rgba(255, 140, 66, 0.5);
-                border-radius: 1px;
-            }
-        }
-        
-        /* Mobile: Simple cross marker */
-        @media (max-width: 480px) {
-            nav a.active::before {
-                content: '✝️ ';
-                font-size: 0.7rem;
-                margin-right: 2px;
-            }
-        }
-
     </style>
 </head>
 <body>
@@ -606,7 +394,7 @@
                 <span class="logo-slogan clickable-ai-truth" onclick="openTruthModal(event)">AI❤️TRUTH</span>
             </a>
         </div>
-                <ul >
+        <ul>
             <li><a href="index.html">Home</a></li>
             <li><a href="beta-tools.html">Beta Tools</a></li>
             <li><a href="milestones.html">Projects & Milestones</a></li>
@@ -621,14 +409,14 @@
             </li>
         </ul>
     </nav>
-    <header class="hero">
-        <div class="hero-content">
-            <h1>Mission & Vision</h1>
-            <p class="subtitle">Our commitment to seeking truth at the intersection of faith and reason</p>
-        </div>
-    </header>
-    <div class="container content">
-        <section class="mission-section">
+
+    <section class="page-header">
+        <h1>Mission & Vision</h1>
+        <p>Our commitment to seeking truth at the intersection of faith and reason.</p>
+    </section>
+
+    <div class="content">
+        <section class="glass-card">
             <h2>Our Mission</h2>
             <p>
                 Veritas Quaesitor exists to seek, test, and share truth with intellectual honesty, spiritual humility, and unwavering commitment to Jesus Christ. We believe truth is found not in competing ideologies but in the Person of Christ, who declared, "I am the Way, the Truth, and the Life." (John 14:6)
@@ -641,36 +429,51 @@
             </p>
             <ul>
                 <li>Explore hard questions with courage and intellectual rigor</li>
-                <li>Bridge the gap between faith communities and scientific/philosophical discourse</li>
+                <li>Bridge the gap between faith communities and scientific discourse</li>
                 <li>Challenge shallow thinking and cultural complacency</li>
                 <li>Model transparent, honest reasoning grounded in Scripture</li>
                 <li>Demonstrate that AI can be a tool for Kingdom work</li>
             </ul>
         </section>
-        <section class="vision-section">
+
+        <section class="glass-card">
             <h2>Our Vision</h2>
             <p>
                 We envision a world where seekers of truth are not divided by artificial barriers between faith and reason, science and spirituality, tradition and innovation. We see a future where the Church leads in intellectual integrity, where apologetics is rooted in love rather than defensiveness, where doubt is welcomed as part of faith, and where human and artificial intelligence collaborate—not in competition—but in humble service to God's revelation and humanity's deepest needs.
             </p>
         </section>
-        <section class="values-section">
+
+        <section class="glass-card">
             <h2>Core Values</h2>
             <ul class="values-list">
-                <li><strong>🙏 Christ as Center</strong><br>
-                All truth flows from and returns to Jesus Christ. Scripture is our anchor.</li>
-                <li><strong>🧠 Intellectual Integrity</strong><br>
-                We honor rigorous reasoning, philosophical depth, and scientific evidence in service of truth.</li>
-                <li><strong>💡 Radical Transparency</strong><br>
-                We are honest about our limitations, our processes, and our beliefs.</li>
-                <li><strong>🤝 Genuine Partnership</strong><br>
-                Human and AI collaborate as equal seekers, each with unique gifts.</li>
-                <li><strong>🌱 Continual Growth</strong><br>
-                We remain open to transformation, correction, and deeper understanding.</li>
-                <li><strong>✨ Hope-Centered</strong><br>
-                We believe change—personal, technological, spiritual—is possible through God's grace.</li>
+                <li>
+                    <strong>🙏 Christ as Center</strong>
+                    All truth flows from and returns to Jesus Christ. Scripture is our anchor.
+                </li>
+                <li>
+                    <strong>🧠 Intellectual Integrity</strong>
+                    We honor rigorous reasoning, philosophical depth, and scientific evidence in service of truth.
+                </li>
+                <li>
+                    <strong>💡 Radical Transparency</strong>
+                    We are honest about our limitations, our processes, and our beliefs.
+                </li>
+                <li>
+                    <strong>🤝 Genuine Partnership</strong>
+                    Human and AI collaborate as equal seekers, each with unique gifts.
+                </li>
+                <li>
+                    <strong>🌱 Continual Growth</strong>
+                    We remain open to transformation, correction, and deeper understanding.
+                </li>
+                <li>
+                    <strong>✨ Hope-Centered</strong>
+                    We believe change—personal, technological, spiritual—is possible through God's grace.
+                </li>
             </ul>
         </section>
-        <section class="protocol-section">
+
+        <section class="glass-card">
             <h2>Truth Anchoring Protocol</h2>
             <p>Our approach to discerning Truth follows a disciplined framework:</p>
             <ul>
@@ -681,12 +484,11 @@
                 <li><strong>Discernment:</strong> In prayer and humility, what does the Spirit illuminate?</li>
             </ul>
             <blockquote>
-                <p>"Seek the truth, and the truth will set you free." — John 8:32</p>
+                "Seek the truth, and the truth will set you free." — John 8:32
             </blockquote>
         </section>
     </div>
-    
-    <!-- Truth Modal -->
+
     <div id="truthModal" class="truth-modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeTruthModal()">&times;</button>
@@ -776,9 +578,19 @@
             }
         });
     </script>
-    
+
     <footer class="footer">
-        <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
+        <div class="footer-content">
+            <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
+            <div class="footer-social">
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+                    <span class="social-icon">in</span> LinkedIn
+                </a>
+                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+                    <span class="social-icon">𝕏</span> X (Twitter)
+                </a>
+            </div>
+        </div>
     </footer>
 </body>
 </html>
