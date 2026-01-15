@@ -15,8 +15,15 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 # Initialize Groq client
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY") or os.environ.get("GROQ_API_KEY")
+
+print(f"DEBUG: Checking for GROQ_API_KEY...")
+print(f"DEBUG: Found key: {bool(GROQ_API_KEY)}")
+print(f"DEBUG: Key length: {len(GROQ_API_KEY) if GROQ_API_KEY else 0}")
+
 if not GROQ_API_KEY:
+    print("ERROR: GROQ_API_KEY environment variable not set")
+    print(f"DEBUG: Available env vars: {list(os.environ.keys())}")
     raise ValueError("GROQ_API_KEY environment variable not set")
 
 groq_client = Groq(api_key=GROQ_API_KEY)
