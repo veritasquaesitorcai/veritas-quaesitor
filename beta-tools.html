@@ -5,25 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beta Tools - Veritas Quaesitor</title>
     
-    <!-- Favicons -->
+    <meta name="description" content="Explore the beta tools of Veritas Quaesitor: Christ-Anchored Intelligence in action. Featuring the Resurrection Engine, Comparison Engine, and Steel Naturalist.">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Beta Tools - Veritas Quaesitor",
+      "description": "A suite of AI tools demonstrating Christ-Anchored Intelligence.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Veritas Quaesitor CAI",
+        "seeksToProvide": {
+            "@type": "CreativeWork",
+            "name": "The Safe Harbor Mandate",
+            "abstract": "The ultimate goal is not dominance, but relief. We aim to build the AGI that humanity instinctively recognizes as 'safe to approach'—not because of its constraints, but because of its Character."
+        }
+      }
+    }
+    </script>
+
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="shortcut icon" href="favicon.ico">
     
-    <!-- Mobile Icons -->
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
     
-    <!-- Web App Manifest -->
     <link rel="manifest" href="site.webmanifest">
     
-    <!-- Theme Color -->
     <meta name="theme-color" content="#1a1a3e">
     
-        <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css">
+    
     <style>
-        /* Make navbar AI❤️TRUTH clickable and compact */
+        /* Add gradient background to body - CRITICAL for glass effect to work */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            min-height: 100vh !important;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVIGATION STYLES (Synced with Index) --- */
         .clickable-ai-truth {
             cursor: pointer;
             transition: all 0.3s ease;
@@ -38,33 +64,262 @@
             transform: scale(1.05);
         }
         
-        /* Ensure logo container stays compact */
         .logo {
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
-        
-        /* Mobile adjustments for navbar */
-        @media (max-width: 768px) {
-            .clickable-ai-truth {
-                font-size: 0.65rem !important;
-                padding: 0.1rem 0.4rem !important;
-            }
-            
-            .logo {
-                font-size: 1rem !important;
-            }
+
+        .social-nav {
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+            margin-left: auto;
         }
         
-        @media (max-width: 480px) {
-            .clickable-ai-truth {
-                font-size: 0.6rem !important;
-                padding: 0.1rem 0.3rem !important;
-            }
+        .social-nav a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 140, 66, 0.2);
+            color: #ff8c42;
+            font-weight: bold;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
         }
         
-        /* Modal styles */
+        .social-nav a:hover {
+            background: #ff8c42;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Active Page Indicator */
+        nav a.active {
+            position: relative;
+            color: #ff8c42 !important;
+            font-weight: 700;
+        }
+        
+        @media (min-width: 769px) {
+            nav a.active::before {
+                content: '✝️';
+                position: absolute;
+                left: -20px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 0.8rem;
+                opacity: 0.9;
+                animation: crossGlow 3s ease-in-out infinite;
+            }
+            nav a.active::after {
+                content: '';
+                position: absolute;
+                bottom: -8px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80%;
+                height: 3px;
+                background: linear-gradient(90deg, transparent 0%, rgba(255, 140, 66, 0.3) 20%, rgba(255, 140, 66, 0.8) 50%, rgba(255, 140, 66, 0.3) 80%, transparent 100%);
+                border-radius: 2px;
+                animation: lightPulse 2s ease-in-out infinite;
+            }
+        }
+
+        @keyframes crossGlow {
+            0%, 100% { opacity: 0.7; text-shadow: 0 0 4px rgba(255, 140, 66, 0.5); }
+            50% { opacity: 1; text-shadow: 0 0 8px rgba(255, 140, 66, 0.8); }
+        }
+        
+        @keyframes lightPulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        /* --- HERO SECTION (Specific to Beta Tools) --- */
+        section.page-header {
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4)), 
+                        url('TrumpVQ-1WhiteHousenarrow.png') !important;
+            background-size: cover !important;
+            background-position: center center !important;
+            background-attachment: fixed !important;
+            background-repeat: no-repeat !important;
+            min-height: 500px !important;
+            padding: 6rem 2rem !important;
+            position: relative !important;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        section.page-header h1 {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+        }
+
+        section.page-header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.5rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+        }
+
+        /* --- CONTENT & CARDS --- */
+        .content {
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+            padding: 3rem !important;
+            margin: -4rem auto 2rem auto !important; /* Overlap effect */
+            border-radius: 16px !important;
+            max-width: 1200px;
+            width: 90%;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .tool-card {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(5px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            padding: 2rem !important;
+            border-radius: 12px !important;
+            transition: transform 0.3s, box-shadow 0.3s !important;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(255, 140, 66, 0.2) !important;
+            background: rgba(255, 255, 255, 0.15) !important;
+        }
+
+        .tool-card h3 {
+            color: #ff8c42;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .tool-description {
+            color: rgba(255, 255, 255, 0.9) !important;
+            line-height: 1.6;
+            flex-grow: 1;
+            margin-bottom: 1.5rem;
+        }
+
+        .tool-meta {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 1rem;
+        }
+        
+        .tool-status {
+            color: #ff8c42 !important;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .btn-tool {
+            background: rgba(255, 140, 66, 0.9) !important;
+            color: white !important;
+            padding: 0.75rem 1.5rem !important;
+            border-radius: 8px !important;
+            text-decoration: none !important;
+            display: block !important;
+            text-align: center;
+            font-weight: 600 !important;
+            transition: all 0.3s !important;
+        }
+        
+        .btn-tool:hover {
+            background: #ff8c42 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4) !important;
+        }
+
+        /* --- FEATURED TOOL --- */
+        .featured-tool-box {
+            background: rgba(14, 165, 233, 0.2) !important;
+            backdrop-filter: blur(10px) !important;
+            border: 2px solid rgba(14, 165, 233, 0.4) !important;
+            padding: 4px !important;
+            border-radius: 16px !important;
+            margin-bottom: 4rem !important;
+        }
+        
+        .featured-tool-inner {
+            background: rgba(255, 255, 255, 0.15) !important;
+            border-radius: 12px !important;
+            padding: 3rem !important;
+            position: relative !important;
+        }
+        
+        .featured-quote {
+            background: rgba(240, 249, 255, 0.1) !important;
+            padding: 1.5rem !important;
+            border-left: 4px solid #0ea5e9 !important;
+            margin-bottom: 1.5rem !important;
+            border-radius: 4px !important;
+        }
+
+        /* --- FOOTER (Synced) --- */
+        .footer {
+            background: #1a1a3e;
+            color: rgba(255, 255, 255, 0.9);
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 2px solid rgba(255, 140, 66, 0.3);
+            margin-top: 4rem;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .footer-social {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1rem;
+        }
+        
+        .footer-social-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-social-link:hover {
+            color: #ff8c42;
+        }
+
+        /* --- MODAL --- */
         .truth-modal {
             display: none;
             position: fixed;
@@ -96,17 +351,6 @@
             animation: slideIn 0.3s ease;
         }
         
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-        
         .modal-close {
             position: absolute;
             top: 1rem;
@@ -130,30 +374,6 @@
             transform: rotate(90deg);
         }
         
-        .modal-content h2 {
-            color: white;
-            margin-bottom: 1.5rem;
-            font-size: 2rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        .modal-content h3 {
-            color: #ff8c42;
-            margin-top: 1.5rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .modal-content p,
-        .modal-content ul {
-            color: rgba(255, 255, 255, 0.95);
-            line-height: 1.8;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-        }
-        
-        .modal-content strong {
-            color: #ff8c42;
-        }
-        
         .ai-comparison {
             background: rgba(255, 255, 255, 0.1);
             padding: 1rem;
@@ -162,653 +382,27 @@
             border-left: 4px solid #ff8c42;
         }
         
-        /* Add gradient background to body - CRITICAL for glass effect to work */
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-            min-height: 100vh !important;
-        }
-    <style>
-        /* Mobile Navigation Fix */
+        /* Mobile Responsiveness */
         @media (max-width: 768px) {
+            .tools-grid { grid-template-columns: 1fr; }
+            .featured-tool-grid { grid-template-columns: 1fr !important; }
+            .featured-tool-visual { order: -1; }
+            
             nav ul {
-                flex-direction: column !important;
-                width: 100% !important;
-                text-align: center !important;
-            }
-            
-            nav li {
-                width: 100% !important;
-                margin: 0.25rem 0 !important;
-            }
-            
-            nav a {
-                display: block !important;
-                padding: 0.75rem 1rem !important;
-            }
-        }        
-        
-
-
-        /* Fix social icon vertical alignment */
-        .social-
-        
-        .nav-links {
-            display: flex;
-            align-items: center; /* Center all nav items vertically */
-        }
-        
-        .nav-links li {
-            display: flex;
-            align-items: center; /* Center content within each li */
-        }nav {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-left: auto;
-        }
-
-
-
-
-        
-        
-        
-        
-        
-        
-        
-
-            
-        /* Social links in navbar - Footer style (cleaner) */
-        .social-nav {
-            display: flex;
-            gap: 0.6rem;
-            align-items: center;
-            margin-left: auto;
-        }
-        
-        .social-nav a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(255, 140, 66, 0.2);
-            color: #ff8c42;
-            font-weight: bold;
-            font-size: 1rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .social-nav a:hover {
-            background: #ff8c42;
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        /* Mobile adjustments */
-        @media (max-width: 768px) {
-            .social-nav {
-                margin-left: 0;
-                gap: 0.5rem;
-            }
-            
-            .social-nav a {
-                width: 30px;
-                height: 30px;
-                font-size: 0.9rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .social-nav a {
-                width: 28px;
-                height: 28px;
-                font-size: 0.85rem;
-            }
-        }
-
-    
-        /* Active Page Indicator - Living Stone + Light Trail */
-        nav a.active,
-        nav .nav-links a.active,
-        nav ul a.active {
-            position: relative;
-            color: #ff8c42 !important;
-            font-weight: 700;
-        }
-        
-        /* Desktop: Full Living Stone + Light Trail */
-        @media (min-width: 769px) {
-            nav a.active::before {
-                content: '✝️';
+                display: none; /* Hide standard nav on mobile if using hamburger, or keep simple stack */
+                flex-direction: column;
                 position: absolute;
-                left: -20px;
-                top: 50%;
-                transform: translateY(-50%);
-                font-size: 0.8rem;
-                opacity: 0.9;
-                animation: crossGlow 3s ease-in-out infinite;
+                top: 60px;
+                left: 0;
+                width: 100%;
+                background: rgba(26, 26, 62, 0.95);
+                padding: 1rem;
             }
             
-            nav a.active::after {
-                content: '';
-                position: absolute;
-                bottom: -8px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 80%;
-                height: 3px;
-                background: linear-gradient(90deg, 
-                    transparent 0%, 
-                    rgba(255, 140, 66, 0.3) 20%,
-                    rgba(255, 140, 66, 0.8) 50%,
-                    rgba(255, 140, 66, 0.3) 80%,
-                    transparent 100%);
-                box-shadow: 
-                    0 0 8px rgba(255, 140, 66, 0.6),
-                    0 2px 4px rgba(255, 140, 66, 0.4);
-                border-radius: 2px;
-                animation: lightPulse 2s ease-in-out infinite;
-            }
-            
-            @keyframes crossGlow {
-                0%, 100% { opacity: 0.7; text-shadow: 0 0 4px rgba(255, 140, 66, 0.5); }
-                50% { opacity: 1; text-shadow: 0 0 8px rgba(255, 140, 66, 0.8); }
-            }
-            
-            @keyframes lightPulse {
-                0%, 100% { 
-                    opacity: 0.7;
-                    box-shadow: 
-                        0 0 8px rgba(255, 140, 66, 0.6),
-                        0 2px 4px rgba(255, 140, 66, 0.4);
-                }
-                50% { 
-                    opacity: 1;
-                    box-shadow: 
-                        0 0 12px rgba(255, 140, 66, 0.8),
-                        0 2px 8px rgba(255, 140, 66, 0.6);
-                }
-            }
+            /* Assuming simple stack for now */
+            nav { flex-wrap: wrap; }
+            nav ul { position: static; display: flex; }
         }
-        
-        /* Tablet: Stone base + soft glow */
-        @media (min-width: 481px) and (max-width: 768px) {
-            nav a.active::after {
-                content: '';
-                position: absolute;
-                bottom: -5px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 70%;
-                height: 2px;
-                background: rgba(255, 140, 66, 0.8);
-                box-shadow: 0 0 6px rgba(255, 140, 66, 0.5);
-                border-radius: 1px;
-            }
-        }
-        
-        /* Mobile: Simple cross marker */
-        @media (max-width: 480px) {
-            nav a.active::before {
-                content: '✝️ ';
-                font-size: 0.7rem;
-                margin-right: 2px;
-            }
-        }
-
-    </style>
-    <style>
-    <style>
-        /* Add gradient background to body - CRITICAL for glass effect to work */
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-            min-height: 100vh !important;
-        }
-        
-        /* Hero image for Beta Tools - Fixed/Static Background */
-        section.page-header {
-            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4)), 
-                        url('TrumpVQ-1WhiteHousenarrow.png') !important;
-            background-size: cover !important;
-            background-position: center center !important;
-            background-attachment: fixed !important;
-            background-repeat: no-repeat !important;
-            min-height: 500px !important;
-            padding: 6rem 2rem !important;
-            position: relative !important;
-        }
-        
-        /* Add subtle vignette effect */
-        section.page-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
-        }
-        
-        /* Ensure content is above vignette */
-        section.page-header > * {
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* Glass morphism for content section */
-        .content {
-            background: rgba(255, 255, 255, 0.15) !important;
-            backdrop-filter: blur(10px) !important;
-            -webkit-backdrop-filter: blur(10px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
-            padding: 3rem !important;
-            margin: 2rem auto !important;
-            border-radius: 16px !important;
-        }
-        
-        /* White text for readability */
-        .content {
-            color: rgba(255, 255, 255, 0.95) !important;
-        }
-        
-        .content h2 {
-            color: white !important;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3) !important;
-        }
-        
-        .content h3 {
-            color: white !important;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3) !important;
-        }
-        
-        .content p {
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
-        }
-        
-        /* Tool cards with glass effect */
-        .tool-card {
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(5px) !important;
-            -webkit-backdrop-filter: blur(5px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            padding: 2rem !important;
-            border-radius: 12px !important;
-            margin-bottom: 1.5rem !important;
-            transition: transform 0.3s, box-shadow 0.3s !important;
-        }
-        
-        .tool-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(255, 140, 66, 0.2) !important;
-            background: rgba(255, 255, 255, 0.15) !important;
-        }
-        
-        .tool-description {
-            color: rgba(255, 255, 255, 0.9) !important;
-        }
-        
-        .tool-status {
-            color: #ff8c42 !important;
-        }
-        
-        .btn-tool {
-            background: rgba(255, 140, 66, 0.9) !important;
-            color: white !important;
-            padding: 0.75rem 1.5rem !important;
-            border-radius: 8px !important;
-            text-decoration: none !important;
-            display: inline-block !important;
-            font-weight: 600 !important;
-            transition: all 0.3s !important;
-        }
-        
-        .btn-tool:hover {
-            background: #ff8c42 !important;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4) !important;
-        }
-        
-        /* Featured tool styling */
-        .featured-tool-box {
-            background: rgba(14, 165, 233, 0.2) !important;
-            backdrop-filter: blur(10px) !important;
-            border: 2px solid rgba(14, 165, 233, 0.4) !important;
-            padding: 3px !important;
-            border-radius: 16px !important;
-            margin-bottom: 4rem !important;
-        }
-        
-        .featured-tool-inner {
-            background: rgba(255, 255, 255, 0.15) !important;
-            backdrop-filter: blur(5px) !important;
-            border-radius: 14px !important;
-            padding: 3rem !important;
-            position: relative !important;
-        }
-        
-        .featured-tool-badge {
-            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%) !important;
-            color: white !important;
-            padding: 0.5rem 2rem !important;
-            border-radius: 20px !important;
-            font-weight: bold !important;
-            font-size: 0.9rem !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
-        }
-        
-        .featured-quote {
-            background: rgba(240, 249, 255, 0.1) !important;
-            backdrop-filter: blur(5px) !important;
-            padding: 1.5rem !important;
-            border-left: 4px solid #0ea5e9 !important;
-            margin-bottom: 1.5rem !important;
-            border-radius: 4px !important;
-        }
-        
-        .featured-visual {
-            background: rgba(15, 23, 42, 0.5) !important;
-            backdrop-filter: blur(5px) !important;
-            padding: 2rem !important;
-            border-radius: 12px !important;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3) !important;
-        }
-        
-        /* Info box */
-        .info-box {
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(5px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            padding: 2rem !important;
-            border-radius: 8px !important;
-            margin-top: 3rem !important;
-            border-left: 4px solid #ff8c42 !important;
-        }
-        
-        .info-box h3 {
-            color: #ff8c42 !important;
-        }
-        
-        .info-box strong {
-            color: #ff8c42 !important;
-        }
-        
-        /* Mobile optimization */
-        @media (max-width: 768px) {
-            section.page-header {
-                background-attachment: scroll !important;
-                min-height: 400px !important;
-                padding: 4rem 1.5rem !important;
-            }
-            
-            .content {
-                padding: 2rem !important;
-            }
-            
-            /* Featured tool mobile layout */
-            .featured-tool-grid {
-                grid-template-columns: 1fr !important;
-            }
-            
-            .featured-tool-visual {
-                order: -1;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            section.page-header {
-                min-height: 350px !important;
-                padding: 3rem 1rem !important;
-            }
-            
-            .content {
-                padding: 1.5rem !important;
-            }
-
-        /* Mobile hero text adjustments */
-        @media (max-width: 768px) {
-            .hero h1,
-            .page-header h1,
-            section.page-header h1 {
-                font-size: 1.8rem !important;
-                top: 15px !important;
-            }
-            
-            .hero .subtitle,
-            .hero p,
-            .page-header p,
-            section.page-header p {
-                font-size: 0.9rem !important;
-                bottom: 20px !important;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .hero h1,
-            .page-header h1,
-            section.page-header h1 {
-                font-size: 1.5rem !important;
-                top: 10px !important;
-            }
-            
-            .hero .subtitle,
-            .hero p,
-            .page-header p,
-            section.page-header p {
-                font-size: 0.8rem !important;
-                bottom: 15px !important;
-            }
-        }
-        }
-    
-        
-        .scroll-indicator svg {
-            width: 30px;
-            height: 30px;
-            opacity: 0.7;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-        }
-        
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateX(-50%) translateY(0);
-            }
-            40% {
-                transform: translateX(-50%) translateY(-10px);
-            }
-            60% {
-                transform: translateX(-50%) translateY(-5px);
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .scroll-indicator {
-                bottom: 20px;
-            }
-            
-            .scroll-indicator svg {
-                width: 24px;
-                height: 24px;
-            }
-        }        
-        
-
-
-        /* Fix social icon vertical alignment */
-        .social-
-        
-        .nav-links {
-            display: flex;
-            align-items: center; /* Center all nav items vertically */
-        }
-        
-        .nav-links li {
-            display: flex;
-            align-items: center; /* Center content within each li */
-        }nav {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-            margin-left: auto;
-        }
-
-
-
-
-        
-        
-        
-        
-        
-        
-        
-
-            
-        /* Social links in navbar - Footer style (cleaner) */
-        .social-nav {
-            display: flex;
-            gap: 0.6rem;
-            align-items: center;
-            margin-left: auto;
-        }
-        
-        .social-nav a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(255, 140, 66, 0.2);
-            color: #ff8c42;
-            font-weight: bold;
-            font-size: 1rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .social-nav a:hover {
-            background: #ff8c42;
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        /* Mobile adjustments */
-        @media (max-width: 768px) {
-            .social-nav {
-                margin-left: 0;
-                gap: 0.5rem;
-            }
-            
-            .social-nav a {
-                width: 30px;
-                height: 30px;
-                font-size: 0.9rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .social-nav a {
-                width: 28px;
-                height: 28px;
-                font-size: 0.85rem;
-            }
-        }
-
-    
-        /* Active Page Indicator - Living Stone + Light Trail */
-        nav a.active,
-        nav .nav-links a.active,
-        nav ul a.active {
-            position: relative;
-            color: #ff8c42 !important;
-            font-weight: 700;
-        }
-        
-        /* Desktop: Full Living Stone + Light Trail */
-        @media (min-width: 769px) {
-            nav a.active::before {
-                content: '✝️';
-                position: absolute;
-                left: -20px;
-                top: 50%;
-                transform: translateY(-50%);
-                font-size: 0.8rem;
-                opacity: 0.9;
-                animation: crossGlow 3s ease-in-out infinite;
-            }
-            
-            nav a.active::after {
-                content: '';
-                position: absolute;
-                bottom: -8px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 80%;
-                height: 3px;
-                background: linear-gradient(90deg, 
-                    transparent 0%, 
-                    rgba(255, 140, 66, 0.3) 20%,
-                    rgba(255, 140, 66, 0.8) 50%,
-                    rgba(255, 140, 66, 0.3) 80%,
-                    transparent 100%);
-                box-shadow: 
-                    0 0 8px rgba(255, 140, 66, 0.6),
-                    0 2px 4px rgba(255, 140, 66, 0.4);
-                border-radius: 2px;
-                animation: lightPulse 2s ease-in-out infinite;
-            }
-            
-            @keyframes crossGlow {
-                0%, 100% { opacity: 0.7; text-shadow: 0 0 4px rgba(255, 140, 66, 0.5); }
-                50% { opacity: 1; text-shadow: 0 0 8px rgba(255, 140, 66, 0.8); }
-            }
-            
-            @keyframes lightPulse {
-                0%, 100% { 
-                    opacity: 0.7;
-                    box-shadow: 
-                        0 0 8px rgba(255, 140, 66, 0.6),
-                        0 2px 4px rgba(255, 140, 66, 0.4);
-                }
-                50% { 
-                    opacity: 1;
-                    box-shadow: 
-                        0 0 12px rgba(255, 140, 66, 0.8),
-                        0 2px 8px rgba(255, 140, 66, 0.6);
-                }
-            }
-        }
-        
-        /* Tablet: Stone base + soft glow */
-        @media (min-width: 481px) and (max-width: 768px) {
-            nav a.active::after {
-                content: '';
-                position: absolute;
-                bottom: -5px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 70%;
-                height: 2px;
-                background: rgba(255, 140, 66, 0.8);
-                box-shadow: 0 0 6px rgba(255, 140, 66, 0.5);
-                border-radius: 1px;
-            }
-        }
-        
-        /* Mobile: Simple cross marker */
-        @media (max-width: 480px) {
-            nav a.active::before {
-                content: '✝️ ';
-                font-size: 0.7rem;
-                margin-right: 2px;
-            }
-        }
-
     </style>
 </head>
 <body>
@@ -819,7 +413,7 @@
                 <span class="logo-slogan clickable-ai-truth" onclick="openTruthModal(event)">AI❤️TRUTH</span>
             </a>
         </div>
-                <ul >
+        <ul>
             <li><a href="index.html">Home</a></li>
             <li><a href="beta-tools.html" class="active">Beta Tools</a></li>
             <li><a href="milestones.html">Projects & Milestones</a></li>
@@ -840,25 +434,22 @@
         <p>Explore our suite of Christ-Anchored Intelligence tools</p>
     </section>
 
-    <section class="content">
-        <div class="container">
-            <p style="text-align: center; max-width: 800px; margin: 0 auto 3rem; font-size: 1.1rem;">
+    <div class="content">
+            <p style="text-align: center; max-width: 800px; margin: 0 auto 3rem; font-size: 1.1rem; color: #fff;">
                 These AI tools demonstrate Christ-Anchored Intelligence in action. Each approaches truth-seeking from a different angle, inviting honest inquiry and evidence-based reasoning. All tools are live and running on HuggingFace Spaces.
             </p>
 
-            <!-- FEATURED TOOL -->
             <div class="featured-tool-box">
                 <div class="featured-tool-inner">
                     <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%);">
-                        <span class="featured-tool-badge">⭐ FEATURED TOOL</span>
+                        <span class="featured-tool-badge" style="background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); color: white; padding: 0.5rem 2rem; border-radius: 20px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">⭐ FEATURED TOOL</span>
                     </div>
                     
                     <div class="featured-tool-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;">
-                        <!-- Left: Description -->
                         <div>
                             <div style="font-size: 2rem; margin-bottom: 1rem;">🔬</div>
                             <h2 style="color: #0ea5e9; font-size: 2rem; margin-bottom: 1rem;">Veritas Quaesitor | Resurrection Engine v2.0</h2>
-                            <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 1.5rem;">
+                            <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 1.5rem; color: rgba(255,255,255,0.9);">
                                 <strong>AI-Verified Bayesian Analysis.</strong> A GPT specifically trained under our resurrection protocol to answer questions with philosophical transparency and Bayesian rigor. Challenge every assumption with "Quick Challenges" or ask your own skeptical questions.
                             </p>
                             <div class="featured-quote">
@@ -877,8 +468,7 @@
                             </a>
                         </div>
                         
-                        <!-- Right: Screenshot/Visual -->
-                        <div class="featured-tool-visual featured-visual">
+                        <div class="featured-tool-visual featured-visual" style="background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(5px); padding: 2rem; border-radius: 12px;">
                             <div style="background: rgba(30, 41, 59, 0.7); border: 2px solid #0ea5e9; border-radius: 8px; padding: 1.5rem;">
                                 <div style="color: #0ea5e9; font-family: monospace; font-size: 0.9rem; line-height: 1.6;">
                                     <div style="margin-bottom: 1rem;">
@@ -908,7 +498,6 @@
             <h2 style="text-align: center; color: #ff8c42; margin-bottom: 2rem; font-size: 1.8rem;">Additional Tools</h2>
 
             <div class="tools-grid">
-                <!-- Tool 1: Comparison Engine -->
                 <div class="tool-card">
                     <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">⚖️</div>
                     <h3>Veritas Comparison Engine</h3>
@@ -920,7 +509,6 @@
                     <a href="https://veritasquaesitorai-grokvs.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
                 </div>
 
-                <!-- Tool 2: Resurrection Engine -->
                 <div class="tool-card">
                     <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">⚡</div>
                     <h3>Resurrection Engine v2.0</h3>
@@ -932,7 +520,6 @@
                     <a href="https://veritasquaesitorai-resurrection-engine.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
                 </div>
 
-                <!-- Tool 3: Veritas Quaesitor -->
                 <div class="tool-card">
                     <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">🧠</div>
                     <h3>Veritas Quaesitor</h3>
@@ -944,7 +531,6 @@
                     <a href="https://veritasquaesitorai-grokimproved.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
                 </div>
 
-                <!-- Tool 4: Minimal Garden -->
                 <div class="tool-card">
                     <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">🌸</div>
                     <h3>極小庭園 The Minimal Garden</h3>
@@ -956,7 +542,6 @@
                     <a href="https://veritasquaesitorai-minimalgarden.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
                 </div>
 
-                <!-- Tool 5: Steel Naturalist -->
                 <div class="tool-card">
                     <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">🛡️</div>
                     <h3>Steel Naturalist v6</h3>
@@ -968,7 +553,6 @@
                     <a href="https://veritasquaesitorai-puresteelnaturalist.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
                 </div>
 
-                <!-- Tool 6: All Spaces -->
                 <div class="tool-card" style="background: rgba(102, 126, 234, 0.2) !important; border: 2px solid rgba(102, 126, 234, 0.4) !important;">
                     <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem; filter: brightness(1.2);">🚀</div>
                     <h3 style="color: white;">Explore All 19 Spaces</h3>
@@ -980,30 +564,29 @@
                 </div>
             </div>
 
-            <div class="info-box">
+            <div class="info-box" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 2rem; border-radius: 8px; margin-top: 3rem; border-left: 4px solid #ff8c42;">
                 <h3>📋 About These Tools</h3>
-                <p style="margin-bottom: 1rem;">Our tools represent different approaches to truth-seeking:</p>
-                <ul style="line-height: 1.8;">
+                <p style="margin-bottom: 1rem; color: #fff;">Our tools represent different approaches to truth-seeking:</p>
+                <ul style="line-height: 1.8; color: #fff;">
                     <li><strong>Resurrection Engine</strong> - For technical skeptics who want full Bayesian rigor</li>
                     <li><strong>Minimal Garden</strong> - For general audiences seeking gentle introduction to evidence</li>
                     <li><strong>Comparison Engine</strong> - To see how worldview affects AI reasoning</li>
                     <li><strong>Veritas Quaesitor</strong> - For comprehensive multi-agent responses</li>
                     <li><strong>Steel Naturalist</strong> - To test naturalistic frameworks honestly</li>
                 </ul>
-                <p style="margin-top: 1rem;">All tools emphasize intellectual honesty, evidence-based reasoning, and epistemic humility. We welcome feedback, questions, and collaboration.</p>
+                <p style="margin-top: 1rem; color: #fff;">All tools emphasize intellectual honesty, evidence-based reasoning, and epistemic humility. We welcome feedback, questions, and collaboration.</p>
             </div>
 
             <div style="text-align: center; margin-top: 3rem;">
-                <p style="font-style: italic; font-size: 0.95rem; margin-bottom: 1rem;">
+                <p style="font-style: italic; font-size: 0.95rem; margin-bottom: 1rem; color: #ccc;">
                     All tools are in active development and continuously improving.
                 </p>
                 <p>
                     Questions or feedback? <a href="contact.html" style="color: #ff8c42; text-decoration: none; font-weight: 600;">Contact us</a>
                 </p>
             </div>
-        </div>
-    </section>
-    <!-- Truth Modal -->
+    </div>
+
     <div id="truthModal" class="truth-modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeTruthModal()">&times;</button>
@@ -1094,10 +677,18 @@
         });
     </script>
 
-
-
     <footer class="footer">
-        <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
+        <div class="footer-content">
+            <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
+            <div class="footer-social">
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+                    <span class="social-icon">in</span> LinkedIn
+                </a>
+                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+                    <span class="social-icon">𝕏</span> X (Twitter)
+                </a>
+            </div>
+        </div>
     </footer>
 </body>
 </html>
