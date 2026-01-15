@@ -10,7 +10,7 @@
 
     // Configuration
     const CONFIG = {
-        apiEndpoint: 'https://your-backend-url.com/chat', // UPDATE THIS
+        apiEndpoint: 'veritas-quaesitor-production.up.railway.app', 
         welcomeMessage: `Hey friend! 👋 Welcome to Veritas Quaesitor.
 
 I'm VQ - your guide to exploring Christ-Anchored Intelligence through rigorous evidence and symmetric reasoning.
