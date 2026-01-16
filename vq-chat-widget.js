@@ -192,6 +192,27 @@ What brings you here?`
             background: rgba(255, 255, 255, 0.3);
         }
 
+        #vq-chat-clear {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: background 0.2s;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            opacity: 0.8;
+        }
+
+        #vq-chat-clear:hover {
+            background: rgba(255, 255, 255, 0.25);
+            opacity: 1;
+        }
+
         #vq-chat-messages {
             flex: 1;
             padding: 20px;
@@ -393,6 +414,7 @@ What brings you here?`
                         <h3>Veritas Quaesitor</h3>
                         <p>Truth Seeker • CAI v3.1</p>
                     </div>
+                    <button id="vq-chat-clear" title="Clear conversation">🗑️ Clear</button>
                     <button id="vq-chat-close">×</button>
                 </div>
                 
@@ -434,13 +456,39 @@ What brings you here?`
 
         // Conversation history
         let conversationHistory = [];
-
-        // Add welcome message
-        addMessage('assistant', CONFIG.welcomeMessage);
+        
+        // PERSISTENCE: Load saved state from localStorage
+        const savedHistory = localStorage.getItem('vq-conversation-history');
+        const wasOpen = localStorage.getItem('vq-widget-open') === 'true';
+        
+        if (savedHistory) {
+            try {
+                conversationHistory = JSON.parse(savedHistory);
+                // Restore messages in UI
+                conversationHistory.forEach(msg => {
+                    addMessageToUI(msg.role, msg.content);
+                });
+            } catch (e) {
+                console.error('Failed to load conversation history:', e);
+                // Start fresh with welcome message
+                addMessage('assistant', CONFIG.welcomeMessage);
+            }
+        } else {
+            // First time - show welcome message
+            addMessage('assistant', CONFIG.welcomeMessage);
+        }
+        
+        // Restore open/closed state
+        if (wasOpen) {
+            panel.classList.add('open');
+            input.focus();
+        }
 
         // Event listeners
         bubble.addEventListener('click', openChat);
         closeBtn.addEventListener('click', closeChat);
+        const clearBtn = document.getElementById('vq-chat-clear');
+        clearBtn.addEventListener('click', clearConversation);
         sendBtn.addEventListener('click', sendMessage);
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -451,14 +499,31 @@ What brings you here?`
 
         function openChat() {
             panel.classList.add('open');
+            localStorage.setItem('vq-widget-open', 'true');
             input.focus();
         }
 
         function closeChat() {
             panel.classList.remove('open');
+            localStorage.setItem('vq-widget-open', 'false');
         }
-
-        function addMessage(role, content) {
+        
+        function clearConversation() {
+            // Clear localStorage
+            localStorage.removeItem('vq-conversation-history');
+            localStorage.setItem('vq-widget-open', 'true'); // Keep open
+            
+            // Clear UI
+            messagesContainer.innerHTML = '';
+            
+            // Reset history
+            conversationHistory = [];
+            
+            // Add welcome message
+            addMessage('assistant', CONFIG.welcomeMessage);
+        }
+        
+        function addMessageToUI(role, content) {
             const messageDiv = document.createElement('div');
             messageDiv.className = role === 'user' ? 'vq-message vq-user-message' : 'vq-message';
             
@@ -469,9 +534,25 @@ What brings you here?`
             
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function addMessage(role, content) {
+            addMessageToUI(role, content);
             
             // Add to history
             conversationHistory.push({ role, content });
+            
+            // PERSISTENCE: Save to localStorage
+            try {
+                localStorage.setItem('vq-conversation-history', JSON.stringify(conversationHistory));
+            } catch (e) {
+                console.error('Failed to save conversation:', e);
+                // If storage is full, keep only last 20 messages
+                if (conversationHistory.length > 20) {
+                    conversationHistory = conversationHistory.slice(-20);
+                    localStorage.setItem('vq-conversation-history', JSON.stringify(conversationHistory));
+                }
+            }
         }
 
         function showTypingIndicator() {
