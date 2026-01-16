@@ -4,6 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About CAI - Christ-Anchored Intelligence</title>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      "name": "Veritas Quaesitor CAI Framework",
+      "description": "Foundational principles for Christ-Anchored Intelligence (CAI) and the VQ-1 robotics mission.",
+      "license": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Veritas Quaesitor CAI"
+      }
+    }
+    </script>
     
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -227,5 +240,20 @@
         }
     });
 </script>
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            if (window.innerWidth <= 1024) {
+                const activeLink = document.querySelector('nav ul li a.active, .nav-links li a.active');
+                const scrollContainer = document.querySelector('nav ul, .nav-links');
+                
+                if (activeLink && scrollContainer) {
+                    const linkRect = activeLink.getBoundingClientRect();
+                    const containerRect = scrollContainer.getBoundingClientRect();
+                    const scrollPos = activeLink.offsetLeft - (containerRect.width / 2) + (linkRect.width / 2);
+                    scrollContainer.scrollLeft = scrollPos;
+                }
+            }
+        });
+    </script>
 </body>
 </html>
