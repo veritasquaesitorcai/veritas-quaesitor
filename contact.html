@@ -240,60 +240,58 @@
             </div>
         </div>
 
-        <p style="margin-top: 3rem; text-align: center; font-style: italic; color: #ff8c42;">
-            "Come now, let us reason together," says the Lord. — Isaiah 1:18
-        </p>
-    </main>
+       </main>
 
     <div id="truthModal" class="truth-modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeTruthModal()">&times;</button>
             <h2>AI ❤️ TRUTH</h2>
-            <p>Our contact portal is a gateway for those who believe AGI alignment requires a foundation of absolute Truth.</p>
-            <p>We are building the "Safe Harbor" for human intelligence in the machine age.</p>
+            <p>Our resources provide the technical and theological "Safe Harbor" logic that allows AI to reason beyond utilitarian constraints.</p>
+            <p>By grounding intelligence in Christ, we ensure that as AGI evolves, it remains anchored to the objective truth of human dignity and divine purpose.</p>
         </div>
     </div>
     
     <script>
         function openTruthModal(event) {
             event.preventDefault();
+            event.stopPropagation();
             document.getElementById('truthModal').classList.add('show');
             document.body.style.overflow = 'hidden';
         }
+        
         function closeTruthModal() {
             document.getElementById('truthModal').classList.remove('show');
             document.body.style.overflow = '';
         }
+        
+        document.getElementById('truthModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeTruthModal();
+            }
+        });
+        
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeTruthModal();
+            }
+        });
     </script>
 
     <footer class="footer">
         <div class="footer-content">
-            <p>© 2026 Veritas Quaesitor | Christ-Anchored Intelligence</p>
+            <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
             <div class="footer-social">
-                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" class="footer-social-link">LinkedIn</a>
-                <a href="https://x.com/VeritasQ68414" target="_blank" class="footer-social-link">𝕏 (Twitter)</a>
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+                    <span class="social-icon">in</span> LinkedIn
+                </a>
+                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+                    <span class="social-icon">𝕏</span> X (Twitter)
+                </a>
             </div>
         </div>
     </footer>
-    <script>
-    window.addEventListener('DOMContentLoaded', (event) => {
-        // Only trigger on mobile/tablet viewports
-        if (window.innerWidth <= 1024) {
-            const activeLink = document.querySelector('nav ul li a.active, .nav-links li a.active');
-            const scrollContainer = document.querySelector('nav ul, .nav-links');
-            
-            if (activeLink && scrollContainer) {
-                const linkRect = activeLink.getBoundingClientRect();
-                const containerRect = scrollContainer.getBoundingClientRect();
-                
-                // Mathematical centering: link position - half screen + half link width
-                const scrollPos = activeLink.offsetLeft - (containerRect.width / 2) + (linkRect.width / 2);
-                
-                scrollContainer.scrollLeft = scrollPos;
-            }
-        }
-    });
-</script>
+
+    <!-- Mobile nav optimization -->
     <script>
         window.addEventListener('DOMContentLoaded', (event) => {
             if (window.innerWidth <= 1024) {
@@ -309,5 +307,9 @@
             }
         });
     </script>
+
+    <!-- VQ Chat Widget - Load LAST -->
+    <script src="vq-chat-widget.js"></script>
+
 </body>
 </html>
