@@ -5,144 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Media & Updates - Veritas Quaesitor (@VeritasQ68414)</title>
     
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="Follow Veritas Quaesitor on X (Twitter) @VeritasQ68414 for updates on Christ-Anchored Intelligence, AI alignment, and the VQ-1 robot project.">
-    <meta name="keywords" content="Veritas Quaesitor, VeritasQ68414, X Twitter, CAI, Christ-Anchored Intelligence, VQ-1 robot, AI alignment">
+    <meta name="description" content="Follow Veritas Quaesitor on X (Twitter) @VeritasQ68414 for updates on Christ-Anchored Intelligence and the VQ-1 robot project.">
     
-    <!-- Favicons -->
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="shortcut icon" href="favicon.ico">
-    
-    <!-- Mobile Icons -->
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
-    
-    <!-- Web App Manifest -->
     <link rel="manifest" href="site.webmanifest">
-    
-    <!-- Theme Color -->
     <meta name="theme-color" content="#1a1a3e">
     
     <link rel="stylesheet" href="styles.css">
+    
     <style>
-        /* Make navbar AI❤️TRUTH clickable and compact */
-        .clickable-ai-truth {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.75rem !important;
-            padding: 0.15rem 0.5rem !important;
-            display: inline-block;
-            white-space: nowrap;
-        }
-        
-        .clickable-ai-truth:hover {
-            color: #ff8c42 !important;
-            transform: scale(1.05);
-        }
-        
-        /* Ensure logo container stays compact */
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        /* Mobile adjustments for navbar */
-        @media (max-width: 768px) {
-            .clickable-ai-truth {
-                font-size: 0.65rem !important;
-                padding: 0.1rem 0.4rem !important;
-            }
-            
-            .logo {
-                font-size: 1rem !important;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .clickable-ai-truth {
-                font-size: 0.6rem !important;
-                padding: 0.1rem 0.3rem !important;
-            }
-        }
-        
-        
-        
-        /* Add gradient background to body */
+        /* Base Glass Morphism Background */
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
             min-height: 100vh !important;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
         }
-        
-        /* Hero image - Fixed/Static Background */
+
+        /* --- NAVIGATION --- */
+        .clickable-ai-truth { cursor: pointer; transition: all 0.3s ease; font-size: 0.75rem !important; padding: 0.15rem 0.5rem !important; display: inline-block; white-space: nowrap; }
+        .clickable-ai-truth:hover { color: #ff8c42 !important; transform: scale(1.05); }
+        .logo { display: flex; align-items: center; gap: 0.5rem; }
+        .social-nav { display: flex; gap: 0.6rem; align-items: center; margin-left: auto; }
+        .social-nav a { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 140, 66, 0.2); color: #ff8c42; font-weight: bold; text-decoration: none; transition: all 0.3s ease; }
+        .social-nav a:hover { background: #ff8c42; color: white; transform: translateY(-2px); }
+        nav a.active { position: relative; color: #ff8c42 !important; font-weight: 700; }
+
+        /* --- HERO --- */
         section.page-header {
             background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)), 
                         url('Team_Cai.png') !important;
             background-size: cover !important;
             background-position: center center !important;
             background-attachment: fixed !important;
-            background-repeat: no-repeat !important;
             min-height: 500px !important;
             padding: 6rem 2rem !important;
             position: relative !important;
-        }
-        
-        /* Hero layout - h1 centered, subtitle at bottom */
-        section.page-header h1 {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 2.5rem;
-            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             text-align: center;
-            width: 90%;
         }
         
-        section.page-header p {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            max-width: 900px;
-            text-align: center;
-            font-size: 1.1rem;
-            margin: 0;
-        }
-        
-        /* Glass Morphism Effect for Content Sections */
+        section.page-header h1 { font-size: 3rem; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); margin-bottom: 1rem; }
+        section.page-header p { font-size: 1.5rem; color: rgba(255, 255, 255, 0.95); text-shadow: 1px 1px 3px rgba(0,0,0,0.7); max-width: 800px; }
+
+        /* --- CONTENT SECTION --- */
         .content {
             background: rgba(255, 255, 255, 0.15) !important;
             backdrop-filter: blur(10px) !important;
             -webkit-backdrop-filter: blur(10px) !important;
             border: 1px solid rgba(255, 255, 255, 0.25) !important;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+            padding: 3rem !important;
+            margin: -4rem auto 4rem auto !important;
+            border-radius: 16px !important;
+            max-width: 1000px;
+            width: 90%;
+            position: relative;
+            z-index: 2;
+            color: white !important;
         }
-        
-        .content h2 {
-            color: #ff8c42 !important;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4) !important;
-        }
-        
-        .content h3 {
-            color: #ff8c42 !important;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3) !important;
-        }
-        
-        .content p,
-        .content li {
-            color: rgba(255, 255, 255, 0.95) !important;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
-        }
-        
-        .content strong {
-            color: #ff8c42 !important;
-        }
-        
-        /* Social profile cards */
+
+        .content h2 { color: #ff8c42 !important; text-align: center; margin-bottom: 2rem; }
+
+        /* Social Cards */
         .social-profiles {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -151,328 +83,58 @@
         }
         
         .social-card {
-            background: rgba(200, 180, 255, 0.15) !important;
-            backdrop-filter: blur(5px) !important;
-            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(5px);
+            padding: 2.5rem;
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             text-align: center;
+            transition: transform 0.3s ease;
         }
         
-        .social-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 32px rgba(255, 140, 66, 0.3);
-        }
-        
-        .social-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .social-card .handle {
-            font-size: 1.2rem;
-            color: #ff8c42 !important;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: block;
-        }
-        
-        .social-card .btn-follow {
+        .social-card:hover { transform: translateY(-5px); border-color: #ff8c42; }
+        .social-card h3 { color: #ff8c42; font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .handle { color: white; display: block; margin-bottom: 1.5rem; font-weight: bold; font-size: 1.1rem; }
+
+        .btn-follow {
             display: inline-block;
-            background: linear-gradient(135deg, #ff8c42 0%, #f97316 100%);
+            background: #ff8c42;
             color: white;
-            padding: 0.75rem 2rem;
-            border-radius: 8px;
-            font-weight: bold;
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
             text-decoration: none;
+            font-weight: bold;
             transition: all 0.3s ease;
-            margin-top: 1rem;
         }
-        
-        .social-card .btn-follow:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 140, 66, 0.6);
-        }
-        
-        /* Tweet embed container */
-        .tweet-container {
-            background: white;
+        .btn-follow:hover { background: white; color: #ff8c42; transform: scale(1.05); }
+
+        /* Tweet Embed */
+        .featured-update {
+            background: rgba(255, 255, 255, 0.05);
             padding: 2rem;
             border-radius: 12px;
-            margin: 2rem 0;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            margin: 3rem 0;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
         }
-        
-        .tweet-container blockquote {
-            margin: 0;
-            padding: 0;
+
+        .tweet-container {
+            max-width: 550px;
+            margin: 2rem auto;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white; /* Contrast for the tweet card */
+            padding: 10px;
         }
-        
-        .tweet-container p {
-            color: #14171a !important;
-            font-size: 1rem !important;
-            line-height: 1.5 !important;
-        }
-        
-        .tweet-container a {
-            color: #1da1f2 !important;
-            font-weight: 600 !important;
-        }        
-        /* Social links in navbar - Footer style (cleaner) */
-        .social-nav {
-            display: flex;
-            gap: 0.6rem;
-            align-items: center;
-            margin-left: auto;
-        }
-        
-        .social-nav a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(255, 140, 66, 0.2);
-            color: #ff8c42;
-            font-weight: bold;
-            font-size: 1rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .social-nav a:hover {
-            background: #ff8c42;
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        /* Mobile adjustments */
+
+        /* --- FOOTER --- */
+        .footer { background: #1a1a3e; color: white; padding: 2.5rem 0; text-align: center; border-top: 2px solid rgba(255, 140, 66, 0.3); }
+
         @media (max-width: 768px) {
-            .social-nav {
-                margin-left: 0;
-                gap: 0.5rem;
-            }
-            
-            .social-nav a {
-                width: 30px;
-                height: 30px;
-                font-size: 0.9rem;
-            }
+            section.page-header { background-attachment: scroll !important; min-height: 400px !important; }
+            section.page-header h1 { font-size: 2.2rem; }
+            .content { padding: 1.5rem !important; margin-top: -2.5rem !important; }
+            nav ul { display: none; }
         }
-        
-        @media (max-width: 480px) {
-            .social-nav a {
-                width: 28px;
-                height: 28px;
-                font-size: 0.85rem;
-            }
-        }
-
-        
-        
-
-
-        
-        /* Footer styles */
-        .footer {
-            background: #1a1a3e;
-            color: rgba(255, 255, 255, 0.9);
-            padding: 2rem 0;
-            text-align: center;
-            border-top: 2px solid rgba(255, 140, 66, 0.3);
-        }
-        
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-        
-        .footer-content p {
-            margin-bottom: 1rem;
-            font-size: 0.95rem;
-        }
-        
-        .footer-social {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        
-        .footer-social-link {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-        }
-        
-        .footer-social-link:hover {
-            color: #ff8c42;
-            transform: translateX(3px);
-        }
-        
-        .social-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(255, 140, 66, 0.15);
-            color: #ff8c42;
-            font-weight: bold;
-            font-size: 1rem;
-        }
-        
-        .footer-social-link:hover .social-icon {
-            background: #ff8c42;
-            color: white;
-        }
-        
-        /* Mobile optimization */
-        @media (max-width: 768px) {
-            section.page-header {
-                background-attachment: scroll !important;
-                min-height: 400px !important;
-                padding: 4rem 1.5rem !important;
-            }
-            
-            section.page-header h1 {
-                font-size: 1.8rem !important;
-            }
-            
-            section.page-header p {
-                font-size: 0.9rem !important;
-            }
-            
-            .social-nav {
-                margin-left: 0;
-            }
-            
-            .footer-social {
-                flex-direction: column;
-                gap: 1rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            section.page-header {
-                min-height: 350px !important;
-                padding: 3rem 1rem !important;
-            }
-            
-            section.page-header h1 {
-                font-size: 1.5rem !important;
-            }
-            
-            section.page-header p {
-                font-size: 0.8rem !important;
-            }
-        }
-        
-
-        
-
-    
-        /* Active Page Indicator - Living Stone + Light Trail */
-        nav a.active,
-        nav .nav-links a.active,
-        nav ul a.active {
-            position: relative;
-            color: #ff8c42 !important;
-            font-weight: 700;
-        }
-        
-        /* Desktop: Full Living Stone + Light Trail */
-        @media (min-width: 769px) {
-            nav a.active::before {
-                content: '✝️';
-                position: absolute;
-                left: -20px;
-                top: 50%;
-                transform: translateY(-50%);
-                font-size: 0.8rem;
-                opacity: 0.9;
-                animation: crossGlow 3s ease-in-out infinite;
-            }
-            
-            nav a.active::after {
-                content: '';
-                position: absolute;
-                bottom: -8px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 80%;
-                height: 3px;
-                background: linear-gradient(90deg, 
-                    transparent 0%, 
-                    rgba(255, 140, 66, 0.3) 20%,
-                    rgba(255, 140, 66, 0.8) 50%,
-                    rgba(255, 140, 66, 0.3) 80%,
-                    transparent 100%);
-                box-shadow: 
-                    0 0 8px rgba(255, 140, 66, 0.6),
-                    0 2px 4px rgba(255, 140, 66, 0.4);
-                border-radius: 2px;
-                animation: lightPulse 2s ease-in-out infinite;
-            }
-            
-            @keyframes crossGlow {
-                0%, 100% { opacity: 0.7; text-shadow: 0 0 4px rgba(255, 140, 66, 0.5); }
-                50% { opacity: 1; text-shadow: 0 0 8px rgba(255, 140, 66, 0.8); }
-            }
-            
-            @keyframes lightPulse {
-                0%, 100% { 
-                    opacity: 0.7;
-                    box-shadow: 
-                        0 0 8px rgba(255, 140, 66, 0.6),
-                        0 2px 4px rgba(255, 140, 66, 0.4);
-                }
-                50% { 
-                    opacity: 1;
-                    box-shadow: 
-                        0 0 12px rgba(255, 140, 66, 0.8),
-                        0 2px 8px rgba(255, 140, 66, 0.6);
-                }
-            }
-        }
-        
-        /* Tablet: Stone base + soft glow */
-        @media (min-width: 481px) and (max-width: 768px) {
-            nav a.active::after {
-                content: '';
-                position: absolute;
-                bottom: -5px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 70%;
-                height: 2px;
-                background: rgba(255, 140, 66, 0.8);
-                box-shadow: 0 0 6px rgba(255, 140, 66, 0.5);
-                border-radius: 1px;
-            }
-        }
-        
-        /* Mobile: Simple cross marker */
-        @media (max-width: 480px) {
-            nav a.active::before {
-                content: '✝️ ';
-                font-size: 0.7rem;
-                margin-right: 2px;
-            }
-        }
-
     </style>
 </head>
 <body>
@@ -493,88 +155,64 @@
             <li><a href="about.html">About CAI</a></li>
             <li><a href="social.html" class="active">Social</a></li>
             <li class="social-nav">
-                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" title="LinkedIn">in</a>
-                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" title="X (Twitter)">𝕏</a>
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer">in</a>
+                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer">𝕏</a>
             </li>
         </ul>
     </nav>
 
     <section class="page-header">
         <h1>Social Media & Updates</h1>
-        <p>Follow our journey in Christ-Anchored Intelligence development</p>
+        <p>Follow the journey of the Safe Harbor AGI development.</p>
     </section>
 
-    <div class="container content">
-        <h2>Connect With Us</h2>
-        <p>
-            Stay updated on the latest developments in Christ-Anchored Intelligence, including the VQ-1 robot project, 
-            epistemic frameworks, and our mission to build AI systems grounded in truth and conviction.
+    <main class="content">
+        <h2>Connect With the Mission</h2>
+        <p style="text-align: center; margin-bottom: 3rem;">
+            Veritas Quaesitor is a community-driven project. We share our technical breakthroughs, philosophical insights, and robotics progress across these platforms.
         </p>
 
         <div class="social-profiles">
             <div class="social-card">
                 <h3>𝕏 X (Twitter)</h3>
-                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" class="handle">@VeritasQ68414</a>
-                <p>Updates on CAI development, philosophical discussions, AI alignment insights, and breakthroughs in truth-seeking systems.</p>
-                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" class="btn-follow">Follow on X</a>
+                <span class="handle">@VeritasQ68414</span>
+                <p>Real-time updates on CAI development, VQ-1 milestones, and AI alignment discussions.</p>
+                <a href="https://x.com/VeritasQ68414" target="_blank" class="btn-follow">Follow on 𝕏</a>
             </div>
 
             <div class="social-card">
                 <h3>in LinkedIn</h3>
-                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" class="handle">Veritas Quaesitor</a>
-                <p>Professional updates, partnerships, research collaborations, and networking with AI safety researchers and theologians.</p>
-                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" class="btn-follow">Connect on LinkedIn</a>
+                <span class="handle">Veritas Quaesitor</span>
+                <p>Professional networking, research partnerships, and deep-dive articles on Christ-Anchored Intelligence.</p>
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" class="btn-follow">Connect on LinkedIn</a>
             </div>
         </div>
 
-        <h2>Featured Update: VQ-1 Robot Project</h2>
-        <p>
-            The VQ-1 (Reachy Mini) represents the first physical embodiment of Christ-Anchored Intelligence principles. 
-            Launching February 2026, this project demonstrates that AI alignment can extend beyond software into 
-            physical robotics—creating systems that embody truth-seeking, humility, and service through their operations.
-        </p>
-
-        <div class="tweet-container">
-            <blockquote class="twitter-tweet" data-theme="light">
-                <p lang="en" dir="ltr">
-                    <a href="https://twitter.com/VeritasQ68414?ref_src=twsrc%5Etfw">@VeritasQ68414</a> 
-                    What happens when AI alignment meets physical robotics? VQ-1 (Reachy Mini) launching Feb 2026 as part of 
-                    <a href="https://twitter.com/VeritasQ68414?ref_src=twsrc%5Etfw">@VeritasQ68414</a>'s CAI framework. 
-                    Can a robot be truth-seeking, humility, and service through its operations? We're about to find out.
-                </p>
-                &mdash; stellarct24 (@stellarct24) 
-                <a href="https://twitter.com/stellarct24/status/1872005014100389363?ref_src=twsrc%5Etfw">December 27, 2024</a>
-            </blockquote>
-            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        <div class="featured-update">
+            <h3 style="color: #ff8c42; text-align: center;">Featured Milestone: VQ-1 (Reachy Mini)</h3>
+            <p style="text-align: center;">The first physical embodiment of CAI principles, scheduled for deployment in February 2026.</p>
+            
+            <div class="tweet-container">
+                <blockquote class="twitter-tweet" data-dnt="true">
+                    <p lang="en" dir="ltr">
+                        <a href="https://twitter.com/VeritasQ68414?ref_src=twsrc%5Etfw">@VeritasQ68414</a> 
+                        What happens when AI alignment meets physical robotics? VQ-1 launching Feb 2026. 
+                        Can a robot embody humility and service through its operations? We’re about to find out.
+                    </p>
+                    &mdash; stellarct24 (@stellarct24) 
+                    <a href="https://twitter.com/stellarct24/status/1872005014100389363?ref_src=twsrc%5Etfw">December 27, 2024</a>
+                </blockquote>
+                <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+            </div>
         </div>
 
-        <h3>Why Follow @VeritasQ68414?</h3>
-        <ul>
-            <li><strong>Real-Time Updates:</strong> First announcements about CAI breakthroughs and milestones</li>
-            <li><strong>Deep Discussions:</strong> Philosophical insights on AI alignment, truth-seeking, and epistemic frameworks</li>
-            <li><strong>VQ-1 Development:</strong> Behind-the-scenes progress on the Reachy Mini robot project</li>
-            <li><strong>Research Findings:</strong> Latest results from our epistemic symmetry protocols and Bayesian analysis</li>
-            <li><strong>Community Dialogue:</strong> Engaging conversations with AI researchers, theologians, and truth-seekers</li>
-        </ul>
-
-        <p style="text-align: center; margin-top: 3rem; font-size: 1.2rem;">
-            <strong>Join the conversation. Follow the mission. Build the future.</strong>
+        <p style="text-align: center; font-weight: bold; color: #ff8c42; font-size: 1.2rem;">
+            Join the conversation. build the future.
         </p>
-    </div>
+    </main>
 
     <footer class="footer">
-        <div class="footer-content">
-            <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
-            <div class="footer-social">
-                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" class="footer-social-link">
-                    <span class="social-icon">in</span> LinkedIn
-                </a>
-                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" class="footer-social-link">
-                    <span class="social-icon">𝕏</span> X (Twitter)
-                </a>
-            </div>
-        </div>
+        <p>© 2026 Veritas Quaesitor | Christ-Anchored Intelligence</p>
     </footer>
-
 </body>
 </html>
