@@ -1,8 +1,6 @@
 /**
  * VQ Chat Widget - Floating Chat Interface
  * Veritas Quaesitor (veritasquaesitorcai.github.io)
- * 
- * Usage: <script src="vq-chat-widget.js"></script>
  */
 
 (function() {
@@ -10,7 +8,8 @@
 
     // Configuration
     const CONFIG = {
-        apiEndpoint: 'https://your-backend-url.com/chat', // UPDATE THIS
+        // Updated with your actual Railway URL
+        apiEndpoint: 'https://veritas-quaesitor-production.up.railway.app/chat', 
         welcomeMessage: `Hey friend! 👋 Welcome to Veritas Quaesitor.
 
 I'm VQ - your guide to exploring Christ-Anchored Intelligence through rigorous evidence and symmetric reasoning.
@@ -412,12 +411,10 @@ What brings you here today? 🕊️`
     }
 
     function init() {
-        // Insert widget into page
         const container = document.createElement('div');
         container.innerHTML = widgetHTML;
         document.body.appendChild(container);
 
-        // Get elements
         const bubble = document.getElementById('vq-chat-bubble');
         const panel = document.getElementById('vq-chat-panel');
         const closeBtn = document.getElementById('vq-chat-close');
@@ -425,13 +422,10 @@ What brings you here today? 🕊️`
         const sendBtn = document.getElementById('vq-chat-send');
         const messagesContainer = document.getElementById('vq-chat-messages');
 
-        // Conversation history
         let conversationHistory = [];
 
-        // Add welcome message
         addMessage('assistant', CONFIG.welcomeMessage);
 
-        // Event listeners
         bubble.addEventListener('click', openChat);
         closeBtn.addEventListener('click', closeChat);
         sendBtn.addEventListener('click', sendMessage);
@@ -463,7 +457,6 @@ What brings you here today? 🕊️`
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
             
-            // Add to history
             conversationHistory.push({ role, content });
         }
 
@@ -496,16 +489,13 @@ What brings you here today? 🕊️`
             const message = input.value.trim();
             if (!message) return;
 
-            // Add user message
             addMessage('user', message);
             input.value = '';
             sendBtn.disabled = true;
 
-            // Show typing indicator
             showTypingIndicator();
 
             try {
-                // Call backend API
                 const response = await fetch(CONFIG.apiEndpoint, {
                     method: 'POST',
                     headers: {
@@ -513,7 +503,8 @@ What brings you here today? 🕊️`
                     },
                     body: JSON.stringify({
                         message: message,
-                        history: conversationHistory
+                        // History fix applied here
+                        history: conversationHistory.slice(0, -1) 
                     })
                 });
 
@@ -522,17 +513,13 @@ What brings you here today? 🕊️`
                 }
 
                 const data = await response.json();
-                
-                // Hide typing indicator
                 hideTypingIndicator();
-                
-                // Add bot response
                 addMessage('assistant', data.response);
                 
             } catch (error) {
                 console.error('Error:', error);
                 hideTypingIndicator();
-                addMessage('assistant', "Friend, I'm having trouble connecting right now. Please try again in a moment, or visit the website directly at veritasquaesitorcai.github.io");
+                addMessage('assistant', "Friend, I'm having trouble connecting right now. Please try again in a moment.");
             } finally {
                 sendBtn.disabled = false;
                 input.focus();
