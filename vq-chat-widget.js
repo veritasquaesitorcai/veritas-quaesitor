@@ -10,7 +10,7 @@
 
     // Configuration
     const CONFIG = {
-        apiEndpoint: 'https://your-backend-url.com/chat', // UPDATE THIS
+        apiEndpoint: 'https://veritas-quaesitor-production.up.railway.app/chat',
         welcomeMessage: `Hey! 👋 I'm VQ, your guide to exploring Christ-Anchored Intelligence.
 
 I can help with CAI methodology, resurrection evidence, our Beta Tools, or just chat about AI and truth.
@@ -43,7 +43,7 @@ What brings you here?`
             box-shadow: 0 8px 32px rgba(102, 126, 234, 0.7),
                         0 4px 16px rgba(0, 0, 0, 0.4),
                         0 0 0 0 rgba(102, 126, 234, 1);
-            animation: vq-pulse 1.5s infinite;
+            animation: vq-pulse 1.5s 2;
             transition: transform 0.3s ease;
             z-index: 9998;
             border: 3px solid rgba(255, 255, 255, 0.4);
