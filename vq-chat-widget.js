@@ -1,6 +1,8 @@
 /**
  * VQ Chat Widget - Floating Chat Interface
  * Veritas Quaesitor (veritasquaesitorcai.github.io)
+ * 
+ * Usage: <script src="vq-chat-widget.js"></script>
  */
 
 (function() {
@@ -8,20 +10,12 @@
 
     // Configuration
     const CONFIG = {
-        // Updated with your actual Railway URL
-        apiEndpoint: 'https://veritas-quaesitor-production.up.railway.app/chat', 
-        welcomeMessage: `Hey friend! 👋 Welcome to Veritas Quaesitor.
+        apiEndpoint: 'https://your-backend-url.com/chat', // UPDATE THIS
+        welcomeMessage: `Hey! 👋 I'm VQ, your guide to exploring Christ-Anchored Intelligence.
 
-I'm VQ - your guide to exploring Christ-Anchored Intelligence through rigorous evidence and symmetric reasoning.
+I can help with CAI methodology, resurrection evidence, our Beta Tools, or just chat about AI and truth.
 
-**What I can help with:**
-• Explain CAI methodology and the Bayesian framework
-• Answer questions about resurrection evidence
-• Guide you to our Beta Tools (Resurrection Engine, CAI Crucible)
-• Discuss AI alignment, truth-seeking, and the Safe Harbor Mandate
-• Or just chat - I handle everything from casual questions to deep theology
-
-What brings you here today? 🕊️`
+What brings you here?`
     };
 
     // Styles
@@ -34,24 +28,28 @@ What brings you here today? 🕊️`
 
         #vq-chat-bubble {
             position: fixed;
-            bottom: 30px;
+            top: 100px;
             right: 30px;
-            width: 70px;
-            height: 70px;
+            width: 140px;
+            height: 60px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
+            border-radius: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.2rem;
+            gap: 8px;
+            font-size: 1.8rem;
             cursor: pointer;
-            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.6),
-                        0 4px 16px rgba(0, 0, 0, 0.3),
-                        0 0 0 0 rgba(102, 126, 234, 0.7);
-            animation: vq-pulse 2s infinite;
+            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.7),
+                        0 4px 16px rgba(0, 0, 0, 0.4),
+                        0 0 0 0 rgba(102, 126, 234, 1);
+            animation: vq-pulse 1.5s infinite;
             transition: transform 0.3s ease;
             z-index: 9998;
-            border: 3px solid rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            font-weight: 600;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
         #vq-chat-bubble:hover {
@@ -60,26 +58,29 @@ What brings you here today? 🕊️`
 
         @keyframes vq-pulse {
             0% {
-                box-shadow: 0 8px 32px rgba(102, 126, 234, 0.6),
-                            0 4px 16px rgba(0, 0, 0, 0.3),
-                            0 0 0 0 rgba(102, 126, 234, 0.7);
+                box-shadow: 0 8px 32px rgba(102, 126, 234, 0.7),
+                            0 4px 16px rgba(0, 0, 0, 0.4),
+                            0 0 0 0 rgba(102, 126, 234, 1);
+                transform: scale(1);
             }
             50% {
-                box-shadow: 0 8px 32px rgba(102, 126, 234, 0.8),
-                            0 4px 16px rgba(0, 0, 0, 0.3),
-                            0 0 0 20px rgba(102, 126, 234, 0);
+                box-shadow: 0 8px 32px rgba(102, 126, 234, 0.9),
+                            0 4px 16px rgba(0, 0, 0, 0.4),
+                            0 0 0 25px rgba(102, 126, 234, 0);
+                transform: scale(1.05);
             }
             100% {
-                box-shadow: 0 8px 32px rgba(102, 126, 234, 0.6),
-                            0 4px 16px rgba(0, 0, 0, 0.3),
+                box-shadow: 0 8px 32px rgba(102, 126, 234, 0.7),
+                            0 4px 16px rgba(0, 0, 0, 0.4),
                             0 0 0 0 rgba(102, 126, 234, 0);
+                transform: scale(1);
             }
         }
 
         #vq-chat-label {
             position: fixed;
-            right: 100px;
-            bottom: 40px;
+            right: 180px;
+            top: 115px;
             background: white;
             color: #1a1a3e;
             padding: 8px 16px;
@@ -103,7 +104,7 @@ What brings you here today? 🕊️`
 
         #vq-chat-panel {
             position: fixed;
-            bottom: 30px;
+            top: 170px;
             right: 30px;
             width: 420px;
             height: 650px;
@@ -346,23 +347,10 @@ What brings you here today? 🕊️`
             }
         }
 
-        /* Mobile Responsive */
+        /* Mobile Responsive - HIDE WIDGET ON MOBILE */
         @media (max-width: 768px) {
-            #vq-chat-panel {
-                width: calc(100vw - 40px);
-                height: calc(100vh - 100px);
-                right: 20px;
-                bottom: 20px;
-            }
-
-            #vq-chat-bubble {
-                bottom: 20px;
-                right: 20px;
-            }
-
-            #vq-chat-label {
-                right: 90px;
-                bottom: 30px;
+            #vq-chat-widget {
+                display: none !important;
             }
         }
     `;
@@ -375,7 +363,7 @@ What brings you here today? 🕊️`
     // Create widget HTML
     const widgetHTML = `
         <div id="vq-chat-widget">
-            <button id="vq-chat-bubble">🕊️</button>
+            <button id="vq-chat-bubble">🤖 VQ</button>
             <div id="vq-chat-label">Chat with VQ</div>
             
             <div id="vq-chat-panel">
@@ -411,10 +399,12 @@ What brings you here today? 🕊️`
     }
 
     function init() {
+        // Insert widget into page
         const container = document.createElement('div');
         container.innerHTML = widgetHTML;
         document.body.appendChild(container);
 
+        // Get elements
         const bubble = document.getElementById('vq-chat-bubble');
         const panel = document.getElementById('vq-chat-panel');
         const closeBtn = document.getElementById('vq-chat-close');
@@ -422,10 +412,13 @@ What brings you here today? 🕊️`
         const sendBtn = document.getElementById('vq-chat-send');
         const messagesContainer = document.getElementById('vq-chat-messages');
 
+        // Conversation history
         let conversationHistory = [];
 
+        // Add welcome message
         addMessage('assistant', CONFIG.welcomeMessage);
 
+        // Event listeners
         bubble.addEventListener('click', openChat);
         closeBtn.addEventListener('click', closeChat);
         sendBtn.addEventListener('click', sendMessage);
@@ -457,6 +450,7 @@ What brings you here today? 🕊️`
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
             
+            // Add to history
             conversationHistory.push({ role, content });
         }
 
@@ -489,13 +483,16 @@ What brings you here today? 🕊️`
             const message = input.value.trim();
             if (!message) return;
 
+            // Add user message
             addMessage('user', message);
             input.value = '';
             sendBtn.disabled = true;
 
+            // Show typing indicator
             showTypingIndicator();
 
             try {
+                // Call backend API
                 const response = await fetch(CONFIG.apiEndpoint, {
                     method: 'POST',
                     headers: {
@@ -503,8 +500,7 @@ What brings you here today? 🕊️`
                     },
                     body: JSON.stringify({
                         message: message,
-                        // History fix applied here
-                        history: conversationHistory.slice(0, -1) 
+                        history: conversationHistory
                     })
                 });
 
@@ -513,13 +509,17 @@ What brings you here today? 🕊️`
                 }
 
                 const data = await response.json();
+                
+                // Hide typing indicator
                 hideTypingIndicator();
+                
+                // Add bot response
                 addMessage('assistant', data.response);
                 
             } catch (error) {
                 console.error('Error:', error);
                 hideTypingIndicator();
-                addMessage('assistant', "Friend, I'm having trouble connecting right now. Please try again in a moment.");
+                addMessage('assistant', "Friend, I'm having trouble connecting right now. Please try again in a moment, or visit the website directly at veritasquaesitorcai.github.io");
             } finally {
                 sendBtn.disabled = false;
                 input.focus();
