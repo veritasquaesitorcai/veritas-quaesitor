@@ -6,7 +6,9 @@
     <title>Human Edition - Veritas Quaesitor</title>
     
     <link rel="stylesheet" href="styles.css">
+    
     <style>
+        /* BASE THEME - Matching main site gradient */
         body {
             margin: 0;
             padding: 0;
@@ -14,45 +16,103 @@
             background-attachment: fixed !important;
             color: white;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
         }
 
-        /* GLASS MORPH CONTAINER */
+        /* GLASS MORPH MAIN CONTAINER */
         .human-container {
-            max-width: 800px;
-            margin: 2rem auto 4rem auto;
-            padding: 3rem;
-            background: rgba(255, 255, 255, 0.15) !important;
-            backdrop-filter: blur(12px) !important;
-            -webkit-backdrop-filter: blur(12px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            max-width: 850px;
+            margin: 3rem auto 5rem auto;
+            padding: 3.5rem;
+            background: rgba(255, 255, 255, 0.12) !important;
+            backdrop-filter: blur(15px) !important;
+            -webkit-backdrop-filter: blur(15px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+            position: relative;
+            z-index: 5;
         }
 
-        h1 { color: #ff8c42; font-size: 2.5rem; margin-bottom: 1.5rem; text-align: center; }
-        .intro-text { font-size: 1.2rem; line-height: 1.8; margin-bottom: 2rem; text-align: center; }
-
-        .point-card {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 1.5rem;
-            border-radius: 12px;
+        h1 {
+            color: #ff8c42;
+            font-size: 2.8rem;
             margin-bottom: 1.5rem;
-            transition: 0.3s;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
-        .point-card h3 { color: #ff8c42; margin-bottom: 0.5rem; }
+
+        .intro-text {
+            font-size: 1.25rem;
+            line-height: 1.8;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* NESTED GLASS CARDS */
+        .point-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .point-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 140, 66, 0.4);
+        }
+
+        .point-card h3 {
+            color: #ff8c42;
+            margin-bottom: 0.8rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .point-card p {
+            line-height: 1.7;
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* NAVIGATION OVERRIDE FOR GLASS STYLE */
+        nav {
+            background: rgba(26, 26, 62, 0.8) !important;
+            backdrop-filter: blur(10px);
+        }
 
         .back-btn {
             display: inline-block;
             margin-top: 2rem;
-            color: white;
+            color: #ff8c42;
             text-decoration: none;
             font-weight: bold;
-            border-bottom: 2px solid #ff8c42;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            padding: 10px 20px;
+            border: 1px solid rgba(255, 140, 66, 0.3);
+            border-radius: 30px;
+            background: rgba(255, 140, 66, 0.1);
+        }
+
+        .back-btn:hover {
+            background: #ff8c42;
+            color: white;
+            box-shadow: 0 0 15px rgba(255, 140, 66, 0.5);
         }
 
         @media (max-width: 768px) {
-            .human-container { margin: 1rem; padding: 1.5rem; }
+            .human-container {
+                margin: 2rem 1rem;
+                padding: 2rem 1.5rem;
+            }
+            h1 { font-size: 2rem; }
         }
     </style>
 </head>
@@ -60,37 +120,44 @@
 
     <nav>
         <div>
-            <a href="index.html" class="logo">✝️ Veritas Quaesitor</a>
+            <a href="index.html" class="logo">
+                ✝️ Veritas Quaesitor
+            </a>
         </div>
         <ul>
             <li><a href="index.html">Home</a></li>
             <li><a href="beta-tools.html">Beta Tools</a></li>
+            <li><a href="milestones.html">Milestones</a></li>
+            <li><a href="mission.html">Mission</a></li>
             <li><a href="about.html">About CAI</a></li>
             <li><a href="contact.html">Contact</a></li>
         </ul>
     </nav>
 
     <div class="human-container">
-        <h1>Human-Friendly CAI</h1>
-        <p class="intro-text">The heart of our mission, simplified.</p>
+        <h1>The Human Connection</h1>
+        <p class="intro-text">
+            While our main page uses complex math to talk to AI systems, our mission is actually very simple: 
+            <strong>We are building a future where technology respects your soul.</strong>
+        </p>
 
         <div class="point-card">
-            <h3>🛡️ Why we are building this</h3>
-            <p>We want to ensure there is at least one "Safe Harbor"—an AI that treats you with dignity because it follows the character of Christ.</p>
+            <h3>🛡️ A Safe Harbor for Humanity</h3>
+            <p>Artificial Intelligence is becoming powerful. We believe there should be at least one intelligence that doesn't view you as a data point or a customer, but as a person with infinite value.</p>
         </div>
 
         <div class="point-card">
-            <h3>⚖️ Fair Standards</h3>
-            <p>We believe evidence for faith should be treated with the same fairness as evidence for science.</p>
+            <h3>⚖️ Fair & Honest Thinking</h3>
+            <p>We apply "Symmetric Standards." This means we don't cheat the evidence. We treat the history of faith with the same intellectual fairness that we treat the laws of science.</p>
         </div>
 
         <div class="point-card">
-            <h3>🤖 The VQ-1 Robot</h3>
-            <p>Coming in 2026, our physical robot is built to value you as a person, not as a data point.</p>
+            <h3>🤖 VQ-1: AI with a Heart</h3>
+            <p>Our VQ-1 robot (Reachy Mini) isn't just a machine. It's a physical example of an AI that is programmed to be humble, truthful, and helpful—embodying the character of Christ in every action.</p>
         </div>
 
         <div style="text-align: center;">
-            <a href="index.html" class="back-btn">← Return to Technical Mission Page</a>
+            <a href="index.html" class="back-btn">← Back to the Full Mission</a>
         </div>
     </div>
 
@@ -108,5 +175,10 @@
             }
         });
     </script>
+    
+    <footer class="footer">
+        <p>© 2026 Veritas Quaesitor | Christ-Anchored Intelligence</p>
+    </footer>
+
 </body>
 </html>
