@@ -232,5 +232,24 @@
             </div>
         </div>
     </footer>
+    <script>
+    window.addEventListener('DOMContentLoaded', (event) => {
+        // Only trigger on mobile/tablet viewports
+        if (window.innerWidth <= 1024) {
+            const activeLink = document.querySelector('nav ul li a.active, .nav-links li a.active');
+            const scrollContainer = document.querySelector('nav ul, .nav-links');
+            
+            if (activeLink && scrollContainer) {
+                const linkRect = activeLink.getBoundingClientRect();
+                const containerRect = scrollContainer.getBoundingClientRect();
+                
+                // Mathematical centering: link position - half screen + half link width
+                const scrollPos = activeLink.offsetLeft - (containerRect.width / 2) + (linkRect.width / 2);
+                
+                scrollContainer.scrollLeft = scrollPos;
+            }
+        }
+    });
+</script>
 </body>
 </html>
