@@ -4,6 +4,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Veritas Quaesitor - Christ-Anchored Intelligence</title>
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            if (window.innerWidth <= 1024) {
+                const activeLink = document.querySelector('nav ul li a.active, .nav-links li a.active');
+                const scrollContainer = document.querySelector('nav ul, .nav-links');
+                
+                if (activeLink && scrollContainer) {
+                    const linkRect = activeLink.getBoundingClientRect();
+                    const containerRect = scrollContainer.getBoundingClientRect();
+                    const scrollPos = activeLink.offsetLeft - (containerRect.width / 2) + (linkRect.width / 2);
+                    scrollContainer.scrollLeft = scrollPos;
+                }
+            }
+        });
+    </script>
     
     <meta name="description" content="Veritas Quaesitor CAI: Creating trustworthy AI and robotics that embody Christ's character through unconditional human dignity, servant leadership, and truth-telling. Evidence-based methodology for operational excellence.">
     <meta name="keywords" content="CAI, Christ-Anchored Intelligence, Bayesian reasoning, epistemic symmetry, trustworthy AI, servant robotics, VQ-1 robot, human dignity, operational excellence">
@@ -1591,6 +1606,21 @@ def calculate_resurrection_probability(prior, likelihood_ratios):
     </footer>
     <!-- VQ Chat Widget -->
     <script src="vq-chat-widget.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            if (window.innerWidth <= 1024) {
+                const activeLink = document.querySelector('nav ul li a.active, .nav-links li a.active');
+                const scrollContainer = document.querySelector('nav ul, .nav-links');
+                
+                if (activeLink && scrollContainer) {
+                    const linkRect = activeLink.getBoundingClientRect();
+                    const containerRect = scrollContainer.getBoundingClientRect();
+                    const scrollPos = activeLink.offsetLeft - (containerRect.width / 2) + (linkRect.width / 2);
+                    scrollContainer.scrollLeft = scrollPos;
+                }
+            }
+        });
+    </script>
 </body>
 </html>
 
