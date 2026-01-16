@@ -1,44 +1,44 @@
 /* Veritas Quaesitor Global Stylesheet - 2026 
-   Theme: Christ-Anchored Glass Morphism
+   Unified Glass Morphism & Mobile Responsive Framework
 */
 
 :root {
     --primary-bg: #1a1a3e;
     --accent-orange: #ff8c42;
-    --accent-orange-hover: #ffa55f;
     --glass-bg: rgba(255, 255, 255, 0.15);
     --glass-border: rgba(255, 255, 255, 0.25);
-    --text-main: rgba(255, 255, 255, 0.95);
+    --text-white: rgba(255, 255, 255, 0.95);
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 body {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     background-attachment: fixed !important;
     min-height: 100vh;
-    color: var(--text-main);
-    line-height: 1.6;
+    color: var(--text-white);
+    overflow-x: hidden;
 }
 
-/* --- NAVIGATION --- */
-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 5%;
-    background: rgba(26, 26, 62, 0.9) !important;
+/* --- UNIVERSAL NAVIGATION (Fixed Desktop & Mobile) --- */
+nav, .navbar {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 0.8rem 5% !important;
+    background: rgba(26, 26, 62, 0.95) !important;
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 9999 !important;
+    width: 100% !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
 }
 
 .logo {
@@ -52,62 +52,128 @@ nav {
     white-space: nowrap;
 }
 
-.logo-slogan {
-    font-size: 0.75rem;
-    background: rgba(255, 140, 66, 0.2);
-    color: var(--accent-orange);
-    padding: 2px 8px;
-    border-radius: 4px;
-    margin-left: 5px;
-    border: 1px solid rgba(255, 140, 66, 0.3);
+/* Navigation Lists - Standardizing both sub-page and home-page classes */
+nav ul, .nav-links {
+    display: flex !important;
+    list-style: none !important;
+    gap: 1.2rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    align-items: center !important;
 }
 
-nav ul {
-    display: flex;
-    list-style: none;
-    gap: 1.2rem;
-    align-items: center;
-}
-
-nav ul li a {
+nav ul li a, .nav-links li a {
     color: rgba(255, 255, 255, 0.8) !important;
-    text-decoration: none;
+    text-decoration: none !important;
     font-size: 0.9rem;
     font-weight: 500;
     transition: 0.3s;
+    white-space: nowrap;
 }
 
-nav ul li a:hover, nav ul li a.active {
+nav ul li a:hover, .nav-links li a:hover,
+nav ul li a.active, .nav-links li a.active {
     color: var(--accent-orange) !important;
 }
 
-/* --- HERO SECTIONS --- */
-.hero, .page-header {
-    min-height: 400px;
+/* Social Icons inside Nav */
+.social-nav {
+    display: flex;
+    gap: 0.6rem;
+    margin-left: 1rem;
+}
+
+.social-nav a {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255, 140, 66, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-orange) !important;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+/* --- THE MOBILE RESCUE (Fixes "Messed Up" Menu) --- */
+@media (max-width: 1024px) {
+    nav, .navbar {
+        flex-direction: column !important; /* Stack logo above menu */
+        padding: 10px 0 !important;
+    }
+
+    .logo {
+        margin-bottom: 10px !important;
+    }
+
+    /* Force the menu into a horizontal swipable row */
+    nav ul, .nav-links {
+        width: 100% !important;
+        overflow-x: auto !important;
+        display: flex !important;
+        flex-direction: row !important;
+        padding: 5px 20px 15px 20px !important;
+        gap: 10px !important;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none; /* Firefox hide scrollbar */
+    }
+
+    nav ul::-webkit-scrollbar, .nav-links::-webkit-scrollbar {
+        display: none; /* Chrome/Safari hide scrollbar */
+    }
+
+    nav ul li, .nav-links li {
+        flex: 0 0 auto !important; /* Prevents buttons from squishing */
+    }
+
+    /* Transform links into "Pills" for better mobile tapping */
+    nav ul li a, .nav-links li a {
+        background: rgba(255, 255, 255, 0.1) !important;
+        padding: 8px 16px !important;
+        border-radius: 20px !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        font-size: 0.8rem !important;
+    }
+
+    nav ul li a.active, .nav-links li a.active {
+        background: rgba(255, 140, 66, 0.15) !important;
+        border-color: var(--accent-orange) !important;
+    }
+
+    .social-nav {
+        display: none !important; /* Hide to save space on mobile header */
+    }
+}
+
+/* --- GLOBAL LAYOUT ELEMENTS --- */
+.page-header, .hero {
+    min-height: 450px;
+    padding: 6rem 2rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    padding: 4rem 2rem;
-    color: white;
+    position: relative;
 }
 
-.hero h1, .page-header h1 {
+.page-header h1 {
     font-size: 3rem;
-    margin-bottom: 1rem;
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
 }
 
-/* --- CONTENT CONTAINERS --- */
-.container, .content {
-    max-width: 1100px;
+/* Content Container */
+.content, .container {
+    max-width: 1000px;
     margin: 0 auto;
     padding: 2rem;
+    position: relative;
+    z-index: 5;
 }
 
-/* Glass Card Style */
-.glass-card, .core-message, .mission-section, .vision-section, .values-section {
+/* Standard Glass Card */
+.glass-card, .core-message, .section-box {
     background: var(--glass-bg) !important;
     backdrop-filter: blur(10px) !important;
     -webkit-backdrop-filter: blur(10px);
@@ -115,73 +181,20 @@ nav ul li a:hover, nav ul li a.active {
     border-radius: 16px;
     padding: 2.5rem;
     margin-bottom: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-}
-
-h2, h3 {
-    color: var(--accent-orange);
-    margin-bottom: 1.2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 /* --- FOOTER --- */
-footer {
+.footer {
     background: #1a1a3e;
-    padding: 3rem 1rem;
+    color: white;
+    padding: 3rem 0;
     text-align: center;
     border-top: 2px solid rgba(255, 140, 66, 0.3);
     margin-top: 4rem;
 }
 
-/* --- MOBILE RESPONSIVE FIX --- */
-@media (max-width: 1024px) {
-    nav {
-        flex-direction: column;
-        padding: 1rem 0;
-    }
-
-    .logo {
-        margin-bottom: 1rem;
-    }
-
-    nav ul {
-        width: 100%;
-        overflow-x: auto; /* Horizontal Scroll */
-        justify-content: flex-start;
-        padding: 0 1rem 10px 1rem;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none; /* Hide scrollbar Firefox */
-    }
-
-    nav ul::-webkit-scrollbar {
-        display: none; /* Hide scrollbar Chrome/Safari */
-    }
-
-    nav ul li a {
-        padding: 6px 15px;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        display: inline-block;
-    }
-
-    /* Hide social icons in mobile scroll-nav to save space */
-    .social-nav {
-        display: none !important;
-    }
-}
-
 @media (max-width: 600px) {
-    .hero h1, .page-header h1 {
-        font-size: 2rem;
-    }
-    
-    .logo-slogan {
-        display: none; /* Keep the top bar clean on tiny screens */
-    }
-
-    .glass-card, .content {
-        padding: 1.5rem !important;
-        width: 95%;
-    }
+    .page-header h1 { font-size: 2rem; }
+    .glass-card { padding: 1.5rem !important; }
 }
