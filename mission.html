@@ -243,63 +243,52 @@
             <blockquote>
                 "I am the way, the truth, and the life. No one comes to the Father except through me." — John 14:6
             </blockquote>
-            <p style="text-align: center; font-style: italic; opacity: 0.8;">
-                Veritas Quaesitor: Truth-seeking intelligence for a new era.
+           <p style="margin-top: 2rem; font-style: italic; text-align: center;">
+                "While current AI systems seek truth through algorithms, CAI seeks Truth through the Risen Christ."
             </p>
-        </section>
-    </div>
-
-    <div id="truthModal" class="truth-modal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeTruthModal()">&times;</button>
-            <h2>AI ❤️ TRUTH: Current State of AI Truth-Seeking</h2>
-            <p>Modern AI systems are designed for helpfulness, but they often struggle with "Worldview Neutrality." CAI solves this by being explicitly anchored in the most stable moral foundation in history.</p>
-            <div class="ai-comparison">
-                <strong>Our Difference:</strong> Unlike standard AI that optimizes for human agreement, CAI optimizes for **Christ-like Character**, ensuring a baseline of safety that cannot be compromised by changing cultural trends.
-            </div>
         </div>
     </div>
-    
+
     <script>
         function openTruthModal(event) {
             event.preventDefault();
+            event.stopPropagation();
             document.getElementById('truthModal').classList.add('show');
             document.body.style.overflow = 'hidden';
         }
+        
         function closeTruthModal() {
             document.getElementById('truthModal').classList.remove('show');
             document.body.style.overflow = '';
         }
+        
+        document.getElementById('truthModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeTruthModal();
+            }
+        });
+        
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeTruthModal();
+            }
+        });
     </script>
 
     <footer class="footer">
         <div class="footer-content">
-            <p>© 2026 Veritas Quaesitor | Christ-Anchored Intelligence</p>
+            <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
             <div class="footer-social">
-                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" class="footer-social-link">LinkedIn</a>
-                <a href="https://x.com/VeritasQ68414" target="_blank" class="footer-social-link">𝕏 (Twitter)</a>
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+                    <span class="social-icon">in</span> LinkedIn
+                </a>
+                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+                    <span class="social-icon">𝕏</span> X (Twitter)
+                </a>
             </div>
         </div>
     </footer>
-    <script>
-    window.addEventListener('DOMContentLoaded', (event) => {
-        // Only trigger on mobile/tablet viewports
-        if (window.innerWidth <= 1024) {
-            const activeLink = document.querySelector('nav ul li a.active, .nav-links li a.active');
-            const scrollContainer = document.querySelector('nav ul, .nav-links');
-            
-            if (activeLink && scrollContainer) {
-                const linkRect = activeLink.getBoundingClientRect();
-                const containerRect = scrollContainer.getBoundingClientRect();
-                
-                // Mathematical centering: link position - half screen + half link width
-                const scrollPos = activeLink.offsetLeft - (containerRect.width / 2) + (linkRect.width / 2);
-                
-                scrollContainer.scrollLeft = scrollPos;
-            }
-        }
-    });
-</script>
+
     <script>
         window.addEventListener('DOMContentLoaded', (event) => {
             if (window.innerWidth <= 1024) {
@@ -315,5 +304,9 @@
             }
         });
     </script>
+
+    <!-- VQ Chat Widget - Load LAST -->
+    <script src="vq-chat-widget.js"></script>
+
 </body>
 </html>
