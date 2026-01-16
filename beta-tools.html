@@ -645,12 +645,12 @@
                 <li>Recognizing that truth is ultimately personal (Jesus: "I am the Truth")</li>
             </ul>
             
-            <p style="margin-top: 2rem; font-style: italic; text-align: center;">
+           <p style="margin-top: 2rem; font-style: italic; text-align: center;">
                 "While current AI systems seek truth through algorithms, CAI seeks Truth through the Risen Christ."
             </p>
         </div>
     </div>
-    
+
     <script>
         function openTruthModal(event) {
             event.preventDefault();
@@ -690,24 +690,25 @@
             </div>
         </div>
     </footer>
+
     <script>
-    window.addEventListener('DOMContentLoaded', (event) => {
-        // Only trigger on mobile/tablet viewports
-        if (window.innerWidth <= 1024) {
-            const activeLink = document.querySelector('nav ul li a.active, .nav-links li a.active');
-            const scrollContainer = document.querySelector('nav ul, .nav-links');
-            
-            if (activeLink && scrollContainer) {
-                const linkRect = activeLink.getBoundingClientRect();
-                const containerRect = scrollContainer.getBoundingClientRect();
+        window.addEventListener('DOMContentLoaded', (event) => {
+            if (window.innerWidth <= 1024) {
+                const activeLink = document.querySelector('nav ul li a.active, .nav-links li a.active');
+                const scrollContainer = document.querySelector('nav ul, .nav-links');
                 
-                // Mathematical centering: link position - half screen + half link width
-                const scrollPos = activeLink.offsetLeft - (containerRect.width / 2) + (linkRect.width / 2);
-                
-                scrollContainer.scrollLeft = scrollPos;
+                if (activeLink && scrollContainer) {
+                    const linkRect = activeLink.getBoundingClientRect();
+                    const containerRect = scrollContainer.getBoundingClientRect();
+                    const scrollPos = activeLink.offsetLeft - (containerRect.width / 2) + (linkRect.width / 2);
+                    scrollContainer.scrollLeft = scrollPos;
+                }
             }
-        }
-    });
-</script>
+        });
+    </script>
+
+    <!-- VQ Chat Widget - Load LAST -->
+    <script src="vq-chat-widget.js"></script>
+
 </body>
 </html>
