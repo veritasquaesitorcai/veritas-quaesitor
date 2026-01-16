@@ -4,7 +4,7 @@ from flask_cors import CORS
 from groq import Groq
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # --- RESILIENT KEY LOADING ---
 # This part automatically fixes the "hidden space" issue if it happens
