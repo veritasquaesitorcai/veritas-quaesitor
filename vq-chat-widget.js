@@ -108,16 +108,20 @@ What brings you here?`
             right: 30px;
             width: 420px;
             height: 650px;
-            background: white;
+            background: rgba(26, 26, 62, 0.75);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4),
-                        0 0 0 3px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
+                        0 0 0 1px rgba(102, 126, 234, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
             overflow: hidden;
             display: none;
             flex-direction: column;
             z-index: 9999;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             animation: vq-slideUp 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         #vq-chat-panel.open {
@@ -192,7 +196,7 @@ What brings you here?`
             flex: 1;
             padding: 20px;
             overflow-y: auto;
-            background: #f8f9fa;
+            background: rgba(15, 15, 35, 0.4);
         }
 
         #vq-chat-messages::-webkit-scrollbar {
@@ -200,12 +204,16 @@ What brings you here?`
         }
 
         #vq-chat-messages::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: rgba(255, 255, 255, 0.05);
         }
 
         #vq-chat-messages::-webkit-scrollbar-thumb {
-            background: #667eea;
+            background: rgba(102, 126, 234, 0.6);
             border-radius: 3px;
+        }
+
+        #vq-chat-messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.8);
         }
 
         .vq-message {
@@ -239,18 +247,21 @@ What brings you here?`
         }
 
         .vq-message-content {
-            background: white;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
             padding: 12px 16px;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            color: #333;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3),
+                        0 0 0 1px rgba(102, 126, 234, 0.2);
+            color: #e8e8f0;
             line-height: 1.6;
             max-width: 80%;
             white-space: pre-wrap;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .vq-message-content strong {
-            color: #667eea;
+            color: #a5b4fc;
         }
 
         .vq-user-message {
@@ -268,8 +279,9 @@ What brings you here?`
 
         #vq-chat-input-area {
             padding: 16px;
-            background: white;
-            border-top: 1px solid #e0e0e0;
+            background: rgba(26, 26, 62, 0.6);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(102, 126, 234, 0.2);
             display: flex;
             gap: 10px;
         }
@@ -277,16 +289,24 @@ What brings you here?`
         #vq-chat-input {
             flex: 1;
             padding: 12px 16px;
-            border: 2px solid #e0e0e0;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(102, 126, 234, 0.3);
             border-radius: 24px;
             font-size: 0.95rem;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.3s ease;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: #e8e8f0;
+        }
+
+        #vq-chat-input::placeholder {
+            color: rgba(232, 232, 240, 0.5);
         }
 
         #vq-chat-input:focus {
             border-color: #667eea;
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
         }
 
         #vq-chat-send {
