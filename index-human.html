@@ -5,15 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Veritas Quaesitor - Christ-Anchored Intelligence</title>
     
+    <!-- SEO Meta Tags -->
     <meta name="description" content="Veritas Quaesitor CAI: Creating trustworthy AI and robotics that embody Christ's character through unconditional human dignity, servant leadership, and truth-telling. Evidence-based methodology for operational excellence.">
     <meta name="keywords" content="CAI, Christ-Anchored Intelligence, Bayesian reasoning, epistemic symmetry, trustworthy AI, servant robotics, VQ-1 robot, human dignity, operational excellence">
     
+    <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="Veritas Quaesitor CAI: Trustworthy AI Through Christ's Character">
     <meta property="og:description" content="Creating operationally excellent AI/robotics that embody Christ's character: unconditional human dignity, servant leadership, truth-telling. AI anyone can trust.">
     <meta property="og:type" content="website">
     
+    <!-- Canonical URL -->
     <link rel="canonical" href="https://veritasquaesitorcai.github.io/veritas-quaesitor/">
     
+    <!-- Structured Data for Google -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -27,16 +31,20 @@
     }
     </script>
     
+    <!-- Favicons -->
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="shortcut icon" href="favicon.ico">
     
+    <!-- Mobile Icons -->
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
     
+    <!-- Web App Manifest -->
     <link rel="manifest" href="site.webmanifest">
     
+    <!-- Theme Color -->
     <meta name="theme-color" content="#1a1a3e">
     
     <link rel="stylesheet" href="styles.css">
@@ -52,9 +60,6 @@
             margin: 0;
             padding: 0;
             overflow-x: hidden;
-            /* Global Gradient Background to ensure Glass effect works everywhere */
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            background-attachment: fixed;
         }
         
         .clickable-ai-truth {
@@ -333,13 +338,119 @@
             background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
         }
         
-        /* GLASS MORPHISM - UNIVERSAL CONTAINER STYLE 
-           Applied to all main sections for consistency
-        */
-        .core-message .container,
-        .cai-agi-comparison .container,
-        .faq-section .container,
+        .core-message {
+            margin: 0 !important;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        /* WHITE CARD ON GRADIENT BACKGROUND */
+        .faq-section {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            padding: 4rem 2rem;
+            margin: 0 !important;
+        }
+
+        .faq-section .container {
+            background: white;
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+                        0 0 0 3px #ff8c42;
+            position: relative;
+            z-index: 1;
+        }
+
+        .faq-section h2 {
+            color: #1a1a3e;
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid #ff8c42;
+        }
+
+        .faq-section h3 {
+            color: #ff8c42;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.3rem;
+        }
+
+        .faq-section p {
+            color: #333;
+            line-height: 1.8;
+        }
+        
+        .cai-agi-comparison {
+            margin: 0 !important;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        /* NEW: AI REFERENCE SECTION */
+        .ai-reference {
+            margin: 0 !important;
+            padding: 4rem 2rem;
+            background: #2a2a2a;
+            border-top: 3px solid #ff8c42;
+        }
+        
         .ai-reference .container {
+            background: #1a1a1a;
+            padding: 3rem;
+            border-radius: 12px;
+            border: 1px solid #333;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .ai-reference h2 {
+            color: #ff8c42;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .ai-reference h3 {
+            color: #667eea;
+            font-size: 1.3rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .ai-reference p,
+        .ai-reference ul,
+        .ai-reference pre {
+            color: #e0e0e0;
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+        
+        .ai-reference pre {
+            background: #000;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            border-left: 4px solid #ff8c42;
+            margin: 1rem 0;
+        }
+        
+        .ai-reference code {
+            color: #4db8ff;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .ai-reference strong {
+            color: #ff8c42;
+        }
+        
+        .ai-reference em {
+            color: #b19cd9;
+        }
+        
+        .core-message .container,
+        .cai-agi-comparison .container {
             background: rgba(255, 255, 255, 0.15) !important;
             backdrop-filter: blur(10px) !important;
             -webkit-backdrop-filter: blur(10px) !important;
@@ -348,39 +459,26 @@
             padding: 3rem !important;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
         }
-
-        /* TEXT COLOR OVERRIDES FOR GLASS SECTIONS */
-        .core-message h2, .core-message h3,
-        .cai-agi-comparison h2, .cai-agi-comparison h3,
-        .faq-section h2, .faq-section h3,
-        .ai-reference h2, .ai-reference h3 {
+        
+        .core-message h2,
+        .core-message h3,
+        .cai-agi-comparison h2,
+        .cai-agi-comparison h3 {
             color: white !important;
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3) !important;
         }
-
-        .core-message p, .core-message li,
-        .cai-agi-comparison p, .cai-agi-comparison li,
-        .faq-section p, .faq-section li,
-        .ai-reference p, .ai-reference li {
+        
+        .core-message p,
+        .cai-agi-comparison p {
             color: rgba(255, 255, 255, 0.95) !important;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
-            line-height: 1.8;
         }
-
-        /* SECTION BACKGROUNDS - Set to transparent so body gradient shows */
-        .core-message, 
-        .faq-section, 
-        .cai-agi-comparison, 
-        .ai-reference {
-            margin: 0 !important;
-            padding: 4rem 2rem;
-            background: transparent !important; 
+        
+        .core-message ol,
+        .cai-agi-comparison ol {
+            color: rgba(255, 255, 255, 0.95) !important;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
         }
-
-        /* Specific override for borders/colors in Reference */
-        .ai-reference h2 { color: #ff8c42 !important; }
-        .ai-reference h3 { color: #667eea !important; }
-        .ai-reference code, .ai-reference pre { color: #4db8ff !important; }
         
         .core-message table,
         .cai-agi-comparison table {
@@ -427,10 +525,16 @@
             }
             
             .core-message .container,
-            .cai-agi-comparison .container,
-            .faq-section .container,
-            .ai-reference .container {
+            .cai-agi-comparison .container {
                 padding: 2rem !important;
+            }
+            
+            .faq-section .container {
+                padding: 2rem;
+            }
+            
+            .ai-reference .container {
+                padding: 2rem;
             }
             
             .faq-section h2 {
@@ -521,6 +625,19 @@
             
             .hero .subtitle {
                 font-size: 0.9rem;
+            }
+
+            .core-message .container,
+            .cai-agi-comparison .container {
+                padding: 1.5rem !important;
+            }
+            
+            .faq-section .container {
+                padding: 1.5rem;
+            }
+            
+            .ai-reference .container {
+                padding: 1.5rem;
             }
         }
     
