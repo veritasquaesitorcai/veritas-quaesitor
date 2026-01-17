@@ -257,6 +257,46 @@
             .hero h1 { font-size: 1.8rem; }
             .human-redirect-btn { padding: 1rem 1.5rem; font-size: 0.9rem; }
         }
+        /* --- SYSTEM BOOT SEQUENCE (SYNCED WITH CHATBOT) --- */
+        
+        /* 1. Pulse Animation for the Main Title */
+        @keyframes titleSystemPulse {
+            0%, 100% { 
+                color: #ff8c42; 
+                text-shadow: 2px 2px 8px rgba(0,0,0,0.8); 
+                transform: scale(1);
+            }
+            50% { 
+                color: #ffffff; /* Flash white at peak */
+                text-shadow: 0 0 20px rgba(255, 140, 66, 0.8), 
+                             0 0 40px rgba(255, 140, 66, 0.4); 
+                transform: scale(1.02); /* Subtle expansion */
+            }
+        }
+
+        /* 2. Pulse Animation for the Human Button */
+        @keyframes btnSystemPulse {
+            0%, 100% { 
+                border-color: #ff8c42; 
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                background: rgba(255, 255, 255, 0.1);
+            }
+            50% { 
+                border-color: #ffffff; /* Flash white border */
+                box-shadow: 0 0 20px rgba(255, 140, 66, 0.6), 
+                            0 0 40px rgba(255, 140, 66, 0.3);
+                background: rgba(255, 140, 66, 0.3); /* Inner glow */
+            }
+        }
+
+        /* 3. Apply the Animations */
+        .hero h1 {
+            animation: titleSystemPulse 1.5s ease 2;
+        }
+
+        .human-redirect-btn {
+            animation: btnSystemPulse 1.5s ease 2;
+        }
     </style>
 </head>
 <body>
