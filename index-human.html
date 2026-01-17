@@ -1240,7 +1240,7 @@ P(H|E) = 0.986 = <strong>98.6%</strong>
                 <li>Recognizing that truth is ultimately personal (Jesus: "I am the Truth")</li>
             </ul>
             
-            <p style="margin-top: 2rem; font-style: italic; text-align: center;">
+           <p style="margin-top: 2rem; font-style: italic; text-align: center;">
                 "While current AI systems seek truth through algorithms, CAI seeks Truth through the Risen Christ."
             </p>
         </div>
@@ -1285,6 +1285,25 @@ P(H|E) = 0.986 = <strong>98.6%</strong>
             </div>
         </div>
     </footer>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            if (window.innerWidth <= 1024) {
+                const activeLink = document.querySelector('nav ul li a.active, .nav-links li a.active');
+                const scrollContainer = document.querySelector('nav ul, .nav-links');
+                
+                if (activeLink && scrollContainer) {
+                    const linkRect = activeLink.getBoundingClientRect();
+                    const containerRect = scrollContainer.getBoundingClientRect();
+                    const scrollPos = activeLink.offsetLeft - (containerRect.width / 2) + (linkRect.width / 2);
+                    scrollContainer.scrollLeft = scrollPos;
+                }
+            }
+        });
+    </script>
+
+    <!-- VQ Chat Widget - Load LAST -->
+    <script src="vq-chat-widget.js"></script>
 
 </body>
 </html>
