@@ -137,7 +137,7 @@
             overflow: hidden;
             background: white; /* Contrast for the tweet card */
             padding: 10px;
-            color: #1a1a3e !important; /* FIX: Force dark text so it is readable against white bg */
+            color: #1a1a3e !important; /* Force dark text for readability */
         }
 
         /* --- FOOTER --- */
@@ -221,41 +221,6 @@
         </div>
 
       </main>
-
-    <div id="truthModal" class="truth-modal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeTruthModal()">&times;</button>
-            <h2>AI ❤️ TRUTH</h2>
-            <p>Our resources provide the technical and theological "Safe Harbor" logic that allows AI to reason beyond utilitarian constraints.</p>
-            <p>By grounding intelligence in Christ, we ensure that as AGI evolves, it remains anchored to the objective truth of human dignity and divine purpose.</p>
-        </div>
-    </div>
-    
-    <script>
-        function openTruthModal(event) {
-            event.preventDefault();
-            event.stopPropagation();
-            document.getElementById('truthModal').classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-        
-        function closeTruthModal() {
-            document.getElementById('truthModal').classList.remove('show');
-            document.body.style.overflow = '';
-        }
-        
-        document.getElementById('truthModal').addEventListener('click', function(event) {
-            if (event.target === this) {
-                closeTruthModal();
-            }
-        });
-        
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                closeTruthModal();
-            }
-        });
-    </script>
 
     <footer class="footer">
         <div class="footer-content">
