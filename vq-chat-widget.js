@@ -1,6 +1,5 @@
 /**
  * VQ Chat Widget - Floating Chat Interface
- 
  * Veritas Quaesitor (veritasquaesitorcai.github.io)
  * 
  * Usage: <script src="vq-chat-widget.js"></script>
