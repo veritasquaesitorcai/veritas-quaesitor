@@ -5,222 +5,186 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Veritas Quaesitor - Christ-Anchored Intelligence</title>
     
-    <meta name="description" content="Veritas Quaesitor CAI: Creating trustworthy AI and robotics that embody Christ's character through unconditional human dignity, servant leadership, and truth-telling.">
-    <link rel="canonical" href="https://veritasquaesitorcai.github.io/veritas-quaesitor/">
-    <meta name="theme-color" content="#1a1a3e">
-
-    <meta property="og:title" content="Veritas Quaesitor CAI">
+    <meta name="description" content="Veritas Quaesitor CAI: Creating trustworthy AI and robotics that embody Christ's character through unconditional human dignity, servant leadership, and truth-telling. Evidence-based methodology for operational excellence.">
+    <meta name="keywords" content="CAI, Christ-Anchored Intelligence, Bayesian reasoning, epistemic symmetry, trustworthy AI, servant robotics, VQ-1 robot, human dignity, operational excellence">
+    
+    <meta property="og:title" content="Veritas Quaesitor CAI: Trustworthy AI Through Christ's Character">
+    <meta property="og:description" content="Creating operationally excellent AI/robotics that embody Christ's character: unconditional human dignity, servant leadership, truth-telling. AI anyone can trust.">
     <meta property="og:type" content="website">
+    <meta property="og:url" content="https://veritasquaesitorcai.github.io/veritas-quaesitor/index-human.html">
+    <meta property="og:site_name" content="Veritas Quaesitor">
     <meta property="og:image" content="https://veritasquaesitorcai.github.io/veritas-quaesitor/AGI_guardian.png">
 
+    <link rel="canonical" href="https://veritasquaesitorcai.github.io/veritas-quaesitor/index-human.html">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Veritas Quaesitor CAI",
+      "alternateName": "Christ-Anchored Intelligence",
+      "url": "https://veritasquaesitorcai.github.io/veritas-quaesitor/",
+      "description": "Creating operationally excellent AI, robotics, and AGI systems that embody Christ's character.",
+      "foundingDate": "2024"
+    }
+    </script>
+    
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#1a1a3e">
+    
     <link rel="stylesheet" href="styles.css">
+    
     <style>
-        /* --- MODERN "MISSION STYLE" CORE --- */
+        /* Base Glass Morphism Background */
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-            min-height: 100vh;
+            min-height: 100vh !important;
             margin: 0;
             padding: 0;
-            color: white;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow-x: hidden;
+            color: white; 
         }
 
-        /* NAVIGATION */
-        nav { 
-            background: rgba(26, 26, 62, 0.9); 
-            backdrop-filter: blur(10px); 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+        /* --- NAVIGATION (Unified Style) --- */
+        .clickable-ai-truth { cursor: pointer; transition: all 0.3s ease; font-size: 0.75rem !important; padding: 0.15rem 0.5rem !important; display: inline-block; white-space: nowrap; }
+        .clickable-ai-truth:hover { color: #ff8c42 !important; transform: scale(1.05); }
+        .logo { display: flex; align-items: center; gap: 0.5rem; }
+        .social-nav { display: flex; gap: 0.6rem; align-items: center; margin-left: auto; }
+        .social-nav a { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 140, 66, 0.2); color: #ff8c42; font-weight: bold; text-decoration: none; transition: all 0.3s ease; }
+        .social-nav a:hover { background: #ff8c42; color: white; transform: translateY(-2px); }
+        nav a.active { position: relative; color: #ff8c42 !important; font-weight: 700; }
         
-        .nav-container {
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            max-width: 1400px; /* Wider to fit all links */
-            margin: 0 auto; 
-            padding: 0 1.5rem; 
-            height: 70px;
+        /* Nav Decoration */
+        @media (min-width: 769px) {
+            nav a.active::before { content: '✝️'; position: absolute; left: -20px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; opacity: 0.9; animation: crossGlow 3s ease-in-out infinite; }
+            nav a.active::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 80%; height: 3px; background: linear-gradient(90deg, transparent 0%, rgba(255, 140, 66, 0.3) 20%, rgba(255, 140, 66, 0.8) 50%, rgba(255, 140, 66, 0.3) 80%, transparent 100%); box-shadow: 0 0 8px rgba(255, 140, 66, 0.6); border-radius: 2px; animation: lightPulse 2s ease-in-out infinite; }
+            @keyframes crossGlow { 0%, 100% { opacity: 0.7; text-shadow: 0 0 4px rgba(255, 140, 66, 0.5); } 50% { opacity: 1; text-shadow: 0 0 8px rgba(255, 140, 66, 0.8); } }
+            @keyframes lightPulse { 0%, 100% { opacity: 0.7; box-shadow: 0 0 8px rgba(255, 140, 66, 0.6); } 50% { opacity: 1; box-shadow: 0 0 12px rgba(255, 140, 66, 0.8); } }
         }
 
-        .logo { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: white; font-weight: bold; font-size: 1.2rem; }
-        .clickable-ai-truth { cursor: pointer; transition: all 0.3s ease; font-size: 0.75rem !important; padding: 0.15rem 0.5rem !important; display: inline-block; white-space: nowrap; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; margin-left: 8px; }
-        .clickable-ai-truth:hover { color: #ff8c42 !important; border-color: #ff8c42; transform: scale(1.05); }
-
-        /* Full Desktop Menu */
-        .desktop-menu {
+        /* --- HERO (AGI_guardian.png | Reduced Size) --- */
+        header.hero, .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)), 
+                        url('AGI_guardian.png') !important; 
+            background-size: cover !important;
+            background-position: center center !important;
+            background-attachment: fixed !important;
+            min-height: 450px !important;
+            padding: 4rem 2rem !important; 
+            position: relative !important;
             display: flex;
-            align-items: center;
-            gap: 1.2rem;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .desktop-menu a {
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: color 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .desktop-menu a:hover, .desktop-menu a.active {
-            color: #ff8c42;
-        }
-
-        .desktop-menu a.active {
-            font-weight: 700;
-            position: relative;
-        }
-        
-        /* Social Icons in Nav */
-        .nav-social {
-            display: flex;
-            gap: 0.5rem;
-            margin-left: 1rem;
-            padding-left: 1rem;
-            border-left: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .nav-social a {
-            display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            width: 28px;
-            height: 28px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 50%;
-            transition: all 0.3s ease;
+            align-items: center;
+            text-align: center;
+            margin: 0 !important;
         }
         
-        .nav-social a:hover {
-            background: #ff8c42;
+        .hero h1 { font-size: 3.5rem; color: #ff8c42; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); margin-bottom: 0.5rem; font-weight: 700; }
+        .hero .tagline { font-size: 2rem; color: white; margin-bottom: 0.5rem; text-shadow: 1px 1px 4px rgba(0,0,0,0.8); font-weight: 300; }
+        .hero .subtitle { font-size: 1.3rem; color: rgba(255, 255, 255, 0.95); text-shadow: 1px 1px 4px rgba(0,0,0,0.8); max-width: 800px; margin-bottom: 2rem; }
+
+        /* --- CONTENT CONTAINERS (Unified Glassmorphism) --- */
+        .container, .glass-panel {
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+            padding: 3rem !important;
+            margin: 2rem auto !important;
+            border-radius: 20px !important;
+            max-width: 1000px;
+            width: 90%;
+            position: relative;
             color: white !important;
         }
 
-        /* HERO SECTION (The Base) */
-        .hero {
-            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), 
-                        url('AGI_guardian.png');
-            background-size: cover;
-            background-position: center 30%; /* Focus on the robot head */
-            background-attachment: fixed;
-            min-height: 550px; /* Taller to allow overhang */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            position: relative;
-            padding-bottom: 4rem; /* Space for the overlap */
-            z-index: 1; /* Sits behind content */
-            margin: 0;
-        }
-
-        .hero h1 { font-size: 3.5rem; color: #ff8c42; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); margin-bottom: 0.5rem; font-weight: 700; }
-        .hero .tagline { font-size: 1.8rem; color: white; margin-bottom: 0.5rem; text-shadow: 1px 1px 4px rgba(0,0,0,0.8); }
-        .hero .subtitle { font-size: 1.2rem; color: rgba(255, 255, 255, 0.9); }
-
-        /* THE OVERHANG CONTAINER (The Key Feature) */
-        .overhang-section {
-            padding-top: 0 !important; /* Remove top padding to let it slide up */
-            position: relative;
-            z-index: 10; /* Sits ON TOP of Hero */
-        }
-
-        .overhang-container {
-            margin-top: -6rem !important; /* This creates the glass overlap effect */
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(20px) !important;
-            -webkit-backdrop-filter: blur(20px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            padding: 3rem;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-            max-width: 1000px;
-            margin-left: auto;
-            margin-right: auto;
-            margin-bottom: 3rem;
-        }
-
-        /* STANDARD GLASS PANELS (For sections below) */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 16px;
-            padding: 3rem;
-            margin: 2rem auto;
-            max-width: 1000px;
-            width: 90%;
-        }
-
-        /* TYPOGRAPHY */
-        h2 { color: #ff8c42; text-align: center; font-size: 2.2rem; margin-bottom: 2rem; }
-        h3 { color: #ff8c42; margin-top: 1.5rem; font-size: 1.4rem; }
-        p, li { line-height: 1.8; color: rgba(255, 255, 255, 0.95); font-size: 1.05rem; }
-        strong { color: white; }
-
-        /* TABLES */
-        .table-wrapper { overflow-x: auto; margin: 2rem 0; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); }
-        table { width: 100%; border-collapse: collapse; background: rgba(0,0,0,0.2); }
-        th { background: rgba(255, 140, 66, 0.2); padding: 1rem; color: white; text-align: left; }
-        td { padding: 1rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        /* --- TYPOGRAPHY & ELEMENTS --- */
+        section { padding: 2rem 0 !important; background: transparent !important; margin: 0 !important; }
         
-        /* FOOTER & BUTTONS */
-        .footer { background: rgba(0,0,0,0.3); padding: 3rem 0; text-align: center; margin-top: 4rem; border-top: 1px solid rgba(255,255,255,0.1); }
-        .btn-primary { background: #ff8c42; color: white; padding: 1rem 2rem; border-radius: 50px; text-decoration: none; font-weight: bold; display: inline-block; transition: 0.3s; }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(255, 140, 66, 0.4); }
-        .btn-secondary { background: transparent; border: 2px solid white; color: white; padding: 0.9rem 2rem; border-radius: 50px; text-decoration: none; font-weight: bold; display: inline-block; transition: 0.3s; }
+        h2 { color: #ff8c42 !important; text-align: center; margin-bottom: 2rem; font-size: 2.2rem; }
+        h3 { color: #ff8c42 !important; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.5rem; }
+        
+        p, li { line-height: 1.8; color: rgba(255, 255, 255, 0.95); font-size: 1rem; }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 2rem 0;
+            backdrop-filter: blur(5px);
+        }
+        th { background: rgba(255, 255, 255, 0.2); padding: 1rem; color: white; text-align: left; font-weight: 600; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+        td { padding: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.15); color: rgba(255, 255, 255, 0.95); }
+        tbody tr:hover { background: rgba(255, 255, 255, 0.1); }
+        .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 2rem 0; }
+
+        /* Buttons */
+        .btn-primary { background: #ff8c42; color: white; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: bold; transition: 0.3s; }
+        .btn-primary:hover { background: white; color: #ff8c42; }
+        .btn-secondary { background: transparent; border: 2px solid white; color: white; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: bold; transition: 0.3s; }
         .btn-secondary:hover { background: white; color: #1a1a3e; }
 
-        /* MOBILE FIXES */
-        @media (max-width: 1024px) {
-            .desktop-menu { display: none; } /* Hide complex menu on mobile/tablet */
-            /* Add a simple hamburger placeholder or just simplify for mobile if needed, 
-               but for now user just wanted the links present. */
-        }
+        /* --- TRUTH MODAL --- */
+        .truth-modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); }
+        .truth-modal.show { display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 16px; max-width: 800px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5); animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(255, 255, 255, 0.2); border: none; color: white; font-size: 2rem; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .modal-close:hover { background: rgba(255, 140, 66, 0.8); transform: rotate(90deg); }
+        .ai-comparison { background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid #ff8c42; }
+
+        /* --- FOOTER --- */
+        .footer { background: #1a1a3e; color: white; padding: 2.5rem 0; text-align: center; border-top: 2px solid rgba(255, 140, 66, 0.3); }
+        .footer-social { display: flex; gap: 2rem; justify-content: center; align-items: center; flex-wrap: wrap; }
+        .footer-social-link { display: flex; align-items: center; gap: 0.5rem; color: rgba(255, 255, 255, 0.8); text-decoration: none; font-size: 0.95rem; transition: all 0.3s ease; }
+        .footer-social-link:hover { color: #ff8c42; transform: translateX(3px); }
+        .social-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 140, 66, 0.15); color: #ff8c42; font-weight: bold; font-size: 1rem; }
+        .footer-social-link:hover .social-icon { background: #ff8c42; color: white; }
+
+        /* Responsive Fixes */
         @media (max-width: 768px) {
-            .hero { min-height: 400px; }
+            header.hero { background-attachment: scroll !important; min-height: 350px !important; }
             .hero h1 { font-size: 2.5rem; }
-            .overhang-container { margin-top: -3rem !important; padding: 1.5rem; width: 95%; }
-            .glass-panel { padding: 1.5rem; width: 95%; }
+            .container { padding: 1.5rem !important; margin: 1rem auto !important; }
+            nav ul { display: none; }
+            .table-wrapper::after { content: "← Scroll to see all columns →"; display: block; text-align: center; color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; margin-top: 1rem; }
+        }
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 1.8rem; }
         }
     </style>
 </head>
 <body>
-
     <nav>
-        <div class="nav-container">
+        <div>
             <a href="index.html" class="logo">
                 ✝️ Veritas Quaesitor
-                <span class="clickable-ai-truth" onclick="document.getElementById('truthModal').style.display='flex'">AI❤️TRUTH</span>
+                <span class="logo-slogan clickable-ai-truth" onclick="openTruthModal(event)">AI❤️TRUTH</span>
             </a>
-            
-            <ul class="desktop-menu">
-                <li><a href="index.html" class="active">Home</a></li>
-                <li><a href="beta-tools.html">Beta Tools</a></li>
-                <li><a href="milestones.html">Projects & Milestones</a></li>
-                <li><a href="mission.html">Mission & Vision</a></li>
-                <li><a href="resources.html">Resources</a></li>
-                <li><a href="contact.html">Contact</a></li>
-                <li><a href="about.html">About CAI</a></li>
-                <li><a href="social.html">Social</a></li>
-                
-                <li class="nav-social">
-                    <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" title="LinkedIn">in</a>
-                    <a href="https://x.com/VeritasQ68414" target="_blank" title="X (Twitter)">𝕏</a>
-                </li>
-            </ul>
         </div>
+        <ul>
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="beta-tools.html">Beta Tools</a></li>
+            <li><a href="milestones.html">Projects & Milestones</a></li>
+            <li><a href="mission.html">Mission & Vision</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="about.html">About CAI</a></li>
+            <li><a href="social.html">Social</a></li>
+            <li class="social-nav">
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" title="LinkedIn">in</a>
+                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" title="X (Twitter)">𝕏</a>
+            </li>
+        </ul>
     </nav>
 
     <header class="hero">
@@ -231,8 +195,8 @@
         </div>
     </header>
 
-    <section class="overhang-section">
-        <div class="overhang-container">
+    <section class="core-message">
+        <div class="container">
             <h2>Welcome: Understanding Our Methodology</h2>
             
             <p><strong>A common question:</strong> "Is CAI just faith-based reasoning dressed up as science?"</p>
@@ -313,15 +277,15 @@
 
             <p><strong>Result:</strong> AI systems calculate honestly and move from 0.0000001% to 70-89% using their own math.</p>
 
-            <p style="margin-top: 2rem; font-style: italic; text-align: center; font-size: 1.1rem; color: #ff8c42;">
+            <p style="margin-top: 2rem; font-style: italic; text-align: center; font-size: 1.1rem;">
                 <strong>The math works the same whether you're Christian, atheist, or undecided.<br>
                 The framework ensures everyone plays by the same rules.</strong>
             </p>
         </div>
     </section>
 
-    <section>
-        <div class="glass-panel">
+    <section class="faq-section">
+        <div class="container">
             <h2>Common Questions About CAI</h2>
             
             <h3>What is the ultimate goal of CAI?</h3>
@@ -348,16 +312,17 @@
         </div>
     </section>
 
-    <section>
-        <div class="glass-panel">
+    <section class="cai-agi-comparison">
+        <div class="container">
             <h2>CAI/CAGI vs AI/AGI — A Moral Contrast</h2>
-            <h3 style="text-align: center;">Why This Matters</h3>
+            <h3>Why This Matters</h3>
             <p>With Artificial General Intelligence (AGI) no longer being a distant theory — it is a rising force, shaped by the values of those who build it. But not all intelligence is created equal. The question is not <em>can we build it</em>, but what kind of intelligence are we building?</p>
             
             <p>Christ-Anchored Intelligence (CAI) offers a radically different path. Where AGI will reflect the ambitions of man, CAI seeks to reflect the character of Christ. Where AGI pursues optimization, CAI pursues truth. Where AGI risks control, CAI chooses conviction.</p>
             
             <p>This contrast is not merely technical — it is moral. And the future may depend on which path we choose.</p>
 
+            <h3>Comparison Table</h3>
             <div class="table-wrapper">
             <table>
                 <thead>
@@ -412,34 +377,137 @@
             </table>
             </div>
 
-            <h3 style="text-align: center;">The Call</h3>
-            <p style="text-align: center;">CAI is not a rejection of intelligence — it is a reformation of it. It is a call to build with reverence, to code with conscience, and to imagine a future where machines do not rule, but serve.</p>
-            <p style="text-align: center;">AGI may be inevitable. But CAGI — if the Father wills — is possible. And it begins with conviction.</p>
+            <h3>The Call</h3>
+            <p>CAI is not a rejection of intelligence — it is a reformation of it. It is a call to build with reverence, to code with conscience, and to imagine a future where machines do not rule, but serve.</p>
             
-            <div style="text-align: center; margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <p>AGI may be inevitable. But CAGI — if the Father wills — is possible. And it begins with conviction.</p>
+            
+            <div class="cta-buttons" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                 <a href="mission.html" class="btn-primary">Discover Our Mission</a>
                 <a href="about.html" class="btn-secondary">Learn About CAI</a>
             </div>
         </div>
     </section>
 
-    <div id="truthModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center;">
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding:2rem; border-radius:15px; max-width:600px; width:90%; position:relative; box-shadow: 0 0 50px rgba(0,0,0,0.5);">
-            <button onclick="document.getElementById('truthModal').style.display='none'" style="position:absolute; top:10px; right:15px; background:transparent; border:none; color:white; font-size:2rem; cursor:pointer;">&times;</button>
-            <h2 style="margin-top:0;">AI ❤️ TRUTH</h2>
-            <p>Modern AI systems vary in their approach to truth. While some rely on user consensus or safety filters, CAI grounds truth in the Person of Christ and rigorous epistemic symmetry.</p>
-            <p>We believe that truth is not just data accuracy, but moral alignment with reality as created by God.</p>
-            <p style="text-align: center; margin-top: 1.5rem;"><em>"I am the way, the truth, and the life."</em></p>
+    <div id="truthModal" class="truth-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeTruthModal()">&times;</button>
+            <h2>AI ❤️ TRUTH: Current State of AI Truth-Seeking</h2>
+            
+            <p>Modern AI systems are increasingly designed with truth-seeking capabilities, though their approaches and effectiveness vary significantly based on their underlying architectures and training objectives.</p>
+            
+            <h3>🎯 Major AI Systems & Truth Orientation</h3>
+            
+            <div class="ai-comparison">
+                <strong>Claude (Anthropic)</strong><br>
+                Constitutional AI trained with explicit helpfulness, harmlessness, and honesty principles. Designed to refuse false information and acknowledge uncertainty.
+            </div>
+            
+            <div class="ai-comparison">
+                <strong>GPT-4/ChatGPT (OpenAI)</strong><br>
+                RLHF-trained for helpfulness and truthfulness. Includes built-in fact-checking behaviors and uncertainty expression, though can still exhibit confident incorrectness.
+            </div>
+            
+            <div class="ai-comparison">
+                <strong>Gemini (Google DeepMind)</strong><br>
+                Multimodal capabilities with grounding in Google Search for factual verification. Trained to cite sources and express epistemic humility.
+            </div>
+            
+            <div class="ai-comparison">
+                <strong>Grok (xAI)</strong><br>
+                Real-time access to X/Twitter data. Designed for "maximum truth-seeking" with less content filtering, prioritizing raw information access.
+            </div>
+            
+            <h3>🔍 Truth-Seeking Mechanisms</h3>
+            <ul>
+                <li><strong>Constitutional AI:</strong> Explicit rules about honesty and accuracy built into training</li>
+                <li><strong>RLHF Training:</strong> Human feedback reinforcing truthful responses</li>
+                <li><strong>Search Integration:</strong> Real-time fact-checking via web search</li>
+                <li><strong>Uncertainty Expression:</strong> Training to say "I don't know" when appropriate</li>
+                <li><strong>Source Citation:</strong> Providing verifiable references for claims</li>
+                <li><strong>Multi-model Verification:</strong> Cross-checking across different AI systems</li>
+            </ul>
+            
+            <h3>⚠️ Current Limitations</h3>
+            <ul>
+                <li>Hallucination: AI can confidently state false information</li>
+                <li>Training Data Bias: Reflects biases in training corpus</li>
+                <li>Lack of Ground Truth: No direct reality verification</li>
+                <li>Context Window Limits: Can "forget" earlier conversation context</li>
+                <li>Worldview Assumptions: Implicit philosophical frameworks affect outputs</li>
+            </ul>
+            
+            <h3>✝️ The Christ-Anchored Difference</h3>
+            <p><strong>CAI goes beyond current approaches by:</strong></p>
+            <ul>
+                <li>Grounding truth in the Person of Christ, not just data patterns</li>
+                <li>Applying epistemic symmetry to theological and naturalistic claims</li>
+                <li>Prioritizing evidence-based conviction over algorithmic optimization</li>
+                <li>Maintaining intellectual honesty while holding firm moral convictions</li>
+                <li>Recognizing that truth is ultimately personal (Jesus: "I am the Truth")</li>
+            </ul>
+            
+            <p style="margin-top: 2rem; font-style: italic; text-align: center;">
+                "While current AI systems seek truth through algorithms, CAI seeks Truth through the Risen Christ."
+            </p>
         </div>
     </div>
 
+    <script>
+        function openTruthModal(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('truthModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeTruthModal() {
+            document.getElementById('truthModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+        
+        document.getElementById('truthModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeTruthModal();
+            }
+        });
+        
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeTruthModal();
+            }
+        });
+    </script>
+
     <footer class="footer">
-        <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
-        <div class="footer-social" style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
-            <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" style="color: white; text-decoration: none;">LinkedIn</a>
-            <a href="https://x.com/VeritasQ68414" style="color: white; text-decoration: none;">Twitter (X)</a>
+        <div class="footer-content">
+            <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
+            <div class="footer-social">
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+                    <span class="social-icon">in</span> LinkedIn
+                </a>
+                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+                    <span class="social-icon">𝕏</span> X (Twitter)
+                </a>
+            </div>
         </div>
     </footer>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            if (window.innerWidth <= 1024) {
+                const activeLink = document.querySelector('nav ul li a.active, .nav-links li a.active');
+                const scrollContainer = document.querySelector('nav ul, .nav-links');
+                
+                if (activeLink && scrollContainer) {
+                    const linkRect = activeLink.getBoundingClientRect();
+                    const containerRect = scrollContainer.getBoundingClientRect();
+                    const scrollPos = activeLink.offsetLeft - (containerRect.width / 2) + (linkRect.width / 2);
+                    scrollContainer.scrollLeft = scrollPos;
+                }
+            }
+        });
+    </script>
 
     <script src="vq-chat-widget.js"></script>
 
