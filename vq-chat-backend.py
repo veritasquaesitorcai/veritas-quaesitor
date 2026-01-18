@@ -125,4 +125,4 @@ if __name__ == '__main__':
    Flask app initialized
    Health route registered
    ✓ Groq client initialized successfully
-   Starting Flask on 0.0.0.0:8080
+   Starting Flask on 0.0.0.0:5000
