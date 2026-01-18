@@ -103,26 +103,3 @@ if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8080))
     print(f"Starting Flask on 0.0.0.0:{port}", flush=True)
     app.run(host='0.0.0.0', port=port, debug=False)
-```
-
----
-
-## 🎯 Key Changes:
-
-1. **`flush=True`** on all prints → Forces immediate log output
-2. **Health route BEFORE Groq import** → Even if Groq crashes, health works
-3. **Detailed error logging** → Shows exactly what's failing
-4. **Graceful degradation** → App starts even if Groq fails
-
----
-
-## 📋 Deploy & Monitor:
-
-1. **Push this code to Railway**
-2. **Watch the Deploy Logs** (click "View logs")
-3. **Look for these messages:**
-```
-   Flask app initialized
-   Health route registered
-   ✓ Groq client initialized successfully
-   Starting Flask on 0.0.0.0:8080
