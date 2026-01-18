@@ -98,7 +98,7 @@ def chat():
 
 print("Chat route registered", flush=True)
 
-# ADD THIS NEW SECTION:
+# Debug logging
 print("=" * 50, flush=True)
 print("VQ Backend Startup Complete!", flush=True)
 print(f"Groq client status: {'✓ Ready' if groq_client else '✗ Not configured'}", flush=True)
@@ -107,14 +107,6 @@ print("=" * 50, flush=True)
 
 # 6. Start server
 if __name__ == '__main__':
-```
-
-This will print a clear "SUCCESS" banner so we can see if the app fully initializes.
-
----
-
-## 📋 Also Verify Your Procfile:
-
-Make sure your `Procfile` still says:
-```
-web: gunicorn vq-chat-backend:app
+    port = int(os.environ.get("PORT", 8080))
+    print(f"Starting Flask on 0.0.0.0:{port}", flush=True)
+    app.run(host='0.0.0.0', port=port, debug=False)
