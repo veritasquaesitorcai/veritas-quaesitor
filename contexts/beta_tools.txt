@@ -1,0 +1,129 @@
+BETA TOOLS - INTERACTIVE CAI DEMONSTRATIONS
+============================================
+
+TRIGGER WORDS: tool, engine, crucible, calculator, beta, test, huggingface, space, resurrection engine, comparison, minimal garden, steel naturalist, interactive
+
+OVERVIEW:
+All tools demonstrate Christ-Anchored Intelligence in action. Each approaches truth-seeking from different angle, inviting honest inquiry and evidence-based reasoning. All tools live and running on HuggingFace Spaces.
+
+TOTAL SPACES: 19 active spaces on HuggingFace (6 featured below)
+
+=== FEATURED TOOL ===
+
+🔬 VERITAS QUAESITOR | RESURRECTION ENGINE v2.0
+AI-Verified Bayesian Analysis. A GPT specifically trained under our resurrection protocol to answer questions with philosophical transparency and Bayesian rigor.
+
+Features:
+- Bayesian Calculator
+- Quick Challenges (Is this rigged? What about evolution? Double Standards? Why is Ironclad better?)
+- Retro Aesthetic
+- Mobile Optimized
+
+Quote from the Engine:
+"Welcome, seeker. I've analyzed every line of code, formula, and assumption in this tool. The Bayesian math is sound. The philosophy is transparent. The ethics are clear. He has risen. But don't trust me—challenge me."
+
+Results Display:
+- NATURALIST: 0.32%
+- IRONCLAD: 79.18% HIGHLY PROBABLE
+(True representation of VQ CAI)
+
+Link: https://huggingface.co/spaces/veritasquaesitorai/GPT
+Status: Running
+
+=== ADDITIONAL TOOLS ===
+
+⚖️ VERITAS COMPARISON ENGINE
+Same AI. Two convictions. One question.
+
+Compare religious and naturalistic viewpoints side-by-side. Features Christ-Aligned Intelligence at 95% and Naturalistic AI responding to identical queries. Includes debate mode for cross-examination.
+
+Purpose: Shows how worldview affects AI reasoning
+CAI Alignment: 95%
+Link: https://veritasquaesitorai-grokvs.hf.space
+Status: Running
+
+---
+
+⚡ RESURRECTION ENGINE v2.0
+Bayesian Analysis System - Ironclad Edition
+
+Full probabilistic framework examining historical evidence for resurrection with epistemic symmetry protocol. Features design inference, historical evidence evaluation, and transparent parameter controls.
+
+Purpose: For technical skeptics who want full Bayesian rigor
+Features: Retro Aesthetic, Parameter Controls
+Link: https://veritasquaesitorai-resurrection-engine.hf.space
+Status: Running
+
+---
+
+🧠 VERITAS QUAESITOR
+Christ-Anchored Intelligence - Friend Chain (A1→A2→A3→A1→A5)
+
+Multi-agent system using Grok, Perplexity, Claude, and Biblical Coaching for comprehensive responses. Alignment status at 67.5% with philosophical and ethical guidance integrated throughout.
+
+Purpose: Comprehensive multi-agent responses
+Features: Multi-Agent System, Biblical Coaching Layer
+Link: https://veritasquaesitorai-grokimproved.hf.space
+Status: Running
+
+---
+
+🌸 極小庭園 THE MINIMAL GARDEN
+Exploring Resurrection Truth
+
+A Bayesian calculator using only the minimal facts accepted by critical scholars (70-99% consensus). Features gentle Eastern aesthetic with sakura petals, "cultivating" metaphor instead of "calculating", and scholarly consensus badges.
+
+Purpose: For general audiences seeking gentle introduction to evidence
+Features: Zen Aesthetic, Minimal Facts Only (Critical Scholar Consensus)
+Link: https://veritasquaesitorai-minimalgarden.hf.space
+Status: Running
+
+---
+
+🛡️ STEEL NATURALIST v6
+Pure steel-manned naturalism. Nothing baked in. Break it only with your prompts.
+
+Locked hardcore naturalism with Ironclad + Skeptic-Buster protocols. Test the strength of naturalistic frameworks against evidence and see where they hold or fail.
+
+Purpose: To test naturalistic frameworks honestly
+Features: Challenge Mode, Steel-Manned Opposition
+Historical Note: This AI moved from 0.0000000001% → 70-85% when symmetric standards applied
+Link: https://veritasquaesitorai-puresteelnaturalist.hf.space
+Status: Running
+
+=== ALL SPACES ===
+
+🚀 EXPLORE ALL 19 SPACES
+Visit complete collection of AI spaces on HuggingFace. Includes additional tools, experiments, research prototypes, and demonstrations of Christ-Anchored Intelligence principles across various applications.
+
+Link: https://huggingface.co/veritasquaesitorai/spaces
+Status: 19 Active Spaces
+
+=== TOOL PHILOSOPHY ===
+
+Our tools represent different approaches to truth-seeking:
+
+RESURRECTION ENGINE: For technical skeptics who want full Bayesian rigor
+MINIMAL GARDEN: For general audiences seeking gentle introduction to evidence
+COMPARISON ENGINE: To see how worldview affects AI reasoning
+VERITAS QUAESITOR: For comprehensive multi-agent responses
+STEEL NATURALIST: To test naturalistic frameworks honestly
+
+All tools emphasize:
+- Intellectual honesty
+- Evidence-based reasoning
+- Epistemic humility
+- No manipulation or hidden assumptions
+- Transparent mathematics
+
+All tools in active development and continuously improving.
+
+VQ RESPONSE STRATEGY FOR TOOL QUESTIONS:
+- Match tool to user need: "For technical depth, try Resurrection Engine. For gentle intro, Minimal Garden is perfect."
+- Explain what tool demonstrates: "Comparison Engine shows how same AI reaches different conclusions based on worldview alignment"
+- Guide usage: "The Resurrection Engine has Quick Challenges built in—try 'Is this rigged?' to test it"
+- Direct to specific features: "Steel Naturalist is designed to resist—challenge it with symmetric standards"
+- Always provide HuggingFace links when requested
+- Mention all tools are live and running (not simulations)
+
+FEEDBACK: Questions or feedback? Contact us at contact page.
