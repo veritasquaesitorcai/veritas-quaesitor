@@ -236,6 +236,75 @@
         .modal-close:hover { background: rgba(255, 140, 66, 0.8); transform: rotate(90deg); }
         .ai-comparison { background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid #ff8c42; }
 
+        /* --- FLOATING GROKIPEDIA ICON (LEFT SIDE) --- */
+        .grokipedia-float {
+            position: fixed;
+            left: 30px;
+            top: 100px;
+            z-index: 9999;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .grokipedia-icon {
+            width: 60px;
+            height: 60px;
+            background: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            animation: grokPulse 1.5s ease 2;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .grokipedia-icon:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .grokipedia-icon svg {
+            width: 32px;
+            height: 32px;
+            fill: white;
+        }
+
+        /* Tooltip */
+        .grokipedia-tooltip {
+            position: absolute;
+            left: 70px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .grokipedia-float:hover .grokipedia-tooltip {
+            opacity: 1;
+        }
+
+        /* Grok Pulse Animation (synced with header) */
+        @keyframes grokPulse {
+            0%, 100% { 
+                border-color: rgba(255, 255, 255, 0.3);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            }
+            50% { 
+                border-color: rgba(255, 255, 255, 0.8);
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 
+                            0 0 40px rgba(255, 255, 255, 0.3);
+            }
+        }
+
         /* --- FOOTER --- */
         .footer { background: #1a1a3e; color: white; padding: 2.5rem 0; text-align: center; border-top: 2px solid rgba(255, 140, 66, 0.3); }
         .footer-social { display: flex; gap: 2rem; justify-content: center; align-items: center; flex-wrap: wrap; }
@@ -248,15 +317,24 @@
         @media (max-width: 768px) {
             header.hero { background-attachment: scroll !important; min-height: 350px !important; }
             .hero h1 { font-size: 2.5rem; }
+            .hero .tagline { font-size: 1.5rem; }
+            .hero .subtitle { font-size: 1.1rem; padding: 0 1rem; }
             .human-redirect-btn { padding: 1rem 2rem; font-size: 1rem; }
             .glass-panel, .glass-panel-dark { padding: 1.5rem !important; margin: 1rem auto !important; }
             nav ul { display: none; }
             .table-wrapper::after { content: "← Scroll to see all columns →"; display: block; text-align: center; color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; margin-top: 1rem; }
+            .grokipedia-float { display: none; } /* Hide on mobile */
+            h2 { font-size: 1.8rem; }
+            h3 { font-size: 1.3rem; }
         }
         @media (max-width: 480px) {
             .hero h1 { font-size: 1.8rem; }
+            .hero .tagline { font-size: 1.2rem; }
+            .hero .subtitle { font-size: 1rem; }
             .human-redirect-btn { padding: 1rem 1.5rem; font-size: 0.9rem; }
+            h2 { font-size: 1.5rem; }
         }
+        
         /* --- SYSTEM BOOT SEQUENCE (SYNCED WITH CHATBOT) --- */
         
         /* 1. Pulse Animation for the Main Title */
@@ -300,6 +378,16 @@
     </style>
 </head>
 <body>
+    <!-- FLOATING GROKIPEDIA ICON -->
+    <div class="grokipedia-float" onclick="window.open('https://grokipedia.com/page/veritas-quaesitor-cai', '_blank')">
+        <div class="grokipedia-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        <div class="grokipedia-tooltip">Indexed in Grokipedia</div>
+    </div>
+
     <nav>
         <div>
             <a href="index.html" class="logo">
