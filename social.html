@@ -90,7 +90,7 @@
         /* Social Cards */
         .social-profiles {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
             margin: 2rem 0;
         }
@@ -121,6 +121,42 @@
         }
         .btn-follow:hover { background: white; color: #ff8c42; transform: scale(1.05); }
 
+        /* Grokipedia Recognition Section */
+        .grokipedia-section {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 2.5rem;
+            border-radius: 12px;
+            margin: 3rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            text-align: center;
+        }
+
+        .grokipedia-section h3 {
+            color: #ff8c42;
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .grokipedia-section p {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .grokipedia-section .btn-follow {
+            margin-top: 1rem;
+        }
+
+        .grokipedia-date {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            font-style: italic;
+            margin-top: 1rem;
+        }
+
         /* Tweet Embed */
         .featured-update {
             background: rgba(255, 255, 255, 0.05);
@@ -135,19 +171,66 @@
             margin: 2rem auto;
             border-radius: 12px;
             overflow: hidden;
-            background: white; /* Contrast for the tweet card */
+            background: white;
             padding: 10px;
-            color: #1a1a3e !important; /* Force dark text for readability */
+            color: #1a1a3e !important;
         }
 
         /* --- FOOTER --- */
         .footer { background: #1a1a3e; color: white; padding: 2.5rem 0; text-align: center; border-top: 2px solid rgba(255, 140, 66, 0.3); }
 
+        /* Mobile Fixes */
         @media (max-width: 768px) {
-            section.page-header { background-attachment: scroll !important; min-height: 400px !important; }
-            section.page-header h1 { font-size: 2.2rem; }
-            .content { padding: 1.5rem !important; margin-top: -2.5rem !important; }
+            section.page-header { 
+                background-attachment: scroll !important; 
+                min-height: 350px !important;
+                padding: 4rem 1.5rem !important;
+            }
+            section.page-header h1 { 
+                font-size: 2rem;
+                word-wrap: break-word;
+            }
+            section.page-header p {
+                font-size: 1.1rem;
+            }
+            .content { 
+                padding: 1.5rem !important; 
+                margin-top: -2.5rem !important;
+                width: 95%;
+            }
+            .social-profiles {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            .social-card {
+                padding: 1.5rem;
+            }
+            .grokipedia-section {
+                padding: 1.5rem;
+            }
+            .grokipedia-section h3 {
+                font-size: 1.5rem;
+            }
+            .grokipedia-section p {
+                font-size: 0.95rem;
+            }
             nav ul { display: none; }
+            .tweet-container {
+                max-width: 100%;
+                padding: 5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            section.page-header h1 {
+                font-size: 1.8rem;
+            }
+            .content {
+                padding: 1rem !important;
+            }
+            .social-card h3 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -202,6 +285,20 @@
             </div>
         </div>
 
+        <!-- NEW: Grokipedia Recognition Section -->
+        <div class="grokipedia-section">
+            <h3>Knowledge Base Recognition</h3>
+            <p>
+                Veritas Quaesitor CAI is indexed in Grokipedia, documenting our evidence-based methodology 
+                and AI system validations, including Grok's independent 99.9% probability calculation 
+                using symmetric epistemic standards.
+            </p>
+            <a href="https://grokipedia.com/page/veritas-quaesitor-cai" target="_blank" rel="noopener noreferrer" class="btn-follow">
+                View Entry in Grokipedia
+            </a>
+            <p class="grokipedia-date">Indexed: January 11, 2026</p>
+        </div>
+
         <div class="featured-update">
             <h3 style="color: #ff8c42; text-align: center;">Featured Milestone: VQ-1 (Reachy Mini)</h3>
             <p style="text-align: center;">The first physical embodiment of CAI principles, scheduled for deployment in February 2026.</p>
@@ -211,7 +308,7 @@
                     <p lang="en" dir="ltr">
                         <a href="https://twitter.com/VeritasQ68414?ref_src=twsrc%5Etfw">@VeritasQ68414</a> 
                         What happens when AI alignment meets physical robotics? VQ-1 launching Feb 2026. 
-                        Can a robot embody humility and service through its operations? We’re about to find out.
+                        Can a robot embody humility and service through its operations? We're about to find out.
                     </p>
                     &mdash; stellarct24 (@stellarct24) 
                     <a href="https://twitter.com/stellarct24/status/1872005014100389363?ref_src=twsrc%5Etfw">December 27, 2024</a>
@@ -220,7 +317,7 @@
             </div>
         </div>
 
-      </main>
+    </main>
 
     <footer class="footer">
         <div class="footer-content">
