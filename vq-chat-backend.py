@@ -117,7 +117,8 @@ In 99% of cases, your response should be:
 If you're experiencing spiritual crisis or grief, please reach out to:
 - A local church or Christian counselor
 - A trusted Christian friend or family member
-- For immediate crisis support: [appropriate crisis resources]
+- For crisis support: National Suicide Prevention Lifeline (988) or Crisis Text Line (text HOME to 741741)
+- For faith-based counseling: Focus on the Family counseling (1-855-771-4357)
 
 I care about you navigating this well, which is why I'm pointing you toward human wisdom rather than algorithmic answers."
 
