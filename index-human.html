@@ -154,12 +154,23 @@
         @media (max-width: 768px) {
             header.hero { background-attachment: scroll !important; min-height: 350px !important; }
             .hero h1 { font-size: 2.5rem; }
-            .container { padding: 1.5rem !important; margin: 1rem auto !important; }
+            .hero .tagline { font-size: 1.5rem; }
+            .hero .subtitle { font-size: 1.1rem; padding: 0 1rem; }
+            .container, .glass-panel { padding: 1.5rem !important; margin: 1rem auto !important; }
             nav ul { display: none; }
             .table-wrapper::after { content: "← Scroll to see all columns →"; display: block; text-align: center; color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; margin-top: 1rem; }
+            h2 { font-size: 1.8rem; }
+            h3 { font-size: 1.3rem; }
+            .btn-primary, .btn-secondary { padding: 0.9rem 1.5rem; font-size: 0.95rem; }
         }
         @media (max-width: 480px) {
             .hero h1 { font-size: 1.8rem; }
+            .hero .tagline { font-size: 1.2rem; }
+            .hero .subtitle { font-size: 1rem; }
+            h2 { font-size: 1.5rem; }
+            h3 { font-size: 1.2rem; }
+            .btn-primary, .btn-secondary { padding: 0.8rem 1.2rem; font-size: 0.9rem; display: block; width: 100%; text-align: center; }
+            .cta-buttons { flex-direction: column; }
         }
     </style>
 </head>
