@@ -304,6 +304,7 @@
             justify-content: center;
             align-items: center;
             margin-top: 1rem;
+            flex-wrap: wrap;
         }
         
         .footer-social-link {
@@ -317,6 +318,24 @@
         
         .footer-social-link:hover {
             color: #ff8c42;
+        }
+        
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 140, 66, 0.15);
+            color: #ff8c42;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        
+        .footer-social-link:hover .social-icon {
+            background: #ff8c42;
+            color: white;
         }
 
         /* --- MODAL --- */
@@ -349,6 +368,11 @@
             position: relative;
             box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
             animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         
         .modal-close {
@@ -384,24 +408,98 @@
         
         /* Mobile Responsiveness */
         @media (max-width: 768px) {
-            .tools-grid { grid-template-columns: 1fr; }
-            .featured-tool-grid { grid-template-columns: 1fr !important; }
-            .featured-tool-visual { order: -1; }
-            
-            nav ul {
-                display: none; /* Hide standard nav on mobile if using hamburger, or keep simple stack */
-                flex-direction: column;
-                position: absolute;
-                top: 60px;
-                left: 0;
-                width: 100%;
-                background: rgba(26, 26, 62, 0.95);
-                padding: 1rem;
+            /* Hero adjustments */
+            section.page-header {
+                background-attachment: scroll !important;
+                min-height: 350px !important;
+                padding: 4rem 1.5rem !important;
             }
             
-            /* Assuming simple stack for now */
-            nav { flex-wrap: wrap; }
-            nav ul { position: static; display: flex; }
+            section.page-header h1 {
+                font-size: 2rem;
+            }
+            
+            section.page-header p {
+                font-size: 1.1rem;
+            }
+            
+            /* Content padding */
+            .content {
+                padding: 2rem 1.5rem !important;
+                margin: -3rem auto 2rem auto !important;
+            }
+            
+            /* Grid adjustments */
+            .tools-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            /* Featured tool - stack layout */
+            .featured-tool-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+            }
+            
+            .featured-tool-visual {
+                order: -1;
+            }
+            
+            .featured-tool-inner {
+                padding: 2rem 1.5rem !important;
+            }
+            
+            .featured-tool-box {
+                margin-bottom: 2rem !important;
+            }
+            
+            /* Tool cards */
+            .tool-card {
+                padding: 1.5rem !important;
+            }
+            
+            .tool-card h3 {
+                font-size: 1.3rem;
+            }
+            
+            /* Navigation */
+            nav ul {
+                display: none;
+            }
+            
+            /* Footer */
+            .footer-social {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            /* Modal */
+            .modal-content {
+                padding: 1.5rem;
+                width: 95%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            section.page-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            section.page-header p {
+                font-size: 1rem;
+            }
+            
+            .content {
+                padding: 1.5rem 1rem !important;
+            }
+            
+            .featured-tool-inner {
+                padding: 1.5rem 1rem !important;
+            }
+            
+            .tool-card {
+                padding: 1.25rem !important;
+            }
         }
     </style>
 </head>
