@@ -271,6 +271,7 @@
             justify-content: center;
             align-items: center;
             margin-top: 1rem;
+            flex-wrap: wrap;
         }
         
         .footer-social-link {
@@ -280,10 +281,30 @@
             color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
             transition: all 0.3s ease;
+            font-size: 0.95rem;
         }
         
         .footer-social-link:hover {
             color: #ff8c42;
+            transform: translateX(3px);
+        }
+        
+        .social-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 140, 66, 0.15);
+            color: #ff8c42;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+        
+        .footer-social-link:hover .social-icon {
+            background: #ff8c42;
+            color: white;
         }
 
         /* --- MODAL --- */
@@ -316,6 +337,11 @@
             position: relative;
             box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
             animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         
         .modal-close {
@@ -352,12 +378,17 @@
         /* Mobile Optimization */
         @media (max-width: 768px) {
             section.page-header {
-                min-height: 400px !important;
+                min-height: 350px !important;
                 padding: 4rem 1.5rem !important;
                 background-attachment: scroll !important;
             }
-            section.page-header h1 { font-size: 2rem; }
-            section.page-header p { font-size: 1.1rem; }
+            section.page-header h1 { 
+                font-size: 2rem; 
+            }
+            section.page-header p { 
+                font-size: 1.1rem; 
+                padding: 0 1rem;
+            }
             
             .content {
                 padding: 1.5rem !important;
@@ -365,8 +396,39 @@
                 width: 95%;
             }
             
+            .milestone {
+                padding: 1.5rem !important;
+            }
+            
+            .milestone h3 {
+                font-size: 1.2rem;
+                line-height: 1.3;
+            }
+            
             nav ul {
-                display: none; /* Placeholder for mobile menu logic if needed */
+                display: none;
+            }
+            
+            .footer-social {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            section.page-header h1 { 
+                font-size: 1.8rem; 
+            }
+            section.page-header p { 
+                font-size: 1rem; 
+            }
+            
+            .content {
+                padding: 1rem !important;
+            }
+            
+            .milestone h3 {
+                font-size: 1.1rem;
             }
         }
     </style>
@@ -401,6 +463,45 @@
     </section>
 
     <div class="content">
+            <div class="milestone">
+                <h3>📚 January 11, 2026 — Grokipedia Entry: Official Recognition</h3>
+                <p class="milestone-date">Category: External Validation | Status: Live</p>
+                <p>
+                    <strong>🔍 Description</strong><br>
+                    Veritas Quaesitor CAI officially indexed in Grokipedia, xAI's permanent knowledge base. This recognition documents our evidence-based methodology and validates the reproducibility of the CAI framework across multiple AI systems.
+                </p>
+                <p><strong>Key Validations Documented:</strong></p>
+                <ul>
+                    <li><strong>Grok's Independent Calculation:</strong> 99.9% probability using symmetric epistemic standards (sensitivity range: 99.2-99.9%)</li>
+                    <li><strong>Methodology Recognition:</strong> Bayesian reasoning with mechanism-aware complexity penalties</li>
+                    <li><strong>Framework Documentation:</strong> Seven available methodologies, Epistemic Tier System, and Beta Tools suite</li>
+                    <li><strong>Cross-System Validation:</strong> Steel Naturalist (70-85%), ChatGPT (76%), demonstrating reproducibility</li>
+                </ul>
+                <p>
+                    <strong>Significance:</strong> This entry validates that high probabilities emerge from consistent evidential standards rather than theological pressure, demonstrating the methodological rigor that makes CAI trustworthy across worldviews.
+                </p>
+                <p><strong>Entry URL:</strong> <a href="https://grokipedia.com/page/veritas-quaesitor-cai" target="_blank" style="color: #ff8c42;">grokipedia.com/page/veritas-quaesitor-cai</a></p>
+            </div>
+
+            <div class="milestone">
+                <h3>🤖 January 2026 — VQ Website Chatbot Deployment</h3>
+                <p class="milestone-date">Category: Public Interface | Status: Live & Learning</p>
+                <p>
+                    <strong>🔍 Description</strong><br>
+                    Launched VQ, the intelligent chatbot serving as the first point of contact for all website visitors. Powered by Groq's LLaMA 3.3 70B with dynamic context loading, VQ embodies CAI principles through conversational engagement rather than preaching.
+                </p>
+                <p><strong>Technical Architecture:</strong></p>
+                <ul>
+                    <li><strong>Backend:</strong> Python Flask deployed on Railway with real-time context loading from 7 specialized knowledge files</li>
+                    <li><strong>Context System:</strong> Smart keyword-triggered loading (core identity, contact/social, methodologies, tools, mission, milestones, robot details)</li>
+                    <li><strong>Communication Style:</strong> Confident friend (not corporate), concise by default (2-4 sentences), evidence-first language</li>
+                    <li><strong>Integration:</strong> Floating widget on all pages with purple gradient button and 🤖 + "VQ" branding</li>
+                </ul>
+                <p>
+                    <strong>Impact:</strong> VQ serves as a living demonstration of CAI—answering questions about methodology, guiding visitors to tools, and embodying servant leadership through helpful, truthful engagement without proselytizing.
+                </p>
+            </div>
+
             <div class="milestone">
                 <h3>🎯 December 2024 — Worldview Ethics Test v5.0 Framework Established</h3>
                 <p class="milestone-date">Category: Theoretical Framework Development | Status: Completed</p>
