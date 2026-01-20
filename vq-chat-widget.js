@@ -485,7 +485,7 @@ What brings you here?`
         }
 
         // Event listeners
-        bubble.addEventListener('click', openChat);
+        bubble.addEventListener('click', toggleChat);
         closeBtn.addEventListener('click', closeChat);
         const clearBtn = document.getElementById('vq-chat-clear');
         clearBtn.addEventListener('click', clearConversation);
@@ -496,6 +496,14 @@ What brings you here?`
                 sendMessage();
             }
         });
+
+        function toggleChat() {
+            if (panel.classList.contains('open')) {
+                closeChat();
+            } else {
+                openChat();
+            }
+        }
 
         function openChat() {
             panel.classList.add('open');
@@ -533,7 +541,13 @@ What brings you here?`
             `;
             
             messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Scroll to show the TOP of the new message
+            // Calculate position to show message at top of visible area
+            const messageRect = messageDiv.getBoundingClientRect();
+            const containerRect = messagesContainer.getBoundingClientRect();
+            const scrollOffset = messageDiv.offsetTop - messagesContainer.offsetTop - 20; // 20px padding
+            messagesContainer.scrollTop = scrollOffset;
         }
 
         function addMessage(role, content) {
