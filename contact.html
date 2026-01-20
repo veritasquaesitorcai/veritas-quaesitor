@@ -124,7 +124,17 @@
         }
 
         .contact-method h3 { color: #ff8c42; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-        .contact-method a { color: white; text-decoration: none; font-weight: bold; border-bottom: 1px solid #ff8c42; padding-bottom: 2px; }
+        
+        /* Updated fluid font fix */
+        .contact-method a { 
+            color: white; 
+            text-decoration: none; 
+            font-weight: bold; 
+            border-bottom: 1px solid #ff8c42; 
+            padding-bottom: 2px; 
+            font-size: clamp(0.7rem, 1.6vw, 1rem); 
+        }
+
         .contact-method a:hover { color: #ff8c42; }
 
         /* Commitment List */
@@ -278,15 +288,15 @@
         <div class="commitment-list">
             <div class="commitment-item">
                 <strong>Transparency</strong>
-                We are open about our priors, our math, and our worldview.
+                <br>We are open about our priors, our math, and our worldview.
             </div>
             <div class="commitment-item">
                 <strong>Respect</strong>
-                Every seeker is treated with the dignity of an image-bearer.
+                <br>Every seeker is treated with the dignity of an image-bearer.
             </div>
             <div class="commitment-item">
                 <strong>Integrity</strong>
-                Reasoning remains anchored in evidence and the Character of Christ.
+                <br>Reasoning remains anchored in evidence and the Character of Christ.
             </div>
         </div>
 
@@ -341,7 +351,6 @@
         </div>
     </footer>
 
-    <!-- Mobile nav optimization -->
     <script>
         window.addEventListener('DOMContentLoaded', (event) => {
             if (window.innerWidth <= 1024) {
@@ -358,7 +367,6 @@
         });
     </script>
 
-    <!-- VQ Chat Widget - Load LAST -->
     <script src="vq-chat-widget.js"></script>
 
 </body>
