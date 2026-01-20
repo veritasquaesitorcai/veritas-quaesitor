@@ -144,21 +144,60 @@
 
         /* --- FOOTER (Synced) --- */
         .footer { background: #1a1a3e; color: white; padding: 2.5rem 0; text-align: center; border-top: 2px solid rgba(255, 140, 66, 0.3); }
-        .footer-social { display: flex; gap: 2rem; justify-content: center; margin-top: 1rem; }
-        .footer-social-link { color: rgba(255, 255, 255, 0.8); text-decoration: none; transition: color 0.3s; }
-        .footer-social-link:hover { color: #ff8c42; }
+        .footer-social { display: flex; gap: 2rem; justify-content: center; align-items: center; flex-wrap: wrap; }
+        .footer-social-link { display: flex; align-items: center; gap: 0.5rem; color: rgba(255, 255, 255, 0.8); text-decoration: none; font-size: 0.95rem; transition: all 0.3s ease; }
+        .footer-social-link:hover { color: #ff8c42; transform: translateX(3px); }
+        .social-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 140, 66, 0.15); color: #ff8c42; font-weight: bold; font-size: 1rem; }
+        .footer-social-link:hover .social-icon { background: #ff8c42; color: white; }
 
         /* MODAL STYLES (Sync) */
         .truth-modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center; }
         .truth-modal.show { display: flex; }
         .modal-content { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 16px; max-width: 800px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 10px 50px rgba(0,0,0,0.5); }
-        .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 2rem; cursor: pointer; border-radius: 50%; width: 40px; height: 40px; }
+        .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 2rem; cursor: pointer; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .modal-close:hover { background: rgba(255, 140, 66, 0.8); transform: rotate(90deg); }
 
+        /* --- MOBILE RESPONSIVENESS --- */
         @media (max-width: 768px) {
-            section.page-header { background-attachment: scroll !important; min-height: 400px !important; }
-            section.page-header h1 { font-size: 2.2rem; }
-            .content { padding: 1.5rem !important; margin-top: -2.5rem !important; }
+            section.page-header { 
+                background-attachment: scroll !important; 
+                min-height: 350px !important; 
+                padding: 4rem 1.5rem !important;
+            }
+            section.page-header h1 { font-size: 2rem; }
+            section.page-header p { font-size: 1.1rem; padding: 0 1rem; }
+            .content { 
+                padding: 2rem 1.5rem !important; 
+                margin: -2.5rem auto 2rem auto !important;
+                width: 95%;
+            }
+            .resource-item a { 
+                padding: 1.25rem 1rem; 
+                font-size: 1.1rem;
+            }
+            .resource-number { 
+                width: 30px; 
+                height: 30px; 
+                margin-right: 1rem;
+                font-size: 0.9rem;
+            }
             nav ul { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            section.page-header h1 { font-size: 1.7rem; }
+            section.page-header p { font-size: 1rem; }
+            .content { padding: 1.5rem 1rem !important; }
+            .resource-item a { 
+                padding: 1rem; 
+                font-size: 1rem;
+            }
+            .resource-number { 
+                width: 28px; 
+                height: 28px; 
+                margin-right: 0.8rem;
+                font-size: 0.85rem;
+            }
         }
     </style>
 </head>
