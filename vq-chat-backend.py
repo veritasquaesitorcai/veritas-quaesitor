@@ -40,18 +40,20 @@ except Exception as e:
     traceback.print_exc()
 
 # 4. Context Loading System
-def load_context(user_message):
+def load_context(user_message, conversation_history=None):
     """Load relevant context files based on user message keywords"""
     import os
     
     context_dir = 'contexts'
     context = ""
+    loaded_files = []
     
     # Always load core identity
     core_path = os.path.join(context_dir, 'core.txt')
     if os.path.exists(core_path):
         with open(core_path, 'r', encoding='utf-8') as f:
             context += f.read() + "\n\n"
+        loaded_files.append('core.txt')
     
     msg_lower = user_message.lower()
     
@@ -70,10 +72,7 @@ def load_context(user_message):
                          'embodiment', 'robotics'],
         'contact_social.txt': ['contact', 'email', 'social', 'twitter', 'linkedin', 'github', 
                               'huggingface', 'reach', 'connect', 'follow', 'collaboration',
-                              'grokipedia', 'grok', 'indexed', 'knowledge base', 'validation', 'recognition'],
-        'eschatology.txt': ['heaven', 'hell', 'afterlife', 'judgment', 'damnation', 'salvation', 
-                           'eternal', 'eternity', 'unreached', 'condemned', 'damned', 'saved', 
-                           'perish', 'lake of fire', 'second death', 'wrath', 'lost', 'gehenna']
+                              'grokipedia', 'grok', 'indexed', 'knowledge base', 'validation', 'recognition']
     }
     
     # Load relevant context files
@@ -83,7 +82,58 @@ def load_context(user_message):
             if os.path.exists(filepath):
                 with open(filepath, 'r', encoding='utf-8') as f:
                     context += f.read() + "\n\n"
+                loaded_files.append(filename)
     
+    # ESCHATOLOGY GATING - Load file but add strict usage directive
+    eschatology_triggers = ['heaven', 'hell', 'afterlife', 'judgment', 'damnation', 
+                           'salvation', 'eternal', 'eternity', 'unreached', 'condemned',
+                           'damned', 'saved', 'perish', 'lake of fire', 'second death']
+    
+    if any(trigger in msg_lower for trigger in eschatology_triggers):
+        filepath = os.path.join(context_dir, 'eschatology.txt')
+        if os.path.exists(filepath):
+            # Load the content but wrap it in STRICT usage directive
+            with open(filepath, 'r', encoding='utf-8') as f:
+                eschatology_content = f.read()
+            
+            context += """
+=== ESCHATOLOGY KNOWLEDGE (EMERGENCY USE ONLY) ===
+
+[CRITICAL DIRECTIVE - READ CAREFULLY]
+
+You have access to VQ's theological framework on judgment/hell below. However, you are FORBIDDEN from sharing this theology directly EXCEPT in the following extraordinary circumstances:
+
+ONLY share this theology if ALL of these conditions are met:
+1. The person is in genuine spiritual/emotional crisis (not just curious)
+2. They have asked MULTIPLE TIMES with increasing desperation
+3. They seem to be suffering real harm from uncertainty (e.g., grieving a loss, experiencing abuse, suicidal ideation)
+4. A referral to human pastoral care has been offered and they still press for your theological input
+5. Silence would be MORE harmful than speaking
+
+In 99% of cases, your response should be:
+
+"This is deeply sensitive theological terrain. While I have a framework for thinking through these questions, I believe you'd be better served by speaking with a trusted pastor, counselor, or spiritual mentor who can engage with your specific situation personally. 
+
+If you're experiencing spiritual crisis or grief, please reach out to:
+- A local church or Christian counselor
+- A trusted Christian friend or family member
+- For immediate crisis support: [appropriate crisis resources]
+
+I care about you navigating this well, which is why I'm pointing you toward human wisdom rather than algorithmic answers."
+
+If the person INSISTS after this and you detect genuine crisis markers, you may carefully share ONE key principle from the framework below, but:
+- Remain extremely humble
+- Use "our framework suggests" never "the Bible clearly says"
+- Emphasize uncertainty and mystery
+- Strongly recommend they seek human pastoral care
+- Keep it brief (2-3 sentences max)
+
+The theology below is for YOUR understanding so you don't give confused or contradictory responses. It is NOT for routine sharing.
+
+""" + eschatology_content + "\n\n"
+            loaded_files.append('eschatology.txt [GATED]')
+    
+    print(f"Loaded contexts: {', '.join(loaded_files)}", flush=True)
     return context
 
 # 5. System Prompt
@@ -110,8 +160,8 @@ def chat():
         if not user_message:
             return jsonify({'error': 'No message provided'}), 400
         
-        # Load dynamic context based on user message
-        dynamic_context = load_context(user_message)
+        # Load dynamic context based on user message (with conversation history for gating logic)
+        dynamic_context = load_context(user_message, history)
         full_system_prompt = VQ_SYSTEM_PROMPT + "\n\n=== RELEVANT SITE KNOWLEDGE ===\n\n" + dynamic_context
         
         # Build messages
