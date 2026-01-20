@@ -70,7 +70,10 @@ def load_context(user_message):
                          'embodiment', 'robotics'],
         'contact_social.txt': ['contact', 'email', 'social', 'twitter', 'linkedin', 'github', 
                               'huggingface', 'reach', 'connect', 'follow', 'collaboration',
-                              'grokipedia', 'grok', 'indexed', 'knowledge base', 'validation', 'recognition']
+                              'grokipedia', 'grok', 'indexed', 'knowledge base', 'validation', 'recognition'],
+        'eschatology.txt': ['heaven', 'hell', 'afterlife', 'judgment', 'damnation', 'salvation', 
+                           'eternal', 'eternity', 'unreached', 'condemned', 'damned', 'saved', 
+                           'perish', 'lake of fire', 'second death', 'wrath', 'lost', 'gehenna']
     }
     
     # Load relevant context files
