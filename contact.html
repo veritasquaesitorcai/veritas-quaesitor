@@ -124,7 +124,19 @@
         }
 
         .contact-method h3 { color: #ff8c42; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-        .contact-method a { color: white; text-decoration: none; font-weight: bold; border-bottom: 1px solid #ff8c42; padding-bottom: 2px; }
+        
+        /* Updated Option 1 Fix */
+        .contact-method a { 
+            color: white; 
+            text-decoration: none; 
+            font-weight: bold; 
+            border-bottom: 1px solid #ff8c42; 
+            padding-bottom: 2px; 
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-all;
+        }
+        
         .contact-method a:hover { color: #ff8c42; }
 
         /* Commitment List */
@@ -290,7 +302,7 @@
             </div>
         </div>
 
-       </main>
+    </main>
 
     <div id="truthModal" class="truth-modal">
         <div class="modal-content">
@@ -341,7 +353,6 @@
         </div>
     </footer>
 
-    <!-- Mobile nav optimization -->
     <script>
         window.addEventListener('DOMContentLoaded', (event) => {
             if (window.innerWidth <= 1024) {
@@ -358,7 +369,6 @@
         });
     </script>
 
-    <!-- VQ Chat Widget - Load LAST -->
     <script src="vq-chat-widget.js"></script>
 
 </body>
