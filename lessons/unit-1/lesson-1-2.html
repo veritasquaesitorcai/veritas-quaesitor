@@ -102,6 +102,35 @@
             h1 { font-size: 1.5rem; }
             body { padding: 1rem; }
         }
+
+        /* Widget Centering - Works for all placeholder pages */
+        #vq-chat-widget,
+        .vq-chat-widget,
+        iframe[src*="chat"],
+        [class*="chat-widget"],
+        [id*="chat-widget"] {
+            left: 50% !important;
+            right: auto !important;
+            transform: translateX(-50%) !important;
+            bottom: 20px !important;
+        }
+
+        /* Animate widget in */
+        @keyframes slideUpCenter {
+            from { 
+                opacity: 0;
+                transform: translateX(-50%) translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        #vq-chat-widget,
+        .vq-chat-widget {
+            animation: slideUpCenter 0.5s ease-out;
+        }
     </style>
 </head>
 <body>
@@ -124,7 +153,7 @@
             <br>• I want to have some fun 🎵
         </div>
 
-        <a href="../../technical-christianity.html" class="back-btn">
+        <a href="https://veritasquaesitorcai.github.io/veritas-quaesitor/technical-christianity.html" class="back-btn">
             ← Back to Course Index
         </a>
     </div>
@@ -152,6 +181,6 @@
     </script>
 
     <!-- VQ Chat Widget - Load LAST -->
-    <script src="../../vq-chat-widget.js"></script>
+    <script src="https://veritasquaesitorcai.github.io/veritas-quaesitor/vq-chat-widget.js"></script>
 </body>
 </html>
