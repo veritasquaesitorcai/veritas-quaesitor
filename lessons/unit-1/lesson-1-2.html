@@ -1,262 +1,428 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lesson Under Construction - Technical Christianity</title>
-    <meta name="robots" content="noindex, nofollow">
+    <title>Lesson 1.2: The Epistemic Symmetry Principle | Technical Christianity</title>
+    
+    <meta name="description" content="Learn about the Epistemic Symmetry Principle (ETS) - the Golden Rule of Evidence that demands equal proof for all claims.">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { overflow-x: hidden; }
         
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
             color: white;
+            line-height: 1.6;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2rem;
+            overflow-x: hidden;
+            max-width: 100vw;
         }
 
         .container {
-            text-align: center;
-            max-width: 600px;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
             width: 100%;
         }
 
-        .robot-emoji {
-            font-size: 8rem;
+        .lesson-header {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .breadcrumb {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
             margin-bottom: 1rem;
-            animation: bounce 2s ease-in-out infinite, glow 3s ease-in-out infinite;
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            display: inline-block;
         }
 
-        .robot-emoji:hover {
-            transform: scale(1.1);
+        .breadcrumb a {
+            color: #ff8c42;
+            text-decoration: none;
         }
 
-        .robot-emoji.clicked {
-            animation: spin 0.6s ease-in-out, bounce 2s ease-in-out infinite 0.6s, glow 3s ease-in-out infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        @keyframes glow {
-            0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 140, 66, 0.5)); }
-            50% { filter: drop-shadow(0 0 25px rgba(255, 140, 66, 0.9)); }
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(180deg) scale(1.2); }
-            100% { transform: rotate(360deg) scale(1); }
+        .breadcrumb a:hover {
+            text-decoration: underline;
         }
 
         h1 {
-            font-size: 2.5rem;
             color: #ff8c42;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .status-text {
-            font-size: 1.2rem;
+            font-size: 2.5rem;
             margin-bottom: 0.5rem;
-            color: rgba(255, 255, 255, 0.95);
         }
 
-        .robot-gibberish {
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 2rem;
-            letter-spacing: 2px;
-            min-height: 1.5rem;
+        .lesson-meta {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1rem;
+            margin-top: 1rem;
         }
 
-        .chat-prompt {
+        .content-section {
             background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 12px;
+            border-radius: 20px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            color: #ff8c42;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid rgba(255, 140, 66, 0.3);
+            padding-bottom: 0.5rem;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        h3 {
+            color: #ff8c42;
+            font-size: 1.3rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .hook-box {
+            background: rgba(255, 140, 66, 0.2);
+            border-left: 4px solid #ff8c42;
             padding: 1.5rem;
+            border-radius: 8px;
             margin: 2rem 0;
-            font-size: 1.1rem;
-            line-height: 1.6;
-        }
-
-        .screen-note {
-            display: block;
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.6);
-            font-style: italic;
-            margin-top: 0.3rem;
-        }
-
-        .back-btn {
-            display: inline-block;
-            background: #ff8c42;
-            color: white;
-            padding: 1.2rem 2.5rem;
-            border-radius: 50px;
-            text-decoration: none;
             font-size: 1.2rem;
+            font-style: italic;
+        }
+
+        .vocab-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #4CAF50;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .vocab-term {
+            margin-bottom: 1rem;
+        }
+
+        .vocab-term strong {
+            color: #4CAF50;
+        }
+
+        .scale-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .scale-diagram {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .scale-side {
+            flex: 1;
+            min-width: 200px;
+            padding: 1rem;
+            background: rgba(255, 140, 66, 0.15);
+            border-radius: 8px;
+            margin: 0.5rem;
+        }
+
+        .scale-center {
+            font-size: 3rem;
+            margin: 0 1rem;
+        }
+
+        .example-box {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .discussion-questions {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #2196F3;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .discussion-questions ol {
+            margin-left: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .discussion-questions li {
+            margin-bottom: 1rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-top: 3rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
             font-weight: bold;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4);
-            margin: 1rem auto;
+            text-align: center;
         }
 
-        .back-btn:hover {
+        .btn-primary {
+            background: #ff8c42;
+            color: white;
+        }
+
+        .btn-primary:hover {
             background: #e57a2f;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 140, 66, 0.6);
         }
 
-        /* Widget Positioning - Bottom right corner, not obstructing content */
-        #vq-chat-widget,
-        .vq-chat-widget,
-        iframe[src*="chat"],
-        [class*="chat-widget"],
-        [id*="chat-widget"] {
-            position: fixed !important;
-            right: 30px !important;
-            bottom: 30px !important;
-            left: auto !important;
-            top: auto !important;
-            transform: none !important;
-            max-width: 380px !important;
-            z-index: 9999 !important;
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        /* Widget appears with slide-in animation */
-        @keyframes slideInRight {
-            from { 
-                opacity: 0;
-                transform: translateX(50px);
-            }
-            to { 
-                opacity: 1;
-                transform: translateX(0);
-            }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
-        #vq-chat-widget,
-        .vq-chat-widget {
-            animation: slideInRight 0.5s ease-out;
+        .objectives-list {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
         }
 
-        /* Mobile - hide widget since it won't show */
+        .objectives-list ul {
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .objectives-list li {
+            margin-bottom: 0.5rem;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-top: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
         @media (max-width: 768px) {
-            #vq-chat-widget,
-            .vq-chat-widget,
-            iframe[src*="chat"],
-            [class*="chat-widget"] {
-                display: none !important;
-            }
-            
-            .robot-emoji { font-size: 5rem; }
-            h1 { font-size: 2rem; }
-            .status-text { font-size: 1.1rem; }
-            .chat-prompt { padding: 1rem; font-size: 1rem; }
-            .back-btn { padding: 1rem 2rem; font-size: 1rem; }
-        }
-
-        @media (max-width: 480px) {
-            .robot-emoji { font-size: 4rem; }
-            h1 { font-size: 1.5rem; }
-            body { padding: 1rem; }
+            .container { padding: 1rem; width: 100%; max-width: 100%; }
+            h1 { font-size: 2rem; word-wrap: break-word; }
+            h2 { font-size: 1.5rem; }
+            .content-section { padding: 1.5rem; margin-left: 0; margin-right: 0; width: 100%; }
+            .lesson-header { padding: 1.5rem; width: 100%; }
+            .nav-buttons { flex-direction: column; }
+            .scale-diagram { flex-direction: column; }
+            .scale-center { margin: 1rem 0; }
+            .hook-box, .vocab-box, .example-box, .discussion-questions { width: 100%; box-sizing: border-box; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="robot-emoji" id="robot" onclick="spinRobot()">🤖</div>
-        
-        <h1>Lesson Compilation In Progress</h1>
-        
-        <p class="status-text">VQ Bot is still assembling this module...</p>
-        
-        <p class="robot-gibberish">
-            STATUS: <span id="gibberish"></span>
-        </p>
-
-        <div class="chat-prompt">
-            💬 While I'm working on this lesson, want to chat?
-            <span class="screen-note">(Available on larger screens)</span>
-            <br><br>
-            <strong>Ask me about:</strong>
-            <br>• What it's like to be a famous Hollywood robot
-            <br>• I want to have some fun 🎵
+        <div class="lesson-header">
+            <div class="breadcrumb">
+                <a href="https://veritasquaesitorcai.github.io/veritas-quaesitor/index.html">Home</a> → 
+                <a href="https://veritasquaesitorcai.github.io/veritas-quaesitor/technical-christianity.html">Technical Christianity</a> → 
+                Unit 1 → Lesson 1.2
+            </div>
+            <h1>Lesson 1.2: The Epistemic Symmetry Principle</h1>
+            <div class="lesson-meta">Unit 1: The Big Picture • 50-minute lesson</div>
         </div>
 
-        <a href="https://veritasquaesitorcai.github.io/veritas-quaesitor/technical-christianity.html" class="back-btn">
-            ← Back to Course Index
-        </a>
-    </div>
+        <!-- HOOK -->
+        <div class="content-section">
+            <div class="hook-box">
+                💡 "Would you accept a courtroom where only one side has to prove their case?"
+            </div>
+        </div>
 
-    <script>
-        // Generate random robot gibberish
-        const gibberishOptions = [
-            "0x4C45535N-C0MP1L1NG",
-            "BAYES_CALC.exe [37% loaded]",
-            "01001100 01000101 01010011",
-            "EPISTEMIC_SYMMETRY.dll loading...",
-            "sudo apt-get install lesson_data",
-            "MECHANISM_COUNT >> /dev/null",
-            "import truth_frameworks as tf",
-            "git commit -m 'still working on it'",
-            "chmod +x compile_lesson.sh",
-            "npm install @cai/resurrection-math",
-            "while(lesson != complete) { compile(); }",
-            "ERROR 418: I'm a teapot (jk, still compiling)",
-            "pip install divine-evidence --upgrade",
-            "gcc -o truth resurrection.c",
-            "docker run --name cai-framework",
-            "Calculating P(Resurrection|Evidence)...",
-            "Applying mechanism penalties...",
-            "Loading epistemic symmetry module..."
-        ];
+        <!-- LEARNING OBJECTIVES -->
+        <div class="content-section">
+            <h2>Learning Objectives</h2>
+            <div class="objectives-list">
+                <p>By the end of this lesson, students will be able to:</p>
+                <ul>
+                    <li>Define the Epistemic Symmetry Principle (ETS) and explain why it matters</li>
+                    <li>Identify double standards in evaluating religious vs naturalistic claims</li>
+                    <li>Apply ETS to compare resurrection with abiogenesis claims</li>
+                    <li>Recognize hidden bias in everyday reasoning about evidence</li>
+                </ul>
+            </div>
+        </div>
 
-        let currentIndex = 0;
+        <!-- VOCABULARY -->
+        <div class="content-section">
+            <h2>Vocabulary</h2>
+            <div class="vocab-box">
+                <div class="vocab-term">
+                    <strong>Epistemic:</strong> Relating to knowledge and how we know things
+                </div>
+                <div class="vocab-term">
+                    <strong>Symmetry:</strong> Balanced treatment; applying the same standards to all claims
+                </div>
+                <div class="vocab-term">
+                    <strong>Double Standard:</strong> Applying different criteria to similar situations unfairly
+                </div>
+                <div class="vocab-term">
+                    <strong>Bias:</strong> Prejudice for or against something based on preconceptions
+                </div>
+                <div class="vocab-term">
+                    <strong>Naturalism:</strong> The philosophical belief that only natural causes exist (no supernatural)
+                </div>
+            </div>
+        </div>
 
-        // Cycle through gibberish every 3 seconds
-        function cycleGibberish() {
-            const gibberishElement = document.getElementById('gibberish');
-            gibberishElement.style.opacity = '0';
+        <!-- CORE CONTENT -->
+        <div class="content-section">
+            <h2>The Golden Rule of Evidence</h2>
             
-            setTimeout(() => {
-                currentIndex = (currentIndex + 1) % gibberishOptions.length;
-                gibberishElement.textContent = gibberishOptions[currentIndex];
-                gibberishElement.style.opacity = '1';
-            }, 300);
-        }
+            <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">
+                The Epistemic Symmetry Principle (ETS) is simple but powerful:
+            </p>
 
-        // Initialize first gibberish
-        document.getElementById('gibberish').textContent = gibberishOptions[0];
-        document.getElementById('gibberish').style.transition = 'opacity 0.3s ease';
+            <div style="background: rgba(255, 140, 66, 0.2); padding: 1.5rem; border-radius: 8px; margin: 2rem 0; text-align: center; font-size: 1.2rem; font-weight: 600;">
+                If we demand proof for Claim A, we must demand equal proof for Claim B
+            </div>
 
-        // Cycle every 3 seconds
-        setInterval(cycleGibberish, 3000);
+            <h3>Why This Matters</h3>
+            <p>Most people use different standards for different claims without realizing it. They demand tons of evidence for supernatural claims but accept naturalistic claims with minimal evidence.</p>
 
-        // Robot click animation
-        function spinRobot() {
-            const robot = document.getElementById('robot');
-            robot.classList.add('clicked');
-            setTimeout(() => {
-                robot.classList.remove('clicked');
-            }, 600);
-        }
-    </script>
+            <h3>Example: The Double Standard</h3>
+            <div class="example-box">
+                <p><strong>Skeptic:</strong> "Prove God exists! I need evidence!"</p>
+                <p style="margin-top: 1rem;"><strong>Fair Response:</strong> "Okay, but first prove life started by accident. What's your evidence for abiogenesis?"</p>
+                <p style="margin-top: 1rem; font-style: italic;">Often the skeptic will say: "Well, we're here, so it must have happened naturally." But that's NOT evidence - that's just assuming the answer!</p>
+            </div>
 
-    <!-- VQ Chat Widget - Load LAST -->
-    <script src="https://veritasquaesitorcai.github.io/veritas-quaesitor/vq-chat-widget.js"></script>
+            <h3>Hidden Bias in Action</h3>
+            <p>Watch how different standards get applied:</p>
+            <ul>
+                <li><strong>Resurrection:</strong> "That's extraordinary! You need massive evidence!"</li>
+                <li><strong>Abiogenesis:</strong> "Life must have started somehow. It's just science."</li>
+            </ul>
+            <p style="margin-top: 1rem;">Notice the difference? One gets challenged, the other gets a free pass. ETS says: <strong>No free passes. Same standards for both.</strong></p>
+        </div>
+
+        <!-- BALANCE SCALE CONCEPT -->
+        <div class="content-section">
+            <h2>The Balance Scale Concept</h2>
+            
+            <div class="scale-box">
+                <p style="margin-bottom: 2rem;">Think of evidence demands like a balance scale. ETS keeps it fair:</p>
+                
+                <div class="scale-diagram">
+                    <div class="scale-side">
+                        <h3>LEFT SIDE</h3>
+                        <p>"Resurrection needs proof!"</p>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: rgba(255, 255, 255, 0.8);">Demand: High evidence bar</p>
+                    </div>
+                    
+                    <div class="scale-center">⚖️</div>
+                    
+                    <div class="scale-side">
+                        <h3>RIGHT SIDE</h3>
+                        <p>"Naturalistic alternatives need proof too!"</p>
+                        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: rgba(255, 255, 255, 0.8);">Demand: Same high evidence bar</p>
+                    </div>
+                </div>
+
+                <p style="margin-top: 2rem; font-weight: 600;">ETS keeps the scale balanced. Both sides get the same treatment.</p>
+            </div>
+        </div>
+
+        <!-- DISCUSSION QUESTIONS -->
+        <div class="content-section">
+            <h2>Discussion Questions</h2>
+            
+            <div class="discussion-questions">
+                <ol>
+                    <li>Can you think of a time when you applied different standards to different claims? What was the situation?</li>
+                    <li>Why do you think people are more skeptical of supernatural claims than naturalistic ones?</li>
+                    <li>Is it fair to say "extraordinary claims require extraordinary evidence"? What makes a claim "extraordinary"?</li>
+                    <li>If someone demands proof that God exists, what proof should they provide that He doesn't?</li>
+                    <li>How would debates about religion change if everyone used ETS?</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- ACTIVITY -->
+        <div class="content-section">
+            <h2>Activity: "Spot the Asymmetry"</h2>
+            
+            <div class="example-box">
+                <p style="margin-bottom: 1.5rem;"><strong>Instructions:</strong> Read each pair of statements. Identify if there's an asymmetric standard being applied.</p>
+
+                <h3>Pair 1:</h3>
+                <p><strong>Statement A:</strong> "You can't trust ancient religious texts - they're biased."</p>
+                <p><strong>Statement B:</strong> "Ancient historical texts about Caesar are reliable."</p>
+                <p><strong>Question:</strong> Same standard applied? _______________</p>
+
+                <h3>Pair 2:</h3>
+                <p><strong>Statement A:</strong> "The resurrection violates natural law, so it's impossible."</p>
+                <p><strong>Statement B:</strong> "The Big Bang created something from nothing."</p>
+                <p><strong>Question:</strong> Same standard applied? _______________</p>
+
+                <h3>Pair 3:</h3>
+                <p><strong>Statement A:</strong> "Eyewitness testimony about miracles is unreliable."</p>
+                <p><strong>Statement B:</strong> "We trust eyewitness testimony in criminal trials."</p>
+                <p><strong>Question:</strong> Same standard applied? _______________</p>
+            </div>
+        </div>
+
+        <!-- HOMEWORK -->
+        <div class="content-section">
+            <h2>Homework</h2>
+            
+            <ol>
+                <li>
+                    <strong>Watch:</strong> Find a debate about religion online (YouTube, podcast, etc.)<br>
+                    <strong>Task:</strong> Count how many times you see asymmetric standards being applied. Write down 3 examples.
+                </li>
+                <li>
+                    <strong>Journal Prompt:</strong> "Have I ever demanded evidence for something I disagreed with but accepted something I agreed with without much evidence? What was it?"
+                </li>
+                <li>
+                    <strong>Challenge:</strong> Practice using ETS in a conversation this week. When someone makes a claim, ask: "What evidence supports that?" - then apply the same standard to competing claims.
+                </li>
+            </ol>
+        </div>
+
+        <!-- NAVIGATION -->
+        <div class="nav-buttons">
+            <a href="lesson-1-1.html" class="btn btn-secondary">← Previous: What Is TC?</a>
+            <a href="https://veritasquaesitorcai.github.io/veritas-quaesitor/technical-christianity.html" class="btn btn-secondary">Back to Course Index</a>
+            <a href="lesson-1-3.html" class="btn btn-primary">Next: Evidence Toolkit →</a>
+        </div>
+    </div>
 </body>
 </html>
