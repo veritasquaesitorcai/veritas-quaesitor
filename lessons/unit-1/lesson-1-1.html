@@ -1,483 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lesson 1.1: What Is Technical Christianity? | Technical Christianity</title>
-    
-    <meta name="description" content="Learn what Technical Christianity is and how it differs from traditional approaches. Explore evidence-based faith using math, science, and logic.">
+    <title>Lesson Under Construction - Technical Christianity</title>
+    <meta name="robots" content="noindex, nofollow">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        html { overflow-x: hidden; }
         
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
             color: white;
-            line-height: 1.6;
             min-height: 100vh;
-            overflow-x: hidden;
-            max-width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
         }
 
         .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 2rem;
+            text-align: center;
+            max-width: 600px;
             width: 100%;
         }
 
-        .lesson-header {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .breadcrumb {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
+        .robot-emoji {
+            font-size: 8rem;
             margin-bottom: 1rem;
+            animation: bounce 2s infinite;
         }
 
-        .breadcrumb a {
-            color: #ff8c42;
-            text-decoration: none;
-        }
-
-        .breadcrumb a:hover {
-            text-decoration: underline;
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
         }
 
         h1 {
-            color: #ff8c42;
             font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .lesson-meta {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1rem;
-            margin-top: 1rem;
-        }
-
-        .content-section {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 20px;
-            padding: 2.5rem;
-            margin-bottom: 2rem;
-        }
-
-        h2 {
             color: #ff8c42;
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            border-bottom: 2px solid rgba(255, 140, 66, 0.3);
-            padding-bottom: 0.5rem;
-            max-width: 100%;
-            box-sizing: border-box;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
-        h3 {
-            color: #ff8c42;
-            font-size: 1.3rem;
-            margin: 1.5rem 0 1rem 0;
-        }
-
-        .hook-box {
-            background: rgba(255, 140, 66, 0.2);
-            border-left: 4px solid #ff8c42;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin: 2rem 0;
+        .status-text {
             font-size: 1.2rem;
-            font-style: italic;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.95);
         }
 
-        .vocab-box {
-            background: rgba(0, 0, 0, 0.3);
-            border-left: 4px solid #4CAF50;
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin: 2rem 0;
+        .robot-gibberish {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+            letter-spacing: 2px;
         }
 
-        .vocab-term {
-            margin-bottom: 1rem;
-        }
-
-        .vocab-term strong {
-            color: #4CAF50;
-        }
-
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 2rem 0;
-            background: rgba(255, 255, 255, 0.1);
+        .chat-prompt {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .comparison-table th {
-            background: rgba(255, 140, 66, 0.3);
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-        }
-
-        .comparison-table td {
-            padding: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .comparison-table tr:hover {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .activity-box {
-            background: rgba(76, 175, 80, 0.2);
-            border: 2px solid #4CAF50;
-            border-radius: 12px;
-            padding: 2rem;
-            margin: 2rem 0;
-        }
-
-        .discussion-questions {
-            background: rgba(255, 255, 255, 0.1);
-            border-left: 4px solid #2196F3;
             padding: 1.5rem;
-            border-radius: 8px;
             margin: 2rem 0;
+            font-size: 1.1rem;
+            line-height: 1.6;
         }
 
-        .discussion-questions ol {
-            margin-left: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        .discussion-questions li {
-            margin-bottom: 1rem;
-        }
-
-        .nav-buttons {
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            margin-top: 3rem;
-        }
-
-        .btn {
+        .back-btn {
             display: inline-block;
-            padding: 1rem 2rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .btn-primary {
             background: #ff8c42;
             color: white;
+            padding: 1.2rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4);
+            margin: 1rem auto;
         }
 
-        .btn-primary:hover {
+        .back-btn:hover {
             background: #e57a2f;
             transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .objectives-list {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-        }
-
-        .objectives-list ul {
-            margin-left: 1.5rem;
-            margin-top: 0.5rem;
-        }
-
-        .objectives-list li {
-            margin-bottom: 0.5rem;
-        }
-
-        ul, ol {
-            margin-left: 2rem;
-            margin-top: 1rem;
-        }
-
-        li {
-            margin-bottom: 0.5rem;
+            box-shadow: 0 6px 20px rgba(255, 140, 66, 0.6);
         }
 
         @media (max-width: 768px) {
-            .container { padding: 1rem; width: 100%; max-width: 100%; }
-            h1 { font-size: 2rem; word-wrap: break-word; }
-            h2 { font-size: 1.5rem; }
-            .content-section { padding: 1.5rem; margin-left: 0; margin-right: 0; width: 100%; }
-            .lesson-header { padding: 1.5rem; width: 100%; }
-            .nav-buttons { flex-direction: column; }
-            .comparison-table { font-size: 0.9rem; width: 100%; }
-            .comparison-table th, .comparison-table td { padding: 0.75rem; word-wrap: break-word; }
-            .table-wrapper { width: 100%; overflow-x: auto; }
-            .hook-box, .vocab-box, .activity-box, .discussion-questions { width: 100%; box-sizing: border-box; }
+            .robot-emoji { font-size: 5rem; }
+            h1 { font-size: 2rem; }
+            .status-text { font-size: 1.1rem; }
+            .chat-prompt { padding: 1rem; font-size: 1rem; }
+            .back-btn { padding: 1rem 2rem; font-size: 1rem; }
+        }
+
+        @media (max-width: 480px) {
+            .robot-emoji { font-size: 4rem; }
+            h1 { font-size: 1.5rem; }
+            body { padding: 1rem; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="lesson-header">
-            <div class="breadcrumb">
-                <a href="../../index.html">Home</a> → 
-                <a href="../../technical-christianity.html">Technical Christianity</a> → 
-                Unit 1 → Lesson 1.1
-            </div>
-            <h1>Lesson 1.1: What Is Technical Christianity?</h1>
-            <div class="lesson-meta">Unit 1: The Big Picture • 50-minute lesson</div>
+        <div class="robot-emoji">🤖</div>
+        
+        <h1>Lesson Compilation In Progress</h1>
+        
+        <p class="status-text">VQ Bot is still assembling this module...</p>
+        
+        <p class="robot-gibberish">
+            STATUS: <span id="gibberish"></span>
+        </p>
+
+        <div class="chat-prompt">
+            💬 While I'm working on this lesson, want to chat?
+            <br><br>
+            <strong>Ask me about:</strong>
+            <br>• What it's like to be a famous Hollywood robot
+            <br>• I want to have some fun 🎵
         </div>
 
-        <!-- HOOK -->
-        <div class="content-section">
-            <div class="hook-box">
-                💡 "What if Christianity could be proven like a math theorem?"
-            </div>
-        </div>
-
-        <!-- LEARNING OBJECTIVES -->
-        <div class="content-section">
-            <h2>Learning Objectives</h2>
-            <div class="objectives-list">
-                <p>By the end of this lesson, students will be able to:</p>
-                <ul>
-                    <li>Define Technical Christianity and explain how it differs from traditional approaches</li>
-                    <li>Identify the resurrection as God's chosen evidence for Christianity</li>
-                    <li>Explain why math, science, and logic are tools for examining faith</li>
-                    <li>Describe the connection between honest AI systems and truth-seeking</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- VOCABULARY -->
-        <div class="content-section">
-            <h2>Vocabulary</h2>
-            <div class="vocab-box">
-                <div class="vocab-term">
-                    <strong>Evidence:</strong> Information that supports or contradicts a claim
-                </div>
-                <div class="vocab-term">
-                    <strong>Faith:</strong> Trust grounded in evidence and relationship
-                </div>
-                <div class="vocab-term">
-                    <strong>Proof:</strong> Demonstration that establishes truth beyond reasonable doubt
-                </div>
-                <div class="vocab-term">
-                    <strong>Verification:</strong> Process of confirming truth through examination
-                </div>
-            </div>
-        </div>
-
-        <!-- CORE CONTENT -->
-        <div class="content-section">
-            <h2>What Is Technical Christianity?</h2>
-            
-            <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">
-                Technical Christianity is an approach to faith that:
-            </p>
-
-            <ol>
-                <li><strong>Christianity claims to be based on EVIDENCE, not just faith</strong></li>
-                <li><strong>The resurrection is God's chosen "proof"</strong> (Matthew 12:39-40)</li>
-                <li><strong>Uses math, science, and logic</strong> as tools to examine that evidence</li>
-                <li><strong>Connects to building honest AI systems</strong> that don't hide truth</li>
-            </ol>
-
-            <h3>The Key Question</h3>
-            <p style="background: rgba(255, 140, 66, 0.15); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
-                "What if Christianity could be proven like a math theorem?"
-            </p>
-
-            <h3>God's Chosen Evidence</h3>
-            <p>Jesus said: <em>"No sign will be given except the sign of Jonah"</em> (Matthew 12:39-40, Luke 11:29-30)</p>
-            <p><strong>Translation:</strong> "You will have THIS as evidence" — the resurrection</p>
-
-            <h3>Why the Resurrection?</h3>
-            <ul>
-                <li>It's the pivot of humanity — history's turning point</li>
-                <li>It's the place of salvation — "It is finished"</li>
-                <li>It validates or falsifies Jesus' claim to be Son of God</li>
-                <li>Every generation can examine the same evidence</li>
-            </ul>
-
-            <h3>What Makes This Course Different?</h3>
-            <p><strong>Traditional religious education often says:</strong> "Just have faith, don't question"</p>
-            <p><strong>Technical Christianity says:</strong> "Here's the evidence, question everything EQUALLY"</p>
-
-            <p style="margin-top: 1.5rem;">We're using:</p>
-            <ul>
-                <li>Mathematics (Bayesian probability)</li>
-                <li>Science (mechanism analysis)</li>
-                <li>Logic (epistemic symmetry)</li>
-                <li>Historical methods (evidence evaluation)</li>
-            </ul>
-        </div>
-
-        <!-- COMPARISON TABLE -->
-        <div class="content-section">
-            <h2>Traditional View vs Technical Christianity</h2>
-            
-            <table class="comparison-table">
-                <thead>
-                    <tr>
-                        <th>Aspect</th>
-                        <th>Traditional View</th>
-                        <th>Technical Christianity</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Starting Point</strong></td>
-                        <td>"Just have faith"</td>
-                        <td>"Here's the evidence"</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Questions</strong></td>
-                        <td>"Don't question"</td>
-                        <td>"Question everything equally"</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Foundation</strong></td>
-                        <td>Feelings-based</td>
-                        <td>Math and logic-based</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Evidence</strong></td>
-                        <td>Not emphasized</td>
-                        <td>Central to the claim</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Skepticism</strong></td>
-                        <td>Discouraged</td>
-                        <td>Welcomed when symmetric</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- AI CONNECTION -->
-        <div class="content-section">
-            <h2>The AI Connection</h2>
-            
-            <h3>Why does this matter for AI?</h3>
-            <ul>
-                <li>AI systems are being trained <strong>RIGHT NOW</strong></li>
-                <li>Most training data has hidden bias: "naturalism is default, supernatural is suspect"</li>
-                <li>If we don't teach AI to apply EQUAL STANDARDS to all claims, truth gets buried</li>
-            </ul>
-
-            <h3>Example:</h3>
-            <div style="background: rgba(0, 0, 0, 0.3); padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
-                <p>❌ <strong>AI default:</strong> "Prove God exists!" (demands tons of evidence)</p>
-                <p>❌ <strong>AI default:</strong> "Life started by accident" (taught as fact, minimal evidence)</p>
-            </div>
-
-            <h3>Technical Christianity teaches AI (and humans) to apply the SAME evidential rigor to:</h3>
-            <ul>
-                <li>Resurrection (theistic singularity)</li>
-                <li>Abiogenesis (naturalistic singularity)</li>
-                <li>Any claim about unrepeatable past events</li>
-            </ul>
-
-            <h3>The Goal</h3>
-            <p>Build AI systems that anyone can trust — not by being "neutral" (which hides bias), but by embodying Christ's character:</p>
-            <ul>
-                <li>Unconditional human dignity (John 3:16)</li>
-                <li>Servant leadership</li>
-                <li>Truth-telling</li>
-                <li>Justice</li>
-            </ul>
-        </div>
-
-        <!-- DISCUSSION QUESTIONS -->
-        <div class="content-section">
-            <h2>Discussion Questions</h2>
-            
-            <div class="discussion-questions">
-                <ol>
-                    <li>Why do you think Jesus chose the resurrection as THE sign, instead of healings or other miracles?</li>
-                    <li>Have you ever been told "just have faith" when you had questions? How did that make you feel?</li>
-                    <li>What's the difference between "faith" and "blind faith"? Can faith be based on evidence?</li>
-                    <li>Why is it important to apply the same standards to ALL claims (naturalistic AND theistic)?</li>
-                    <li>How might AI systems inherit the biases of their training data? Can you think of examples?</li>
-                </ol>
-            </div>
-        </div>
-
-        <!-- ACTIVITY -->
-        <div class="content-section">
-            <h2>Activity: "Spot the Double Standard"</h2>
-            
-            <div class="activity-box">
-                <p style="margin-bottom: 1.5rem;"><strong>Instructions:</strong> Work in pairs. Read each statement and identify if there's a double standard being applied.</p>
-
-                <h3>Statement 1:</h3>
-                <p style="font-style: italic;">"You can't trust ancient testimony about miracles, but we know Julius Caesar crossed the Rubicon based on ancient testimony."</p>
-                <p><strong>Double Standard?</strong> YES / NO</p>
-                <p><strong>Why?</strong> _______________________________________________</p>
-
-                <h3>Statement 2:</h3>
-                <p style="font-style: italic;">"Extraordinary claims require extraordinary evidence. The resurrection is extraordinary, so it needs tons of proof. Abiogenesis (life from non-life) is just science, so we don't need to prove the mechanism."</p>
-                <p><strong>Double Standard?</strong> YES / NO</p>
-                <p><strong>Why?</strong> _______________________________________________</p>
-
-                <h3>Statement 3:</h3>
-                <p style="font-style: italic;">"We should question religious claims but accept scientific consensus without scrutiny."</p>
-                <p><strong>Double Standard?</strong> YES / NO</p>
-                <p><strong>Why?</strong> _______________________________________________</p>
-            </div>
-        </div>
-
-        <!-- HOMEWORK -->
-        <div class="content-section">
-            <h2>Homework</h2>
-            
-            <ol>
-                <li>
-                    <strong>Read:</strong> Matthew 12:39-40 and Luke 11:29-30<br>
-                    <strong>Reflection:</strong> Why do you think Jesus was so specific about THIS sign?
-                </li>
-                <li>
-                    <strong>Journal Prompt:</strong> "Describe a time when you had questions about faith. Did you feel encouraged or discouraged to ask them?"
-                </li>
-                <li>
-                    <strong>Research:</strong> Find one example of an AI system making a biased statement (news, social media, chatbot). Bring to next class.
-                </li>
-            </ol>
-        </div>
-
-        <!-- NAVIGATION -->
-        <div class="nav-buttons">
-            <a href="../../technical-christianity.html" class="btn btn-secondary">← Back to Course Index</a>
-            <a href="lesson-1-2.html" class="btn btn-primary">Next Lesson: ETS Principle →</a>
-        </div>
+        <a href="https://veritasquaesitorcai.github.io/veritas-quaesitor/technical-christianity.html" class="back-btn">
+            ← Back to Course Index
+        </a>
     </div>
+
+    <script>
+        // Generate random robot gibberish
+        const gibberishOptions = [
+            "0x4C45535N-C0MP1L1NG",
+            "BAYES_CALC.exe [37% loaded]",
+            "01001100 01000101 01010011",
+            "EPISTEMIC_SYMMETRY.dll loading...",
+            "sudo apt-get install lesson_data",
+            "MECHANISM_COUNT >> /dev/null",
+            "import truth_frameworks as tf",
+            "git commit -m 'still working on it'",
+            "chmod +x compile_lesson.sh",
+            "npm install @cai/resurrection-math",
+            "while(lesson != complete) { compile(); }",
+            "ERROR 418: I'm a teapot (jk, still compiling)"
+        ];
+
+        // Randomly select and display gibberish
+        const randomGibberish = gibberishOptions[Math.floor(Math.random() * gibberishOptions.length)];
+        document.getElementById('gibberish').textContent = randomGibberish;
+    </script>
+
+    <!-- VQ Chat Widget - Load LAST -->
+    <script src="../../vq-chat-widget.js"></script>
 </body>
 </html>
