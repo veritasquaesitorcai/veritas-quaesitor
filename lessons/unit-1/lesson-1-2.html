@@ -154,26 +154,64 @@
     <!-- VQ Chat Widget - Auto-open for this page -->
     <script src="../../vq-chat-widget.js"></script>
     <script>
-        // Auto-open chat widget if available, centered on mobile
+        // Auto-open chat widget with better mobile support
         window.addEventListener('load', function() {
+            // Wait for widget to fully load
             setTimeout(function() {
-                // Trigger chat widget open (if your widget has this function)
+                // Try multiple methods to find and open the widget
+                
+                // Method 1: Direct function call
                 if (typeof window.openVQChat === 'function') {
                     window.openVQChat();
                 }
                 
-                // Center widget on mobile
+                // Method 2: Look for widget button and click it
+                const widgetButton = document.querySelector(
+                    '.vq-chat-button, #vq-chat-button, [class*="chat-button"], [id*="chat-button"]'
+                );
+                if (widgetButton && !document.querySelector('.vq-chat-open, [class*="chat-open"]')) {
+                    widgetButton.click();
+                }
+                
+                // Method 3: Check for iframe or widget container
+                const widgetIframe = document.querySelector('iframe[src*="chat"], iframe[title*="chat"]');
+                const widgetContainer = document.querySelector('.vq-chat-widget, #vq-chat-widget, [class*="chat-widget"]');
+                
+                // Force visibility on mobile
                 if (window.innerWidth <= 768) {
-                    const widget = document.querySelector('.vq-chat-widget, #vq-chat-widget, [class*="chat-widget"]');
-                    if (widget) {
-                        widget.style.position = 'fixed';
-                        widget.style.left = '50%';
-                        widget.style.transform = 'translateX(-50%)';
-                        widget.style.bottom = '20px';
-                        widget.style.right = 'auto';
+                    if (widgetIframe) {
+                        widgetIframe.style.display = 'block';
+                        widgetIframe.style.position = 'fixed';
+                        widgetIframe.style.bottom = '20px';
+                        widgetIframe.style.left = '50%';
+                        widgetIframe.style.transform = 'translateX(-50%)';
+                        widgetIframe.style.zIndex = '9999';
+                        widgetIframe.style.width = '90%';
+                        widgetIframe.style.maxWidth = '400px';
+                    }
+                    
+                    if (widgetContainer) {
+                        widgetContainer.style.display = 'block';
+                        widgetContainer.style.position = 'fixed';
+                        widgetContainer.style.bottom = '20px';
+                        widgetContainer.style.left = '50%';
+                        widgetContainer.style.transform = 'translateX(-50%)';
+                        widgetContainer.style.zIndex = '9999';
+                        widgetContainer.style.width = '90%';
+                        widgetContainer.style.maxWidth = '400px';
+                    }
+                    
+                    // Also check for button on mobile
+                    if (widgetButton) {
+                        widgetButton.style.display = 'block';
+                        widgetButton.style.position = 'fixed';
+                        widgetButton.style.bottom = '20px';
+                        widgetButton.style.left = '50%';
+                        widgetButton.style.transform = 'translateX(-50%)';
+                        widgetButton.style.zIndex = '9999';
                     }
                 }
-            }, 1000);
+            }, 1500); // Increased delay to ensure widget loads
         });
     </script>
 </body>
