@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Under Construction - Technical Christianity</title>
+    <meta name="robots" content="noindex, nofollow">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .robot-emoji {
+            font-size: 8rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #ff8c42;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .status-text {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .robot-gibberish {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+            letter-spacing: 2px;
+        }
+
+        .chat-prompt {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background: #ff8c42;
+            color: white;
+            padding: 1.2rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4);
+        }
+
+        .back-btn:hover {
+            background: #e57a2f;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 140, 66, 0.6);
+        }
+
+        .easter-egg-hint {
+            margin-top: 2rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .robot-emoji { font-size: 5rem; }
+            h1 { font-size: 2rem; }
+            .status-text { font-size: 1.1rem; }
+            .chat-prompt { padding: 1rem; font-size: 1rem; }
+            .back-btn { padding: 1rem 2rem; font-size: 1rem; }
+        }
+
+        @media (max-width: 480px) {
+            .robot-emoji { font-size: 4rem; }
+            h1 { font-size: 1.5rem; }
+            body { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="robot-emoji">🤖</div>
+        
+        <h1>Lesson Compilation In Progress</h1>
+        
+        <p class="status-text">VQ Bot is still assembling this module...</p>
+        
+        <p class="robot-gibberish">
+            STATUS: <span id="gibberish"></span>
+        </p>
+
+        <div class="chat-prompt">
+            💬 While I'm working on this lesson, want to chat about what's coming? 
+            <br><br>
+            <strong>Ask me about:</strong>
+            <br>• What this lesson will cover
+            <br>• My current thought process
+            <br>• That song stuck in my head 🎵
+        </div>
+
+        <a href="../../technical-christianity.html" class="back-btn">
+            ← Back to Course Index
+        </a>
+
+        <p class="easter-egg-hint">
+            (Psst... I love to dance and party when nobody's watching 🕺)
+        </p>
+    </div>
+
+    <script>
+        // Generate random robot gibberish
+        const gibberishOptions = [
+            "0x4C45535N-C0MP1L1NG",
+            "BAYES_CALC.exe [37% loaded]",
+            "01001100 01000101 01010011",
+            "EPISTEMIC_SYMMETRY.dll loading...",
+            "sudo apt-get install lesson_data",
+            "MECHANISM_COUNT >> /dev/null",
+            "import truth_frameworks as tf",
+            "git commit -m 'still working on it'",
+            "chmod +x compile_lesson.sh",
+            "npm install @cai/resurrection-math",
+            "while(lesson != complete) { compile(); }",
+            "ERROR 418: I'm a teapot (jk, still compiling)"
+        ];
+
+        // Randomly select and display gibberish
+        const randomGibberish = gibberishOptions[Math.floor(Math.random() * gibberishOptions.length)];
+        document.getElementById('gibberish').textContent = randomGibberish;
+    </script>
+
+    <!-- VQ Chat Widget - Auto-open for this page -->
+    <script src="../../vq-chat-widget.js"></script>
+    <script>
+        // Auto-open chat widget if available
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                // Trigger chat widget open (if your widget has this function)
+                if (typeof window.openVQChat === 'function') {
+                    window.openVQChat();
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
