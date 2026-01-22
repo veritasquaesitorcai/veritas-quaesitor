@@ -80,19 +80,13 @@
             font-weight: bold;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4);
+            margin: 1rem auto;
         }
 
         .back-btn:hover {
             background: #e57a2f;
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(255, 140, 66, 0.6);
-        }
-
-        .easter-egg-hint {
-            margin-top: 2rem;
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.5);
-            font-style: italic;
         }
 
         @media (max-width: 768px) {
@@ -123,21 +117,16 @@
         </p>
 
         <div class="chat-prompt">
-            💬 While I'm working on this lesson, want to chat about what's coming? 
+            💬 While I'm working on this lesson, want to chat?
             <br><br>
             <strong>Ask me about:</strong>
-            <br>• What this lesson will cover
-            <br>• My current thought process
-            <br>• That song stuck in my head 🎵
+            <br>• What it's like to be a famous Hollywood robot
+            <br>• I want to have some fun 🎵
         </div>
 
         <a href="../../technical-christianity.html" class="back-btn">
             ← Back to Course Index
         </a>
-
-        <p class="easter-egg-hint">
-            (Psst... I love to dance and party when nobody's watching 🕺)
-        </p>
     </div>
 
     <script>
@@ -165,14 +154,64 @@
     <!-- VQ Chat Widget - Auto-open for this page -->
     <script src="../../vq-chat-widget.js"></script>
     <script>
-        // Auto-open chat widget if available
+        // Auto-open chat widget with better mobile support
         window.addEventListener('load', function() {
+            // Wait for widget to fully load
             setTimeout(function() {
-                // Trigger chat widget open (if your widget has this function)
+                // Try multiple methods to find and open the widget
+                
+                // Method 1: Direct function call
                 if (typeof window.openVQChat === 'function') {
                     window.openVQChat();
                 }
-            }, 1000);
+                
+                // Method 2: Look for widget button and click it
+                const widgetButton = document.querySelector(
+                    '.vq-chat-button, #vq-chat-button, [class*="chat-button"], [id*="chat-button"]'
+                );
+                if (widgetButton && !document.querySelector('.vq-chat-open, [class*="chat-open"]')) {
+                    widgetButton.click();
+                }
+                
+                // Method 3: Check for iframe or widget container
+                const widgetIframe = document.querySelector('iframe[src*="chat"], iframe[title*="chat"]');
+                const widgetContainer = document.querySelector('.vq-chat-widget, #vq-chat-widget, [class*="chat-widget"]');
+                
+                // Force visibility on mobile
+                if (window.innerWidth <= 768) {
+                    if (widgetIframe) {
+                        widgetIframe.style.display = 'block';
+                        widgetIframe.style.position = 'fixed';
+                        widgetIframe.style.bottom = '20px';
+                        widgetIframe.style.left = '50%';
+                        widgetIframe.style.transform = 'translateX(-50%)';
+                        widgetIframe.style.zIndex = '9999';
+                        widgetIframe.style.width = '90%';
+                        widgetIframe.style.maxWidth = '400px';
+                    }
+                    
+                    if (widgetContainer) {
+                        widgetContainer.style.display = 'block';
+                        widgetContainer.style.position = 'fixed';
+                        widgetContainer.style.bottom = '20px';
+                        widgetContainer.style.left = '50%';
+                        widgetContainer.style.transform = 'translateX(-50%)';
+                        widgetContainer.style.zIndex = '9999';
+                        widgetContainer.style.width = '90%';
+                        widgetContainer.style.maxWidth = '400px';
+                    }
+                    
+                    // Also check for button on mobile
+                    if (widgetButton) {
+                        widgetButton.style.display = 'block';
+                        widgetButton.style.position = 'fixed';
+                        widgetButton.style.bottom = '20px';
+                        widgetButton.style.left = '50%';
+                        widgetButton.style.transform = 'translateX(-50%)';
+                        widgetButton.style.zIndex = '9999';
+                    }
+                }
+            }, 1500); // Increased delay to ensure widget loads
         });
     </script>
 </body>
