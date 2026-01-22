@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Christianity - Veritas Quaesitor</title>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      "name": "Technical Christianity: Evidence, Math, and Truth in the Age of AI",
+      "description": "37-lesson high school curriculum teaching evidence-based faith through Bayesian reasoning, mechanism analysis, and epistemic symmetry.",
+      "provider": {
+        "@type": "Organization",
+        "name": "Veritas Quaesitor CAI"
+      },
+      "courseCode": "TC-2025",
+      "numberOfCredits": 37,
+      "educationalLevel": "High School",
+      "teaches": [
+        "Bayesian Probability",
+        "Epistemic Symmetry",
+        "Historical Evidence Evaluation",
+        "Mechanism-Aware Analysis",
+        "AI and Truth-Seeking"
+      ]
+    }
+    </script>
+    
+    <meta name="description" content="Technical Christianity: 37 lessons teaching evidence-based faith through Bayesian reasoning, mechanism analysis, and epistemic symmetry. High school curriculum for the AI age.">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "Technical Christianity Curriculum - Veritas Quaesitor",
+      "description": "Complete 8-unit course grounding faith in evidence using mathematics, science, and logic.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Veritas Quaesitor CAI"
+      }
+    }
+    </script>
+
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#1a1a3e">
+    
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        /* Add gradient background to body - CRITICAL for glass effect */
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            min-height: 100vh !important;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVIGATION --- */
+        .clickable-ai-truth { cursor: pointer; transition: all 0.3s ease; font-size: 0.75rem !important; padding: 0.15rem 0.5rem !important; display: inline-block; white-space: nowrap; }
+        .clickable-ai-truth:hover { color: #ff8c42 !important; transform: scale(1.05); }
+        .logo { display: flex; align-items: center; gap: 0.5rem; }
+        .social-nav { display: flex; gap: 0.6rem; align-items: center; margin-left: auto; }
+        .social-nav a { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 140, 66, 0.2); color: #ff8c42; font-weight: bold; text-decoration: none; transition: all 0.3s ease; }
+        .social-nav a:hover { background: #ff8c42; color: white; transform: translateY(-2px); }
+        nav a.active { position: relative; color: #ff8c42 !important; font-weight: 700; }
+
+        /* --- HERO --- */
+        section.page-header {
+            background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)), 
+                        url('learner.png') !important;
+            background-size: cover !important;
+            background-position: center center !important;
+            background-attachment: fixed !important;
+            min-height: 500px !important;
+            padding: 6rem 2rem !important;
+            position: relative !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        section.page-header h1 { font-size: 3rem; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); margin-bottom: 1rem; }
+        section.page-header p { font-size: 1.5rem; color: rgba(255, 255, 255, 0.95); text-shadow: 1px 1px 3px rgba(0,0,0,0.7); max-width: 800px; }
+
+        /* --- GLASS MORPHISM CONTENT --- */
+        .content {
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+            padding: 3rem !important;
+            margin: -4rem auto 4rem auto !important; /* Overlap effect */
+            border-radius: 16px !important;
+            max-width: 1200px;
+            width: 90%;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* --- CURRICULUM SPECIFIC STYLES --- */
+        .intro-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .download-section {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2rem;
+            border-radius: 12px;
+            margin: 2rem 0 3rem 0;
+            text-align: center;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background: #ff8c42;
+            color: white !important;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background: #e57a2f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 140, 66, 0.4);
+        }
+
+        .unit-section {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: rgba(255, 140, 66, 0.1);
+            border-left: 4px solid #ff8c42;
+            border-radius: 8px;
+        }
+
+        .unit-title {
+            color: #ff8c42;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .unit-description {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+
+        .lesson-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .lesson-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .lesson-card:hover {
+            background: rgba(255, 140, 66, 0.2);
+            border-color: #ff8c42;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(255, 140, 66, 0.3);
+        }
+
+        .lesson-card.available {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .lesson-card.coming-soon {
+            opacity: 0.6;
+            cursor: default;
+        }
+
+        .lesson-card.coming-soon:hover {
+            transform: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .lesson-number {
+            color: #ff8c42;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .lesson-title {
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .lesson-hook {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        .lesson-status {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .status-available {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+        }
+
+        .status-coming {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .coming-soon-box {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem;
+            background: rgba(255, 140, 66, 0.1);
+            border-radius: 12px;
+        }
+
+        /* --- FOOTER (Synced) --- */
+        .footer { background: #1a1a3e; color: white; padding: 2.5rem 0; text-align: center; border-top: 2px solid rgba(255, 140, 66, 0.3); }
+        .footer-social { display: flex; gap: 2rem; justify-content: center; align-items: center; flex-wrap: wrap; }
+        .footer-social-link { display: flex; align-items: center; gap: 0.5rem; color: rgba(255, 255, 255, 0.8); text-decoration: none; font-size: 0.95rem; transition: all 0.3s ease; }
+        .footer-social-link:hover { color: #ff8c42; transform: translateX(3px); }
+        .social-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 140, 66, 0.15); color: #ff8c42; font-weight: bold; font-size: 1rem; }
+        .footer-social-link:hover .social-icon { background: #ff8c42; color: white; }
+
+        /* MODAL STYLES (Sync) */
+        .truth-modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); align-items: center; justify-content: center; }
+        .truth-modal.show { display: flex; }
+        .modal-content { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 16px; max-width: 800px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 10px 50px rgba(0,0,0,0.5); }
+        .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 2rem; cursor: pointer; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .modal-close:hover { background: rgba(255, 140, 66, 0.8); transform: rotate(90deg); }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 768px) {
+            section.page-header { 
+                background-attachment: scroll !important; 
+                min-height: 350px !important; 
+                padding: 4rem 1.5rem !important;
+            }
+            section.page-header h1 { font-size: 2rem; }
+            section.page-header p { font-size: 1.1rem; padding: 0 1rem; }
+            .content { 
+                padding: 2rem 1.5rem !important; 
+                margin: -2.5rem auto 2rem auto !important;
+                width: 95%;
+            }
+            .lesson-grid { grid-template-columns: 1fr; }
+            nav ul { display: none; }
+        }
+
+        @media (max-width: 480px) {
+            section.page-header h1 { font-size: 1.7rem; }
+            section.page-header p { font-size: 1rem; }
+            .content { padding: 1.5rem 1rem !important; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div>
+            <a href="index.html" class="logo">
+                ✝️ Veritas Quaesitor
+                <span class="logo-slogan clickable-ai-truth" onclick="openTruthModal(event)">AI❤️TRUTH</span>
+            </a>
+        </div>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="beta-tools.html">Beta Tools</a></li>
+            <li><a href="milestones.html">Projects & Milestones</a></li>
+            <li><a href="mission.html">Mission & Vision</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="about.html">About CAI</a></li>
+            <li><a href="social.html">Social</a></li>
+            <li class="social-nav">
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" title="LinkedIn">in</a>
+                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" title="X (Twitter)">𝕏</a>
+            </li>
+        </ul>
+    </nav>
+
+    <section class="page-header">
+        <h1>Technical Christianity</h1>
+        <p>Evidence, Math, and Truth in the Age of AI</p>
+        <p style="font-size: 1.1rem; margin-top: 0.5rem;">37 Lessons • 8 Units • 1 Rigorous Framework</p>
+    </section>
+
+    <main class="content">
+        <p class="intro-text">
+            Before building the future of AGI, we must first master the logic of truth. This curriculum quantifies historical claims using Bayesian inference and mechanism-aware complexity penalties, providing the epistemic grounding required for the CAI framework.
+        </p>
+
+        <div class="download-section">
+            <h3 style="color: #ff8c42; margin-bottom: 1rem;">Download Full Curriculum</h3>
+            <p style="margin-bottom: 1.5rem; color: white;">Get the complete 37-lesson course in PDF format</p>
+            <a href="technical-christianity-complete.pdf" class="download-btn" download>📄 Download PDF (Complete Course)</a>
+        </div>
+
+        <!-- UNIT 1: The Big Picture -->
+        <div class="unit-section">
+            <h3 class="unit-title">Unit 1: The Big Picture</h3>
+            <p class="unit-description">Foundation: What is Technical Christianity, epistemic symmetry, evidence toolkit, and why God chose resurrection</p>
+            
+            <div class="lesson-grid">
+                <div class="lesson-card available" onclick="window.location.href='lessons/unit-1/lesson-1-1.html'">
+                    <div class="lesson-number">LESSON 1.1</div>
+                    <div class="lesson-title">What Is Technical Christianity?</div>
+                    <div class="lesson-hook">"What if Christianity could be proven like a math theorem?"</div>
+                    <span class="lesson-status status-available">✓ Available</span>
+                </div>
+
+                <div class="lesson-card coming-soon">
+                    <div class="lesson-number">LESSON 1.2</div>
+                    <div class="lesson-title">The Epistemic Symmetry Principle (ETS)</div>
+                    <div class="lesson-hook">"Would you accept a courtroom where only one side has to prove their case?"</div>
+                    <span class="lesson-status status-coming">Coming Soon</span>
+                </div>
+
+                <div class="lesson-card coming-soon">
+                    <div class="lesson-number">LESSON 1.3</div>
+                    <div class="lesson-title">Meet the Evidence Detective Toolkit</div>
+                    <div class="lesson-hook">"CSI: Jerusalem, 33 AD - Can we solve history's greatest mystery?"</div>
+                    <span class="lesson-status status-coming">Coming Soon</span>
+                </div>
+
+                <div class="lesson-card coming-soon">
+                    <div class="lesson-number">LESSON 1.4</div>
+                    <div class="lesson-title">Why God Chose the Resurrection</div>
+                    <div class="lesson-hook">"Jesus could have done any miracle as 'proof.' Why this one?"</div>
+                    <span class="lesson-status status-coming">Coming Soon</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- UNIT 2: The Evidence -->
+        <div class="unit-section">
+            <h3 class="unit-title">Unit 2: The Evidence</h3>
+            <p class="unit-description">Four evidence categories: Empty tomb, eyewitness appearances, transformation, martyrdom</p>
+            
+            <div class="lesson-grid">
+                <div class="lesson-card coming-soon">
+                    <div class="lesson-number">LESSON 2.1</div>
+                    <div class="lesson-title">The Empty Tomb</div>
+                    <div class="lesson-hook">"Three days after Jesus died, His tomb was empty. How do we know this?"</div>
+                    <span class="lesson-status status-coming">Coming Soon</span>
+                </div>
+
+                <div class="lesson-card coming-soon">
+                    <div class="lesson-number">LESSON 2.2</div>
+                    <div class="lesson-title">The Eyewitness Appearances</div>
+                    <div class="lesson-hook">"Over 500 people claimed they saw Jesus alive. Mass hallucination or mass deception?"</div>
+                    <span class="lesson-status status-coming">Coming Soon</span>
+                </div>
+
+                <div class="lesson-card coming-soon">
+                    <div class="lesson-number">LESSON 2.3</div>
+                    <div class="lesson-title">The Transformation</div>
+                    <div class="lesson-hook">"Terrified disciples hiding in a locked room suddenly become fearless evangelists. What changed?"</div>
+                    <span class="lesson-status status-coming">Coming Soon</span>
+                </div>
+
+                <div class="lesson-card coming-soon">
+                    <div class="lesson-number">LESSON 2.4</div>
+                    <div class="lesson-title">The Martyrdom Pattern</div>
+                    <div class="lesson-hook">"People die for false beliefs all the time. But do they die for known lies?"</div>
+                    <span class="lesson-status status-coming">Coming Soon</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- UNIT 3: The Math -->
+        <div class="unit-section">
+            <h3 class="unit-title">Unit 3: The Math</h3>
+            <p class="unit-description">Bayesian thinking, resurrection equation setup, mechanism penalties, probability formulas</p>
+            
+            <div class="lesson-grid">
+                <div class="lesson-card coming-soon">
+                    <div class="lesson-number">LESSON 3.1</div>
+                    <div class="lesson-title">Introduction to Bayesian Thinking</div>
+                    <div class="lesson-hook">"How do doctors diagnose diseases? How do juries decide verdicts?"</div>
+                    <span class="lesson-status status-coming">Coming Soon</span>
+                </div>
+
+                <div class="lesson-card coming-soon">
+                    <div class="lesson-number">LESSON 3.2</div>
+                    <div class="lesson-title">Setting Up the Resurrection Equation</div>
+                    <span class="lesson-status status-coming">Coming Soon</span>
+                </div>
+
+                <div class="lesson-card coming-soon">
+                    <div class="lesson-number">LESSON 3.3</div>
+                    <div class="lesson-title">Calculating P(E|Resurrection)</div>
+                    <span class="lesson-status status-coming">Coming Soon</span>
+                </div>
+
+                <div class="lesson-card coming-soon">
+                    <div class="lesson-number">LESSON 3.4</div>
+                    <div class="lesson-title">Introducing Mechanism Penalties</div>
+                    <div class="lesson-hook">"Coincidences happen. But how many coincidences before it's not a coincidence?"</div>
+                    <span class="lesson-status status-coming">Coming Soon</span>
+                </div>
+
+                <div class="lesson-card coming-soon">
+                    <div class="lesson-number">LESSON 3.5</div>
+                    <div class="lesson-title">The Mechanism Penalty Formula</div>
+                    <div class="lesson-hook">"Scientists have a formula for 'too many coincidences.' Let's use it."</div>
+                    <span class="lesson-status status-coming">Coming Soon</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Remaining units collapsed for brevity -->
+        <div class="coming-soon-box">
+            <h3 style="color: #ff8c42;">📚 Units 4-8 Coming Soon</h3>
+            <p style="color: white;">Alternative Theories • Calculating Probability • Comparing Claims • AI & Future • Living It</p>
+            <p style="font-size: 0.9rem; color: rgba(255, 255, 255, 0.7); margin-top: 1rem;">
+                Lessons are being released progressively. Download the full PDF above for complete access.
+            </p>
+        </div>
+   </main>
+
+    <div id="truthModal" class="truth-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeTruthModal()">&times;</button>
+            <h2>AI ❤️ TRUTH</h2>
+            <p>Technical Christianity provides the mathematical and logical framework that allows both AI systems and humans to evaluate evidence using symmetric epistemic standards.</p>
+            <p>By grounding truth-seeking in rigorous methodology rather than philosophical bias, we build systems that anyone can trust—regardless of their worldview.</p>
+        </div>
+    </div>
+    
+    <script>
+        function openTruthModal(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('truthModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeTruthModal() {
+            document.getElementById('truthModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+        
+        document.getElementById('truthModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeTruthModal();
+            }
+        });
+        
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeTruthModal();
+            }
+        });
+    </script>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
+            <div class="footer-social">
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+                    <span class="social-icon">in</span> LinkedIn
+                </a>
+                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+                    <span class="social-icon">𝕏</span> X (Twitter)
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Mobile nav optimization -->
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            if (window.innerWidth <= 1024) {
+                const activeLink = document.querySelector('nav ul li a.active, .nav-links li a.active');
+                const scrollContainer = document.querySelector('nav ul, .nav-links');
+                
+                if (activeLink && scrollContainer) {
+                    const linkRect = activeLink.getBoundingClientRect();
+                    const containerRect = scrollContainer.getBoundingClientRect();
+                    const scrollPos = activeLink.offsetLeft - (containerRect.width / 2) + (linkRect.width / 2);
+                    scrollContainer.scrollLeft = scrollPos;
+                }
+            }
+        });
+    </script>
+
+    <!-- VQ Chat Widget - Load LAST -->
+    <script src="vq-chat-widget.js"></script>
+
+</body>
+</html>
