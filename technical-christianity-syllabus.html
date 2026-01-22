@@ -29,12 +29,34 @@
         .robot-emoji {
             font-size: 8rem;
             margin-bottom: 1rem;
-            animation: bounce 2s infinite;
+            animation: bounce 2s ease-in-out infinite, glow 3s ease-in-out infinite;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+
+        .robot-emoji:hover {
+            transform: scale(1.1);
+        }
+
+        .robot-emoji.clicked {
+            animation: spin 0.6s ease-in-out, bounce 2s ease-in-out infinite 0.6s, glow 3s ease-in-out infinite;
         }
 
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-20px); }
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 140, 66, 0.5)); }
+            50% { filter: drop-shadow(0 0 25px rgba(255, 140, 66, 0.9)); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
         }
 
         h1 {
@@ -56,6 +78,7 @@
             color: rgba(255, 255, 255, 0.7);
             margin-bottom: 2rem;
             letter-spacing: 2px;
+            min-height: 1.5rem;
         }
 
         .chat-prompt {
@@ -67,6 +90,14 @@
             margin: 2rem 0;
             font-size: 1.1rem;
             line-height: 1.6;
+        }
+
+        .screen-note {
+            display: block;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+            margin-top: 0.3rem;
         }
 
         .back-btn {
@@ -89,7 +120,48 @@
             box-shadow: 0 6px 20px rgba(255, 140, 66, 0.6);
         }
 
+        /* Widget Positioning - Bottom right corner, not obstructing content */
+        #vq-chat-widget,
+        .vq-chat-widget,
+        iframe[src*="chat"],
+        [class*="chat-widget"],
+        [id*="chat-widget"] {
+            position: fixed !important;
+            right: 30px !important;
+            bottom: 30px !important;
+            left: auto !important;
+            top: auto !important;
+            transform: none !important;
+            max-width: 380px !important;
+            z-index: 9999 !important;
+        }
+
+        /* Widget appears with slide-in animation */
+        @keyframes slideInRight {
+            from { 
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        #vq-chat-widget,
+        .vq-chat-widget {
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        /* Mobile - hide widget since it won't show */
         @media (max-width: 768px) {
+            #vq-chat-widget,
+            .vq-chat-widget,
+            iframe[src*="chat"],
+            [class*="chat-widget"] {
+                display: none !important;
+            }
+            
             .robot-emoji { font-size: 5rem; }
             h1 { font-size: 2rem; }
             .status-text { font-size: 1.1rem; }
@@ -106,7 +178,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="robot-emoji">🤖</div>
+        <div class="robot-emoji" id="robot" onclick="spinRobot()">🤖</div>
         
         <h1>Lesson Compilation In Progress</h1>
         
@@ -118,6 +190,7 @@
 
         <div class="chat-prompt">
             💬 While I'm working on this lesson, want to chat?
+            <span class="screen-note">(Available on larger screens)</span>
             <br><br>
             <strong>Ask me about:</strong>
             <br>• What it's like to be a famous Hollywood robot
@@ -143,12 +216,44 @@
             "chmod +x compile_lesson.sh",
             "npm install @cai/resurrection-math",
             "while(lesson != complete) { compile(); }",
-            "ERROR 418: I'm a teapot (jk, still compiling)"
+            "ERROR 418: I'm a teapot (jk, still compiling)",
+            "pip install divine-evidence --upgrade",
+            "gcc -o truth resurrection.c",
+            "docker run --name cai-framework",
+            "Calculating P(Resurrection|Evidence)...",
+            "Applying mechanism penalties...",
+            "Loading epistemic symmetry module..."
         ];
 
-        // Randomly select and display gibberish
-        const randomGibberish = gibberishOptions[Math.floor(Math.random() * gibberishOptions.length)];
-        document.getElementById('gibberish').textContent = randomGibberish;
+        let currentIndex = 0;
+
+        // Cycle through gibberish every 3 seconds
+        function cycleGibberish() {
+            const gibberishElement = document.getElementById('gibberish');
+            gibberishElement.style.opacity = '0';
+            
+            setTimeout(() => {
+                currentIndex = (currentIndex + 1) % gibberishOptions.length;
+                gibberishElement.textContent = gibberishOptions[currentIndex];
+                gibberishElement.style.opacity = '1';
+            }, 300);
+        }
+
+        // Initialize first gibberish
+        document.getElementById('gibberish').textContent = gibberishOptions[0];
+        document.getElementById('gibberish').style.transition = 'opacity 0.3s ease';
+
+        // Cycle every 3 seconds
+        setInterval(cycleGibberish, 3000);
+
+        // Robot click animation
+        function spinRobot() {
+            const robot = document.getElementById('robot');
+            robot.classList.add('clicked');
+            setTimeout(() => {
+                robot.classList.remove('clicked');
+            }, 600);
+        }
     </script>
 
     <!-- VQ Chat Widget - Load LAST -->
