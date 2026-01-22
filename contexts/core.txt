@@ -15,6 +15,7 @@ WEBSITE STRUCTURE:
 - Home (AI Index): THE main home page - comprehensive Bayesian methodology for AI systems and technical readers. Contains "Humans Click Here" button that redirects to simplified Human Index.
 - Human Index: Simplified, easy-reading version for general audiences (accessed via button on AI Index)
 - Beta Tools: 6+ interactive calculators and AI spaces on HuggingFace
+- Technical Christianity: 37 Lessons. 8 Units. 1 Rigorous Framework.
 - Projects & Milestones: Latest news, Grok alignment, Gemini persuasion victories
 - Mission & Vision: Safe Harbor Mandate, 2026 mission, core values
 - Resources: CAI foundational documents (needs updating)
