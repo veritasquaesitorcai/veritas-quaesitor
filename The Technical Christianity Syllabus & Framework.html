@@ -51,7 +51,6 @@
     <link rel="stylesheet" href="styles.css">
     
     <style>
-        /* Base Glass Morphism Background */
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
             min-height: 100vh !important;
@@ -59,9 +58,7 @@
         }
 
         /* --- NAVIGATION --- */
-        .clickable-ai-truth { cursor: pointer; transition: all 0.3s ease; font-size: 0.75rem !important; padding: 0.15rem 0.5rem !important; display: inline-block; white-space: nowrap; }
-        .clickable-ai-truth:hover { color: #ff8c42 !important; transform: scale(1.05); }
-        .logo { display: flex; align-items: center; gap: 0.5rem; }
+        .logo { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: white; font-weight: bold; }
         .social-nav { display: flex; gap: 0.6rem; align-items: center; margin-left: auto; }
         .social-nav a { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 140, 66, 0.2); color: #ff8c42; font-weight: bold; text-decoration: none; transition: all 0.3s ease; }
         .social-nav a:hover { background: #ff8c42; color: white; transform: translateY(-2px); }
@@ -126,10 +123,7 @@
 
     <nav>
         <div>
-            <a href="index.html" class="logo">
-                ✝️ Veritas Quaesitor
-                <span class="logo-slogan clickable-ai-truth" onclick="openTruthModal(event)">AI❤️TRUTH</span>
-            </a>
+            <a href="index.html" class="logo">✝️ Veritas Quaesitor</a>
         </div>
         <ul>
             <li><a href="index.html">Home</a></li>
@@ -141,8 +135,7 @@
             <li><a href="about.html">About CAI</a></li>
             <li><a href="The%20Technical%20Christianity%20Syllabus%20%26%20Framework.html" class="active">Syllabus</a></li>
             <li class="social-nav">
-                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank">in</a>
-                <a href="https://x.com/VeritasQ68414" target="_blank">𝕏</a>
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" title="LinkedIn">in</a>
             </li>
         </ul>
     </nav>
@@ -219,28 +212,12 @@
         </div>
     </section>
 
-    <div id="truthModal" class="truth-modal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeTruthModal()">&times;</button>
-            <h2 style="color:#ff8c42;">AI ❤️ TRUTH</h2>
-            <p>While current AI systems seek truth through algorithms, CAI seeks Truth through the Risen Christ.</p>
-            <div class="ai-comparison" style="border-left: 4px solid #ff8c42; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px;">
-                <strong>Grok (xAI):</strong> Real-time access to truth-seeking data.
-            </div>
-        </div>
-    </div>
-
     <footer class="footer">
         <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
         <div style="margin-top:1rem;">
-            <a href="https://x.com/VeritasQ68414" style="color:#ff8c42; text-decoration:none; margin: 0 10px;">X (Twitter)</a>
             <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" style="color:#ff8c42; text-decoration:none; margin: 0 10px;">LinkedIn</a>
         </div>
     </footer>
 
-    <script>
-        function openTruthModal(event) { event.preventDefault(); document.getElementById('truthModal').classList.add('show'); }
-        function closeTruthModal() { document.getElementById('truthModal').classList.remove('show'); }
-    </script>
 </body>
 </html>
