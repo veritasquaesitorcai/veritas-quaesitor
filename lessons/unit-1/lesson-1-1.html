@@ -16,12 +16,14 @@
             color: white;
             line-height: 1.6;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .container {
             max-width: 900px;
             margin: 0 auto;
             padding: 2rem;
+            width: 100%;
         }
 
         .lesson-header {
@@ -223,13 +225,16 @@
         }
 
         @media (max-width: 768px) {
-            .container { padding: 1rem; }
-            h1 { font-size: 2rem; }
+            .container { padding: 1rem; width: 100%; max-width: 100%; }
+            h1 { font-size: 2rem; word-wrap: break-word; }
             h2 { font-size: 1.5rem; }
-            .content-section { padding: 1.5rem; }
+            .content-section { padding: 1.5rem; margin-left: 0; margin-right: 0; width: 100%; }
+            .lesson-header { padding: 1.5rem; width: 100%; }
             .nav-buttons { flex-direction: column; }
-            .comparison-table { font-size: 0.9rem; }
-            .comparison-table th, .comparison-table td { padding: 0.75rem; }
+            .comparison-table { font-size: 0.9rem; width: 100%; }
+            .comparison-table th, .comparison-table td { padding: 0.75rem; word-wrap: break-word; }
+            .table-wrapper { width: 100%; overflow-x: auto; }
+            .hook-box, .vocab-box, .activity-box, .discussion-questions { width: 100%; box-sizing: border-box; }
         }
     </style>
 </head>
