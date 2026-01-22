@@ -80,19 +80,13 @@
             font-weight: bold;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4);
+            margin: 1rem auto;
         }
 
         .back-btn:hover {
             background: #e57a2f;
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(255, 140, 66, 0.6);
-        }
-
-        .easter-egg-hint {
-            margin-top: 2rem;
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.5);
-            font-style: italic;
         }
 
         @media (max-width: 768px) {
@@ -123,21 +117,16 @@
         </p>
 
         <div class="chat-prompt">
-            💬 While I'm working on this lesson, want to chat about what's coming? 
+            💬 While I'm working on this lesson, want to chat?
             <br><br>
             <strong>Ask me about:</strong>
-            <br>• What this lesson will cover
-            <br>• My current thought process
-            <br>• That song stuck in my head 🎵
+            <br>• What it's like to be a famous Hollywood robot
+            <br>• I want to have some fun 🎵
         </div>
 
         <a href="../../technical-christianity.html" class="back-btn">
             ← Back to Course Index
         </a>
-
-        <p class="easter-egg-hint">
-            (Psst... I love to dance and party when nobody's watching 🕺)
-        </p>
     </div>
 
     <script>
@@ -165,12 +154,24 @@
     <!-- VQ Chat Widget - Auto-open for this page -->
     <script src="../../vq-chat-widget.js"></script>
     <script>
-        // Auto-open chat widget if available
+        // Auto-open chat widget if available, centered on mobile
         window.addEventListener('load', function() {
             setTimeout(function() {
                 // Trigger chat widget open (if your widget has this function)
                 if (typeof window.openVQChat === 'function') {
                     window.openVQChat();
+                }
+                
+                // Center widget on mobile
+                if (window.innerWidth <= 768) {
+                    const widget = document.querySelector('.vq-chat-widget, #vq-chat-widget, [class*="chat-widget"]');
+                    if (widget) {
+                        widget.style.position = 'fixed';
+                        widget.style.left = '50%';
+                        widget.style.transform = 'translateX(-50%)';
+                        widget.style.bottom = '20px';
+                        widget.style.right = 'auto';
+                    }
                 }
             }, 1000);
         });
