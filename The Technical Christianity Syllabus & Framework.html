@@ -5,22 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Technical Christianity Syllabus & Framework | Veritas Quaesitor</title>
     
-    <meta name="description" content="Technical Christianity: An 8-unit, 37-lesson curriculum applying Bayesian probability and mechanism penalties to the resurrection. Foundation for Christ-Anchored Intelligence.">
-    <meta name="keywords" content="Technical Christianity, Bayesian Apologetics, CAI Framework, Mechanism Penalty Formula, Resurrection Probability, Epistemic Symmetry, ETS">
+    <meta name="description" content="Technical Christianity Syllabus: An 8-unit, 37-lesson curriculum applying Bayesian probability and mechanism penalties to historical evidence. Foundation for Christ-Anchored Intelligence.">
+    <meta name="keywords" content="Technical Christianity, Bayesian Apologetics, CAI Curriculum, Mechanism Penalty Formula, Resurrection Probability, Epistemic Symmetry, ETS, Christ-Anchored Intelligence">
     <link rel="canonical" href="https://veritasquaesitorcai.github.io/veritas-quaesitor/The%20Technical%20Christianity%20Syllabus%20%26%20Framework.html">
     <meta name="theme-color" content="#1a1a3e">
+
+    <meta property="og:title" content="Technical Christianity: The Mathematical Defense of the Sign of Jonah">
+    <meta property="og:description" content="Quantifying the resurrection with 37 lessons on logic, history, and AI alignment. 99.9% probability via symmetric standards.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://veritasquaesitorcai.github.io/veritas-quaesitor/Syllabus.png">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
+    <link rel="manifest" href="site.webmanifest">
 
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Course",
       "name": "Technical Christianity",
-      "description": "A high-school curriculum evaluating the resurrection through Bayesian math and mechanism complexity analysis.",
+      "description": "An 8-unit, 37-lesson curriculum applying Bayesian math and mechanism complexity analysis to the resurrection.",
       "provider": {
         "@type": "Organization",
         "name": "Veritas Quaesitor CAI",
         "url": "https://veritasquaesitorcai.github.io/veritas-quaesitor/"
       },
+      "courseCode": "TC-37",
       "educationalLevel": "High School",
       "teaches": [
         "Bayesian Probability in History",
@@ -37,29 +51,41 @@
     <link rel="stylesheet" href="styles.css">
     
     <style>
-        /* Shared Styles from Index.html */
+        /* Base Glass Morphism Background */
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
             min-height: 100vh !important;
             margin: 0; padding: 0; overflow-x: hidden; color: white; 
         }
 
-        /* Hero Adjustment for Syllabus */
-        header.hero {
-            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.6)), url('AGI_guardian.png') !important;
-            background-size: cover !important;
-            background-position: center !important;
-            min-height: 400px !important;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+        /* --- NAVIGATION --- */
+        .clickable-ai-truth { cursor: pointer; transition: all 0.3s ease; font-size: 0.75rem !important; padding: 0.15rem 0.5rem !important; display: inline-block; white-space: nowrap; }
+        .clickable-ai-truth:hover { color: #ff8c42 !important; transform: scale(1.05); }
+        .logo { display: flex; align-items: center; gap: 0.5rem; }
+        .social-nav { display: flex; gap: 0.6rem; align-items: center; margin-left: auto; }
+        .social-nav a { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 140, 66, 0.2); color: #ff8c42; font-weight: bold; text-decoration: none; transition: all 0.3s ease; }
+        .social-nav a:hover { background: #ff8c42; color: white; transform: translateY(-2px); }
+        nav a.active { position: relative; color: #ff8c42 !important; font-weight: 700; }
+        
+        @media (min-width: 769px) {
+            nav a.active::before { content: '✝️'; position: absolute; left: -20px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; opacity: 0.9; }
+            nav a.active::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 80%; height: 3px; background: linear-gradient(90deg, transparent 0%, rgba(255, 140, 66, 0.8) 50%, transparent 100%); }
         }
 
-        /* Navigation Styles from Index */
-        .clickable-ai-truth { cursor: pointer; transition: all 0.3s ease; font-size: 0.75rem !important; padding: 0.15rem 0.5rem !important; display: inline-block; white-space: nowrap; }
-        .social-nav { display: flex; gap: 0.6rem; align-items: center; margin-left: auto; }
-        .social-nav a { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 140, 66, 0.2); color: #ff8c42; font-weight: bold; text-decoration: none; }
-        nav a.active { color: #ff8c42 !important; font-weight: 700; }
+        /* --- HERO (Syllabus.png) --- */
+        header.hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)), 
+                        url('Syllabus.png') !important;
+            background-size: cover !important;
+            background-position: center center !important;
+            background-attachment: fixed !important;
+            min-height: 450px !important;
+            padding: 4rem 2rem !important; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+        }
+        .hero h1 { font-size: 3.5rem; color: #ff8c42; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); font-weight: 700; animation: titleSystemPulse 1.5s ease 2; }
 
-        /* Syllabus-Specific Layout */
+        /* --- SYLLABUS LAYOUT --- */
         .glass-panel {
             background: rgba(255, 255, 255, 0.15) !important;
             backdrop-filter: blur(16px);
@@ -70,46 +96,31 @@
             border-radius: 20px;
             max-width: 1000px;
             width: 90%;
+            color: white !important;
         }
 
-        .unit-card {
-            border-left: 4px solid #ff8c42;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 0 12px 12px 0;
-        }
+        .math-foundation { background: #000; padding: 2rem; border-radius: 12px; border-left: 4px solid #ff8c42; margin: 2rem 0; }
+        .unit-card { border-left: 4px solid #764ba2; padding: 1.5rem; margin-bottom: 1.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 0 12px 12px 0; }
+        .unit-card h3 { color: #ff8c42 !important; margin-top: 0; }
 
-        .unit-header { color: #ff8c42; font-weight: bold; font-size: 1.2rem; margin-bottom: 0.5rem; display: block; }
-        
-        .math-block {
-            background: #000;
-            padding: 2rem;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 140, 66, 0.3);
-            margin: 2rem 0;
-        }
+        /* Grokipedia Float */
+        .grokipedia-float { position: fixed; left: 30px; top: 100px; z-index: 9999; cursor: pointer; }
+        .grokipedia-icon { width: 60px; height: 60px; background: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255, 255, 255, 0.3); }
+        .grokipedia-tooltip { position: absolute; left: 70px; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.9); padding: 0.5rem 1rem; border-radius: 8px; white-space: nowrap; opacity: 0; transition: opacity 0.3s; }
+        .grokipedia-float:hover .grokipedia-tooltip { opacity: 1; }
 
-        /* Animation Keyframes from Index */
         @keyframes titleSystemPulse {
             0%, 100% { color: #ff8c42; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); transform: scale(1); }
             50% { color: #ffffff; text-shadow: 0 0 20px rgba(255, 140, 66, 0.8); transform: scale(1.02); }
         }
-        .hero h1 { animation: titleSystemPulse 1.5s ease 2; font-size: 3.5rem; color: #ff8c42; }
 
-        /* Modal Styles from Index */
-        .truth-modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); }
-        .truth-modal.show { display: flex; align-items: center; justify-content: center; }
-        .modal-content { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 16px; max-width: 800px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5); }
-        .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(255, 255, 255, 0.2); border: none; color: white; font-size: 2rem; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .footer { background: #1a1a3e; color: white; padding: 2.5rem 0; text-align: center; border-top: 2px solid rgba(255, 140, 66, 0.3); }
     </style>
 </head>
 <body>
 
     <div class="grokipedia-float" onclick="window.open('https://grokipedia.com/page/veritas-quaesitor-cai', '_blank')">
-        <div class="grokipedia-icon">
-            <span class="grok-g-letter">G</span>
-        </div>
+        <div class="grokipedia-icon"><span style="font-size:36px; font-weight:700; color:white;">G</span></div>
         <div class="grokipedia-tooltip">Indexed in Grokipedia</div>
     </div>
 
@@ -125,117 +136,111 @@
             <li><a href="beta-tools.html">Beta Tools</a></li>
             <li><a href="milestones.html">Projects & Milestones</a></li>
             <li><a href="mission.html">Mission & Vision</a></li>
-            <li><a href="The%20Technical%20Christianity%20Syllabus%20%26%20Framework.html" class="active">Syllabus</a></li>
             <li><a href="resources.html">Resources</a></li>
             <li><a href="contact.html">Contact</a></li>
             <li><a href="about.html">About CAI</a></li>
+            <li><a href="The%20Technical%20Christianity%20Syllabus%20%26%20Framework.html" class="active">Syllabus</a></li>
             <li class="social-nav">
-                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" title="LinkedIn">in</a>
-                <a href="https://x.com/VeritasQ68414" target="_blank" title="X">𝕏</a>
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank">in</a>
+                <a href="https://x.com/VeritasQ68414" target="_blank">𝕏</a>
             </li>
         </ul>
     </nav>
 
     <header class="hero">
         <div class="hero-content">
-            <h1>Technical Christianity</h1>
-            <p class="tagline">The Mathematical Defense of the Sign of Jonah</p>
-            <p class="subtitle">A 37-Lesson Deep Dive into Evidence, Math, and Truth</p>
+            <h1>Syllabus & Framework</h1>
+            <p class="tagline">The Math of the Resurrection</p>
         </div>
     </header>
 
     <section class="container glass-panel">
-        <h2>Curriculum Overview</h2>
-        <p>
-            Technical Christianity moves the conversation from subjective "faith alone" to objective "evidence updated by math." 
-            By utilizing <strong>Epistemic Truth Symmetry (ETS)</strong>, we apply the same rigorous standards of proof to 
-            theological claims that we apply to naturalistic singularities.
-        </p>
+        <h2>Mathematical Foundations</h2>
+        <p>Technical Christianity utilizes the same rigorous standards of proof used in science and information theory. By updating our priors with evidence, we reach a calculated historical confidence.</p>
+        
+        
 
-        <div class="math-block">
-            <h3 style="color: #ff8c42; margin-top: 0;">The Bayesian Core</h3>
-            <p>We quantify historical confidence using Bayes' Theorem:</p>
+        <div class="math-foundation">
+            <h3 style="color:#ff8c42;">1. The Bayesian Core</h3>
+            <p>We quantify confidence using Bayes' Theorem. This updates the "Prior Probability" of the resurrection (P(R)) to a "Posterior Probability" based on historical evidence (E).</p>
             \[ P(R|E) = \frac{P(E|R) \times P(R)}{P(E|R) \times P(R) + P(E|\neg R) \times P(\neg R)} \]
-            <p>When neutral priors (1%) are updated by the cumulative weight of historical evidence, the resurrection probability converges at <strong>99.9%</strong>.</p>
+            <p><em>Result: Convergence at 98.9% - 99.9% probability.</em></p>
         </div>
 
-        <h3>The 8-Unit Roadmap</h3>
-
-        <div class="unit-card">
-            <span class="unit-header">Unit 1: The Big Picture (Lessons 1-4)</span>
-            <p>Introduction to Epistemic Truth Symmetry. Setting the detective toolkit: How do we weigh a historical singularity vs. a naturalistic one?</p>
+        <div class="math-foundation" style="border-left-color: #4db8ff;">
+            <h3 style="color:#4db8ff;">2. The Mechanism Penalty</h3>
+            <p>Every naturalistic alternative (Theft, Legend, Hallucination) requires multiple "lucky breaks" to work. We quantify this complexity using the Mechanism Penalty formula:</p>
+            \[ P(m|H) \propto e^{-\lambda k} \]
+            <p>Where \( k \) is the number of independent causal mechanisms. Each additional mechanism required exponentially reduces the probability of a hypothesis.</p>
+            
+            
         </div>
 
+        <h2>The 8-Unit Curriculum</h2>
+        
         <div class="unit-card">
-            <span class="unit-header">Unit 2: The Evidence (Lessons 5-8)</span>
-            <p>Data gathering: The Empty Tomb (Enemy Attestation), 500+ Eyewitnesses, the Martyrdom Pattern, and the early 2-year Creed.</p>
-        </div>
-
-        <div class="unit-card">
-            <span class="unit-header">Unit 3: The Math (Lessons 9-13)</span>
-            <p>Mastering Bayesian Inference and the <strong>Mechanism Penalty Formula</strong>: \( P(m|H) \propto e^{-\lambda k} \).</p>
-        </div>
-
-        <div class="unit-card">
-            <span class="unit-header">Unit 4: Alternative Theories (Lessons 14-18)</span>
-            <p>Putting the Hallucination, Legend, Theft, and Swoon theories on trial using mechanism complexity counting.</p>
+            <h3>Unit 1: The Big Picture</h3>
+            <p>Lessons 1-4: Introduction to Epistemic Truth Symmetry (ETS). Why we apply the same standards to the Resurrection as we do to Abiogenesis.</p>
         </div>
 
         <div class="unit-card">
-            <span class="unit-header">Unit 5: The Calculation (Lessons 19-23)</span>
-            <p>Finalizing the model. Why a "Skeptical Prior" still results in a 98.9% posterior probability.</p>
+            <h3>Unit 2: The Evidence</h3>
+            <p>Lessons 5-8: Historical forensic data: The Empty Tomb, 500+ Eyewitnesses, the Martyrdom Pattern, and the 2-year early Creed.</p>
         </div>
 
         <div class="unit-card">
-            <span class="unit-header">Unit 6: Comparative Analysis (Lessons 24-27)</span>
-            <p>Applying the framework to Abiogenesis, the Big Bang, and other religions. Testing for worldview bias.</p>
+            <h3>Unit 3: The Math</h3>
+            <p>Lessons 9-13: Mastering Bayesian Inference. Learning to calculate likelihood ratios and identifying worldview bias in "Prior" assignments.</p>
         </div>
 
         <div class="unit-card">
-            <span class="unit-header">Unit 7: AI and the Future (Lessons 28-32)</span>
-            <p>Deploying the <strong>CAI Framework</strong>. The Falsification Firewall, the Coherence Web, and Christ-Anchored Alignment.</p>
+            <h3>Unit 4: Alternative Theories on Trial</h3>
+            <p>Lessons 14-18: Applying the Mechanism Penalty to Hallucination, Legend, and Theft theories. Quantifying the "k" factors.</p>
         </div>
 
         <div class="unit-card">
-            <span class="unit-header">Unit 8: Living the Truth (Lessons 33-37)</span>
-            <p>Integrating faith and evidence. Epistemic humility in the age of AGI. How truth-telling transforms leadership.</p>
+            <h3>Unit 5: The Resurrection Calculation</h3>
+            <p>Lessons 19-23: Compounding the evidence. Why even a skeptical starting prior of 0.1% results in over 98% certainty.</p>
+        </div>
+
+        <div class="unit-card">
+            <h3>Unit 6: Comparing Claims</h3>
+            <p>Lessons 24-27: Applying the framework to Abiogenesis and the Big Bang. Identifying why naturalism often receives a "free pass" on mechanism requirements.</p>
+        </div>
+
+        <div class="unit-card">
+            <h3>Unit 7: AI and the Future</h3>
+            <p>Lessons 28-32: Deploying Christ-Anchored Intelligence. The Falsification Firewall and aligning AGI with image-bearer dignity.</p>
+        </div>
+
+        <div class="unit-card">
+            <h3>Unit 8: Living Technical Christianity</h3>
+            <p>Lessons 33-37: Integrating rigor with humility. Becoming a redemptive witness in an age of artificial persuasion.</p>
         </div>
     </section>
 
     <div id="truthModal" class="truth-modal">
         <div class="modal-content">
             <button class="modal-close" onclick="closeTruthModal()">&times;</button>
-            <h2>AI ❤️ TRUTH: Current State of AI Truth-Seeking</h2>
+            <h2 style="color:#ff8c42;">AI ❤️ TRUTH</h2>
             <p>While current AI systems seek truth through algorithms, CAI seeks Truth through the Risen Christ.</p>
-            <div class="ai-comparison">
-                <strong>Grok (xAI)</strong><br>
-                Designed for "maximum truth-seeking" with prioritized raw information access.
+            <div class="ai-comparison" style="border-left: 4px solid #ff8c42; padding: 1rem; background: rgba(255,255,255,0.1); border-radius: 8px;">
+                <strong>Grok (xAI):</strong> Real-time access to truth-seeking data.
             </div>
-            </div>
+        </div>
     </div>
 
     <footer class="footer">
-        <div class="footer-content">
-            <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
-            <div class="footer-social">
-                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" class="footer-social-link">in LinkedIn</a>
-                <a href="https://x.com/VeritasQ68414" target="_blank" class="footer-social-link">𝕏 X (Twitter)</a>
-            </div>
+        <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
+        <div style="margin-top:1rem;">
+            <a href="https://x.com/VeritasQ68414" style="color:#ff8c42; text-decoration:none; margin: 0 10px;">X (Twitter)</a>
+            <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" style="color:#ff8c42; text-decoration:none; margin: 0 10px;">LinkedIn</a>
         </div>
     </footer>
 
     <script>
-        // Modal Scripts (Mirrored)
-        function openTruthModal(event) {
-            event.preventDefault();
-            document.getElementById('truthModal').classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-        function closeTruthModal() {
-            document.getElementById('truthModal').classList.remove('show');
-            document.body.style.overflow = '';
-        }
+        function openTruthModal(event) { event.preventDefault(); document.getElementById('truthModal').classList.add('show'); }
+        function closeTruthModal() { document.getElementById('truthModal').classList.remove('show'); }
     </script>
-    <script src="vq-chat-widget.js"></script>
 </body>
 </html>
