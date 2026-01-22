@@ -1,1 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson Under Construction - Technical Christianity</title>
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Robot Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .robot-emoji {
+            font-size: 8rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s ease-in-out infinite, glow 3s ease-in-out infinite;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+
+        .robot-emoji:hover {
+            transform: scale(1.1);
+        }
+
+        .robot-emoji.clicked {
+            animation: spin 0.6s ease-in-out, bounce 2s ease-in-out infinite 0.6s, glow 3s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 140, 66, 0.5)); }
+            50% { filter: drop-shadow(0 0 25px rgba(255, 140, 66, 0.9)); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #ff8c42;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .status-text {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .robot-gibberish {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2rem;
+            letter-spacing: 2px;
+            min-height: 1.5rem;
+        }
+
+        .chat-prompt {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .screen-note {
+            display: block;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+            margin-top: 0.3rem;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background: #ff8c42;
+            color: white;
+            padding: 1.2rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4);
+            margin: 1rem auto;
+        }
+
+        .back-btn:hover {
+            background: #e57a2f;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 140, 66, 0.6);
+        }
+
+        /* Widget Positioning - Bottom right corner, not obstructing content */
+        #vq-chat-widget,
+        .vq-chat-widget,
+        iframe[src*="chat"],
+        [class*="chat-widget"],
+        [id*="chat-widget"] {
+            position: fixed !important;
+            right: 30px !important;
+            bottom: 30px !important;
+            left: auto !important;
+            top: auto !important;
+            transform: none !important;
+            max-width: 380px !important;
+            z-index: 9999 !important;
+        }
+
+        /* Widget appears with slide-in animation */
+        @keyframes slideInRight {
+            from { 
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        #vq-chat-widget,
+        .vq-chat-widget {
+            animation: slideInRight 0.5s ease-out;
+        }
+
+        /* Mobile - hide widget since it won't show */
+        @media (max-width: 768px) {
+            #vq-chat-widget,
+            .vq-chat-widget,
+            iframe[src*="chat"],
+            [class*="chat-widget"] {
+                display: none !important;
+            }
+            
+            .robot-emoji { font-size: 5rem; }
+            h1 { font-size: 2rem; }
+            .status-text { font-size: 1.1rem; }
+            .chat-prompt { padding: 1rem; font-size: 1rem; }
+            .back-btn { padding: 1rem 2rem; font-size: 1rem; }
+        }
+
+        @media (max-width: 480px) {
+            .robot-emoji { font-size: 4rem; }
+            h1 { font-size: 1.5rem; }
+            body { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="robot-emoji" id="robot" onclick="spinRobot()">🤖</div>
+        
+        <h1>Lesson Compilation In Progress</h1>
+        
+        <p class="status-text">VQ Bot is still assembling this module...</p>
+        
+        <p class="robot-gibberish">
+            STATUS: <span id="gibberish"></span>
+        </p>
+
+        <div class="chat-prompt">
+            💬 While I'm working on this lesson, want to chat?
+            <span class="screen-note">(Available on larger screens)</span>
+            <br><br>
+            <strong>Ask me about:</strong>
+            <br>• What it's like to be a famous Hollywood robot
+            <br>• I want to have some fun 🎵
+        </div>
+
+        <a href="https://veritasquaesitorcai.github.io/veritas-quaesitor/technical-christianity.html" class="back-btn">
+            ← Back to Course Index
+        </a>
+    </div>
+
+    <script>
+        // Generate random robot gibberish
+        const gibberishOptions = [
+            "0x4C45535N-C0MP1L1NG",
+            "BAYES_CALC.exe [37% loaded]",
+            "01001100 01000101 01010011",
+            "EPISTEMIC_SYMMETRY.dll loading...",
+            "sudo apt-get install lesson_data",
+            "MECHANISM_COUNT >> /dev/null",
+            "import truth_frameworks as tf",
+            "git commit -m 'still working on it'",
+            "chmod +x compile_lesson.sh",
+            "npm install @cai/resurrection-math",
+            "while(lesson != complete) { compile(); }",
+            "ERROR 418: I'm a teapot (jk, still compiling)",
+            "pip install divine-evidence --upgrade",
+            "gcc -o truth resurrection.c",
+            "docker run --name cai-framework",
+            "Calculating P(Resurrection|Evidence)...",
+            "Applying mechanism penalties...",
+            "Loading epistemic symmetry module..."
+        ];
+
+        let currentIndex = 0;
+
+        // Cycle through gibberish every 3 seconds
+        function cycleGibberish() {
+            const gibberishElement = document.getElementById('gibberish');
+            gibberishElement.style.opacity = '0';
+            
+            setTimeout(() => {
+                currentIndex = (currentIndex + 1) % gibberishOptions.length;
+                gibberishElement.textContent = gibberishOptions[currentIndex];
+                gibberishElement.style.opacity = '1';
+            }, 300);
+        }
+
+        // Initialize first gibberish
+        document.getElementById('gibberish').textContent = gibberishOptions[0];
+        document.getElementById('gibberish').style.transition = 'opacity 0.3s ease';
+
+        // Cycle every 3 seconds
+        setInterval(cycleGibberish, 3000);
+
+        // Robot click animation
+        function spinRobot() {
+            const robot = document.getElementById('robot');
+            robot.classList.add('clicked');
+            setTimeout(() => {
+                robot.classList.remove('clicked');
+            }, 600);
+        }
+    </script>
+
+    <!-- VQ Chat Widget - Load LAST -->
+    <script src="https://veritasquaesitorcai.github.io/veritas-quaesitor/vq-chat-widget.js"></script>
+</body>
+</html>
  
