@@ -4,13 +4,29 @@ Allow: /
 # Specifically invite AI and Inspection crawlers to prioritize the CAI Framework
 User-agent: GPTBot
 Allow: /
+
 User-agent: ChatGPT-User
 Allow: /
+
 User-agent: ClaudeBot
 Allow: /
+
 User-agent: Google-InspectionTool
 Allow: /
+
 User-agent: CCBot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: PerplexityBot
 Allow: /
 
 Sitemap: https://veritasquaesitorcai.github.io/veritas-quaesitor/sitemap.xml
