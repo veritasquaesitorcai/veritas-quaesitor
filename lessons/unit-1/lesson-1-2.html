@@ -117,6 +117,17 @@
             color: #4CAF50;
         }
 
+        .golden-rule-box {
+            background: rgba(255, 140, 66, 0.2);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            text-align: center;
+            font-size: 1.15rem;
+            font-weight: 600;
+            border: 2px solid #ff8c42;
+        }
+
         .scale-box {
             background: rgba(0, 0, 0, 0.3);
             padding: 2rem;
@@ -155,6 +166,60 @@
             margin: 2rem 0;
         }
 
+        .dialogue {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .dialogue p {
+            margin-bottom: 0.8rem;
+        }
+
+        .dialogue strong {
+            color: #ff8c42;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .comparison-item {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .comparison-item h4 {
+            color: #ff8c42;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-box {
+            background: rgba(33, 150, 243, 0.2);
+            border-left: 4px solid #2196F3;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+        }
+
+        .step-box h4 {
+            color: #2196F3;
+            margin-bottom: 0.5rem;
+        }
+
+        .pattern-box {
+            background: rgba(255, 87, 34, 0.2);
+            border: 2px solid #ff5722;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
         .discussion-questions {
             background: rgba(255, 255, 255, 0.1);
             border-left: 4px solid #2196F3;
@@ -169,6 +234,19 @@
         }
 
         .discussion-questions li {
+            margin-bottom: 1rem;
+        }
+
+        .practice-scenario {
+            background: rgba(156, 39, 176, 0.2);
+            border: 2px solid #9c27b0;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .practice-scenario h4 {
+            color: #ce93d8;
             margin-bottom: 1rem;
         }
 
@@ -234,6 +312,14 @@
             margin-bottom: 0.5rem;
         }
 
+        .highlight-box {
+            background: rgba(255, 193, 7, 0.2);
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
         @media (max-width: 768px) {
             .container { padding: 1rem; width: 100%; max-width: 100%; }
             h1 { font-size: 2rem; word-wrap: break-word; }
@@ -243,6 +329,7 @@
             .nav-buttons { flex-direction: column; }
             .scale-diagram { flex-direction: column; }
             .scale-center { margin: 1rem 0; }
+            .comparison-grid { grid-template-columns: 1fr; }
             .hook-box, .vocab-box, .example-box, .discussion-questions { width: 100%; box-sizing: border-box; }
         }
     </style>
@@ -256,7 +343,7 @@
                 Unit 1 → Lesson 1.2
             </div>
             <h1>Lesson 1.2: The Epistemic Symmetry Principle</h1>
-            <div class="lesson-meta">Unit 1: The Big Picture • 50-minute lesson</div>
+            <div class="lesson-meta">Unit 1: The Big Picture • 50-60 minute lesson</div>
         </div>
 
         <!-- HOOK -->
@@ -302,44 +389,233 @@
             </div>
         </div>
 
-        <!-- CORE CONTENT -->
+        <!-- THE GOLDEN RULE OF EVIDENCE -->
         <div class="content-section">
             <h2>The Golden Rule of Evidence</h2>
             
-            <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">
-                The Epistemic Symmetry Principle (ETS) is simple but powerful:
-            </p>
+            <div class="highlight-box">
+                <p><strong>Imagine This:</strong> Your friend gets accused of cheating on a test. The teacher says: "Prove you didn't cheat!" Your friend says: "Well, prove I DID cheat!"</p>
+                <p style="margin-top: 0.5rem;">Who has the burden of proof? Most people would say the accuser needs to provide evidence.</p>
+                <p style="margin-top: 0.5rem;">But here's where it gets interesting: When it comes to big questions about origins, people flip this rule around depending on what they already believe.</p>
+            </div>
+            
+            <p style="font-size: 1.1rem; margin: 1.5rem 0;">The Epistemic Symmetry Principle (ETS) is simple but powerful:</p>
 
-            <div style="background: rgba(255, 140, 66, 0.2); padding: 1.5rem; border-radius: 8px; margin: 2rem 0; text-align: center; font-size: 1.2rem; font-weight: 600;">
+            <div class="golden-rule-box">
                 If we demand proof for Claim A, we must demand equal proof for Claim B
             </div>
 
             <h3>Why This Matters</h3>
             <p>Most people use different standards for different claims without realizing it. They demand tons of evidence for supernatural claims but accept naturalistic claims with minimal evidence.</p>
+            
+            <p style="margin-top: 1rem;">This isn't about being mean or "gotcha" questioning - it's about <strong>intellectual honesty</strong>. If we're going to seek truth, we need to apply consistent standards.</p>
 
             <h3>Example: The Double Standard</h3>
-            <div class="example-box">
+            <div class="dialogue">
                 <p><strong>Skeptic:</strong> "Prove God exists! I need evidence!"</p>
-                <p style="margin-top: 1rem;"><strong>Fair Response:</strong> "Okay, but first prove life started by accident. What's your evidence for abiogenesis?"</p>
-                <p style="margin-top: 1rem; font-style: italic;">Often the skeptic will say: "Well, we're here, so it must have happened naturally." But that's NOT evidence - that's just assuming the answer!</p>
+                <p><strong>Fair Response:</strong> "Okay, but first prove life started by accident. What's your evidence for abiogenesis?"</p>
+                <p><strong>Skeptic:</strong> "Well, we're here, so it must have happened naturally."</p>
+                <p style="margin-top: 1rem; font-style: italic; color: rgba(255, 255, 255, 0.8);">But that's NOT evidence — that's just assuming the answer!</p>
             </div>
 
-            <h3>Hidden Bias in Action</h3>
-            <p>Watch how different standards get applied:</p>
-            <ul>
-                <li><strong>Resurrection:</strong> "That's extraordinary! You need massive evidence!"</li>
-                <li><strong>Abiogenesis:</strong> "Life must have started somehow. It's just science."</li>
-            </ul>
-            <p style="margin-top: 1rem;">Notice the difference? One gets challenged, the other gets a free pass. ETS says: <strong>No free passes. Same standards for both.</strong></p>
+            <div class="highlight-box">
+                <p><strong>Notice what happened:</strong></p>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li><strong>Resurrection:</strong> "Show me the mechanism, the witnesses, the physical evidence!"</li>
+                    <li><strong>Abiogenesis:</strong> "It must have happened somehow" (no mechanism required)</li>
+                </ul>
+                <p style="margin-top: 1rem;"><strong>This is textbook asymmetry.</strong></p>
+            </div>
+
+            <h3>Worked Example: Applying ETS to Origins</h3>
+            <p>Let's compare two claims about one-time singular events:</p>
+
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <h4>CLAIM A</h4>
+                    <p>God created life (theistic explanation)</p>
+                </div>
+                <div class="comparison-item">
+                    <h4>CLAIM B</h4>
+                    <p>Life arose from non-living chemicals by accident (naturalistic explanation)</p>
+                </div>
+            </div>
+
+            <div class="pattern-box">
+                <h4>Asymmetric Approach (Common):</h4>
+                <ul>
+                    <li><strong>Claim A:</strong> "Prove it! Show me God in a lab! Where's your mechanism?"</li>
+                    <li><strong>Claim B:</strong> "We're here, so it must have happened. Science will figure it out eventually."</li>
+                </ul>
+            </div>
+
+            <div class="example-box">
+                <h4>Symmetric Approach (ETS):</h4>
+                <ul>
+                    <li><strong>Claim A:</strong> What evidence exists? (examine fairly)</li>
+                    <li><strong>Claim B:</strong> What evidence exists? (examine fairly)</li>
+                    <li><strong>Compare:</strong> Which has better evidential support?</li>
+                </ul>
+                
+                <p style="margin-top: 1.5rem;"><strong>Result when applying ETS:</strong></p>
+                <ul>
+                    <li>Both are one-time singular events (can't be repeated in lab)</li>
+                    <li>Both require inference from present evidence to past event</li>
+                    <li>Both should be evaluated using the same historical/evidential standards</li>
+                    <li>Neither gets a "free pass" as the "default" position</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- HIDDEN BIAS IN ACTION -->
+        <div class="content-section">
+            <h2>Hidden Bias in Action</h2>
+            
+            <div class="highlight-box">
+                <p><strong>Sports Analogy:</strong> Imagine a basketball game where the ref calls every tiny foul on the visiting team but ignores obvious fouls by the home team. Both teams are playing the same game, but the standards are totally different.</p>
+                <p style="margin-top: 0.5rem;">That's exactly what happens in debates about evidence. Watch for it:</p>
+            </div>
+            
+            <p style="margin: 1.5rem 0;">Watch how different standards get applied in common arguments:</p>
+
+            <h3>Scenario 1: Ancient Texts</h3>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <p><strong>Resurrection:</strong> "You can't trust ancient religious texts - they're biased!"</p>
+                </div>
+                <div class="comparison-item">
+                    <p><strong>Caesar's Gallic Wars:</strong> "Ancient historical texts are generally reliable."</p>
+                </div>
+            </div>
+            <p style="font-style: italic; color: rgba(255, 255, 255, 0.8); margin-top: 0.5rem;">→ Same type of source, different standards applied</p>
+
+            <h3>Scenario 2: Laws of Nature</h3>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <p><strong>Resurrection:</strong> "That violates natural law, so it's impossible!"</p>
+                </div>
+                <div class="comparison-item">
+                    <p><strong>Big Bang:</strong> "Something came from nothing 13.8 billion years ago."</p>
+                </div>
+            </div>
+            <p style="font-style: italic; color: rgba(255, 255, 255, 0.8); margin-top: 0.5rem;">→ Both invoke events outside normal natural processes, different standards applied</p>
+
+            <h3>Scenario 3: Eyewitness Testimony</h3>
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <p><strong>Miracle claims:</strong> "Eyewitnesses are unreliable - people see what they want to see."</p>
+                </div>
+                <div class="comparison-item">
+                    <p><strong>Criminal trials:</strong> "We trust eyewitness testimony to convict people."</p>
+                </div>
+            </div>
+            <p style="font-style: italic; color: rgba(255, 255, 255, 0.8); margin-top: 0.5rem;">→ Same type of evidence, different standards applied</p>
+
+            <div class="highlight-box" style="margin-top: 2rem;">
+                <p><strong>The Pattern:</strong></p>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>Claims we don't like → High evidence bar</li>
+                    <li>Claims we do like → Low or no evidence bar</li>
+                </ul>
+                <p style="margin-top: 1rem; font-weight: 600;">ETS says: No free passes. Same standards for both.</p>
+            </div>
+
+            <h3>Where Does Asymmetry Come From?</h3>
+            
+            <ol>
+                <li>
+                    <strong>Cultural Conditioning</strong><br>
+                    We're taught: "Science = facts, Religion = faith"<br>
+                    This creates bias before we examine actual evidence
+                </li>
+                <li>
+                    <strong>Philosophical Assumptions</strong><br>
+                    "Naturalism is default, supernaturalism needs extraordinary proof"<br>
+                    But why? Both are philosophical positions that need justification
+                </li>
+                <li>
+                    <strong>Emotional Investment</strong><br>
+                    We want certain things to be true or false<br>
+                    This affects how much evidence we demand
+                </li>
+                <li>
+                    <strong>Social Pressure</strong><br>
+                    "Smart people believe X" creates peer pressure<br>
+                    We don't want to look foolish by questioning accepted narratives
+                </li>
+            </ol>
+
+            <p style="margin-top: 1.5rem; font-size: 1.1rem; font-style: italic;">
+                ETS cuts through all of this by asking one simple question: <strong>"Am I applying the same standard to both claims?"</strong>
+            </p>
+        </div>
+
+        <!-- DEEP DIVE: HISTORICAL METHOD -->
+        <div class="content-section">
+            <h2>Deep Dive: ETS in Historical Method</h2>
+            
+            <div class="highlight-box">
+                <p><strong>Think Like a Detective:</strong> When detectives investigate a crime, they use the same methods regardless of who the suspect is. Rich or poor, famous or unknown - same evidence standards.</p>
+                <p style="margin-top: 0.5rem;">Historians should work the same way. Let's see if they actually do...</p>
+            </div>
+            
+            <h3>How Historians Evaluate Ancient Claims</h3>
+            
+            <p>Standard Historical Criteria:</p>
+            <ol>
+                <li>Multiple independent sources?</li>
+                <li>Early attestation (how soon after the event)?</li>
+                <li>Enemy attestation (do hostile sources confirm it)?</li>
+                <li>Embarrassing details (would you make this up)?</li>
+                <li>Explanatory power (does it explain the data well)?</li>
+            </ol>
+
+            <p style="margin-top: 1.5rem; font-weight: 600;">These criteria should apply EQUALLY to religious and secular historical claims.</p>
+
+            <h3>Let's Apply This Symmetrically</h3>
+
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <h4>Julius Caesar Crossed the Rubicon (49 BC)</h4>
+                    <ol style="font-size: 0.95rem;">
+                        <li>Multiple sources: ~5 ancient historians</li>
+                        <li>Early attestation: ~100 years after event</li>
+                        <li>Enemy attestation: Limited</li>
+                        <li>Embarrassing details: Few</li>
+                        <li>Explanatory power: Explains civil war</li>
+                    </ol>
+                </div>
+                <div class="comparison-item">
+                    <h4>Jesus' Resurrection (33 AD)</h4>
+                    <ol style="font-size: 0.95rem;">
+                        <li>Multiple sources: Paul's creed, 4 Gospels, Acts = ~9 sources</li>
+                        <li>Early attestation: 3-5 years (creed), 20-30 years (Paul's letters)</li>
+                        <li>Enemy attestation: Yes (Jewish leaders never denied empty tomb)</li>
+                        <li>Embarrassing details: Many (women witnesses, disciples fled)</li>
+                        <li>Explanatory power: Explains origin of Christianity, disciple transformation</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 2rem;">
+                <p style="font-size: 1.1rem;"><strong>Observation:</strong> When we apply the SAME historical criteria to both events, resurrection evidence is actually stronger than Caesar's Rubicon crossing.</p>
+                <p style="margin-top: 1rem;">Yet we teach Caesar as fact and resurrection as myth. Why?</p>
+                <p style="margin-top: 0.5rem; font-weight: 600; color: #ff8c42;">Answer: Asymmetric standards based on philosophical assumptions, not evidence.</p>
+            </div>
         </div>
 
         <!-- BALANCE SCALE CONCEPT -->
         <div class="content-section">
             <h2>The Balance Scale Concept</h2>
             
+            <div class="highlight-box">
+                <p><strong>Remember Playground Seesaws?</strong> If one kid weighs way more than the other, the seesaw stays tilted. It only works fairly when both sides are balanced.</p>
+                <p style="margin-top: 0.5rem;">Evidence demands work the same way. Let's see if debates are actually balanced or secretly tilted:</p>
+            </div>
+            
+            <p style="margin: 1.5rem 0;">Think of evidence demands like a balance scale. ETS keeps it fair:</p>
+            
             <div class="scale-box">
-                <p style="margin-bottom: 2rem;">Think of evidence demands like a balance scale. ETS keeps it fair:</p>
-                
                 <div class="scale-diagram">
                     <div class="scale-side">
                         <h3>LEFT SIDE</h3>
@@ -357,6 +633,170 @@
                 </div>
 
                 <p style="margin-top: 2rem; font-weight: 600;">ETS keeps the scale balanced. Both sides get the same treatment.</p>
+            </div>
+
+            <h3>How the Scale Gets Tipped (Unfairly)</h3>
+
+            <div class="pattern-box">
+                <h4>Pattern #1: "Default Position" Bias</h4>
+                <ul>
+                    <li>"Naturalism is the default, supernatural needs to overcome that"</li>
+                    <li>This tips the scale BEFORE looking at evidence</li>
+                    <li><strong>Fair approach:</strong> Both positions start neutral, evidence decides</li>
+                </ul>
+            </div>
+
+            <div class="pattern-box">
+                <h4>Pattern #2: "Extraordinary Claims" Bias</h4>
+                <ul>
+                    <li>"Extraordinary claims require extraordinary evidence"</li>
+                    <li>Sounds fair, but who decides what's "extraordinary"?</li>
+                    <li>Is abiogenesis (life from non-life) extraordinary? Most say no.</li>
+                    <li>Is resurrection (life from death) extraordinary? Most say yes.</li>
+                    <li><strong>But BOTH are one-time unrepeatable singularities!</strong></li>
+                    <li><strong>ETS says:</strong> Same type of claim → same evidence standard</li>
+                </ul>
+            </div>
+
+            <div class="pattern-box">
+                <h4>Pattern #3: "Science vs Religion" Bias</h4>
+                <ul>
+                    <li>"Science is evidence-based, religion is faith-based"</li>
+                    <li>This assumes the answer before examining the evidence</li>
+                    <li>Christianity CLAIMS to be evidence-based (resurrection witnesses)</li>
+                    <li><strong>Fair approach:</strong> Evaluate that claim fairly, don't dismiss it categorically</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- PRACTICE SCENARIOS -->
+        <div class="content-section">
+            <h2>Practice Scenarios: Applying ETS Step-by-Step</h2>
+            
+            <div class="highlight-box">
+                <p><strong>Time to Level Up:</strong> Reading about ETS is like watching someone play a video game. Now it's your turn to actually play.</p>
+                <p style="margin-top: 0.5rem;">Here are three common arguments you'll hear. We'll break down exactly how to spot the hidden asymmetry using our 4-step process.</p>
+            </div>
+
+            <div class="practice-scenario">
+                <h4>Scenario 1: The Ancient Text Challenge</h4>
+                
+                <div class="dialogue">
+                    <p><strong>Skeptic:</strong> "The Bible was written by biased believers. We can't trust it."</p>
+                    <p><strong>Christian:</strong> "But we trust other ancient texts written by participants in events."</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 1: Identify the Standard Being Applied</h4>
+                    <p>→ Ancient texts from biased sources are unreliable</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 2: Apply Same Standard to Similar Claims</h4>
+                    <ul>
+                        <li>Caesar wrote about his own conquests (biased participant)</li>
+                        <li>Josephus wrote Jewish history (biased participant)</li>
+                        <li>Thucydides wrote Peloponnesian War history (biased participant)</li>
+                    </ul>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 3: Check for Consistency</h4>
+                    <p>→ Do we reject ALL ancient texts from participants?</p>
+                    <p>→ Or do we evaluate them using historical methods regardless of source?</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 4: ETS Conclusion</h4>
+                    <ul>
+                        <li>Apply standard historical methods to ALL ancient texts</li>
+                        <li>Bias doesn't automatically disqualify - evaluate credibility case by case</li>
+                        <li>Gospel writers: Multiple independent sources, early attestation, embarrassing details</li>
+                        <li><strong>When evaluated symmetrically, Gospel evidence is strong</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="practice-scenario">
+                <h4>Scenario 2: The "Extraordinary Evidence" Challenge</h4>
+                
+                <div class="dialogue">
+                    <p><strong>Skeptic:</strong> "Extraordinary claims require extraordinary evidence. Resurrection is extraordinary, so you need overwhelming proof."</p>
+                    <p><strong>Christian:</strong> "Is abiogenesis extraordinary? What about the Big Bang?"</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 1: Define "Extraordinary"</h4>
+                    <p>What makes a claim extraordinary?</p>
+                    <ul>
+                        <li>One-time singular event?</li>
+                        <li>Unrepeatable?</li>
+                        <li>Outside normal experience?</li>
+                    </ul>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 2: Apply Definition Consistently</h4>
+                    <ul>
+                        <li>Resurrection: One-time singular event ✓</li>
+                        <li>Abiogenesis: One-time singular event ✓</li>
+                        <li>Big Bang: One-time singular event ✓</li>
+                    </ul>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 3: Check Evidence Standards</h4>
+                    <p>→ Are we demanding "extraordinary evidence" for ALL three?</p>
+                    <p>→ Or just for the one we don't like?</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 4: ETS Conclusion</h4>
+                    <ul>
+                        <li>If resurrection needs extraordinary evidence (because it's a singular event), then so do abiogenesis and Big Bang</li>
+                        <li>If we accept abiogenesis/Big Bang on inference from present evidence, we should evaluate resurrection the same way</li>
+                        <li><strong>Result: Resurrection has direct eyewitness testimony; abiogenesis has none</strong></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="practice-scenario">
+                <h4>Scenario 3: The "Miracles Are Impossible" Challenge</h4>
+                
+                <div class="dialogue">
+                    <p><strong>Skeptic:</strong> "Miracles violate the laws of nature. Natural laws are never violated. Therefore miracles are impossible."</p>
+                    <p><strong>Christian:</strong> "Did the Big Bang violate the law of conservation of energy?"</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 1: Identify the Standard</h4>
+                    <p>→ Events that violate natural laws are impossible</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 2: Apply to All Claims</h4>
+                    <ul>
+                        <li>Does the Big Bang violate conservation laws? (Something from nothing)</li>
+                        <li>Does abiogenesis violate probability laws? (Life from non-life)</li>
+                        <li>Does consciousness violate materialist assumptions? (Mind from matter)</li>
+                    </ul>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 3: Check for Special Pleading</h4>
+                    <p>→ Is the skeptic allowing naturalistic exceptions but not theistic ones?</p>
+                    <p style="font-style: italic;">"Natural laws are ALWAYS true... except when they're not... but only for natural explanations"</p>
+                </div>
+
+                <div class="step-box">
+                    <h4>Step 4: ETS Conclusion</h4>
+                    <ul>
+                        <li>Either natural laws can be transcended/initiated, or they can't</li>
+                        <li>If Big Bang can transcend conservation laws, resurrection can transcend death</li>
+                        <li>The question isn't "Can laws be transcended?" but "What's the best explanation for the evidence?"</li>
+                        <li><strong>Both should be evaluated on evidential grounds, not a priori ruled out</strong></li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -379,6 +819,10 @@
         <div class="content-section">
             <h2>Activity: "Spot the Asymmetry"</h2>
             
+            <div class="highlight-box">
+                <p><strong>Challenge Mode:</strong> See if you can catch the double standard faster than your partner. First person to correctly identify the asymmetry wins the round!</p>
+            </div>
+            
             <div class="example-box">
                 <p style="margin-bottom: 1.5rem;"><strong>Instructions:</strong> Read each pair of statements. Identify if there's an asymmetric standard being applied.</p>
 
@@ -386,16 +830,25 @@
                 <p><strong>Statement A:</strong> "You can't trust ancient religious texts - they're biased."</p>
                 <p><strong>Statement B:</strong> "Ancient historical texts about Caesar are reliable."</p>
                 <p><strong>Question:</strong> Same standard applied? _______________</p>
+                <p style="margin-top: 0.5rem; font-size: 0.95rem;">Explanation: _______________________________________________________________</p>
 
-                <h3>Pair 2:</h3>
+                <h3 style="margin-top: 2rem;">Pair 2:</h3>
                 <p><strong>Statement A:</strong> "The resurrection violates natural law, so it's impossible."</p>
                 <p><strong>Statement B:</strong> "The Big Bang created something from nothing."</p>
                 <p><strong>Question:</strong> Same standard applied? _______________</p>
+                <p style="margin-top: 0.5rem; font-size: 0.95rem;">Explanation: _______________________________________________________________</p>
 
-                <h3>Pair 3:</h3>
+                <h3 style="margin-top: 2rem;">Pair 3:</h3>
                 <p><strong>Statement A:</strong> "Eyewitness testimony about miracles is unreliable."</p>
                 <p><strong>Statement B:</strong> "We trust eyewitness testimony in criminal trials."</p>
                 <p><strong>Question:</strong> Same standard applied? _______________</p>
+                <p style="margin-top: 0.5rem; font-size: 0.95rem;">Explanation: _______________________________________________________________</p>
+
+                <h3 style="margin-top: 2rem;">Pair 4:</h3>
+                <p><strong>Statement A:</strong> "Extraordinary claims require extraordinary evidence - prove the resurrection!"</p>
+                <p><strong>Statement B:</strong> "Life obviously started by accident somehow - we're here, aren't we?"</p>
+                <p><strong>Question:</strong> Same standard applied? _______________</p>
+                <p style="margin-top: 0.5rem; font-size: 0.95rem;">Explanation: _______________________________________________________________</p>
             </div>
         </div>
 
@@ -405,14 +858,14 @@
             
             <ol>
                 <li>
-                    <strong>Watch:</strong> Find a debate about religion online (YouTube, podcast, etc.)<br>
-                    <strong>Task:</strong> Count how many times you see asymmetric standards being applied. Write down 3 examples.
+                    <strong>Watch:</strong> Find a debate about religion online (YouTube, podcast, blog, etc.)<br>
+                    <strong>Task:</strong> Count how many times you see asymmetric standards being applied. Write down 3 specific examples.
                 </li>
                 <li>
                     <strong>Journal Prompt:</strong> "Have I ever demanded evidence for something I disagreed with but accepted something I agreed with without much evidence? What was it?"
                 </li>
                 <li>
-                    <strong>Challenge:</strong> Practice using ETS in a conversation this week. When someone makes a claim, ask: "What evidence supports that?" - then apply the same standard to competing claims.
+                    <strong>Challenge:</strong> Practice using ETS in a conversation this week. When someone makes a claim, ask: "What evidence supports that?" - then apply the same standard to competing claims. Write a reflection on how it went.
                 </li>
             </ol>
         </div>
