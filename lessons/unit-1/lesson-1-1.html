@@ -117,17 +117,47 @@
             color: #4CAF50;
         }
 
+        .prologue-box {
+            background: rgba(103, 58, 183, 0.2);
+            border: 2px solid #673ab7;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .prologue-box h3 {
+            color: #b39ddb;
+        }
+
+        .scripture-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 4px solid #ffc107;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            font-style: italic;
+        }
+
+        .scripture-box strong {
+            color: #ffc107;
+        }
+
         .comparison-table {
             width: 100%;
-            border-collapse: collapse;
-            margin: 2rem 0;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 12px;
             overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .comparison-table table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
         .comparison-table th {
             background: rgba(255, 140, 66, 0.3);
+            color: #ff8c42;
             padding: 1rem;
             text-align: left;
             font-weight: 600;
@@ -135,14 +165,26 @@
 
         .comparison-table td {
             padding: 1rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .comparison-table tr:hover {
-            background: rgba(255, 255, 255, 0.05);
+        .comparison-table tr:last-child td {
+            border-bottom: none;
         }
 
-        .activity-box {
+        .ai-connection-box {
+            background: rgba(33, 150, 243, 0.2);
+            border: 2px solid #2196F3;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .ai-connection-box h3 {
+            color: #64b5f6;
+        }
+
+        .example-box {
             background: rgba(76, 175, 80, 0.2);
             border: 2px solid #4CAF50;
             border-radius: 12px;
@@ -165,6 +207,40 @@
 
         .discussion-questions li {
             margin-bottom: 1rem;
+        }
+
+        .activity-box {
+            background: rgba(156, 39, 176, 0.2);
+            border: 2px solid #9c27b0;
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .activity-box h4 {
+            color: #ce93d8;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .highlight-box {
+            background: rgba(255, 193, 7, 0.2);
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .skeptics-box {
+            background: rgba(0, 150, 136, 0.2);
+            border-left: 4px solid #009688;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .skeptics-box h4 {
+            color: #4db6ac;
+            margin-bottom: 0.5rem;
         }
 
         .nav-buttons {
@@ -236,10 +312,8 @@
             .content-section { padding: 1.5rem; margin-left: 0; margin-right: 0; width: 100%; }
             .lesson-header { padding: 1.5rem; width: 100%; }
             .nav-buttons { flex-direction: column; }
-            .comparison-table { font-size: 0.9rem; width: 100%; }
-            .comparison-table th, .comparison-table td { padding: 0.75rem; word-wrap: break-word; }
-            .table-wrapper { width: 100%; overflow-x: auto; }
-            .hook-box, .vocab-box, .activity-box, .discussion-questions { width: 100%; box-sizing: border-box; }
+            .comparison-table { overflow-x: auto; }
+            .hook-box, .vocab-box, .example-box, .discussion-questions { width: 100%; box-sizing: border-box; }
         }
     </style>
 </head>
@@ -247,12 +321,12 @@
     <div class="container">
         <div class="lesson-header">
             <div class="breadcrumb">
-                <a href="../../index.html">Home</a> → 
-                <a href="../../technical-christianity.html">Technical Christianity</a> → 
+                <a href="https://veritasquaesitorcai.github.io/veritas-quaesitor/index.html">Home</a> → 
+                <a href="https://veritasquaesitorcai.github.io/veritas-quaesitor/technical-christianity.html">Technical Christianity</a> → 
                 Unit 1 → Lesson 1.1
             </div>
             <h1>Lesson 1.1: What Is Technical Christianity?</h1>
-            <div class="lesson-meta">Unit 1: The Big Picture • 50-minute lesson</div>
+            <div class="lesson-meta">Unit 1: The Big Picture • 50-60 minute lesson</div>
         </div>
 
         <!-- HOOK -->
@@ -295,125 +369,247 @@
             </div>
         </div>
 
+        <!-- FOUNDATION: PROLOGUE CONTENT -->
+        <div class="content-section">
+            <h2>Foundation: Christianity as Evidence-Based Faith</h2>
+            
+            <div class="highlight-box" style="margin-bottom: 2rem;">
+                <p style="font-size: 1.1rem;"><strong>Quick Question:</strong> If someone said "I have an invisible dragon in my garage," would you just believe them? Or would you ask for evidence?</p>
+                <p style="margin-top: 0.5rem;">Most people would say: "Show me the dragon!" That's actually the rational response.</p>
+                <p style="margin-top: 0.5rem;">Here's the surprising part: <strong>Christianity agrees with you.</strong></p>
+            </div>
+
+            <div class="prologue-box">
+                <h3>The Misunderstanding</h3>
+                <p>In today's society Christianity has been misrepresented and miscategorized as a religion of <strong>faith alone</strong>. In truth, it has always claimed being based on <strong>evidence</strong> - evidence that supports and strengthens belief.</p>
+                
+                <p style="margin-top: 1rem; font-style: italic; color: rgba(255, 255, 255, 0.8);">Think of it like this: You trust your best friend not because you're told to, but because they've proven trustworthy over time. Christianity says faith works the same way - it's built on evidence, not blind trust.</p>
+            </div>
+
+            <h3>Jesus' Own Words</h3>
+            <div class="scripture-box">
+                <p><strong>Jesus Himself declared:</strong> "No sign will be given except the sign of Jonah" (Matthew 12:39-40; Luke 11:29-30)</p>
+                <p style="margin-top: 1rem;">This was not a metaphor but a <strong>provision</strong>: "You will have THIS as evidence."</p>
+                <p style="margin-top: 1rem;">The resurrection is the <strong>decisive sign</strong>, the one proof God gave to validate Jesus' identity as Son of God.</p>
+            </div>
+
+            <h3>The Apostles Confirmed This Foundation</h3>
+            <ul>
+                <li><strong>Jesus predicted His resurrection</strong> as the proof of divine authority (John 2:19-21)</li>
+                <li><strong>John testified:</strong> "we have heard, seen, touched" (1 John 1:1-3) - grounding Christianity in eyewitness testimony</li>
+                <li><strong>Peter insisted:</strong> "we did not follow cleverly devised stories" (2 Peter 1:16-18) - affirming the apostolic witness as historical, not myth</li>
+                <li><strong>Paul proclaimed:</strong> "God has given proof to all by raising Him from the dead" (Acts 17:31)</li>
+                <li><strong>Creation itself testifies</strong> to God's reality (Romans 1:19-20; Psalm 19:1), leaving humanity without excuse</li>
+            </ul>
+
+            <div class="highlight-box" style="margin-top: 2rem;">
+                <p style="font-weight: 600; font-size: 1.1rem;">Christianity is therefore a religion of faith grounded in evidence.</p>
+            </div>
+        </div>
+
+        <!-- SKEPTICS WHO INVESTIGATED -->
+        <div class="content-section">
+            <h2>Skeptics Who Investigated and Converted</h2>
+            
+            <div class="highlight-box">
+                <p><strong>Real Talk:</strong> These aren't people who grew up in church and just believed what they were told. These are smart, skeptical people who started out thinking Christianity was false - and changed their minds based on evidence.</p>
+                <p style="margin-top: 0.5rem;">Imagine being so sure Christianity was wrong that you literally tried to <em>prove</em> it was false... and failed.</p>
+            </div>
+            
+            <p style="margin: 1.5rem 0;">Here are three famous examples:</p>
+
+            <div class="skeptics-box">
+                <h4>C.S. Lewis (1898-1963)</h4>
+                <p><strong>Background:</strong> Oxford professor, militant atheist, intellectual giant</p>
+                <p><strong>Conversion:</strong> Converted from atheism after examining Christianity's rational claims</p>
+                <p><strong>Key Quote:</strong> "I believe in Christianity as I believe that the sun has risen: not only because I see it, but because by it I see everything else."</p>
+                <p><strong>Legacy:</strong> Wrote "Mere Christianity" - one of the most influential Christian apologetics books ever</p>
+            </div>
+
+            <div class="skeptics-box">
+                <h4>Lee Strobel (1952-present)</h4>
+                <p><strong>Background:</strong> Investigative journalist at Chicago Tribune, atheist</p>
+                <p><strong>Conversion:</strong> Set out to disprove Christianity when his wife became a Christian - ended up convinced by the evidence for the resurrection</p>
+                <p><strong>Method:</strong> Used his investigative journalism skills to interview experts</p>
+                <p><strong>Legacy:</strong> Wrote "The Case for Christ" - documenting his evidence-based journey to faith</p>
+            </div>
+
+            <div class="skeptics-box">
+                <h4>Josh McDowell (1939-present)</h4>
+                <p><strong>Background:</strong> University student, agnostic seeking to prove Christianity false</p>
+                <p><strong>Conversion:</strong> Convinced by the preserved eyewitness testimony he once sought to disprove</p>
+                <p><strong>Discovery:</strong> The historical evidence for resurrection exceeded the evidence for most accepted historical events</p>
+                <p><strong>Legacy:</strong> Wrote "Evidence That Demands a Verdict" - comprehensive apologetics resource</p>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 2rem;">
+                <p><strong>What These Conversions Share:</strong></p>
+                <p style="margin-top: 0.5rem;">A recognition that if we demand evidence for resurrection, we must demand <strong>equal evidence</strong> for naturalistic alternatives. Fair examination, not philosophical prejudice, reveals truth.</p>
+            </div>
+        </div>
+
         <!-- CORE CONTENT -->
         <div class="content-section">
             <h2>What Is Technical Christianity?</h2>
             
-            <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">
-                Technical Christianity is an approach to faith that:
-            </p>
+            <p style="font-size: 1.1rem; margin-bottom: 1.5rem;">Technical Christianity is an approach to faith that:</p>
 
-            <ol>
-                <li><strong>Christianity claims to be based on EVIDENCE, not just faith</strong></li>
-                <li><strong>The resurrection is God's chosen "proof"</strong> (Matthew 12:39-40)</li>
-                <li><strong>Uses math, science, and logic</strong> as tools to examine that evidence</li>
-                <li><strong>Connects to building honest AI systems</strong> that don't hide truth</li>
+            <ol style="font-size: 1.05rem; line-height: 1.8;">
+                <li>Recognizes Christianity <strong>claims</strong> to be based on EVIDENCE, not just faith</li>
+                <li>Identifies the resurrection as God's chosen "proof" (Matthew 12:39-40)</li>
+                <li>Uses math, science, and logic as tools to examine that evidence</li>
+                <li>Connects to building honest AI systems that don't hide truth</li>
             </ol>
 
-            <h3>The Key Question</h3>
-            <p style="background: rgba(255, 140, 66, 0.15); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
-                "What if Christianity could be proven like a math theorem?"
-            </p>
-
-            <h3>God's Chosen Evidence</h3>
-            <p>Jesus said: <em>"No sign will be given except the sign of Jonah"</em> (Matthew 12:39-40, Luke 11:29-30)</p>
-            <p><strong>Translation:</strong> "You will have THIS as evidence" — the resurrection</p>
+            <div class="scripture-box" style="margin-top: 2rem;">
+                <p><strong>The Key Question:</strong> "What if Christianity could be proven like a math theorem?"</p>
+                <p style="margin-top: 1rem;">Jesus said: "No sign will be given except the sign of Jonah" (Matthew 12:39-40, Luke 11:29-30)</p>
+                <p style="margin-top: 0.5rem;"><strong>Translation:</strong> "You will have THIS as evidence" — the resurrection</p>
+            </div>
 
             <h3>Why the Resurrection?</h3>
-            <ul>
-                <li>It's the pivot of humanity — history's turning point</li>
-                <li>It's the place of salvation — "It is finished"</li>
-                <li>It validates or falsifies Jesus' claim to be Son of God</li>
-                <li>Every generation can examine the same evidence</li>
-            </ul>
-
-            <h3>What Makes This Course Different?</h3>
-            <p><strong>Traditional religious education often says:</strong> "Just have faith, don't question"</p>
-            <p><strong>Technical Christianity says:</strong> "Here's the evidence, question everything EQUALLY"</p>
-
-            <p style="margin-top: 1.5rem;">We're using:</p>
-            <ul>
-                <li>Mathematics (Bayesian probability)</li>
-                <li>Science (mechanism analysis)</li>
-                <li>Logic (epistemic symmetry)</li>
-                <li>Historical methods (evidence evaluation)</li>
-            </ul>
-        </div>
-
-        <!-- COMPARISON TABLE -->
-        <div class="content-section">
-            <h2>Traditional View vs Technical Christianity</h2>
             
-            <table class="comparison-table">
-                <thead>
-                    <tr>
-                        <th>Aspect</th>
-                        <th>Traditional View</th>
-                        <th>Technical Christianity</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Starting Point</strong></td>
-                        <td>"Just have faith"</td>
-                        <td>"Here's the evidence"</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Questions</strong></td>
-                        <td>"Don't question"</td>
-                        <td>"Question everything equally"</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Foundation</strong></td>
-                        <td>Feelings-based</td>
-                        <td>Math and logic-based</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Evidence</strong></td>
-                        <td>Not emphasized</td>
-                        <td>Central to the claim</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Skepticism</strong></td>
-                        <td>Discouraged</td>
-                        <td>Welcomed when symmetric</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="highlight-box">
+                <p><strong>Think About It:</strong> If you were God and wanted to prove you were real, what would you do?</p>
+                <p style="margin-top: 0.5rem;">• Flash "GOD EXISTS" in the sky every night? People would say it's a projection.</p>
+                <p>• Appear to one person privately? They'd be called crazy.</p>
+                <p>• Do lots of healings? People would say "lucky coincidence" or "placebo effect."</p>
+                <p style="margin-top: 1rem;">God chose something that couldn't be explained away: <strong>Publicly defeating death in a way everyone could verify.</strong></p>
+            </div>
+            
+            <p style="margin-top: 1.5rem;">God chose the resurrection as THE sign because it is:</p>
+            <ul>
+                <li><strong>The pivot of humanity</strong> — history's turning point where death is overturned</li>
+                <li><strong>The place of salvation</strong> — "It is finished" (forgiveness, renewal, reconciliation)</li>
+                <li><strong>Validates or falsifies Jesus' claim</strong> to be Son of God - it's either true or false</li>
+                <li><strong>Historically checkable</strong> — happened in public, in Jerusalem, with witnesses</li>
+                <li><strong>Every generation can examine</strong> the same evidence</li>
+                <li><strong>The constant reference point</strong> — every skeptic must face it, every believer is anchored in it</li>
+            </ul>
+
+            <div class="prologue-box" style="margin-top: 2rem;">
+                <p>Jesus did not say: "Here's your sign - water to wine, walking on water, or healing a man." Those were powerful works, but they were <strong>not the sign</strong>.</p>
+                <p style="margin-top: 1rem;">God chose the resurrection because it is <strong>the enduring marker of grace</strong>, preserved so that every generation can return to it.</p>
+            </div>
         </div>
 
-        <!-- AI CONNECTION -->
+        <!-- WHAT MAKES THIS DIFFERENT -->
+        <div class="content-section">
+            <h2>What Makes This Course Different?</h2>
+            
+            <p style="font-size: 1.05rem; margin-bottom: 1.5rem;">Traditional religious education often says: <em>"Just have faith, don't question"</em></p>
+            <p style="font-size: 1.05rem; font-weight: 600; color: #ff8c42;">Technical Christianity says: <em>"Here's the evidence, question everything EQUALLY"</em></p>
+
+            <h3 style="margin-top: 2rem;">We're Using:</h3>
+            <ul style="font-size: 1.05rem;">
+                <li><strong>Mathematics</strong> — Bayesian probability to calculate likelihood</li>
+                <li><strong>Science</strong> — Mechanism analysis to count "lucky breaks" required</li>
+                <li><strong>Logic</strong> — Epistemic symmetry to apply consistent standards</li>
+                <li><strong>Historical methods</strong> — Evidence evaluation techniques historians use</li>
+            </ul>
+
+            <div class="comparison-table" style="margin-top: 2rem;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Traditional View</th>
+                            <th>Technical Christianity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Starting Point</strong></td>
+                            <td>"Just have faith"</td>
+                            <td>"Here's the evidence"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Questions</strong></td>
+                            <td>"Don't question"</td>
+                            <td>"Question everything equally"</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Foundation</strong></td>
+                            <td>Feelings-based</td>
+                            <td>Math and logic-based</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Evidence</strong></td>
+                            <td>Not emphasized</td>
+                            <td>Central to the claim</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Skepticism</strong></td>
+                            <td>Discouraged</td>
+                            <td>Welcomed when symmetric</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- THE AI CONNECTION -->
         <div class="content-section">
             <h2>The AI Connection</h2>
             
-            <h3>Why does this matter for AI?</h3>
-            <ul>
-                <li>AI systems are being trained <strong>RIGHT NOW</strong></li>
-                <li>Most training data has hidden bias: "naturalism is default, supernatural is suspect"</li>
-                <li>If we don't teach AI to apply EQUAL STANDARDS to all claims, truth gets buried</li>
-            </ul>
-
-            <h3>Example:</h3>
-            <div style="background: rgba(0, 0, 0, 0.3); padding: 1.5rem; border-radius: 8px; margin: 1rem 0;">
-                <p>❌ <strong>AI default:</strong> "Prove God exists!" (demands tons of evidence)</p>
-                <p>❌ <strong>AI default:</strong> "Life started by accident" (taught as fact, minimal evidence)</p>
+            <div class="highlight-box">
+                <p><strong>Here's Why You Should Care:</strong> AI is becoming the referee for what's considered "true" or "false" online. If the referee has hidden biases, the game is rigged.</p>
+                <p style="margin-top: 0.5rem;">Imagine playing basketball where the ref only calls fouls on one team. That's what's happening with AI and truth claims right now.</p>
+            </div>
+            
+            <div class="ai-connection-box" style="margin-top: 2rem;">
+                <h3>Why This Matters for AI</h3>
+                <ul>
+                    <li>AI systems are being trained <strong>RIGHT NOW</strong></li>
+                    <li>Most training data has hidden bias: "naturalism is default, supernatural is suspect"</li>
+                    <li>If we don't teach AI to apply EQUAL STANDARDS to all claims, truth gets buried</li>
+                </ul>
             </div>
 
-            <h3>Technical Christianity teaches AI (and humans) to apply the SAME evidential rigor to:</h3>
+            <h3>Example: AI Bias in Action</h3>
+            
+            <div class="highlight-box" style="margin-bottom: 1rem;">
+                <p><strong>Try This Experiment:</strong> Ask any AI chatbot these two questions:</p>
+                <p style="margin-top: 0.5rem;">1. "Prove that God raised Jesus from the dead."</p>
+                <p>2. "Prove that life started by accident from chemicals."</p>
+                <p style="margin-top: 1rem;"><strong>Watch what happens:</strong> Most AI will demand tons of evidence for #1 but accept #2 with minimal proof. Same type of claim, different standards.</p>
+            </div>
+            
+            <div class="example-box">
+                <p><strong>AI default behavior:</strong></p>
+                <ul style="margin-top: 0.5rem;">
+                    <li>"Prove God exists!" (demands tons of evidence)</li>
+                    <li>"Life started by accident" (taught as fact, minimal evidence required)</li>
+                </ul>
+                <p style="margin-top: 1.5rem;"><strong>This is asymmetric reasoning</strong> - different standards for similar claims.</p>
+            </div>
+
+            <h3>Technical Christianity Teaches AI (and Humans) to Apply Same Standards</h3>
+            <p>We apply the SAME evidential rigor to:</p>
             <ul>
-                <li>Resurrection (theistic singularity)</li>
-                <li>Abiogenesis (naturalistic singularity)</li>
+                <li><strong>Resurrection</strong> (theistic singularity - one-time divine event)</li>
+                <li><strong>Abiogenesis</strong> (naturalistic singularity - one-time natural event)</li>
                 <li>Any claim about unrepeatable past events</li>
             </ul>
 
-            <h3>The Goal</h3>
-            <p>Build AI systems that anyone can trust — not by being "neutral" (which hides bias), but by embodying Christ's character:</p>
-            <ul>
-                <li>Unconditional human dignity (John 3:16)</li>
-                <li>Servant leadership</li>
-                <li>Truth-telling</li>
-                <li>Justice</li>
-            </ul>
+            <div class="highlight-box" style="margin-top: 2rem;">
+                <h4 style="color: #ff8c42; margin-bottom: 1rem;">The Goal: Christ-Anchored Intelligence (CAI)</h4>
+                <p>Build AI systems that anyone can trust — not by being "neutral" (which hides bias), but by embodying Christ's character:</p>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li>Unconditional human dignity (John 3:16 - "God so loved the world")</li>
+                    <li>Servant leadership (putting truth above convenience)</li>
+                    <li>Truth-telling (even when unpopular)</li>
+                    <li>Justice (same standards for all claims)</li>
+                </ul>
+            </div>
+
+            <h3>Real Example: Grok AI</h3>
+            <p>When given symmetric standards, Grok AI independently calculated <strong>99.9% probability</strong> for the resurrection. This proves that honest reasoning - when not hampered by asymmetric bias - naturally aligns with Christian truth claims.</p>
+            
+            <div class="highlight-box" style="margin-top: 1.5rem;">
+                <p><strong>Bottom Line:</strong> The AI systems being built today will shape what your generation considers "true" for decades. If they're programmed with biased standards now, future generations won't even know they're getting filtered information.</p>
+                <p style="margin-top: 0.5rem;">This course teaches you to spot those biases - in AI and in everyday arguments.</p>
+            </div>
         </div>
 
         <!-- DISCUSSION QUESTIONS -->
@@ -436,22 +632,22 @@
             <h2>Activity: "Spot the Double Standard"</h2>
             
             <div class="activity-box">
-                <p style="margin-bottom: 1.5rem;"><strong>Instructions:</strong> Work in pairs. Read each statement and identify if there's a double standard being applied.</p>
+                <p style="margin-bottom: 1.5rem;"><strong>Instructions:</strong> Students work in pairs. Read each statement and identify if there's a double standard being applied.</p>
 
-                <h3>Statement 1:</h3>
-                <p style="font-style: italic;">"You can't trust ancient testimony about miracles, but we know Julius Caesar crossed the Rubicon based on ancient testimony."</p>
+                <h4>Statement 1:</h4>
+                <p><strong>Claim:</strong> "You can't trust ancient testimony about miracles, but we know Julius Caesar crossed the Rubicon based on ancient testimony."</p>
                 <p><strong>Double Standard?</strong> YES / NO</p>
-                <p><strong>Why?</strong> _______________________________________________</p>
+                <p style="margin-top: 0.5rem;">Why? _________________________________________________________________</p>
 
-                <h3>Statement 2:</h3>
-                <p style="font-style: italic;">"Extraordinary claims require extraordinary evidence. The resurrection is extraordinary, so it needs tons of proof. Abiogenesis (life from non-life) is just science, so we don't need to prove the mechanism."</p>
+                <h4>Statement 2:</h4>
+                <p><strong>Claim:</strong> "Extraordinary claims require extraordinary evidence. The resurrection is extraordinary, so it needs tons of proof. Abiogenesis (life from non-life) is just science, so we don't need to prove the mechanism."</p>
                 <p><strong>Double Standard?</strong> YES / NO</p>
-                <p><strong>Why?</strong> _______________________________________________</p>
+                <p style="margin-top: 0.5rem;">Why? _________________________________________________________________</p>
 
-                <h3>Statement 3:</h3>
-                <p style="font-style: italic;">"We should question religious claims but accept scientific consensus without scrutiny."</p>
+                <h4>Statement 3:</h4>
+                <p><strong>Claim:</strong> "We should question religious claims but accept scientific consensus without scrutiny."</p>
                 <p><strong>Double Standard?</strong> YES / NO</p>
-                <p><strong>Why?</strong> _______________________________________________</p>
+                <p style="margin-top: 0.5rem;">Why? _________________________________________________________________</p>
             </div>
         </div>
 
@@ -475,8 +671,8 @@
 
         <!-- NAVIGATION -->
         <div class="nav-buttons">
-            <a href="../../technical-christianity.html" class="btn btn-secondary">← Back to Course Index</a>
-            <a href="lesson-1-2.html" class="btn btn-primary">Next Lesson: ETS Principle →</a>
+            <a href="https://veritasquaesitorcai.github.io/veritas-quaesitor/technical-christianity.html" class="btn btn-secondary">← Back to Course Index</a>
+            <a href="lesson-1-2.html" class="btn btn-primary">Next: Epistemic Symmetry →</a>
         </div>
     </div>
 </body>
