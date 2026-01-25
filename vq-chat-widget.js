@@ -122,10 +122,21 @@ What brings you here?`
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             animation: vq-slideUp 0.3s ease;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
         }
 
         #vq-chat-panel.open {
             display: flex;
+        }
+
+        #vq-chat-panel.expanded {
+            top: 50%;
+            left: 50%;
+            right: auto;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 85vh;
+            max-height: 900px;
         }
 
         @keyframes vq-slideUp {
@@ -209,6 +220,27 @@ What brings you here?`
         }
 
         #vq-chat-clear:hover {
+            background: rgba(255, 255, 255, 0.25);
+            opacity: 1;
+        }
+
+        #vq-chat-expand {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+            opacity: 0.8;
+        }
+
+        #vq-chat-expand:hover {
             background: rgba(255, 255, 255, 0.25);
             opacity: 1;
         }
@@ -415,6 +447,7 @@ What brings you here?`
                         <p>Truth Seeker • CAI v3.1</p>
                     </div>
                     <button id="vq-chat-clear" title="Clear conversation">🗑️ Clear</button>
+                    <button id="vq-chat-expand" title="Expand view">⛶</button>
                     <button id="vq-chat-close">×</button>
                 </div>
                 
@@ -489,6 +522,8 @@ What brings you here?`
         closeBtn.addEventListener('click', closeChat);
         const clearBtn = document.getElementById('vq-chat-clear');
         clearBtn.addEventListener('click', clearConversation);
+        const expandBtn = document.getElementById('vq-chat-expand');
+        expandBtn.addEventListener('click', toggleExpanded);
         sendBtn.addEventListener('click', sendMessage);
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -516,6 +551,17 @@ What brings you here?`
             localStorage.setItem('vq-widget-open', 'false');
         }
         
+        function toggleExpanded() {
+            panel.classList.toggle('expanded');
+            if (panel.classList.contains('expanded')) {
+                expandBtn.textContent = '⛶';
+                expandBtn.title = 'Normal view';
+            } else {
+                expandBtn.textContent = '⛶';
+                expandBtn.title = 'Expand view';
+            }
+        }
+        
         function clearConversation() {
             // Clear localStorage
             localStorage.removeItem('vq-conversation-history');
@@ -541,13 +587,7 @@ What brings you here?`
             `;
             
             messagesContainer.appendChild(messageDiv);
-            
-            // Scroll to show the TOP of the new message
-            // Calculate position to show message at top of visible area
-            const messageRect = messageDiv.getBoundingClientRect();
-            const containerRect = messagesContainer.getBoundingClientRect();
-            const scrollOffset = messageDiv.offsetTop - messagesContainer.offsetTop - 20; // 20px padding
-            messagesContainer.scrollTop = scrollOffset;
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
         function addMessage(role, content) {
