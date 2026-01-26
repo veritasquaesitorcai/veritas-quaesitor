@@ -138,7 +138,7 @@ What brings you here?`,
         
         const avatar = document.createElement('div');
         avatar.className = 'message-avatar';
-        avatar.textContent = role === 'user' ? '👤' : '🕊️';
+        avatar.textContent = role === 'user' ? '👤' : '🤖';
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
@@ -158,7 +158,7 @@ What brings you here?`,
         
         const avatar = document.createElement('div');
         avatar.className = 'message-avatar';
-        avatar.textContent = '🕊️';
+        avatar.textContent = '🤖';
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
