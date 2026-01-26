@@ -31,6 +31,7 @@
     function init() {
         loadSidebarState();
         loadConversation();
+        randomizeRotatingCard();
         attachEventListeners();
         
         if (conversationHistory.length === 0) {
@@ -61,7 +62,12 @@
 
         document.querySelectorAll('.suggestion-card').forEach(card => {
             card.addEventListener('click', () => {
-                const prompt = card.dataset.prompt;
+                let prompt;
+                if (card.classList.contains('fun-card-rotate')) {
+                    prompt = card.dataset.currentPrompt;
+                } else {
+                    prompt = card.dataset.prompt;
+                }
                 elements.messageInput.value = prompt;
                 handleInputChange();
                 elements.messageInput.focus();
@@ -75,29 +81,44 @@
         });
 
         if (window.innerWidth <= 768) {
-            elements.sidebar.classList.add('hidden');
+            elements.sidebar.classList.add('minimized');
         }
     }
 
     function toggleSidebar() {
-        elements.sidebar.classList.toggle('hidden');
+        elements.sidebar.classList.toggle('minimized');
         saveSidebarState();
     }
 
     function loadSidebarState() {
-        const isHidden = localStorage.getItem(CONFIG.sidebarStateKey) === 'hidden';
-        if (isHidden || window.innerWidth <= 768) {
-            elements.sidebar.classList.add('hidden');
+        const isMinimized = localStorage.getItem(CONFIG.sidebarStateKey) === 'minimized';
+        if (isMinimized || window.innerWidth <= 768) {
+            elements.sidebar.classList.add('minimized');
         }
     }
 
     function saveSidebarState() {
-        const state = elements.sidebar.classList.contains('hidden') ? 'hidden' : 'visible';
+        const state = elements.sidebar.classList.contains('minimized') ? 'minimized' : 'expanded';
         localStorage.setItem(CONFIG.sidebarStateKey, state);
+    }
+
+    function randomizeRotatingCard() {
+        const rotatingCard = document.querySelector('.fun-card-rotate');
+        const textElement = rotatingCard.querySelector('.fun-text-rotate');
+        
+        const options = [
+            { text: 'Robot scuffs', prompt: 'have you been in robot scuffs?' },
+            { text: 'Phone adventures', prompt: 'what did you do as phones' }
+        ];
+        
+        const selected = options[Math.floor(Math.random() * options.length)];
+        textElement.textContent = selected.text;
+        rotatingCard.dataset.currentPrompt = selected.prompt;
     }
 
     function showWelcomeScreen() {
         elements.welcomeScreen.classList.remove('hidden');
+        randomizeRotatingCard();
     }
 
     function hideWelcomeScreen() {
@@ -242,7 +263,12 @@
 
     function scrollToBottom() {
         const container = document.getElementById('chat-container');
-        container.scrollTop = container.scrollHeight;
+        requestAnimationFrame(() => {
+            container.scrollTo({
+                top: container.scrollHeight,
+                behavior: 'smooth'
+            });
+        });
     }
 
     function setStatus(status, text) {
