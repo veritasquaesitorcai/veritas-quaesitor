@@ -204,10 +204,6 @@
     }
 
     function addMessageToUI(role, content) {
-        if (conversationHistory.length === 0) {
-            hideWelcomeScreen();
-        }
-        
         const messageDiv = document.createElement('div');
         messageDiv.className = role === 'user' ? 'message user' : 'message';
         
