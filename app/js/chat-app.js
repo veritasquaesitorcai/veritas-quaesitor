@@ -3,24 +3,25 @@
 
     const CONFIG = {
         apiEndpoint: 'https://veritas-quaesitor-production.up.railway.app/chat',
-        welcomeMessage: `Hey! 👋 I'm VQ, your guide to exploring Christ-Anchored Intelligence.
-
-I can help with CAI methodology, resurrection evidence, our Beta Tools, or just chat about AI and truth.
-
-What brings you here?`,
         maxMessageLength: 2000,
-        storageKey: 'vq-app-conversation'
+        storageKey: 'vq-app-conversation',
+        sidebarStateKey: 'vq-sidebar-state'
     };
 
     let conversationHistory = [];
     let isTyping = false;
 
     const elements = {
+        sidebar: document.getElementById('sidebar'),
+        sidebarToggle: document.getElementById('sidebar-toggle'),
+        newChatBtn: document.getElementById('new-chat-btn'),
         messagesArea: document.getElementById('messages-area'),
+        welcomeScreen: document.getElementById('welcome-screen'),
         messageInput: document.getElementById('message-input'),
         sendBtn: document.getElementById('send-btn'),
-        clearBtn: document.getElementById('clear-btn'),
-        infoBtn: document.getElementById('info-btn'),
+        attachBtn: document.getElementById('attach-btn'),
+        helpBtn: document.getElementById('help-btn'),
+        settingsBtn: document.getElementById('settings-btn'),
         infoModal: document.getElementById('info-modal'),
         closeModal: document.getElementById('close-modal'),
         charCount: document.getElementById('char-count'),
@@ -28,36 +29,103 @@ What brings you here?`,
     };
 
     function init() {
+        loadSidebarState();
         loadConversation();
         attachEventListeners();
         
         if (conversationHistory.length === 0) {
-            addMessage('assistant', CONFIG.welcomeMessage);
+            showWelcomeScreen();
+        } else {
+            hideWelcomeScreen();
         }
         
         elements.messageInput.focus();
     }
 
     function attachEventListeners() {
+        elements.sidebarToggle.addEventListener('click', toggleSidebar);
+        elements.newChatBtn.addEventListener('click', startNewChat);
         elements.sendBtn.addEventListener('click', sendMessage);
-        elements.clearBtn.addEventListener('click', clearConversation);
-        elements.infoBtn.addEventListener('click', () => elements.infoModal.classList.remove('hidden'));
-        elements.closeModal.addEventListener('click', () => elements.infoModal.classList.add('hidden'));
+        elements.helpBtn.addEventListener('click', () => showModal());
+        
+        elements.closeModal.addEventListener('click', () => hideModal());
         
         elements.infoModal.addEventListener('click', (e) => {
-            if (e.target === elements.infoModal) {
-                elements.infoModal.classList.add('hidden');
+            if (e.target.classList.contains('modal-overlay')) {
+                hideModal();
             }
         });
 
         elements.messageInput.addEventListener('input', handleInputChange);
         elements.messageInput.addEventListener('keydown', handleKeyDown);
 
+        document.querySelectorAll('.suggestion-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const prompt = card.dataset.prompt;
+                elements.messageInput.value = prompt;
+                handleInputChange();
+                elements.messageInput.focus();
+            });
+        });
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && !elements.infoModal.classList.contains('hidden')) {
-                elements.infoModal.classList.add('hidden');
+                hideModal();
             }
         });
+
+        if (window.innerWidth <= 768) {
+            elements.sidebar.classList.add('hidden');
+        }
+    }
+
+    function toggleSidebar() {
+        elements.sidebar.classList.toggle('hidden');
+        saveSidebarState();
+    }
+
+    function loadSidebarState() {
+        const isHidden = localStorage.getItem(CONFIG.sidebarStateKey) === 'hidden';
+        if (isHidden || window.innerWidth <= 768) {
+            elements.sidebar.classList.add('hidden');
+        }
+    }
+
+    function saveSidebarState() {
+        const state = elements.sidebar.classList.contains('hidden') ? 'hidden' : 'visible';
+        localStorage.setItem(CONFIG.sidebarStateKey, state);
+    }
+
+    function showWelcomeScreen() {
+        elements.welcomeScreen.classList.remove('hidden');
+    }
+
+    function hideWelcomeScreen() {
+        elements.welcomeScreen.classList.add('hidden');
+    }
+
+    function showModal() {
+        elements.infoModal.classList.remove('hidden');
+    }
+
+    function hideModal() {
+        elements.infoModal.classList.add('hidden');
+    }
+
+    function startNewChat() {
+        if (conversationHistory.length === 0) return;
+        
+        if (!confirm('Start a new conversation? Current chat will be saved.')) {
+            return;
+        }
+        
+        conversationHistory = [];
+        elements.messagesArea.innerHTML = '';
+        localStorage.removeItem(CONFIG.storageKey);
+        
+        showWelcomeScreen();
+        elements.messageInput.value = '';
+        elements.messageInput.focus();
     }
 
     function handleInputChange() {
@@ -71,7 +139,8 @@ What brings you here?`,
 
     function autoResizeTextarea() {
         elements.messageInput.style.height = 'auto';
-        elements.messageInput.style.height = Math.min(elements.messageInput.scrollHeight, 150) + 'px';
+        const newHeight = Math.min(elements.messageInput.scrollHeight, 150);
+        elements.messageInput.style.height = newHeight + 'px';
     }
 
     function handleKeyDown(e) {
@@ -110,21 +179,6 @@ What brings you here?`,
         }
     }
 
-    function clearConversation() {
-        if (!confirm('Clear all messages? This cannot be undone.')) {
-            return;
-        }
-        
-        conversationHistory = [];
-        elements.messagesArea.innerHTML = '';
-        
-        localStorage.removeItem(CONFIG.storageKey);
-        
-        addMessage('assistant', CONFIG.welcomeMessage);
-        
-        elements.messageInput.focus();
-    }
-
     function addMessage(role, content) {
         addMessageToUI(role, content);
         
@@ -133,6 +187,10 @@ What brings you here?`,
     }
 
     function addMessageToUI(role, content) {
+        if (conversationHistory.length === 0) {
+            hideWelcomeScreen();
+        }
+        
         const messageDiv = document.createElement('div');
         messageDiv.className = role === 'user' ? 'message user' : 'message';
         
@@ -187,7 +245,8 @@ What brings you here?`,
     }
 
     function scrollToBottom() {
-        elements.messagesArea.scrollTop = elements.messagesArea.scrollHeight;
+        const container = document.getElementById('chat-container');
+        container.scrollTop = container.scrollHeight;
     }
 
     function setStatus(status, text) {
@@ -211,6 +270,7 @@ What brings you here?`,
         const message = elements.messageInput.value.trim();
         if (!message || isTyping) return;
 
+        hideWelcomeScreen();
         addMessage('user', message);
         
         elements.messageInput.value = '';
@@ -249,9 +309,7 @@ What brings you here?`,
             console.error('Error:', error);
             hideTypingIndicator();
             
-            const errorMessage = `I'm having trouble connecting right now. Please try again in a moment.
-
-If this persists, you can reach out via the website at veritasquaesitorcai.github.io`;
+            const errorMessage = `I'm having trouble connecting right now. Please try again in a moment.\n\nIf this persists, you can reach out via the website at veritasquaesitorcai.github.io`;
             
             addMessage('assistant', errorMessage);
             setStatus('error', 'Connection error');
