@@ -115,10 +115,6 @@
     function startNewChat() {
         if (conversationHistory.length === 0) return;
         
-        if (!confirm('Start a new conversation? Current chat will be saved.')) {
-            return;
-        }
-        
         conversationHistory = [];
         elements.messagesArea.innerHTML = '';
         localStorage.removeItem(CONFIG.storageKey);
