@@ -12,51 +12,117 @@
 </head>
 <body>
     <div id="app-container">
-        <header id="app-header">
-            <div class="header-left">
-                <div class="app-avatar">🤖</div>
-                <div class="app-info">
-                    <h1>Veritas Quaesitor</h1>
-                    <p class="app-status">
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <button id="new-chat-btn" class="new-chat-btn">
+                    <span class="icon">✏️</span>
+                    <span class="text">New Chat</span>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-label">Recent Chats</div>
+                    <div id="chat-history" class="chat-history">
+                        <div class="empty-state">No conversations yet</div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="sidebar-btn" id="settings-btn" disabled title="Coming soon">
+                    <span>⚙️</span>
+                    <span>Settings</span>
+                </button>
+                <button class="sidebar-btn" id="help-btn">
+                    <span>ℹ️</span>
+                    <span>About VQ</span>
+                </button>
+            </div>
+        </aside>
+
+        <div id="main-content" class="main-content">
+            <header id="app-header">
+                <button id="sidebar-toggle" class="sidebar-toggle">
+                    <span class="hamburger"></span>
+                </button>
+                
+                <div class="header-center">
+                    <div class="app-avatar-small">🤖</div>
+                    <h1 class="app-title">Veritas Quaesitor</h1>
+                </div>
+
+                <div class="header-right">
+                    <span class="status-indicator">
                         <span class="status-dot"></span>
                         <span id="status-text">Online</span>
-                    </p>
+                    </span>
                 </div>
-            </div>
-            <div class="header-right">
-                <button id="clear-btn" class="header-btn" title="Clear conversation">
-                    <span>🗑️</span>
-                </button>
-                <button id="info-btn" class="header-btn" title="About VQ">
-                    <span>ℹ️</span>
-                </button>
-            </div>
-        </header>
+            </header>
 
-        <main id="chat-container">
-            <div id="messages-area"></div>
-        </main>
+            <main id="chat-container">
+                <div id="messages-area"></div>
+                
+                <div id="welcome-screen" class="welcome-screen">
+                    <div class="welcome-avatar">🤖</div>
+                    <h2 class="welcome-title">Hey! I'm VQ</h2>
+                    <p class="welcome-subtitle">Your guide to Christ-Anchored Intelligence</p>
+                    
+                    <div class="suggestion-grid">
+                        <button class="suggestion-card" data-prompt="Explain CAI methodology">
+                            <span class="suggestion-icon">🧭</span>
+                            <span class="suggestion-text">Explain CAI methodology</span>
+                        </button>
+                        <button class="suggestion-card" data-prompt="What evidence supports the resurrection?">
+                            <span class="suggestion-icon">📜</span>
+                            <span class="suggestion-text">Resurrection evidence</span>
+                        </button>
+                        <button class="suggestion-card" data-prompt="How does Bayesian reasoning apply to faith?">
+                            <span class="suggestion-icon">📊</span>
+                            <span class="suggestion-text">Bayesian reasoning</span>
+                        </button>
+                        <button class="suggestion-card" data-prompt="Tell me about the Beta Tools">
+                            <span class="suggestion-icon">🛠️</span>
+                            <span class="suggestion-text">Beta Tools overview</span>
+                        </button>
+                    </div>
+                </div>
+            </main>
 
-        <footer id="input-area">
-            <div class="input-wrapper">
-                <textarea 
-                    id="message-input" 
-                    placeholder="Ask about CAI methodology, resurrection evidence, or just chat..."
-                    rows="1"
-                    maxlength="2000"
-                ></textarea>
-                <button id="send-btn" class="send-button" disabled>
-                    <span>➤</span>
-                </button>
-            </div>
-            <div class="input-footer">
-                <span class="char-count" id="char-count">0 / 2000</span>
-                <span class="footer-text">VQ Chat v3.1 • <a href="../privacy.html" target="_blank">Privacy</a> • <a href="../terms.html" target="_blank">Terms</a></span>
-            </div>
-        </footer>
+            <footer id="input-area">
+                <div class="input-container">
+                    <div class="input-wrapper">
+                        <button class="input-btn" id="attach-btn" disabled title="Coming soon">
+                            <span>📎</span>
+                        </button>
+                        
+                        <textarea 
+                            id="message-input" 
+                            placeholder="Ask about CAI, resurrection evidence, or anything..."
+                            rows="1"
+                            maxlength="2000"
+                        ></textarea>
+                        
+                        <button id="send-btn" class="send-btn" disabled>
+                            <span>➤</span>
+                        </button>
+                    </div>
+                    
+                    <div class="input-footer">
+                        <span class="char-count" id="char-count">0 / 2000</span>
+                        <span class="footer-links">
+                            VQ Chat v3.1 • 
+                            <a href="../privacy.html" target="_blank">Privacy</a> • 
+                            <a href="../terms.html" target="_blank">Terms</a>
+                        </span>
+                    </div>
+                </div>
+            </footer>
+        </div>
     </div>
 
     <div id="info-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
         <div class="modal-content">
             <button class="modal-close" id="close-modal">×</button>
             <div class="modal-header">
