@@ -234,54 +234,11 @@ body {
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
-    position: relative;
+    font-size: 1.5rem;
 }
 
 .sidebar-toggle:hover {
     background: rgba(255, 255, 255, 0.05);
-}
-
-.hamburger {
-    display: block;
-    width: 20px;
-    height: 2px;
-    background: currentColor;
-    position: relative;
-    transition: background 0.2s ease;
-}
-
-.hamburger::before,
-.hamburger::after {
-    content: '';
-    display: block;
-    width: 20px;
-    height: 2px;
-    background: currentColor;
-    position: absolute;
-    left: 0;
-    transition: all 0.2s ease;
-}
-
-.hamburger::before {
-    top: -6px;
-}
-
-.hamburger::after {
-    top: 6px;
-}
-
-.sidebar.hidden ~ .main-content .hamburger {
-    background: transparent;
-}
-
-.sidebar.hidden ~ .main-content .hamburger::before {
-    transform: rotate(45deg);
-    top: 0;
-}
-
-.sidebar.hidden ~ .main-content .hamburger::after {
-    transform: rotate(-45deg);
-    top: 0;
 }
 
 .header-center {
