@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VQ Backend Connection Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f0f23;
+            color: #e8e8f0;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-box {
+            background: rgba(26, 26, 62, 0.75);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        button {
+            background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .success {
+            background: rgba(74, 222, 128, 0.1);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            color: #4ade80;
+        }
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+        .info {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            color: #667eea;
+        }
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .status.online {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+        .status.offline {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 VQ Backend Connection Test</h1>
+    
+    <div class="test-box">
+        <h2>Backend Status: <span id="status" class="status offline">CHECKING...</span></h2>
+        <p><strong>Endpoint:</strong> https://veritas-quaesitor-production.up.railway.app/chat</p>
+        <button onclick="testConnection()">🔍 Test Connection</button>
+        <div id="result"></div>
+    </div>
+
+    <div class="test-box">
+        <h2>📋 Common Issues & Fixes</h2>
+        
+        <h3>1. Railway App Sleeping</h3>
+        <p>Railway apps sleep after 5 minutes of inactivity on free plan.</p>
+        <p><strong>Fix:</strong> First request wakes it up (takes 30-60 seconds)</p>
+        
+        <h3>2. CORS Issues</h3>
+        <p>Backend must allow requests from your GitHub Pages domain.</p>
+        <p><strong>Check:</strong> Backend should have CORS headers enabled</p>
+        
+        <h3>3. Railway Deployment Failed</h3>
+        <p>Recent code changes may have broken the deployment.</p>
+        <p><strong>Fix:</strong> Check Railway dashboard logs</p>
+        
+        <h3>4. API Key / Environment Variables</h3>
+        <p>Backend needs GROQ_API_KEY environment variable.</p>
+        <p><strong>Check:</strong> Railway dashboard → Variables</p>
+    </div>
+
+    <div class="test-box">
+        <h2>🔧 How to Check Railway Backend</h2>
+        <ol>
+            <li>Go to <a href="https://railway.app" target="_blank" style="color: #ff8c42;">railway.app</a></li>
+            <li>Log in to your account</li>
+            <li>Find "veritas-quaesitor-production" project</li>
+            <li>Check deployment status (green = running, red = failed)</li>
+            <li>Click "Logs" to see error messages</li>
+            <li>Check "Variables" tab for GROQ_API_KEY</li>
+        </ol>
+    </div>
+
+    <script>
+        async function testConnection() {
+            const resultDiv = document.getElementById('result');
+            const statusSpan = document.getElementById('status');
+            
+            resultDiv.innerHTML = '<div class="result info">Testing connection... (may take 30-60 seconds if app is sleeping)</div>';
+            statusSpan.textContent = 'TESTING...';
+            statusSpan.className = 'status';
+            
+            const startTime = Date.now();
+            
+            try {
+                const response = await fetch('https://veritas-quaesitor-production.up.railway.app/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: 'Connection test',
+                        history: []
+                    })
+                });
+                
+                const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <div class="result success">
+                            ✅ SUCCESS!
+                            
+                            Response Time: ${duration}s
+                            Status: ${response.status} ${response.statusText}
+                            
+                            Response Preview:
+                            ${JSON.stringify(data, null, 2).substring(0, 200)}...
+                        </div>
+                    `;
+                    statusSpan.textContent = 'ONLINE';
+                    statusSpan.className = 'status online';
+                } else {
+                    const errorText = await response.text();
+                    resultDiv.innerHTML = `
+                        <div class="result error">
+                            ❌ ERROR: HTTP ${response.status}
+                            
+                            Response Time: ${duration}s
+                            Status: ${response.status} ${response.statusText}
+                            
+                            Error Details:
+                            ${errorText}
+                        </div>
+                    `;
+                    statusSpan.textContent = 'ERROR';
+                    statusSpan.className = 'status offline';
+                }
+            } catch (error) {
+                const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        ❌ CONNECTION FAILED
+                        
+                        Response Time: ${duration}s
+                        Error Type: ${error.name}
+                        Error Message: ${error.message}
+                        
+                        Possible Causes:
+                        • Railway app is down/crashed
+                        • Network/firewall blocking request
+                        • CORS policy blocking request
+                        • Railway domain changed
+                        
+                        Check Railway dashboard for deployment status.
+                    </div>
+                `;
+                statusSpan.textContent = 'OFFLINE';
+                statusSpan.className = 'status offline';
+            }
+        }
+        
+        // Auto-test on page load
+        window.addEventListener('load', () => {
+            setTimeout(testConnection, 500);
+        });
+    </script>
+</body>
+</html>
