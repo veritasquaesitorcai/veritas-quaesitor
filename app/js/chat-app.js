@@ -68,7 +68,7 @@
         document.querySelectorAll('.suggestion-card').forEach(card => {
             card.addEventListener('click', () => {
                 let prompt;
-                if (card.classList.contains('fun-card-rotate')) {
+                if (card.classList.contains('cai-card-rotate-1') || card.classList.contains('cai-card-rotate-2')) {
                     prompt = card.dataset.currentPrompt;
                 } else {
                     prompt = card.dataset.prompt;
