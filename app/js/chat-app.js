@@ -103,17 +103,29 @@
     }
 
     function randomizeRotatingCard() {
-        const rotatingCard = document.querySelector('.fun-card-rotate');
-        const textElement = rotatingCard.querySelector('.fun-text-rotate');
-        
-        const options = [
-            { text: 'Robot scuffs', prompt: 'have you been in robot scuffs?' },
-            { text: 'Phone adventures', prompt: 'what did you do as phones' }
+        // Card 1 - CAI topics rotation
+        const card1 = document.querySelector('.cai-card-rotate-1');
+        const text1 = card1.querySelector('.cai-text-rotate-1');
+        const options1 = [
+            { text: 'Explain CAI methodology', prompt: 'Explain CAI methodology' },
+            { text: 'Resurrection evidence', prompt: 'What evidence supports the resurrection?' },
+            { text: 'Bayesian reasoning', prompt: 'How does Bayesian reasoning apply to faith?' }
         ];
+        const selected1 = options1[Math.floor(Math.random() * options1.length)];
+        text1.textContent = selected1.text;
+        card1.dataset.currentPrompt = selected1.prompt;
         
-        const selected = options[Math.floor(Math.random() * options.length)];
-        textElement.textContent = selected.text;
-        rotatingCard.dataset.currentPrompt = selected.prompt;
+        // Card 2 - CAI advanced topics rotation
+        const card2 = document.querySelector('.cai-card-rotate-2');
+        const text2 = card2.querySelector('.cai-text-rotate-2');
+        const options2 = [
+            { text: 'Beta Tools overview', prompt: 'Tell me about the Beta Tools' },
+            { text: 'Mechanism challenges', prompt: 'How does CAI handle mechanism challenges?' },
+            { text: 'Epistemic symmetry', prompt: 'What is Epistemic Truth Symmetry?' }
+        ];
+        const selected2 = options2[Math.floor(Math.random() * options2.length)];
+        text2.textContent = selected2.text;
+        card2.dataset.currentPrompt = selected2.prompt;
     }
 
     function showWelcomeScreen() {
@@ -259,12 +271,12 @@
 
     function scrollToBottom() {
         const container = document.getElementById('chat-container');
-        requestAnimationFrame(() => {
+        setTimeout(() => {
             container.scrollTo({
                 top: container.scrollHeight,
                 behavior: 'smooth'
             });
-        });
+        }, 100);
     }
 
     function setStatus(status, text) {
