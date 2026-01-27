@@ -618,6 +618,10 @@ body {
     cursor: not-allowed;
 }
 
+.mobile-new-chat-btn {
+    display: none;
+}
+
 #message-input {
     flex: 1;
     background: transparent;
@@ -877,6 +881,13 @@ body {
     
     .new-chat-btn {
         display: flex;
+    }
+    
+    /* Show mobile new chat button in input area */
+    .mobile-new-chat-btn {
+        display: flex;
+        color: var(--text-primary);
+        opacity: 1;
     }
 
     .main-content {
