@@ -18,6 +18,7 @@
         mobileNewChatBtn: document.getElementById('mobile-new-chat-btn'),
         messagesArea: document.getElementById('messages-area'),
         welcomeScreen: document.getElementById('welcome-screen'),
+        chatContainer: document.getElementById('chat-container'),
         messageInput: document.getElementById('message-input'),
         sendBtn: document.getElementById('send-btn'),
         attachBtn: document.getElementById('attach-btn'),
@@ -37,8 +38,10 @@
         
         if (conversationHistory.length === 0) {
             showWelcomeScreen();
+            elements.chatContainer.classList.remove('has-messages');
         } else {
             hideWelcomeScreen();
+            elements.chatContainer.classList.add('has-messages');
         }
         
         elements.messageInput.focus();
@@ -154,6 +157,7 @@
         elements.messagesArea.innerHTML = '';
         localStorage.removeItem(CONFIG.storageKey);
         
+        elements.chatContainer.classList.remove('has-messages');
         showWelcomeScreen();
         elements.messageInput.value = '';
         elements.messageInput.focus();
@@ -314,6 +318,7 @@
         if (!message || isTyping) return;
 
         hideWelcomeScreen();
+        elements.chatContainer.classList.add('has-messages');
         addMessage('user', message);
         
         elements.messageInput.value = '';
