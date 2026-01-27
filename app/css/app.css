@@ -349,6 +349,16 @@ body {
     justify-content: center;
 }
 
+#chat-container.has-messages {
+    display: block;
+    align-items: initial;
+    justify-content: initial;
+}
+
+#chat-container.has-messages #messages-area {
+    min-height: 100%;
+}
+
 #messages-area {
     max-width: 900px;
     margin: 0 auto;
