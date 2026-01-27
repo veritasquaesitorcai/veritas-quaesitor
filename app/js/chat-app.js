@@ -15,6 +15,7 @@
         sidebar: document.getElementById('sidebar'),
         sidebarToggle: document.getElementById('sidebar-toggle'),
         newChatBtn: document.getElementById('new-chat-btn'),
+        mobileNewChatBtn: document.getElementById('mobile-new-chat-btn'),
         messagesArea: document.getElementById('messages-area'),
         welcomeScreen: document.getElementById('welcome-screen'),
         messageInput: document.getElementById('message-input'),
@@ -46,6 +47,7 @@
     function attachEventListeners() {
         elements.sidebarToggle.addEventListener('click', toggleSidebar);
         elements.newChatBtn.addEventListener('click', startNewChat);
+        elements.mobileNewChatBtn.addEventListener('click', startNewChatWithWarning);
         elements.sendBtn.addEventListener('click', sendMessage);
         elements.helpBtn.addEventListener('click', () => showModal());
         
@@ -155,6 +157,16 @@
         showWelcomeScreen();
         elements.messageInput.value = '';
         elements.messageInput.focus();
+    }
+    
+    function startNewChatWithWarning() {
+        if (conversationHistory.length === 0) {
+            return;
+        }
+        
+        if (confirm('Start a new chat? Current conversation will be cleared.')) {
+            startNewChat();
+        }
     }
 
     function handleInputChange() {
@@ -271,12 +283,13 @@
 
     function scrollToBottom() {
         const container = document.getElementById('chat-container');
-        setTimeout(() => {
-            container.scrollTo({
-                top: container.scrollHeight,
-                behavior: 'smooth'
-            });
-        }, 100);
+        const lastMessage = container.querySelector('#messages-area > .message:last-child');
+        
+        if (lastMessage) {
+            setTimeout(() => {
+                lastMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
     }
 
     function setStatus(status, text) {
