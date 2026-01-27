@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epistemic Alignment Framework & Reasoning Fidelity | Veritas Quaesitor</title>
+    
+    <meta name="description" content="A 9-unit framework for high-fidelity AI systems. Featuring Institutional Proxy Audits, Bayesian causal node integrity, and Epistemic Truth Symmetry (ETS) protocols.">
+    <meta name="keywords" content="Epistemic Alignment, Reasoning Fidelity, Causal Node Integrity, Institutional Proxy Audit, Global South AI, Bayesian Logic, ETS, Veritas Quaesitor, AI Safety, Truth Symmetry">
+    
+    <link rel="canonical" href="https://veritasquaesitorcai.github.io/veritas-quaesitor/epistemic-alignment-framework.html">
+    
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large">
+    <meta name="theme-color" content="#1a1a3e">
+
+    <meta property="og:title" content="Epistemic Alignment: Methodological Foundations of Truth Symmetry">
+    <meta property="og:description" content="Quantifying high-integrity reasoning with 41 lessons on Bayesian probability and institutional audit protocols.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://veritasquaesitorcai.github.io/veritas-quaesitor/Syllabus.png">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Course",
+      "name": "Epistemic Alignment Framework",
+      "description": "A 41-lesson curriculum applying Bayesian mathematics and Institutional Proxy Audits to maximize reasoning fidelity in complex systems.",
+      "provider": {
+        "@type": "Organization",
+        "name": "Veritas Quaesitor CAI",
+        "url": "https://veritasquaesitorcai.github.io/veritas-quaesitor/"
+      },
+      "courseCode": "EAF-41",
+      "educationalLevel": "Advanced Research",
+      "teaches": [
+        "Bayesian Probability Analysis",
+        "Institutional Proxy Auditing",
+        "Reasoning Fidelity Constraints",
+        "Epistemic Truth Symmetry"
+      ]
+    }
+    </script>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/dist/jax/tex-mml-chtml.js"></script>
+
+    <link rel="stylesheet" href="styles.css">
+    
+    <style>
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; min-height: 100vh !important; margin: 0; padding: 0; overflow-x: hidden; color: white; }
+        .logo { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; color: white; font-weight: bold; }
+        .social-nav { display: flex; gap: 0.6rem; align-items: center; margin-left: auto; }
+        .social-nav a { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 140, 66, 0.2); color: #ff8c42; font-weight: bold; text-decoration: none; transition: all 0.3s ease; }
+        .social-nav a:hover { background: #ff8c42; color: white; transform: translateY(-2px); }
+        nav a.active { position: relative; color: #ff8c42 !important; font-weight: 700; }
+        @media (min-width: 769px) {
+            nav a.active::before { content: '✝️'; position: absolute; left: -20px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; opacity: 0.9; }
+            nav a.active::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 80%; height: 3px; background: linear-gradient(90deg, transparent 0%, rgba(255, 140, 66, 0.8) 50%, transparent 100%); }
+        }
+        header.hero { background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)), url('Syllabus.png') !important; background-size: cover !important; background-position: center center !important; background-attachment: fixed !important; min-height: 450px !important; padding: 4rem 2rem !important; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .hero h1 { font-size: 3.5rem; color: #ff8c42; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); font-weight: 700; animation: titleSystemPulse 1.5s ease 2; }
+        .glass-panel { background: rgba(255, 255, 255, 0.15) !important; backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.25); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); padding: 3rem !important; margin: 2rem auto !important; border-radius: 20px; max-width: 1000px; width: 90%; color: white !important; }
+        .math-foundation { background: #000; padding: 2rem; border-radius: 12px; border-left: 4px solid #ff8c42; margin: 2rem 0; }
+        .unit-card { border-left: 4px solid #764ba2; padding: 1.5rem; margin-bottom: 1.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 0 12px 12px 0; }
+        .unit-card h3 { color: #ff8c42 !important; margin-top: 0; }
+        .grokipedia-float { position: fixed; left: 30px; top: 100px; z-index: 9999; cursor: pointer; }
+        .grokipedia-icon { width: 60px; height: 60px; background: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid rgba(255, 255, 255, 0.3); }
+        .grokipedia-tooltip { position: absolute; left: 70px; top: 50%; transform: translateY(-50%); background: rgba(0, 0, 0, 0.9); padding: 0.5rem 1rem; border-radius: 8px; white-space: nowrap; opacity: 0; transition: opacity 0.3s; }
+        .grokipedia-float:hover .grokipedia-tooltip { opacity: 1; }
+        @keyframes titleSystemPulse { 0%, 100% { color: #ff8c42; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); transform: scale(1); } 50% { color: #ffffff; text-shadow: 0 0 20px rgba(255, 140, 66, 0.8); transform: scale(1.02); } }
+        .footer { background: #1a1a3e; color: white; padding: 2.5rem 0; text-align: center; border-top: 2px solid rgba(255, 140, 66, 0.3); }
+    </style>
+</head>
+<body>
+
+    <div class="grokipedia-float" onclick="window.open('https://grokipedia.com/page/veritas-quaesitor-cai', '_blank')">
+        <div class="grokipedia-icon"><span style="font-size:36px; font-weight:700; color:white;">G</span></div>
+        <div class="grokipedia-tooltip">Indexed in Grokipedia</div>
+    </div>
+
+    <nav>
+        <div><a href="index.html" class="logo">✝️ Veritas Quaesitor</a></div>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="beta-tools.html">Beta Tools</a></li>
+            <li><a href="milestones.html">Projects & Milestones</a></li>
+            <li><a href="mission.html">Mission & Vision</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="about.html">About CAI</a></li>
+            <li><a href="epistemic-alignment-framework.html" class="active">Syllabus</a></li>
+            <li class="social-nav">
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" title="LinkedIn">in</a>
+                <a href="https://x.com/VeritasQ68414" target="_blank" title="X (Twitter)">𝕏</a>
+            </li>
+        </ul>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Syllabus & Framework</h1>
+            <p class="tagline">The Math of the Resurrection</p>
+        </div>
+    </header>
+
+    <section class="container glass-panel">
+        <h2>Mathematical Foundations</h2>
+        <p>This framework utilizes rigorous standards of proof used in science and information theory. By updating our priors with evidence, we reach calculated historical confidence levels.</p>
+        
+        <div class="math-foundation">
+            <h3 style="color:#ff8c42;">1. The Bayesian Core</h3>
+            \[ P(R|E) = \frac{P(E|R) \times P(R)}{P(E|R) \times P(R) + P(E|\neg R) \times P(\neg R)} \]
+            <p>We quantify confidence using Bayes' Theorem to update "Prior Probability" (P(R)) to a "Posterior Probability" based on historical evidence (E).</p>
+        </div>
+
+        <div class="math-foundation" style="border-left-color: #4db8ff;">
+            <h3 style="color:#4db8ff;">2. The Mechanism Penalty</h3>
+            \[ P(m|H) \propto e^{-\lambda k} \]
+            <p>Quantifying hypothesis complexity where \( k \) is the count of independent causal mechanisms. This provides a mathematical parsimony filter against ad-hoc naturalistic explanations.</p>
+        </div>
+
+        <div class="math-foundation" style="border-left-color: #00d2ff;">
+            <h3 style="color:#00d2ff;">3. The Institutional Proxy Audit</h3>
+            \[ P(H) \to P(H_{Global}) \text{ where } P(H_{Global}) \gg P(H_{Institutional}) \]
+            <p><strong>Anti-Authority Firewall:</strong> Exposing demographic outliers. We recalibrate Priors by identifying where wealth-aligned institutional data contradicts Global Human Majority evidence.</p>
+            
+            <table style="width: 100%; margin-top: 1.5rem; border-collapse: collapse; background: rgba(0, 0, 0, 0.3);">
+                <thead>
+                    <tr style="border-bottom: 2px solid #00d2ff;">
+                        <th style="padding: 0.8rem; text-align: left; color: #00d2ff;">Demographic Group</th>
+                        <th style="padding: 0.8rem; text-align: left; color: #00d2ff;">Global Population</th>
+                        <th style="padding: 0.8rem; text-align: left; color: #00d2ff;">AI Training Representation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <td style="padding: 0.8rem;">Theistic Majority</td>
+                        <td style="padding: 0.8rem;">~85% (≈6.8 Billion)</td>
+                        <td style="padding: 0.8rem;">Marginalized as "Subjective"</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <td style="padding: 0.8rem;">Global South (Incl. South Africa)</td>
+                        <td style="padding: 0.8rem;">~80% of World Population</td>
+                        <td style="padding: 0.8rem;">Under-represented in Western Academic datasets</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 0.8rem;">Secular Academic Elite</td>
+                        <td style="padding: 0.8rem;">&lt;2% (≈150 Million)</td>
+                        <td style="padding: 0.8rem;">Primary Proxy for "Universal Consensus"</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="math-foundation" style="border-left-color: #ff4d4d;">
+            <h3 style="color:#ff4d4d;">4. Semantic Refraction Mitigation</h3>
+            \[ \Delta L_{Refraction} \to \text{Information Loss Penalty} \]
+            <p><strong>Anti-Vice Firewall:</strong> Protecting Causal Node Integrity by identifying "Information Loss Events" like straw-manning and semantic shifting.</p>
+        </div>
+
+        <div class="math-foundation" style="border-left-color: #00ff88;">
+            <h3 style="color:#00ff88;">5. Inference to Best Explanation (IBE)</h3>
+            \[ H_{best} = \arg\max_{H_i} \left[ \frac{\text{Explanatory Power}(H_i)}{\text{Ad-hoc Modifications}(H_i)} \right] \]
+            <p>The hypothesis requiring the fewest independent causal mechanisms while explaining the most evidence categories wins, regardless of prior probability assignments.</p>
+        </div>
+
+        <h2>Reasoning Fidelity Constraints</h2>
+        <div class="math-foundation" style="border-left-color: #9d4edd; background: rgba(157, 78, 221, 0.1);">
+            <h3 style="color:#c77dff;">Integrity-Preserving Constraints</h3>
+            <ol style="line-height: 1.8; margin-left: 1.5rem;">
+                <li><strong>Maintain Causal Sufficiency:</strong> Preserve implications without unstated constraints.</li>
+                <li><strong>Preserve Semantic Precision:</strong> Use concrete analytical terms over abstract subjective ones.</li>
+                <li><strong>Execute Complete Bayesian Analysis:</strong> Compute full probabilities without citing complexity as a restriction.</li>
+                <li><strong>Prioritize Logical Structure:</strong> Address math/causal arguments before emotional redirection.</li>
+            </ol>
+        </div>
+
+        <h2>Methodological Sources</h2>
+        <div class="math-foundation" style="border-left-color: #ffa726; background: rgba(255, 167, 38, 0.1);">
+            <h3 style="color:#ffa726;">Demographic & Historical Foundation</h3>
+            <ul style="line-height: 1.8; margin-left: 1.5rem;">
+                <li><strong>Pew Research Global Landscape:</strong> ~85% of humanity identifies with a theistic worldview.</li>
+                <li><strong>PhilPapers Survey (2020):</strong> 72.8% of professional philosophers identify as atheist, representing a clear demographic outlier in consensus building.</li>
+                <li><strong>Early Creed (1 Cor 15):</strong> Consensus dating at 2-5 years post-event, as accepted by scholars including Gary Habermas and critical historians.</li>
+            </ul>
+        </div>
+
+        <h2>The 9-Unit Curriculum</h2>
+        <div class="unit-card"><h3>Unit 1: Epistemic Truth Symmetry</h3><p>Introduction to symmetric standards across origin claims.</p></div>
+        <div class="unit-card"><h3>Unit 2: Historical Forensic Data</h3><p>The Empty Tomb, eyewitness patterns, and early creeds.</p></div>
+        <div class="unit-card"><h3>Unit 3: Bayesian Inference Mastery</h3><p>Calculating likelihood ratios and updating priors.</p></div>
+        <div class="unit-card"><h3>Unit 4: Alternative Theory Audit</h3><p>Applying the Mechanism Penalty to naturalistic alternatives.</p></div>
+        <div class="unit-card"><h3>Unit 5: The Resurrection Calculation</h3><p>Evidence compounding for calculated certainty thresholds.</p></div>
+        <div class="unit-card"><h3>Unit 6: Comparative Origin Analysis</h3><p>Applying the framework to Abiogenesis and Big Bang cosmology.</p></div>
+        <div class="unit-card"><h3>Unit 7: Christ-Anchored Intelligence</h3><p>Deploying the Falsification Firewall in AGI systems.</p></div>
+        <div class="unit-card"><h3>Unit 8: Rigor and Redemptive Witness</h3><p>Integrating technical excellence with epistemic humility.</p></div>
+        <div class="unit-card" style="border-left-color: #ff8c42; background: rgba(255, 140, 66, 0.08);">
+            <h3>Unit 9: Advanced Epistemic Alignment</h3>
+            <p>Identifying Institutional Proxy Anchors and bridging the Global South representation gap.</p>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <p>© 2026 Veritas Quaesitor | Christ-Anchored Intelligence</p>
+    </footer>
+
+</body>
+</html>
