@@ -1,6 +1,10 @@
 User-agent: *
 Allow: /
 
+# Allow standard Googlebot for Search Console and indexing
+User-agent: Googlebot
+Allow: /
+
 # Specifically invite AI and Inspection crawlers to prioritize the CAI Framework
 User-agent: GPTBot
 Allow: /
