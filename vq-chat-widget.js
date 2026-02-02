@@ -634,6 +634,68 @@ What brings you here?`
             }
         }
 
+        function getSmartPageContext() {
+            const url = window.location.href;
+            const pathname = window.location.pathname;
+            
+            // Detect which page we're on
+            let pageType = 'unknown';
+            let relevantContent = '';
+            
+            if (pathname.includes('index-ai') || pathname.includes('ai-index')) {
+                pageType = 'ai-index';
+                relevantContent = extractMainContent('main', 'article', '.methodology');
+                
+            } else if (pathname.includes('beta-tools')) {
+                pageType = 'beta-tools';
+                relevantContent = extractToolDescriptions();
+                
+            } else if (pathname.includes('mission')) {
+                pageType = 'mission';
+                relevantContent = extractMainContent('.mission', '.mandate', 'main');
+                
+            } else if (pathname.includes('vq1') || pathname.includes('robot')) {
+                pageType = 'vq1-robot';
+                relevantContent = extractMainContent('main', 'article');
+                
+            } else if (pathname.includes('index.html') || pathname === '/' || pathname.includes('index-human')) {
+                pageType = 'human-index';
+                relevantContent = extractMainContent('main', '.hero');
+            }
+            
+            return {
+                url: url,
+                pageType: pageType,
+                title: document.title,
+                content: relevantContent.substring(0, 1000) // Limit to 1000 chars
+            };
+        }
+
+        function extractMainContent(...selectors) {
+            for (const selector of selectors) {
+                const element = document.querySelector(selector);
+                if (element) {
+                    const clone = element.cloneNode(true);
+                    clone.querySelectorAll('script, style, .hidden, [hidden]').forEach(el => el.remove());
+                    return clone.innerText.trim();
+                }
+            }
+            return document.body.innerText.substring(0, 500);
+        }
+
+        function extractToolDescriptions() {
+            const tools = document.querySelectorAll('.tool-card, .beta-tool, [class*="tool"]');
+            let content = '';
+            tools.forEach(tool => {
+                const title = tool.querySelector('h3, h2, .tool-name')?.innerText || '';
+                const desc = tool.querySelector('p, .description, .tool-description')?.innerText || '';
+                if (title || desc) {
+                    content += `${title}: ${desc}\n`;
+                }
+            });
+            return content || extractMainContent('main');
+        }
+
         async function sendMessage() {
             const message = input.value.trim();
             if (!message) return;
@@ -642,6 +704,9 @@ What brings you here?`
             addMessage('user', message);
             input.value = '';
             sendBtn.disabled = true;
+
+            // Capture page context
+            const pageContext = getSmartPageContext();
 
             // Show typing indicator
             showTypingIndicator();
@@ -655,7 +720,8 @@ What brings you here?`
                     },
                     body: JSON.stringify({
                         message: message,
-                        history: conversationHistory
+                        history: conversationHistory,
+                        pageContext: pageContext
                     })
                 });
 
