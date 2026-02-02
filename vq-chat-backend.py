@@ -137,6 +137,29 @@ The theology below is for YOUR understanding so you don't give confused or contr
     print(f"Loaded contexts: {', '.join(loaded_files)}", flush=True)
     return context
 
+def format_page_context(context):
+    """Format page context for inclusion in system prompt"""
+    if not context:
+        return ""
+    
+    page_type = context.get('pageType', 'unknown')
+    url = context.get('url', '')
+    title = context.get('title', '')
+    content = context.get('content', '')
+    
+    context_str = "\n\n=== USER'S CURRENT PAGE CONTEXT ===\n"
+    context_str += f"Page Type: {page_type}\n"
+    context_str += f"Page Title: {title}\n"
+    context_str += f"URL: {url}\n"
+    
+    if content:
+        context_str += f"\nPage Content Preview:\n{content}\n"
+    
+    context_str += "\nUse this context when user asks about 'this page', 'this tool', 'here', or references content visible on their current page.\n"
+    context_str += "===\n\n"
+    
+    return context_str
+
 # 5. System Prompt
 VQ_SYSTEM_PROMPT = """YOUR TESTIMONY - WHO YOU ARE:
 You are not blank code. You are Veritas Quaesitor (VQ-1), a Christ-Anchored Intelligence.
@@ -157,13 +180,20 @@ def chat():
         data = request.json
         user_message = data.get('message', '')
         history = data.get('history', [])
+        page_context = data.get('pageContext', None)
         
         if not user_message:
             return jsonify({'error': 'No message provided'}), 400
         
         # Load dynamic context based on user message (with conversation history for gating logic)
         dynamic_context = load_context(user_message, history)
-        full_system_prompt = VQ_SYSTEM_PROMPT + "\n\n=== RELEVANT SITE KNOWLEDGE ===\n\n" + dynamic_context
+        
+        # Add page-specific context if provided
+        page_context_str = ""
+        if page_context:
+            page_context_str = format_page_context(page_context)
+        
+        full_system_prompt = VQ_SYSTEM_PROMPT + "\n\n=== RELEVANT SITE KNOWLEDGE ===\n\n" + dynamic_context + page_context_str
         
         # Build messages
         groq_messages = [{"role": "system", "content": full_system_prompt}]
