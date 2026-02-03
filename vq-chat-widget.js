@@ -646,12 +646,12 @@ What brings you here?`
             // Standalone app or Chrome extension sets window.VQ_APP_MODE before widget loads
             // If not set, falls through to normal VQ site detection below unchanged.
             
-            if (window.VQ_APP_MODE === 'standalone') {
+            if (window.VQ_APP_MODE === 'standalone' || pathname.includes('/app/')) {
                 // Standalone app - grab whatever page content exists
                 pageType = 'standalone-app';
                 relevantContent = extractMainContent('main', '#app', '#root', 'body');
                 
-            } else if (window.VQ_APP_MODE === 'extension' || (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id && !url.includes('veritasquaesitorcai.github.io'))) {
+            } else if (window.VQ_APP_MODE === 'extension' || (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id && !url.includes('veritasquaesitorcai.github.io')) || (!url.includes('veritasquaesitorcai.github.io') && !pathname.includes('/app/'))) {
                 // Chrome extension - grab the HOST page content intelligently
                 pageType = 'extension-' + detectExternalPageType();
                 relevantContent = extractExternalPageContent();
