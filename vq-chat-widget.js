@@ -641,8 +641,23 @@ What brings you here?`
             // Detect which page we're on
             let pageType = 'unknown';
             let relevantContent = '';
+
+            // --- ENVIRONMENT DETECTION (checked FIRST, before site pages) ---
+            // Standalone app or Chrome extension sets window.VQ_APP_MODE before widget loads
+            // If not set, falls through to normal VQ site detection below unchanged.
             
-            if (pathname.includes('index-ai') || pathname.includes('ai-index')) {
+            if (window.VQ_APP_MODE === 'standalone') {
+                // Standalone app - grab whatever page content exists
+                pageType = 'standalone-app';
+                relevantContent = extractMainContent('main', '#app', '#root', 'body');
+                
+            } else if (window.VQ_APP_MODE === 'extension' || (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id && !url.includes('veritasquaesitorcai.github.io'))) {
+                // Chrome extension - grab the HOST page content intelligently
+                pageType = 'extension-' + detectExternalPageType();
+                relevantContent = extractExternalPageContent();
+
+            // --- EXISTING VQ SITE DETECTION (unchanged) ---
+            } else if (pathname.includes('index-ai') || pathname.includes('ai-index')) {
                 pageType = 'ai-index';
                 relevantContent = extractMainContent('main', 'article', '.methodology');
                 
@@ -706,6 +721,69 @@ What brings you here?`
                 }
             });
             return content || extractMainContent('main');
+        }
+
+        // --- EXTENSION HELPERS ---
+        // Detects what KIND of external page the extension is running on
+        function detectExternalPageType() {
+            const host = window.location.hostname;
+            if (host.includes('wikipedia')) return 'wikipedia';
+            if (host.includes('youtube')) return 'youtube';
+            if (host.includes('arxiv')) return 'arxiv';
+            if (host.includes('scholar.google')) return 'google-scholar';
+            if (host.includes('reddit')) return 'reddit';
+            if (host.includes('twitter') || host.includes('x.com')) return 'twitter';
+            if (host.includes('linkedin')) return 'linkedin';
+            if (host.includes('github')) return 'github';
+            if (host.includes('medium')) return 'medium';
+            if (host.includes('stackoverflow')) return 'stackoverflow';
+            return 'webpage';
+        }
+
+        // Extracts relevant content from external pages intelligently
+        function extractExternalPageContent() {
+            const host = window.location.hostname;
+            let content = '';
+
+            // Wikipedia: grab the article content
+            if (host.includes('wikipedia')) {
+                const article = document.querySelector('#mw-content-text .mw-parser-output');
+                if (article) {
+                    // Get first few paragraphs only
+                    const paragraphs = article.querySelectorAll('p');
+                    paragraphs.forEach((p, i) => {
+                        if (i < 3 && p.innerText.trim().length > 50) {
+                            content += p.innerText.trim() + '\n';
+                        }
+                    });
+                }
+            }
+            // YouTube: grab video title and description
+            else if (host.includes('youtube')) {
+                const title = document.querySelector('h1.ytd-video-title-renderer')?.innerText || '';
+                const desc = document.querySelector('.ytd-text-expand-container')?.innerText || '';
+                content = `Video: ${title}\n${desc.substring(0, 500)}`;
+            }
+            // ArXiv: grab paper title and abstract
+            else if (host.includes('arxiv')) {
+                const title = document.querySelector('h1.title')?.innerText || '';
+                const abstract = document.querySelector('.abstract')?.innerText || '';
+                content = `Paper: ${title}\n${abstract}`;
+            }
+            // Reddit: grab post title and top comments
+            else if (host.includes('reddit')) {
+                const title = document.querySelector('h1[data-testid="post-title"]')?.innerText || document.querySelector('h1')?.innerText || '';
+                content = `Reddit Post: ${title}`;
+            }
+            // Generic fallback: title + meta description + first main text
+            else {
+                const title = document.title || '';
+                const metaDesc = document.querySelector('meta[name="description"]')?.content || '';
+                const mainText = extractMainContent('main', 'article', '[role="main"]', 'body');
+                content = `${title}\n${metaDesc}\n${mainText.substring(0, 400)}`;
+            }
+
+            return content.substring(0, 1000);
         }
 
         async function sendMessage() {
