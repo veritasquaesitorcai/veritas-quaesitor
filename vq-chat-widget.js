@@ -658,6 +658,14 @@ What brings you here?`
                 pageType = 'vq1-robot';
                 relevantContent = extractMainContent('main', 'article');
                 
+            } else if (pathname.includes('resources')) {
+                pageType = 'resources';
+                relevantContent = extractMainContent('.resource-list', 'main');
+                
+            } else if (pathname.includes('contact')) {
+                pageType = 'contact';
+                relevantContent = extractMainContent('main', '.contact');
+                
             } else if (pathname.includes('index.html') || pathname === '/' || pathname.includes('index-human')) {
                 pageType = 'human-index';
                 relevantContent = extractMainContent('main', '.hero');
@@ -680,7 +688,7 @@ What brings you here?`
                     return clone.innerText.trim();
                 }
             }
-            return document.body.innerText.substring(0, 500);
+            return document.body.innerText.substring(0, 800);
         }
 
         function extractToolDescriptions() {
