@@ -147,16 +147,46 @@ def format_page_context(context):
     title = context.get('title', '')
     content = context.get('content', '')
     
+    # Detect environment from pageType
+    is_standalone = page_type == 'standalone-app'
+    is_extension = page_type.startswith('extension-')
+    is_external = is_standalone or is_extension
+    
     context_str = "\n\n=== USER'S CURRENT PAGE CONTEXT ===\n"
-    context_str += f"Page Type: {page_type}\n"
+    
+    # Strong environment directive for standalone/extension
+    if is_standalone:
+        context_str += """
+[CRITICAL - OVERRIDE CONTEXT BEHAVIOR]
+You are currently running as a STANDALONE APP, not on the VQ website.
+The user is interacting with you inside the VQ application.
+When asked about "this page" or "where am I", tell them they are in the VQ standalone app.
+Focus on helping them with whatever they need - you are their AI assistant here.
+"""
+    elif is_extension:
+        ext_site = page_type.replace('extension-', '')
+        context_str += f"""
+[CRITICAL - OVERRIDE CONTEXT BEHAVIOR]
+You are currently running as a CHROME EXTENSION on an EXTERNAL website.
+The user is NOT on the VQ website. They are browsing {ext_site}.
+The content below is from the PAGE THEY ARE CURRENTLY READING.
+When asked "what page am I on" or similar, describe THEIR current page, NOT VQ.
+Prioritize helping them understand or interact with the content they are reading.
+You can still answer questions about VQ/CAI if they ask, but your PRIMARY focus
+is the page they are on right now.
+"""
+    else:
+        context_str += "[USER'S CURRENT PAGE ON VQ SITE]\n"
+        context_str += "Use this when user references 'this page', 'here', or visible content.\n"
+    
+    context_str += f"\nPage Type: {page_type}\n"
     context_str += f"Page Title: {title}\n"
     context_str += f"URL: {url}\n"
     
     if content:
-        context_str += f"\nPage Content Preview:\n{content}\n"
+        context_str += f"\nPage Content:\n{content}\n"
     
-    context_str += "\nUse this context when user asks about 'this page', 'this tool', 'here', or references content visible on their current page.\n"
-    context_str += "===\n\n"
+    context_str += "=== END PAGE CONTEXT ===\n\n"
     
     return context_str
 
@@ -188,12 +218,15 @@ def chat():
         # Load dynamic context based on user message (with conversation history for gating logic)
         dynamic_context = load_context(user_message, history)
         
-        # Add page-specific context if provided
+        # Page context goes FIRST - before identity files, so LLM sees it as priority
         page_context_str = ""
         if page_context:
             page_context_str = format_page_context(page_context)
+            print(f"[PAGE CONTEXT] type={page_context.get('pageType')} url={page_context.get('url')} content_len={len(page_context.get('content',''))}", flush=True)
+        else:
+            print("[PAGE CONTEXT] None received", flush=True)
         
-        full_system_prompt = VQ_SYSTEM_PROMPT + "\n\n=== RELEVANT SITE KNOWLEDGE ===\n\n" + dynamic_context + page_context_str
+        full_system_prompt = VQ_SYSTEM_PROMPT + "\n\n" + page_context_str + "\n\n=== RELEVANT SITE KNOWLEDGE ===\n\n" + dynamic_context
         
         # Build messages
         groq_messages = [{"role": "system", "content": full_system_prompt}]
