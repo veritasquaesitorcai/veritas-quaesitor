@@ -666,9 +666,13 @@ What brings you here?`
                 pageType = 'contact';
                 relevantContent = extractMainContent('main', '.contact');
                 
-            } else if (pathname.includes('index.html') || pathname === '/' || pathname.includes('index-human')) {
+            } else if (pathname.includes('index-human')) {
                 pageType = 'human-index';
                 relevantContent = extractMainContent('main', '.hero');
+                
+            } else if (pathname.includes('index.html') || pathname === '/') {
+                pageType = 'ai-index';
+                relevantContent = extractMainContent('main', 'article', '.methodology');
             }
             
             return {
