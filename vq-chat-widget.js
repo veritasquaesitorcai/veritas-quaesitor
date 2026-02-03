@@ -745,45 +745,137 @@ What brings you here?`
             const host = window.location.hostname;
             let content = '';
 
-            // Wikipedia: grab the article content
+            // --- ALWAYS GRAB THESE (baseline for every external page) ---
+            const title = document.title || '';
+            const metaDesc = document.querySelector('meta[name="description"]')?.content || '';
+            const selectedText = window.getSelection()?.toString().trim() || '';
+
+            // Selected text is PRIORITY - user highlighted something intentionally
+            if (selectedText.length > 10) {
+                content += `[USER SELECTED TEXT]: "${selectedText}"\n\n`;
+            }
+
+            content += `[PAGE TITLE]: ${title}\n`;
+            if (metaDesc) content += `[PAGE DESCRIPTION]: ${metaDesc}\n`;
+            content += '\n';
+
+            // --- SITE-SPECIFIC EXTRACTION ---
+
+            // Wikipedia: handle both main page and article pages
             if (host.includes('wikipedia')) {
                 const article = document.querySelector('#mw-content-text .mw-parser-output');
                 if (article) {
-                    // Get first few paragraphs only
+                    // Article page - grab heading + first paragraphs
+                    const h1 = document.querySelector('h1#firstHeading')?.innerText || '';
+                    content += `[ARTICLE]: ${h1}\n`;
                     const paragraphs = article.querySelectorAll('p');
                     paragraphs.forEach((p, i) => {
                         if (i < 3 && p.innerText.trim().length > 50) {
                             content += p.innerText.trim() + '\n';
                         }
                     });
+                } else {
+                    // Main page - grab visible sections
+                    content += '[PAGE]: Wikipedia Main Page\n';
+                    content += getVisibleText(300);
                 }
             }
-            // YouTube: grab video title and description
+            // YouTube: multiple selector attempts (YouTube changes these often)
             else if (host.includes('youtube')) {
-                const title = document.querySelector('h1.ytd-video-title-renderer')?.innerText || '';
-                const desc = document.querySelector('.ytd-text-expand-container')?.innerText || '';
-                content = `Video: ${title}\n${desc.substring(0, 500)}`;
+                const titleEl = document.querySelector('h1.ytd-video-title-renderer') 
+                    || document.querySelector('h1[class*="title"]')
+                    || document.querySelector('yt-formatted-string.ytd-video-title-renderer');
+                const videoTitle = titleEl?.innerText || '';
+                const channelEl = document.querySelector('.ytd-channel-name-renderer a')
+                    || document.querySelector('[class*="channel-name"]');
+                const channel = channelEl?.innerText || '';
+                const descEl = document.querySelector('.ytd-text-expand-container')
+                    || document.querySelector('[class*="description"]');
+                const desc = descEl?.innerText || '';
+                if (videoTitle) content += `[VIDEO]: ${videoTitle}\n`;
+                if (channel) content += `[CHANNEL]: ${channel}\n`;
+                if (desc) content += `[DESCRIPTION]: ${desc.substring(0, 400)}\n`;
             }
-            // ArXiv: grab paper title and abstract
+            // ArXiv: paper title + abstract
             else if (host.includes('arxiv')) {
-                const title = document.querySelector('h1.title')?.innerText || '';
-                const abstract = document.querySelector('.abstract')?.innerText || '';
-                content = `Paper: ${title}\n${abstract}`;
+                const paperTitle = document.querySelector('h1.title')?.innerText 
+                    || document.querySelector('.abs-title')?.innerText || '';
+                const abstract = document.querySelector('.abstract')?.innerText 
+                    || document.querySelector('[class*="abstract"]')?.innerText || '';
+                if (paperTitle) content += `[PAPER]: ${paperTitle}\n`;
+                if (abstract) content += `[ABSTRACT]: ${abstract}\n`;
             }
-            // Reddit: grab post title and top comments
+            // Reddit: post title + body + top comments
             else if (host.includes('reddit')) {
-                const title = document.querySelector('h1[data-testid="post-title"]')?.innerText || document.querySelector('h1')?.innerText || '';
-                content = `Reddit Post: ${title}`;
+                const postTitle = document.querySelector('h1[data-testid="post-title"]')?.innerText 
+                    || document.querySelector('h1')?.innerText || '';
+                const postBody = document.querySelector('[data-testid="post-content"]')?.innerText 
+                    || document.querySelector('.self-text')?.innerText || '';
+                if (postTitle) content += `[POST]: ${postTitle}\n`;
+                if (postBody) content += `[BODY]: ${postBody.substring(0, 300)}\n`;
+                // Grab top 2 comments
+                const comments = document.querySelectorAll('[data-testid="comment"]');
+                let commentCount = 0;
+                comments.forEach(c => {
+                    if (commentCount < 2) {
+                        const text = c.querySelector('[class*="comment-content"]')?.innerText || c.innerText;
+                        if (text && text.length > 20) {
+                            content += `[COMMENT]: ${text.substring(0, 150)}\n`;
+                            commentCount++;
+                        }
+                    }
+                });
             }
-            // Generic fallback: title + meta description + first main text
+            // Twitter/X: tweet content
+            else if (host.includes('twitter') || host.includes('x.com')) {
+                const tweets = document.querySelectorAll('[data-testid="tweet"] [data-testid="tweetText"]');
+                let tweetCount = 0;
+                tweets.forEach(t => {
+                    if (tweetCount < 3) {
+                        content += `[TWEET]: ${t.innerText}\n`;
+                        tweetCount++;
+                    }
+                });
+            }
+            // GitHub: repo name + README or file content
+            else if (host.includes('github.com')) {
+                const repoName = document.querySelector('.repository-content h1')?.innerText
+                    || document.querySelector('[data-testid="repository-title-link"]')?.innerText || '';
+                const readme = document.querySelector('.markdown')?.innerText || '';
+                const fileContent = document.querySelector('.code-view .Lines')?.innerText || '';
+                if (repoName) content += `[REPO]: ${repoName}\n`;
+                if (readme) content += `[README]: ${readme.substring(0, 400)}\n`;
+                if (fileContent) content += `[FILE]: ${fileContent.substring(0, 400)}\n`;
+            }
+            // StackOverflow: question + top answer
+            else if (host.includes('stackoverflow')) {
+                const question = document.querySelector('.post-text[itemprop="text"]')?.innerText 
+                    || document.querySelector('[class*="question-text"]')?.innerText || '';
+                const answers = document.querySelectorAll('.answer .post-text');
+                if (question) content += `[QUESTION]: ${question.substring(0, 300)}\n`;
+                if (answers[0]) content += `[TOP ANSWER]: ${answers[0].innerText.substring(0, 300)}\n`;
+            }
+            // Generic fallback: grab visible text from viewport
             else {
-                const title = document.title || '';
-                const metaDesc = document.querySelector('meta[name="description"]')?.content || '';
-                const mainText = extractMainContent('main', 'article', '[role="main"]', 'body');
-                content = `${title}\n${metaDesc}\n${mainText.substring(0, 400)}`;
+                content += getVisibleText(500);
             }
 
             return content.substring(0, 1000);
+        }
+
+        // Gets text that is actually VISIBLE in the current viewport
+        function getVisibleText(maxChars) {
+            const viewportHeight = window.innerHeight;
+            const elements = document.querySelectorAll('h1, h2, h3, p, li, td, th');
+            let text = '';
+            elements.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                // Only grab elements currently visible on screen
+                if (rect.top >= 0 && rect.bottom <= viewportHeight && el.innerText.trim().length > 20) {
+                    text += el.innerText.trim() + '\n';
+                }
+            });
+            return text.substring(0, maxChars);
         }
 
         async function sendMessage() {
