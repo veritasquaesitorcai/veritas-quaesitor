@@ -1,4 +1,4 @@
-/** 
+/**
  * VQ Chat Widget - Floating Chat Interface
  * Veritas Quaesitor (veritasquaesitorcai.github.io)
  * 
