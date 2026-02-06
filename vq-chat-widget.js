@@ -11,11 +11,11 @@
     // Configuration
     const CONFIG = {
         apiEndpoint: 'https://veritas-quaesitor-production.up.railway.app/chat',
-        welcomeMessage: `Hey! 👋 I'm VQ, your guide to exploring Christ-Anchored Intelligence.
+        welcomeMessage: `Hey! 👋 I'm VQ, your VQ CAI guide.
+        
+I'm here to help. 
 
-I can help with CAI methodology, resurrection evidence, our Beta Tools, or just chat about AI and truth.
-
-What brings you here?`
+Where do we Start?`
     };
 
     // Styles
