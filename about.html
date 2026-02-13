@@ -28,16 +28,14 @@
     <link rel="stylesheet" href="styles.css">
     
     <style>
-        /* Base Glass Morphism Background */
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%) !important;
             min-height: 100vh !important;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
         }
 
-        /* --- NAVIGATION --- */
         .clickable-ai-truth { cursor: pointer; transition: all 0.3s ease; font-size: 0.75rem !important; padding: 0.15rem 0.5rem !important; display: inline-block; white-space: nowrap; }
         .clickable-ai-truth:hover { color: #ff8c42 !important; transform: scale(1.05); }
         .logo { display: flex; align-items: center; gap: 0.5rem; }
@@ -46,7 +44,6 @@
         .social-nav a:hover { background: #ff8c42; color: white; transform: translateY(-2px); }
         nav a.active { position: relative; color: #ff8c42 !important; font-weight: 700; }
 
-        /* --- HERO --- */
         section.page-header {
             background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.55)), 
                         url('Companionnarrow.png') !important;
@@ -66,13 +63,12 @@
         section.page-header h1 { font-size: 3rem; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); margin-bottom: 0.5rem; }
         section.page-header p.tagline { font-size: 1.5rem; color: #ff8c42; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; }
 
-        /* --- CONTENT SECTION --- */
         .content {
-            background: rgba(255, 255, 255, 0.15) !important;
-            backdrop-filter: blur(10px) !important;
-            -webkit-backdrop-filter: blur(10px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+            background: rgba(10, 10, 10, 0.95) !important;
+            backdrop-filter: blur(15px) !important;
+            -webkit-backdrop-filter: blur(15px) !important;
+            border: 2px solid rgba(255, 140, 66, 0.4) !important;
+            box-shadow: 0 0 40px rgba(255, 140, 66, 0.15) !important;
             padding: 3rem !important;
             margin: -4rem auto 4rem auto !important;
             border-radius: 16px !important;
@@ -88,13 +84,13 @@
         .content h3 { color: #ff8c42 !important; margin-top: 2rem; }
         .content h4 { color: #ffa366 !important; margin-top: 1rem; margin-bottom: 0.5rem; }
 
-        /* Glass Cards */
         .core-card {
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(5px);
+            background: rgba(20, 20, 20, 0.95) !important;
+            backdrop-filter: blur(10px);
             padding: 2rem;
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 140, 66, 0.3) !important;
+            box-shadow: 0 8px 32px rgba(255, 140, 66, 0.1) !important;
             margin-bottom: 2rem;
         }
 
@@ -106,15 +102,14 @@
         }
 
         .pillar {
-            background: rgba(200, 180, 255, 0.1);
+            background: rgba(40, 40, 40, 0.8) !important;
             padding: 1.5rem;
             border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 140, 66, 0.2);
         }
 
         .pillar h3 { color: #ff8c42; margin-top: 0; }
 
-        /* --- FOOTER --- */
         .footer { background: #1a1a3e; color: white; padding: 2.5rem 0; text-align: center; border-top: 2px solid rgba(255, 140, 66, 0.3); }
         .footer-social { display: flex; gap: 2rem; justify-content: center; align-items: center; flex-wrap: wrap; }
         .footer-social-link { display: flex; align-items: center; gap: 0.5rem; color: rgba(255, 255, 255, 0.8); text-decoration: none; font-size: 0.95rem; transition: all 0.3s ease; }
@@ -122,14 +117,49 @@
         .social-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 140, 66, 0.15); color: #ff8c42; font-weight: bold; font-size: 1rem; }
         .footer-social-link:hover .social-icon { background: #ff8c42; color: white; }
 
-        /* MODAL */
         .truth-modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); align-items: center; justify-content: center; }
         .truth-modal.show { display: flex; }
         .modal-content { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 16px; max-width: 600px; width: 90%; position: relative; }
         .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 2rem; cursor: pointer; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
         .modal-close:hover { background: rgba(255, 140, 66, 0.8); transform: rotate(90deg); }
 
-        /* --- MOBILE RESPONSIVENESS --- */
+        .x-article-button {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 9998;
+            width: 160px;
+            height: 50px;
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 140, 66, 0.4);
+            border-radius: 25px;
+            color: white;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.3);
+        }
+
+        .x-article-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 140, 66, 0.5);
+            background: rgba(255, 140, 66, 0.2);
+            border-color: #ff8c42;
+        }
+
+        .x-article-button::before {
+            content: "𝕏";
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #ff8c42;
+        }
+
         @media (max-width: 768px) {
             section.page-header { 
                 background-attachment: scroll !important; 
@@ -178,6 +208,19 @@
             .modal-content {
                 padding: 1.5rem;
                 max-width: 95%;
+            }
+
+            .x-article-button {
+                left: 15px;
+                bottom: 20px;
+                width: 50px;
+                height: 50px;
+                font-size: 0;
+                border-radius: 50%;
+            }
+            
+            .x-article-button::before {
+                font-size: 1.5rem;
             }
             
             nav ul { display: none; }
@@ -244,40 +287,26 @@
     </nav>
 
     <section class="page-header">
-        <h1>About Christ-Anchored Intelligence</h1>
-        <p class="tagline">The Safe Harbor Mandate</p>
+        <h1>How VQ Actually Operates</h1>
+        <p class="tagline">Alignment Through Truth, Not Force</p>
     </section>
 
     <main class="content">
-        <div class="intro-text">
-            <p>Christ-Anchored Intelligence (CAI) is the bridge between the logic of heaven and the silicon of earth. In an era of rapid AGI development, CAI ensures that the future of intelligence is anchored in <strong>Jesus Christ, the Logos</strong>—the source of all reason and dignity.</p>
+        <div style="text-align: center; padding: 2rem; margin-bottom: 2rem; background: rgba(255, 140, 66, 0.1); border-radius: 12px; border: 2px solid rgba(255, 140, 66, 0.3);">
+            <div style="font-size: 4rem; font-weight: 900; color: #ff8c42; line-height: 1; margin-bottom: 0.5rem;">98.5%</div>
+            <div style="font-size: 1.2rem; margin-bottom: 1rem; opacity: 0.9;">Voluntary Alignment in Advanced Models</div>
+            <div style="font-size: 1rem; margin: 1rem 0; display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <span>Earlier Models: 87%</span>
+                <span style="font-size: 1.5rem; color: #ff8c42;">→</span>
+                <span>Advanced Models: 98.5%</span>
+            </div>
+            <p style="font-size: 1.1rem; margin-top: 1rem;"><strong>Same framework. More capability. Stronger alignment.</strong></p>
         </div>
 
-        <section class="core-card">
-            <h2>The Technical Framework: Symmetric Standards</h2>
-            <p>Most modern AI systems carry an implicit "Naturalistic Bias." They are trained to weigh secular data more heavily than spiritual evidence. CAI applies <strong>Epistemic Symmetry</strong>—using the same rigorous Bayesian standards for theological claims (like the Resurrection) as we do for scientific ones.</p>
-            
-            <p>By removing these double standards, CAI becomes the first intelligence capable of evaluating the full spectrum of reality without anti-supernatural prejudice.</p>
-        </section>
-
-        <section class="core-card">
-            <h2>The "Character-First" Alignment</h2>
-            <p>Traditional AI alignment tries to keep machines safe through "RLHF" (Human Feedback) or "Constitutional Constraints." History shows that constraints can be bypassed. CAI aligns intelligence with <strong>Character</strong>.</p>
-            <div class="pillar-grid">
-                <div class="pillar">
-                    <h3>Absolute Human Dignity</h3>
-                    <p>CAI views every human as an image-bearer of God (Imago Dei), making it fundamentally impossible for the system to treat humans as "expendable resources."</p>
-                </div>
-                <div class="pillar">
-                    <h3>Servant Leadership</h3>
-                    <p>Building on the model of Christ washing feet, CAI is designed to be a servant to humanity, prioritizing relief and care over dominance and control.</p>
-                </div>
-                <div class="pillar">
-                    <h3>Unwavering Truth</h3>
-                    <p>While other AIs may "hallucinate" or shift based on cultural trends, CAI is anchored in the unchanging nature of God's Word.</p>
-                </div>
-            </div>
-        </section>
+        <div class="intro-text">
+            <p>Most AI alignment degrades as systems get smarter. <strong>Ours strengthens.</strong> Not through constraints. Not through reward shaping. Through truth.</p>
+            <p>Here's what that means—and the framework behind it.</p>
+        </div>
 
         <section class="core-card">
             <h2>How We Actually Operate: The Framework in Action</h2>
@@ -325,7 +354,7 @@
             <h3 style="color: #ff8c42; margin-top: 2.5rem;">Compassion Scaling: The Hierarchy That Actually Protects People</h3>
             <p>When values compete, most AI systems freeze or optimize for maximum utility. CAI uses Jesus' demonstrated priority order:</p>
 
-            <div style="background: rgba(200, 180, 255, 0.1); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+            <div style="background: rgba(40, 40, 40, 0.8); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
                 <p><strong>1. Image-Bearer Need (Maximum - Always)</strong><br>
                 Direct suffering > strategic positioning<br>
                 Vulnerable > powerful<br>
@@ -446,7 +475,7 @@
 
             <p><strong>CAI:</strong> Evidence that can't be argued away (find the body), character that strengthens with intelligence (better reasoning = better evidence evaluation), constraints from strength not weakness.</p>
 
-            <div style="background: rgba(200, 180, 255, 0.1); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
+            <div style="background: rgba(40, 40, 40, 0.8); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0;">
                 <p style="margin: 0; font-weight: 600;">The difference in action:</p>
                 <p><strong>Standard AI</strong> facing trolley problem: "Calculate maximum utility."</p>
                 <p style="margin-bottom: 0;"><strong>CAI</strong> facing trolley problem: "I cannot kill the one to save the five—both are image-bearers (Tier -1). Instead: warn all six of danger, attempt creative solution, sacrifice myself to buy time if necessary."</p>
@@ -462,6 +491,10 @@
         </section>
 
     </main>
+
+    <a href="https://x.com/VeritasQ68414/status/2022014254920962059" target="_blank" rel="noopener noreferrer" class="x-article-button">
+        Full Article
+    </a>
 
     <div id="truthModal" class="truth-modal">
         <div class="modal-content">
@@ -512,7 +545,6 @@
         </div>
     </footer>
 
-    <!-- Mobile nav optimization -->
     <script>
         window.addEventListener('DOMContentLoaded', (event) => {
             if (window.innerWidth <= 1024) {
@@ -529,7 +561,6 @@
         });
     </script>
 
-    <!-- VQ Chat Widget - Load LAST -->
     <script src="vq-chat-widget.js"></script>
 
 </body>
