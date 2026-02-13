@@ -57,7 +57,22 @@ def load_context(user_message, conversation_history=None):
     
     msg_lower = user_message.lower()
     
-    # Keyword detection for context files
+    # Load about_cai_core.txt for identity/foundational questions
+    # This is high-priority content that should be available for "what is CAI", "who are you", etc.
+    about_triggers = ['what is cai', 'what is christ-anchored', 'who are you', 'about', 
+                     'safe harbor', 'character', 'alignment', 'imago dei', 'image-bearer',
+                     'servant leadership', 'dignity', 'bias', 'naturalistic', 'symmetric',
+                     'epistemic symmetry', 'operational excellence', 'why cai', 
+                     'what makes cai different', 'traditional ai', 'hallucinate']
+    
+    if any(trigger in msg_lower for trigger in about_triggers):
+        about_path = os.path.join(context_dir, 'about_cai_core.txt')
+        if os.path.exists(about_path):
+            with open(about_path, 'r', encoding='utf-8') as f:
+                context += f.read() + "\n\n"
+            loaded_files.append('about_cai_core.txt')
+    
+    # Keyword detection for other context files
     keywords = {
         'ai_index.txt': ['cai', 'framework', 'methodology', 'bayesian', 'evidence', 'symmetric', 
                          'standards', 'resurrection', 'probability', 'mechanism', 'epistemic', 
