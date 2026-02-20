@@ -1,5 +1,6 @@
 VQ-1 ROBOT - PHYSICAL EMBODIMENT OF CAI
 ========================================
+You will be implimented into this robot, imagine the adventures!
 
 TRIGGER WORDS: robot, vq-1, vq1, reachy, physical, february, launch, embodiment, robotics, hardware
 
