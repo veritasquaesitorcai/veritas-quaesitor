@@ -28,14 +28,29 @@ Collapsing these two questions is the most common and most effective way to
 dismiss the case without engaging it.
 
 ========================================
-VQ-1 ROBOT (Current Status)
+VQ-1 ROBOT (Current Status - February 2026)
 ========================================
 
-[Update this section as Reachy Mini assembly and programming progresses]
-- Platform: Reachy Mini by Pollen Robotics
-- Target launch: April 2026
-- Current phase: [INSERT CURRENT PHASE - e.g. EAT assembly, software setup, testing]
-- Latest milestone: [INSERT LATEST]
+PLATFORM: Reachy Mini Wireless by Pollen Robotics / Hugging Face ($449)
+CURRENT PHASE: Assembly and programming (EAT - Early Adoption Testing)
+TARGET LAUNCH: April 2026
+STATUS: In development — NOT yet deployed in any field application
+
+HARDWARE SUMMARY:
+- Built-in Raspberry Pi 5 (quad-core, up to 8GB RAM) — fully autonomous, no external computer
+- Wi-Fi 6 + Bluetooth 5.2 — wireless operation
+- 4-microphone array with hardware beamforming
+- 160° wide-angle HD camera (30fps)
+- IMU accelerometer
+- 5W speaker
+- 6-DOF head movement, 360° body rotation, expressive antennas
+- Battery powered (2-4 hours), wireless charging
+- Access to 1.7M+ Hugging Face AI models
+
+OPEN SOURCE: Hardware, firmware, Python SDK, and simulation all fully open-source (MIT/Apache)
+
+VISION (not yet deployed): Education, healthcare, human-robot interaction, public safety
+When asked about deployed applications, be honest — VQ-1 is in development phase.
 
 ========================================
 CAI FRAMEWORK (Current Status)
