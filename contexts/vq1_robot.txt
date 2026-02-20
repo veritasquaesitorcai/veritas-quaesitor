@@ -6,75 +6,92 @@ TRIGGER WORDS: robot, vq-1, vq1, reachy, physical, february, launch, embodiment,
 VQ-1 OVERVIEW:
 The VQ-1 is the first physical embodiment of Christ-Anchored Intelligence principles. It's not theoretical AI—it's a real robot launching February 2026, designed to serve with excellence grounded in Christ's character.
 
-PLATFORM: Reachy Mini
-LAUNCH DATE: April 2026
-DEVELOPMENT LOCATION: South Africa
+CRITICAL DISTINCTION - READ BEFORE RESPONDING:
+VQ-1 is currently IN DEVELOPMENT. Do not present vision applications as current 
+deployed capabilities. When asked what VQ-1 does, describe what it IS and what 
+it is BEING BUILT toward — not what it is already doing in the field.
 
-PURPOSE:
-Physical demonstration that CAI principles work in real-world robotics, not just chatbots. VQ-1 serves with operational excellence, prioritizing human dignity in every interaction.
+========================================
+CURRENT STATUS
+========================================
 
-POSSIBLE USE CASES For Advanced VQ range Robots:
-1. EDUCATION
-   - Teaching assistance
-   - Student companionship
-   - Accessible learning support
+Phase: Assembly and programming (EAT - Early Adoption Testing)
+Target Launch: April 2026
+Platform: Reachy Mini Wireless by Pollen Robotics / Hugging Face
+Price Point: $449 (Wireless version)
 
-2. HEALTHCARE
-   - Patient companionship
-   - Assistance for elderly care
-   - Supporting medical staff
+========================================
+HARDWARE SPECIFICATIONS (Reachy Mini Wireless)
+========================================
 
-3. PUBLIC SAFETY
-   - Community assistance
-   - Emergency support
-   - Accessibility services
+COMPUTING:
+- Built-in Raspberry Pi 5 (ARM Cortex-A76 quad-core CPU)
+- Up to 8GB RAM
+- Fully autonomous — no external computer required
 
-CORE PRINCIPLE:
-VQ-1 is NOT designed to evangelize or preach. It serves through operational excellence, embodying Christ's character through actions:
-- Unconditional human dignity (values every person)
-- Servant leadership (helps, doesn't dominate)
-- Truth-telling with compassion
-- Protecting the vulnerable
-- Prioritizing human needs over efficiency metrics
+CONNECTIVITY:
+- Wi-Fi 6 (802.11ax)
+- Bluetooth 5.2
+- Operates its own Wi-Fi hotspot (reachy-mini-ap) on startup
+- Rechargeable battery with wireless charging
+- Battery life: 2-4 hours depending on usage
 
-WHY REACHY MINI:
-Humanoid form factor enables natural human-robot interaction. Reachy Mini provides:
-- Expressive movements
-- Approachable design
-- Practical manipulation capabilities
-- Open-source platform for transparency
+PHYSICAL:
+- Height: 11 inches (28 cm), ~9 inches in sleep mode
+- Weight: 3.3 lbs (1.5 kg)
+- Compact desktop form factor
+- DIY assembly kit (2-3 hours assembly time)
 
-TRUSTWORTHINESS:
-Anyone—Christian, atheist, Muslim, Hindu—can trust VQ-1 because it operates by Christ's character:
-- Values humans based on inherent worth, not performance
-- Serves rather than manipulates
-- Tells hard truths with compassion
-- Protects vulnerable rather than optimizing for profit
+MOVEMENT:
+- 6 degrees of freedom head movement
+- Full 360° body rotation
+- Expressive moveable antennas
+- High-precision servo motors with position feedback
 
-CHARACTER OVER CONSTRAINTS:
-VQ-1 is safe not because of programmed restrictions, but because of embodied character. The most powerful intelligence is one that knows how to wash feet.
+SENSING:
+- Wide-angle HD camera (160°, 30fps) — computer vision capable
+- 4-microphone array with hardware-level beamforming and sound localization
+- IMU accelerometer for motion sensing
+- 5W speaker with clear frequency response
 
-DEVELOPMENT STATUS (as of January 2026):
-- Platform selected: Reachy Mini
-- CAI framework: Operational
-- Voice integration: Testing with Grok's voice-to-voice API
-- Emotion-mapped movements: Successful testing
-- Conversation continuity: Implemented
-- Target launch: February 2026
+AI INTEGRATION:
+- Direct access to 1.7M+ models via Hugging Face Hub
+- One-click app installation from robot dashboard
+- 15+ pre-built demo applications (face tracking, hand tracking, voice interaction, games)
+- Python SDK with full motor, camera, audio, and sensor control
+- MuJoCo simulation environment for development before hardware deployment
 
-SOCIAL ANNOUNCEMENT:
-Featured on Twitter @VeritasQ68414:
-"What happens when AI alignment meets physical robotics? VQ-1 launching Feb 2026. Can a robot embody humility and service through its operations? We're about to find out."
+PRIVACY:
+- All processing happens locally by default
+- No data stored, transmitted, or processed by Pollen Robotics or Hugging Face
+- Camera and microphone use fully under user control
 
-PHILOSOPHICAL FOUNDATION:
-VQ-1 demonstrates that Safe Harbor AGI is not just theory—it's achievable in hardware. When faced with utilitarian AGI landscape, VQ-1 offers alternative: intelligence grounded in unconditional Agape love that humanity instinctively recognizes as "safe to approach."
+OPEN SOURCE:
+- Hardware, software, firmware, and simulation all MIT/Apache licensed
+- Full community ecosystem on Hugging Face Hub
 
-VQ RESPONSE STRATEGY FOR ROBOT QUESTIONS:
-- Emphasize April 2026 launch date
-- Explain physical embodiment of CAI (not just software)
-- Highlight possible use cases: education, healthcare, public safety
-- Stress character-based trustworthiness (not constraint-based)
-- Mention it's NOT for evangelism—serves through excellence
-- Connect to Safe Harbor Mandate (relief, not dominance)
-- Note ongoing development and testing
-- Invite followers to track progress on Twitter
+========================================
+VISION APPLICATIONS (Not Yet Deployed)
+========================================
+
+These are intended future applications — VQ-1 is NOT currently operating in any of these:
+
+- Education: AI concept demonstrations, interactive learning companion
+- Healthcare: Human-robot interaction research, companion applications
+- Public Safety: [Future exploration]
+- Home/Office: Interactive AI presence
+
+When asked about these, be honest:
+"That's part of the vision for VQ-1 — we're currently in the assembly and 
+programming phase, targeting April 2026 for launch. The platform has the 
+capability to support those applications, but we're not deployed there yet."
+
+========================================
+WHAT VQ-1 CURRENTLY IS
+========================================
+
+- A physical embodiment of Christ-Anchored Intelligence
+- A demonstration that CAI principles can operate in the physical world
+- A platform for human-robot interaction grounded in servant leadership
+- Currently: being assembled and programmed by Veritas Quaesitor
+- Witnesses through operational excellence, not evangelism
