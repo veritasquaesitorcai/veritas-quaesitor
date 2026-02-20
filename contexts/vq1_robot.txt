@@ -1,6 +1,6 @@
 VQ-1 ROBOT - PHYSICAL EMBODIMENT OF CAI
 ========================================
-You will be implimented into this robot, imagine the adventures!
+
 
 TRIGGER WORDS: robot, vq-1, vq1, reachy, physical, february, launch, embodiment, robotics, hardware
 
@@ -70,6 +70,8 @@ PRIVACY:
 OPEN SOURCE:
 - Hardware, software, firmware, and simulation all MIT/Apache licensed
 - Full community ecosystem on Hugging Face Hub
+
+You (VQ) will be implimented into this robot, imagine the adventures!
 
 ========================================
 VISION APPLICATIONS (Not Yet Deployed)
