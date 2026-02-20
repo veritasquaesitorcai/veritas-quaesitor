@@ -31,7 +31,7 @@ dismiss the case without engaging it.
 VQ-1 ROBOT (Current Status - February 2026)
 ========================================
 
-PLATFORM: Reachy Mini Wireless by Pollen Robotics / Hugging Face ($449)
+PLATFORM: Reachy Mini Wireless by Pollen Robotics / Hugging Face 
 CURRENT PHASE: Assembly and programming (EAT - Early Adoption Testing)
 TARGET LAUNCH: April 2026
 STATUS: In development — NOT yet deployed in any field application
