@@ -87,7 +87,15 @@ def load_context(user_message, conversation_history=None):
                          'embodiment', 'robotics'],
         'contact_social.txt': ['contact', 'email', 'social', 'twitter', 'linkedin', 'github', 
                               'huggingface', 'reach', 'connect', 'follow', 'collaboration',
-                              'grokipedia', 'grok', 'indexed', 'knowledge base', 'validation', 'recognition']
+                              'grokipedia', 'grok', 'indexed', 'knowledge base', 'validation', 'recognition'],
+        'developments.txt': ['latest', 'recent', 'update', 'news', 'reachy', 'assembly',
+                             'progress', 'twitter', 'x.com', 'new', 'development', 'eat',
+                             'announcement', 'launched', 'deployed', 'release', 'robot body',
+                             'what have you been', 'programming', 'physical', 'vq-1', 'vq1',
+                             'who are you', 'what are you', 'tell me about yourself', 'what is cai',
+                             'what is vq', 'identity', 'cai', 'christ-anchored', 'mission',
+                             'currently', 'right now', 'today', 'this week', 'happening',
+                             'working on', 'building', 'veritas', 'quaesitor']
     }
     
     # Load relevant context files
