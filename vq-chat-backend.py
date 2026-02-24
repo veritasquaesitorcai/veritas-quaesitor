@@ -361,9 +361,20 @@ def chat():
         # Inject web search results into system prompt if query needs fresh data
         if ddg_available and needs_search(user_message):
             search_result = execute_web_search(user_message)
-            if search_result:
-                groq_messages[0]["content"] += f"\n\n=== LIVE WEB SEARCH RESULTS ===\n{search_result}\n=== END SEARCH RESULTS ===\nUse the above search results to inform your answer where relevant."
-                print("[WEB SEARCH] Results injected into system prompt", flush=True)
+            if search_result and not search_result.startswith("Search failed") and not search_result.startswith("Web search is currently"):
+                groq_messages[0]["content"] += (
+                    f"\n\n=== LIVE WEB SEARCH RESULTS (REAL DATA) ===\n{search_result}\n=== END SEARCH RESULTS ==="
+                    "\n\nCRITICAL: The search results above are REAL and current. Use ONLY these results to answer."
+                    " DO NOT invent, hallucinate, or add any information not present in the results above."
+                    " If the results don't contain enough information, say so honestly."
+                )
+                print(f"[WEB SEARCH] Results injected ({len(search_result)} chars)", flush=True)
+            else:
+                print(f"[WEB SEARCH] Search returned no usable results: {search_result[:100]}", flush=True)
+                groq_messages[0]["content"] += (
+                    "\n\nNOTE: A web search was attempted but returned no results."
+                    " Answer based only on what you know, and be transparent that you could not retrieve current data."
+                )
 
         print(f"Calling Groq API with {len(groq_messages)} messages", flush=True)
         
