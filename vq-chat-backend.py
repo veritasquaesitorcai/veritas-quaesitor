@@ -50,33 +50,38 @@ try:
 except Exception as e:
     print(f"⚠ DuckDuckGo search unavailable: {e}", flush=True)
 
-WEB_SEARCH_TOOL = {
-    "type": "function",
-    "function": {
-        "name": "web_search",
-        "description": (
-            "Search the web for current, real-time, or factual information. "
-            "Use this when the user asks about recent events, news, prices, weather, "
-            "specific facts you're uncertain about, or anything that requires up-to-date data. "
-            "Do NOT use for questions you can answer confidently from context or training."
-        ),
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "query": {
-                    "type": "string",
-                    "description": "A concise, specific search query (3-8 words). Be precise."
+def needs_search(message: str) -> bool:
+    """Ask a fast LLM classifier: does this question need a live web search?"""
+    if not groq_client:
+        return False
+    try:
+        result = groq_client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a router. Decide if the user's question requires a live web search "
+                        "to answer accurately. A search is needed for: current events, news, prices, "
+                        "weather, sports scores, recent releases, anything time-sensitive or factual "
+                        "that changes over time. A search is NOT needed for: general knowledge, "
+                        "theology, philosophy, how-to questions, personal conversation, or anything "
+                        "that doesn't depend on up-to-date information. "
+                        "Reply with a single word: YES or NO."
+                    )
                 },
-                "num_results": {
-                    "type": "integer",
-                    "description": "Number of results to retrieve (1-5). Default 3.",
-                    "default": 3
-                }
-            },
-            "required": ["query"]
-        }
-    }
-}
+                {"role": "user", "content": message}
+            ],
+            temperature=0.0,
+            max_tokens=5
+        )
+        answer = result.choices[0].message.content.strip().upper()
+        needs = answer.startswith("YES")
+        print(f"[SEARCH ROUTER] '{message[:60]}...' → {answer}", flush=True)
+        return needs
+    except Exception as e:
+        print(f"[SEARCH ROUTER] Error: {e} — skipping search", flush=True)
+        return False
 
 def execute_web_search(query: str, num_results: int = 3) -> str:
     """Execute a DuckDuckGo search and return formatted results."""
@@ -353,64 +358,24 @@ def chat():
         
         groq_messages.append({"role": "user", "content": user_message})
         
+        # Inject web search results into system prompt if query needs fresh data
+        if ddg_available and needs_search(user_message):
+            search_result = execute_web_search(user_message)
+            if search_result:
+                groq_messages[0]["content"] += f"\n\n=== LIVE WEB SEARCH RESULTS ===\n{search_result}\n=== END SEARCH RESULTS ===\nUse the above search results to inform your answer where relevant."
+                print("[WEB SEARCH] Results injected into system prompt", flush=True)
+
         print(f"Calling Groq API with {len(groq_messages)} messages", flush=True)
         
-        # Call Groq — offer web search tool if available
-        tools = [WEB_SEARCH_TOOL] if ddg_available else []
+        # Call Groq
         completion = groq_client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=groq_messages,
             temperature=0.7,
-            max_tokens=1200,
-            tools=tools if tools else None,
-            tool_choice="auto" if tools else None
+            max_tokens=1200
         )
         
-        response_msg = completion.choices[0].message
-        finish_reason = completion.choices[0].finish_reason
-        
-        # If LLM requested a web search, execute it and call again
-        if finish_reason == "tool_calls" and response_msg.tool_calls:
-            print(f"[TOOL CALL] LLM requested {len(response_msg.tool_calls)} tool(s)", flush=True)
-            groq_messages.append({
-                "role": "assistant",
-                "content": response_msg.content or "",
-                "tool_calls": [
-                    {
-                        "id": tc.id,
-                        "type": "function",
-                        "function": {
-                            "name": tc.function.name,
-                            "arguments": tc.function.arguments
-                        }
-                    }
-                    for tc in response_msg.tool_calls
-                ]
-            })
-            for tool_call in response_msg.tool_calls:
-                if tool_call.function.name == "web_search":
-                    try:
-                        args = json.loads(tool_call.function.arguments)
-                        query = args.get("query", user_message)
-                        num_results = args.get("num_results", 3)
-                        search_result = execute_web_search(query, num_results)
-                    except Exception as e:
-                        search_result = f"Search error: {str(e)}"
-                    groq_messages.append({
-                        "role": "tool",
-                        "tool_call_id": tool_call.id,
-                        "content": search_result
-                    })
-            print("Calling Groq API with search results...", flush=True)
-            completion = groq_client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=groq_messages,
-                temperature=0.7,
-                max_tokens=1200
-            )
-            response_msg = completion.choices[0].message
-        
-        return jsonify({'response': response_msg.content})
+        return jsonify({'response': completion.choices[0].message.content})
         
     except Exception as e:
         print(f"Chat error: {e}", flush=True)
