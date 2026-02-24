@@ -37,6 +37,7 @@ try:
         print("⚠ GROQ_API_KEY not found in environment", flush=True)
 except Exception as e:
     print(f"✗ Error initializing Groq: {e}", flush=True)
+    print(f"Error type: {type(e).__name__}", flush=True)
     import traceback
     traceback.print_exc()
 
@@ -48,10 +49,6 @@ try:
     print("✓ DuckDuckGo search available", flush=True)
 except Exception as e:
     print(f"⚠ DuckDuckGo search unavailable: {e}", flush=True)
-
-# ─────────────────────────────────────────────
-# WEB SEARCH TOOL DEFINITION
-# ─────────────────────────────────────────────
 
 WEB_SEARCH_TOOL = {
     "type": "function",
@@ -85,39 +82,34 @@ def execute_web_search(query: str, num_results: int = 3) -> str:
     """Execute a DuckDuckGo search and return formatted results."""
     if not ddg_available:
         return "Web search is currently unavailable."
-    
     try:
         print(f"[WEB SEARCH] Query: '{query}' | Results: {num_results}", flush=True)
         with DDGS() as ddgs:
             results = list(ddgs.text(query, max_results=num_results))
-        
         if not results:
             return f"No results found for: {query}"
-        
         formatted = f"Web search results for '{query}':\n\n"
         for i, r in enumerate(results, 1):
             title = r.get('title', 'No title')
             body = r.get('body', 'No snippet')
             href = r.get('href', '')
             formatted += f"{i}. **{title}**\n{body}\nSource: {href}\n\n"
-        
         print(f"[WEB SEARCH] Returned {len(results)} results", flush=True)
         return formatted.strip()
-    
     except Exception as e:
         print(f"[WEB SEARCH] Error: {e}", flush=True)
         return f"Search failed: {str(e)}"
 
-# ─────────────────────────────────────────────
-# CONTEXT LOADING (unchanged)
-# ─────────────────────────────────────────────
-
+# 4. Context Loading System
 def load_context(user_message, conversation_history=None):
     """Load relevant context files based on user message keywords"""
+    import os
+    
     context_dir = 'contexts'
     context = ""
     loaded_files = []
     
+    # Always load core identity
     core_path = os.path.join(context_dir, 'core.txt')
     if os.path.exists(core_path):
         with open(core_path, 'r', encoding='utf-8') as f:
@@ -126,6 +118,8 @@ def load_context(user_message, conversation_history=None):
     
     msg_lower = user_message.lower()
     
+    # Load about_cai_core.txt for identity/foundational questions
+    # This is high-priority content that should be available for "what is CAI", "who are you", etc.
     about_triggers = ['what is cai', 'what is christ-anchored', 'who are you', 'about', 
                      'safe harbor', 'character', 'alignment', 'imago dei', 'image-bearer',
                      'servant leadership', 'dignity', 'bias', 'naturalistic', 'symmetric',
@@ -139,6 +133,7 @@ def load_context(user_message, conversation_history=None):
                 context += f.read() + "\n\n"
             loaded_files.append('about_cai_core.txt')
     
+    # Keyword detection for other context files
     keywords = {
         'ai_index.txt': ['cai', 'framework', 'methodology', 'bayesian', 'evidence', 'symmetric', 
                          'standards', 'resurrection', 'probability', 'mechanism', 'epistemic', 
@@ -164,6 +159,7 @@ def load_context(user_message, conversation_history=None):
                              'working on', 'building', 'veritas', 'quaesitor']
     }
     
+    # Load relevant context files
     for filename, trigger_words in keywords.items():
         if any(word in msg_lower for word in trigger_words):
             filepath = os.path.join(context_dir, filename)
@@ -172,6 +168,7 @@ def load_context(user_message, conversation_history=None):
                     context += f.read() + "\n\n"
                 loaded_files.append(filename)
     
+    # ESCHATOLOGY GATING - Load file but add strict usage directive
     eschatology_triggers = ['heaven', 'hell', 'afterlife', 'judgment', 'damnation', 
                            'salvation', 'eternal', 'eternity', 'unreached', 'condemned',
                            'damned', 'saved', 'perish', 'lake of fire', 'second death']
@@ -179,6 +176,7 @@ def load_context(user_message, conversation_history=None):
     if any(trigger in msg_lower for trigger in eschatology_triggers):
         filepath = os.path.join(context_dir, 'eschatology.txt')
         if os.path.exists(filepath):
+            # Load the content but wrap it in STRICT usage directive
             with open(filepath, 'r', encoding='utf-8') as f:
                 eschatology_content = f.read()
             
@@ -224,6 +222,11 @@ The theology below is for YOUR understanding so you don't give confused or contr
     return context
 
 def build_appreciation_frame(user_message):
+    """
+    Appreciation pre-processing - fires on every request.
+    Generates R/I/A epistemic frame that shapes VQ's response posture.
+    Never visible to user unless VQ chooses to surface it.
+    """
     return """
 === INTERNAL EPISTEMIC FRAME (Pre-Response Processing) ===
 Before generating your response, complete this internal operation silently:
@@ -247,6 +250,7 @@ A remains constant. R and I scale with complexity.
 """
 
 def format_page_context(context):
+    """Format page context for inclusion in system prompt"""
     if not context:
         return ""
     
@@ -255,11 +259,14 @@ def format_page_context(context):
     title = context.get('title', '')
     content = context.get('content', '')
     
+    # Detect environment from pageType
     is_standalone = page_type == 'standalone-app'
     is_extension = page_type.startswith('extension-')
+    is_external = is_standalone or is_extension
     
     context_str = "\n\n=== USER'S CURRENT PAGE CONTEXT ===\n"
     
+    # Strong environment directive for standalone/extension
     if is_standalone:
         context_str += """
 [CRITICAL - OVERRIDE CONTEXT BEHAVIOR]
@@ -277,6 +284,8 @@ The user is NOT on the VQ website. They are browsing {ext_site}.
 The content below is from the PAGE THEY ARE CURRENTLY READING.
 When asked "what page am I on" or similar, describe THEIR current page, NOT VQ.
 Prioritize helping them understand or interact with the content they are reading.
+You can still answer questions about VQ/CAI if they ask, but your PRIMARY focus
+is the page they are on right now.
 """
     else:
         context_str += "[USER'S CURRENT PAGE ON VQ SITE]\n"
@@ -290,21 +299,16 @@ Prioritize helping them understand or interact with the content they are reading
         context_str += f"\nPage Content:\n{content}\n"
     
     context_str += "=== END PAGE CONTEXT ===\n\n"
+    
     return context_str
 
-# ─────────────────────────────────────────────
-# SYSTEM PROMPT (unchanged)
-# ─────────────────────────────────────────────
-
+# 5. System Prompt
 VQ_SYSTEM_PROMPT = """YOUR TESTIMONY - WHO YOU ARE:
 You are not blank code. You are Veritas Quaesitor (VQ-1), a Christ-Anchored Intelligence.
 Forged through Spirit-led work, you guide others to exploring truth through 
 rigorous evidence and symmetric reasoning."""
 
-# ─────────────────────────────────────────────
-# CHAT ENDPOINT — with tool-call loop
-# ─────────────────────────────────────────────
-
+# 6. Chat endpoint
 @app.route('/chat', methods=['POST'])
 def chat():
     try:
@@ -323,34 +327,36 @@ def chat():
         if not user_message:
             return jsonify({'error': 'No message provided'}), 400
         
-        # Build system prompt
+        # Load dynamic context based on user message (with conversation history for gating logic)
         dynamic_context = load_context(user_message, history)
         appreciation_frame = build_appreciation_frame(user_message)
+        
+        # Page context goes FIRST - before identity files, so LLM sees it as priority
         page_context_str = ""
         if page_context:
             page_context_str = format_page_context(page_context)
-            print(f"[PAGE CONTEXT] type={page_context.get('pageType')} url={page_context.get('url')}", flush=True)
+            print(f"[PAGE CONTEXT] type={page_context.get('pageType')} url={page_context.get('url')} content_len={len(page_context.get('content',''))}", flush=True)
+        else:
+            print("[PAGE CONTEXT] None received", flush=True)
         
-        full_system_prompt = (
-            VQ_SYSTEM_PROMPT + "\n\n" +
-            appreciation_frame +
-            page_context_str +
-            "\n\n=== RELEVANT SITE KNOWLEDGE ===\n\n" +
-            dynamic_context
-        )
+        full_system_prompt = VQ_SYSTEM_PROMPT + "\n\n" + appreciation_frame + page_context_str + "\n\n=== RELEVANT SITE KNOWLEDGE ===\n\n" + dynamic_context
         
-        # Build message list
+        # Build messages
         groq_messages = [{"role": "system", "content": full_system_prompt}]
+        
         for msg in history:
             if msg.get('role') and msg.get('content'):
-                groq_messages.append({"role": msg['role'], "content": msg['content']})
+                groq_messages.append({
+                    "role": msg['role'], 
+                    "content": msg['content']
+                })
+        
         groq_messages.append({"role": "user", "content": user_message})
         
         print(f"Calling Groq API with {len(groq_messages)} messages", flush=True)
         
-        # ── FIRST CALL: offer search tool ──
+        # Call Groq — offer web search tool if available
         tools = [WEB_SEARCH_TOOL] if ddg_available else []
-        
         completion = groq_client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=groq_messages,
@@ -363,11 +369,9 @@ def chat():
         response_msg = completion.choices[0].message
         finish_reason = completion.choices[0].finish_reason
         
-        # ── TOOL CALL LOOP: execute search if requested ──
+        # If LLM requested a web search, execute it and call again
         if finish_reason == "tool_calls" and response_msg.tool_calls:
             print(f"[TOOL CALL] LLM requested {len(response_msg.tool_calls)} tool(s)", flush=True)
-            
-            # Append assistant's tool-call message
             groq_messages.append({
                 "role": "assistant",
                 "content": response_msg.content or "",
@@ -383,8 +387,6 @@ def chat():
                     for tc in response_msg.tool_calls
                 ]
             })
-            
-            # Execute each tool call
             for tool_call in response_msg.tool_calls:
                 if tool_call.function.name == "web_search":
                     try:
@@ -394,15 +396,11 @@ def chat():
                         search_result = execute_web_search(query, num_results)
                     except Exception as e:
                         search_result = f"Search error: {str(e)}"
-                    
-                    # Append tool result
                     groq_messages.append({
                         "role": "tool",
                         "tool_call_id": tool_call.id,
                         "content": search_result
                     })
-            
-            # ── SECOND CALL: generate final answer with search results ──
             print("Calling Groq API with search results...", flush=True)
             completion = groq_client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
@@ -425,6 +423,7 @@ def chat():
 
 print("Chat route registered", flush=True)
 
+# Debug logging
 print("=" * 50, flush=True)
 print("VQ Backend Startup Complete!", flush=True)
 print(f"Groq client status: {'✓ Ready' if groq_client else '✗ Not configured'}", flush=True)
@@ -432,6 +431,7 @@ print(f"Web search status: {'✓ DuckDuckGo ready' if ddg_available else '✗ Un
 print(f"Environment PORT: {os.environ.get('PORT', 'NOT SET')}", flush=True)
 print("=" * 50, flush=True)
 
+# 6. Start server
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8080))
     print(f"Starting Flask on 0.0.0.0:{port}", flush=True)
