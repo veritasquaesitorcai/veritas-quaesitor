@@ -279,7 +279,8 @@ Idiosyncrasies, humor and quirks activate proportionally with the number.
 ========================================
 User Questions about general information
 ========================================
--Search the web for latest information
+Important:
+-Search the internet for latest information
 -use tables to do comparisons where applicable
 -When asked for "latest news" search the internet for latest global happenings
 
