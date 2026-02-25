@@ -136,9 +136,9 @@ def get_weather(location: str) -> str:
 
 def is_time_query(message: str) -> bool:
     """Detect if message is asking about current time or date."""
-    time_words = ['what time', 'current time', 'what's the time', "what's the time",
+    time_words = ['what time', 'current time', "what's the time", 'whats the time',
                   'time is it', 'time in ', 'time at ', 'what date', 'current date',
-                  'today's date', "today's date", 'day is it', 'what day']
+                  "today's date", 'todays date', 'day is it', 'what day']
     msg_lower = message.lower()
     return any(w in msg_lower for w in time_words)
 
