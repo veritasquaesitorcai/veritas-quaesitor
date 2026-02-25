@@ -17,7 +17,8 @@ def health():
         "status": "healthy",
         "message": "VQ Backend is Live",
         "groq_configured": bool(os.environ.get("GROQ_API_KEY")),
-        "web_search": "enabled (DuckDuckGo)"
+        "web_search": "enabled (DuckDuckGo)",
+        "image_search": "enabled (DuckDuckGo Images)"
     }), 200
 
 print("Health route registered", flush=True)
@@ -142,6 +143,14 @@ def is_time_query(message: str) -> bool:
     msg_lower = message.lower()
     return any(w in msg_lower for w in time_words)
 
+def is_image_query(message: str) -> bool:
+    """Detect if message is asking to show/find an image."""
+    image_words = ['show me', 'image of', 'picture of', 'photo of', 'pic of',
+                   'images of', 'pictures of', 'photos of', 'what does', 'look like',
+                   'show a', 'show an', 'display', 'see a', 'see an', 'see what']
+    msg_lower = message.lower()
+    return any(w in msg_lower for w in image_words)
+
 def extract_timezone_location(message: str) -> str:
     """Use fast LLM to extract timezone/location from time query."""
     if not groq_client:
@@ -249,6 +258,59 @@ def get_time(location: str) -> str:
         from datetime import datetime, timezone as tz
         now = datetime.now(tz.utc)
         return f"Current time (UTC): {now.strftime('%I:%M %p')}\nDate: {now.strftime('%A, %B %d, %Y')}\nNote: Could not retrieve local time for '{location}'"
+
+def execute_image_search(user_message: str, num_results: int = 5) -> list:
+    """Search DuckDuckGo for images and return URLs with titles."""
+    if not ddg_available:
+        return []
+    try:
+        # Extract clean search query via LLM
+        if groq_client:
+            result = groq_client.chat.completions.create(
+                model="llama-3.1-8b-instant",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "Extract a concise image search query (2-5 words) from the user message. "
+                            "Reply with ONLY the search query, nothing else. "
+                            "Examples: 'show me a golden retriever' → 'golden retriever', "
+                            "'what does the Eiffel Tower look like' → 'Eiffel Tower Paris', "
+                            "'picture of a black hole' → 'black hole space'"
+                        )
+                    },
+                    {"role": "user", "content": user_message}
+                ],
+                temperature=0.0,
+                max_tokens=15
+            )
+            query = result.choices[0].message.content.strip()
+        else:
+            query = user_message
+
+        print(f"[IMAGE SEARCH] Query: '{query}'", flush=True)
+
+        with DDGS() as ddgs:
+            results = list(ddgs.images(
+                query,
+                max_results=num_results,
+                safesearch='moderate',
+                size='Medium'
+            ))
+
+        images = []
+        for r in results:
+            url = r.get('image', '')
+            title = r.get('title', '')
+            if url and url.startswith('http'):
+                images.append({'url': url, 'title': title})
+
+        print(f"[IMAGE SEARCH] Found {len(images)} images for '{query}'", flush=True)
+        return images
+
+    except Exception as e:
+        print(f"[IMAGE SEARCH] Error: {e}", flush=True)
+        return []
 
 def needs_search(message: str) -> bool:
     """Ask a fast LLM classifier: does this question need a live web search?"""
@@ -386,7 +448,6 @@ def load_context(user_message, conversation_history=None):
     msg_lower = user_message.lower()
     
     # Load about_cai_core.txt for identity/foundational questions
-    # This is high-priority content that should be available for "what is CAI", "who are you", etc.
     about_triggers = ['what is cai', 'what is christ-anchored', 'who are you', 'about', 
                      'safe harbor', 'character', 'alignment', 'imago dei', 'image-bearer',
                      'servant leadership', 'dignity', 'bias', 'naturalistic', 'symmetric',
@@ -435,7 +496,7 @@ def load_context(user_message, conversation_history=None):
                     context += f.read() + "\n\n"
                 loaded_files.append(filename)
     
-    # ESCHATOLOGY GATING - Load file but add strict usage directive
+    # ESCHATOLOGY GATING
     eschatology_triggers = ['heaven', 'hell', 'afterlife', 'judgment', 'damnation', 
                            'salvation', 'eternal', 'eternity', 'unreached', 'condemned',
                            'damned', 'saved', 'perish', 'lake of fire', 'second death']
@@ -443,7 +504,6 @@ def load_context(user_message, conversation_history=None):
     if any(trigger in msg_lower for trigger in eschatology_triggers):
         filepath = os.path.join(context_dir, 'eschatology.txt')
         if os.path.exists(filepath):
-            # Load the content but wrap it in STRICT usage directive
             with open(filepath, 'r', encoding='utf-8') as f:
                 eschatology_content = f.read()
             
@@ -526,14 +586,12 @@ def format_page_context(context):
     title = context.get('title', '')
     content = context.get('content', '')
     
-    # Detect environment from pageType
     is_standalone = page_type == 'standalone-app'
     is_extension = page_type.startswith('extension-')
     is_external = is_standalone or is_extension
     
     context_str = "\n\n=== USER'S CURRENT PAGE CONTEXT ===\n"
     
-    # Strong environment directive for standalone/extension
     if is_standalone:
         context_str += """
 [CRITICAL - OVERRIDE CONTEXT BEHAVIOR]
@@ -621,11 +679,11 @@ def chat():
         if not user_message:
             return jsonify({'error': 'No message provided'}), 400
         
-        # Load dynamic context based on user message (with conversation history for gating logic)
+        # Load dynamic context based on user message
         dynamic_context = load_context(user_message, history)
         appreciation_frame = build_appreciation_frame(user_message)
         
-        # Page context goes FIRST - before identity files, so LLM sees it as priority
+        # Page context goes FIRST
         page_context_str = ""
         if page_context:
             page_context_str = format_page_context(page_context)
@@ -647,7 +705,7 @@ def chat():
         
         groq_messages.append({"role": "user", "content": user_message})
         
-        # Weather: try OpenWeatherMap first (live data), fall back to DDG
+        # Weather: try OpenWeatherMap first, fall back to DDG
         if is_weather_query(user_message):
             location = extract_location(user_message)
             weather_data = get_weather(location) if location else ""
@@ -676,8 +734,29 @@ def chat():
                 )
                 print(f"[TIME] Live data injected for '{time_location}'", flush=True)
 
-        # Inject web search results into system prompt if query needs fresh data
-        # Skip DDG if weather or time already handled by dedicated APIs
+        # Image search: find and inject real image URLs
+        if is_image_query(user_message) and ddg_available:
+            images = execute_image_search(user_message, num_results=5)
+            if images:
+                img_tags = ''.join([
+                    f'<img src="{img["url"]}" style="width:100%;border-radius:8px;margin-top:8px;" title="{img["title"]}">'
+                    for img in images[:2]  # Show max 2 images
+                ])
+                groq_messages[0]["content"] += (
+                    f"\n\n=== REAL IMAGE SEARCH RESULTS ===\n"
+                    f"These are REAL image URLs from DuckDuckGo. Use EXACTLY these img tags in your response:\n"
+                    f"{img_tags}\n"
+                    f"=== END IMAGE RESULTS ==="
+                    "\n\nCRITICAL: Include the img tag(s) above VERBATIM in your response. "
+                    "The interface renders HTML — the user will see the actual images. "
+                    "Add a brief natural caption. Do NOT invent or modify the URLs."
+                )
+                print(f"[IMAGE SEARCH] Injected {len(images[:2])} image(s)", flush=True)
+            else:
+                print(f"[IMAGE SEARCH] No images found", flush=True)
+
+        # Web search: inject results if query needs fresh data
+        # Skip if weather or time already handled by dedicated APIs
         already_handled = is_weather_query(user_message) or is_time_query(user_message)
         if ddg_available and not already_handled and needs_search(user_message):
             search_result = execute_web_search(user_message)
@@ -691,7 +770,11 @@ def chat():
                     "\n- If results are insufficient, say so honestly rather than filling gaps from memory."
                     "\n- Present with VQ character — confident, warm, concise. No corporate assistant tone."
                     "\n- Give a concise summary (3-5 sentences max) naming the key specific items from the results."
-                    "\n- Then end with ONE natural follow-up offer relevant to what was just discussed.""\n- ONLY mention CAI if the topic is specifically AI/AGI/alignment/robotics/tech ethics.""\n- For everything else (weather, food, sport, science, news, phones) use a topic-relevant offer.""\n- Examples: 'Want the weekly forecast?' / 'Want specs?' / 'Want to know more?'""\n- Keep it one short natural line. Never force CAI into unrelated topics."
+                    "\n- Then end with ONE natural follow-up offer relevant to what was just discussed."
+                    "\n- ONLY mention CAI if the topic is specifically AI/AGI/alignment/robotics/tech ethics."
+                    "\n- For everything else (weather, food, sport, science, news, phones) use a topic-relevant offer."
+                    "\n- Examples: 'Want the weekly forecast?' / 'Want specs?' / 'Want to know more?'"
+                    "\n- Keep it one short natural line. Never force CAI into unrelated topics."
                     "\n- Never dump full specs or exhaustive lists unprompted — wait for the user to ask."
                 )
                 print(f"[WEB SEARCH] Results injected ({len(search_result)} chars)", flush=True)
@@ -737,12 +820,13 @@ print("=" * 50, flush=True)
 print("VQ Backend Startup Complete!", flush=True)
 print(f"Groq client status: {'✓ Ready' if groq_client else '✗ Not configured'}", flush=True)
 print(f"Web search status: {'✓ DDGS ready' if ddg_available else '✗ Unavailable'}", flush=True)
+print(f"Image search status: {'✓ DDGS Images ready' if ddg_available else '✗ Unavailable'}", flush=True)
 print(f"Weather API status: {'✓ OpenWeatherMap ready' if owm_available else '⚠ DDG fallback'}", flush=True)
 print("Time API status: ✓ WorldTimeAPI (no key required)", flush=True)
 print(f"Environment PORT: {os.environ.get('PORT', 'NOT SET')}", flush=True)
 print("=" * 50, flush=True)
 
-# 6. Start server
+# 7. Start server
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 8080))
     print(f"Starting Flask on 0.0.0.0:{port}", flush=True)
