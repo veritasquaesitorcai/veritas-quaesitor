@@ -6,7 +6,10 @@ from flask_cors import CORS
 
 # 1. Initialize App FIRST (before any imports that might fail)
 app = Flask(__name__)
+app.config['JSON_AS_ASCII'] = False  # Prevent < > being escaped to unicode
 CORS(app, resources={r"/*": {"origins": "*"}})
+app.config["JSON_AS_ASCII"] = False
+app.json.ensure_ascii = False
 
 print("Flask app initialized", flush=True)
 
@@ -719,7 +722,10 @@ def chat():
             test_img = '<img src="https://images-assets.nasa.gov/image/PIA16695/PIA16695~orig.jpg" style="width:100%;border-radius:8px;margin-top:8px;">'
             assistant_message = f"Image rendering test 🌌 {test_img} If you can see a Mars rover above — pipeline confirmed! 🚀"
 
-        return jsonify({'response': assistant_message})
+        # Use custom JSON response to prevent Flask escaping < > in HTML content
+        import json as _json
+        response_data = _json.dumps({'response': assistant_message}, ensure_ascii=False)
+        return app.response_class(response_data, mimetype='application/json')
         
     except Exception as e:
         print(f"Chat error: {e}", flush=True)
