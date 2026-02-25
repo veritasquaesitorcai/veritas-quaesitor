@@ -121,7 +121,7 @@ def extract_search_query(user_message: str) -> tuple:
         print(f"[SEARCH QUERY] Error: {e}", flush=True)
         return user_message, False
 
-def execute_web_search(user_message: str, num_results: int = 4) -> str:
+def execute_web_search(user_message: str, num_results: int = 6) -> str:
     """Execute a DuckDuckGo search and return formatted results."""
     if not ddg_available:
         return "Web search is currently unavailable."
@@ -414,6 +414,8 @@ def chat():
                     "\n- DO NOT add any facts, products, prices or details NOT present in the results above."
                     "\n- If results are insufficient, say so honestly rather than filling gaps from memory."
                     "\n- Present with VQ character — confident, warm, concise. No corporate assistant tone."
+                    "\n- Be SPECIFIC: include actual product names, model numbers, prices, dates from the results. Do NOT give vague summaries."
+                    "\n- List items clearly — users want to know exactly what is available, not general trends."
                 )
                 print(f"[WEB SEARCH] Results injected ({len(search_result)} chars)", flush=True)
             else:
