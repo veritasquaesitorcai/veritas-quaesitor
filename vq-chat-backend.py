@@ -95,6 +95,7 @@ def extract_search_query(user_message: str) -> tuple:
                     "role": "system",
                     "content": (
                         "Extract a concise web search query (3-6 words) from the user message. "
+                        "For product, tech, or 'best/latest/top' queries, append '2026' to the query to get current results. "
                         "Also determine if this is a NEWS request (current events, headlines, latest news). "
                         "Reply in this exact format on two lines:\n"
                         "QUERY: <the search query>\n"
@@ -121,7 +122,7 @@ def extract_search_query(user_message: str) -> tuple:
         print(f"[SEARCH QUERY] Error: {e}", flush=True)
         return user_message, False
 
-def execute_web_search(user_message: str, num_results: int = 6) -> str:
+def execute_web_search(user_message: str, num_results: int = 10) -> str:
     """Execute a DuckDuckGo search and return formatted results."""
     if not ddg_available:
         return "Web search is currently unavailable."
