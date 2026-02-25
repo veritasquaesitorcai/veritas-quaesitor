@@ -582,17 +582,49 @@ Where do we Start?`
             const messageDiv = document.createElement('div');
             messageDiv.className = role === 'user' ? 'vq-message vq-user-message' : 'vq-message';
 
-            // If content has an image, convert newlines to <br> so we can drop pre-wrap
-            // Otherwise keep pre-wrap for normal text line breaks
-            const formattedContent = hasImage
-                ? content.replace(/\n/g, '<br>')
-                : content;
-
+            // Build avatar + bubble shell
             messageDiv.innerHTML = `
                 <div class="vq-message-avatar">${role === 'user' ? '👤' : '🕊️'}</div>
-                <div class="vq-message-content" style="${hasImage ? '' : 'white-space:pre-wrap'}">${formattedContent}</div>
+                <div class="vq-message-content"></div>
             `;
-            
+
+            const bubble = messageDiv.querySelector('.vq-message-content');
+
+            if (hasImage) {
+                // Split on <img ...> tags, render text nodes with pre-wrap,
+                // inject actual img elements so pre-wrap can't treat them as text
+                const parts = content.split(/(<img[^>]*>)/i);
+                parts.forEach(part => {
+                    if (/^<img/i.test(part)) {
+                        // Parse and append as real DOM element
+                        const tmp = document.createElement('div');
+                        tmp.innerHTML = part;
+                        const imgEl = tmp.firstChild;
+                        if (imgEl) {
+                            imgEl.style.display = 'block';
+                            imgEl.style.width = '100%';
+                            imgEl.style.borderRadius = '8px';
+                            imgEl.style.marginTop = '8px';
+                            // Hide broken images silently
+                            imgEl.onerror = function() {
+                                this.style.display = 'none';
+                            };
+                            bubble.appendChild(imgEl);
+                        }
+                    } else if (part.trim()) {
+                        // Render text with pre-wrap preserved
+                        const textEl = document.createElement('span');
+                        textEl.style.whiteSpace = 'pre-wrap';
+                        textEl.style.display = 'block';
+                        textEl.textContent = part;
+                        bubble.appendChild(textEl);
+                    }
+                });
+            } else {
+                // Pure text — pre-wrap from CSS applies normally
+                bubble.textContent = content;
+            }
+
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
