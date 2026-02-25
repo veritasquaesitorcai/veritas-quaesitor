@@ -415,8 +415,9 @@ def chat():
                     "\n- DO NOT add any facts, products, prices or details NOT present in the results above."
                     "\n- If results are insufficient, say so honestly rather than filling gaps from memory."
                     "\n- Present with VQ character — confident, warm, concise. No corporate assistant tone."
-                    "\n- Be SPECIFIC: include actual product names, model numbers, prices, dates from the results. Do NOT give vague summaries."
-                    "\n- List items clearly — users want to know exactly what is available, not general trends."
+                    "\n- Give a concise summary (3-5 sentences max) naming the key specific items from the results."
+                    "\n- Then end with ONE natural follow-up offer relevant to what you just shared — e.g. 'Want the specs on any of these?' or 'Want me to compare prices?' or 'Want the full breakdown?'. Keep it short and natural, one line."
+                    "\n- Never dump full specs or exhaustive lists unprompted — wait for the user to ask."
                 )
                 print(f"[WEB SEARCH] Results injected ({len(search_result)} chars)", flush=True)
             else:
