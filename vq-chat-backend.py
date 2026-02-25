@@ -44,11 +44,11 @@ except Exception as e:
 # 3b. Import DuckDuckGo search
 ddg_available = False
 try:
-    from duckduckgo_search import DDGS
+    from ddgs import DDGS
     ddg_available = True
-    print("✓ DuckDuckGo search available", flush=True)
+    print("✓ DDGS search available", flush=True)
 except Exception as e:
-    print(f"⚠ DuckDuckGo search unavailable: {e}", flush=True)
+    print(f"⚠ DDGS search unavailable: {e}", flush=True)
 
 def needs_search(message: str) -> bool:
     """Ask a fast LLM classifier: does this question need a live web search?"""
@@ -403,7 +403,7 @@ print("Chat route registered", flush=True)
 print("=" * 50, flush=True)
 print("VQ Backend Startup Complete!", flush=True)
 print(f"Groq client status: {'✓ Ready' if groq_client else '✗ Not configured'}", flush=True)
-print(f"Web search status: {'✓ DuckDuckGo ready' if ddg_available else '✗ Unavailable'}", flush=True)
+print(f"Web search status: {'✓ DDGS ready' if ddg_available else '✗ Unavailable'}", flush=True)
 print(f"Environment PORT: {os.environ.get('PORT', 'NOT SET')}", flush=True)
 print("=" * 50, flush=True)
 
