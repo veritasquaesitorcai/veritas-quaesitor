@@ -712,7 +712,14 @@ def chat():
             max_tokens=1200
         )
         
-        return jsonify({'response': completion.choices[0].message.content})
+        assistant_message = completion.choices[0].message.content
+
+        # Test image rendering: inject directly from backend, bypass LLM interpretation
+        if 'test image rendering' in user_message.lower():
+            test_img = '<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Earth_Eastern_Hemisphere.jpg/600px-Earth_Eastern_Hemisphere.jpg" style="width:100%;border-radius:8px;margin-top:8px;">'
+            assistant_message = f"Image rendering test 🌍\n\n{test_img}\n\nIf you can see Earth above — pipeline confirmed. NASA imagery incoming! 🚀"
+
+        return jsonify({'response': assistant_message})
         
     except Exception as e:
         print(f"Chat error: {e}", flush=True)
