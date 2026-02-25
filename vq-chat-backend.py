@@ -667,7 +667,9 @@ def chat():
                 print(f"[TIME] Live data injected for '{time_location}'", flush=True)
 
         # Inject web search results into system prompt if query needs fresh data
-        if ddg_available and needs_search(user_message):
+        # Skip DDG if weather or time already handled by dedicated APIs
+        already_handled = is_weather_query(user_message) or is_time_query(user_message)
+        if ddg_available and not already_handled and needs_search(user_message):
             search_result = execute_web_search(user_message)
             if search_result and not search_result.startswith("Search failed") and not search_result.startswith("Web search is currently") and not search_result.startswith("No results"):
                 groq_messages[0]["content"] += (
