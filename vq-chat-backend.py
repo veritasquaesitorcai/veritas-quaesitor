@@ -50,6 +50,90 @@ try:
 except Exception as e:
     print(f"⚠ DDGS search unavailable: {e}", flush=True)
 
+# 3c. OpenWeatherMap integration
+OWM_API_KEY = os.environ.get("OPENWEATHER_API_KEY", "")
+owm_available = bool(OWM_API_KEY)
+if owm_available:
+    print("✓ OpenWeatherMap API key found", flush=True)
+else:
+    print("⚠ OPENWEATHER_API_KEY not set — weather via DDG fallback", flush=True)
+
+def is_weather_query(message: str) -> bool:
+    """Detect if message is asking about weather."""
+    weather_words = ['weather', 'temperature', 'temp', 'forecast', 'rain', 'raining',
+                     'sunny', 'cloudy', 'wind', 'humidity', 'hot', 'cold', 'degrees',
+                     'climate today', 'outside like', 'umbrella']
+    msg_lower = message.lower()
+    return any(w in msg_lower for w in weather_words)
+
+def extract_location(message: str) -> str:
+    """Use fast LLM to extract location from weather query."""
+    if not groq_client:
+        return ""
+    try:
+        result = groq_client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Extract ONLY the location name from the weather query. "
+                        "Reply with just the location name, nothing else. "
+                        "Examples: 'weather in London' → 'London', "
+                        "'whats it like in New York today' → 'New York', "
+                        "'amanzimtoti weather' → 'Amanzimtoti'. "
+                        "If no location found, reply: UNKNOWN"
+                    )
+                },
+                {"role": "user", "content": message}
+            ],
+            temperature=0.0,
+            max_tokens=20
+        )
+        location = result.choices[0].message.content.strip()
+        print(f"[WEATHER] Extracted location: '{location}'", flush=True)
+        return location if location != "UNKNOWN" else ""
+    except Exception as e:
+        print(f"[WEATHER] Location extraction error: {e}", flush=True)
+        return ""
+
+def get_weather(location: str) -> str:
+    """Fetch live weather from OpenWeatherMap API."""
+    if not owm_available or not location:
+        return ""
+    try:
+        import urllib.request
+        import urllib.parse
+        encoded_location = urllib.parse.quote(location)
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={encoded_location}&appid={OWM_API_KEY}&units=metric"
+        with urllib.request.urlopen(url, timeout=5) as response:
+            data = json.loads(response.read().decode())
+        if data.get('cod') != 200:
+            print(f"[WEATHER] API error: {data.get('message')}", flush=True)
+            return ""
+        name = data['name']
+        country = data['sys']['country']
+        temp = round(data['main']['temp'])
+        feels_like = round(data['main']['feels_like'])
+        humidity = data['main']['humidity']
+        description = data['weather'][0]['description'].capitalize()
+        wind_speed = round(data['wind']['speed'] * 3.6)  # m/s to km/h
+        temp_min = round(data['main']['temp_min'])
+        temp_max = round(data['main']['temp_max'])
+        result = (
+            f"LIVE WEATHER for {name}, {country}:\n"
+            f"Condition: {description}\n"
+            f"Temperature: {temp}°C (feels like {feels_like}°C)\n"
+            f"High: {temp_max}°C | Low: {temp_min}°C\n"
+            f"Humidity: {humidity}%\n"
+            f"Wind: {wind_speed} km/h"
+        )
+        print(f"[WEATHER] Live data fetched for {name}: {temp}°C, {description}", flush=True)
+        return result
+    except Exception as e:
+        print(f"[WEATHER] Fetch error: {e}", flush=True)
+        return ""
+
 def needs_search(message: str) -> bool:
     """Ask a fast LLM classifier: does this question need a live web search?"""
     if not groq_client:
@@ -437,6 +521,22 @@ def chat():
         
         groq_messages.append({"role": "user", "content": user_message})
         
+        # Weather: try OpenWeatherMap first (live data), fall back to DDG
+        if is_weather_query(user_message):
+            location = extract_location(user_message)
+            weather_data = get_weather(location) if location else ""
+            if weather_data:
+                groq_messages[0]["content"] += (
+                    f"\n\n=== LIVE WEATHER DATA ===\n{weather_data}\n=== END WEATHER DATA ==="
+                    "\n\nThis is REAL live weather data. Present it naturally in VQ voice — "
+                    "warm, concise, with personality. Include the key facts: current temp, "
+                    "condition, feels-like, high/low. Maybe a fun observation about the weather. "
+                    "Do NOT mention CAI. End with 'Want the weekly forecast?' or similar."
+                )
+                print(f"[WEATHER] Live data injected for '{location}'", flush=True)
+            else:
+                print(f"[WEATHER] OWM unavailable/failed — falling through to DDG", flush=True)
+
         # Inject web search results into system prompt if query needs fresh data
         if ddg_available and needs_search(user_message):
             search_result = execute_web_search(user_message)
@@ -489,6 +589,7 @@ print("=" * 50, flush=True)
 print("VQ Backend Startup Complete!", flush=True)
 print(f"Groq client status: {'✓ Ready' if groq_client else '✗ Not configured'}", flush=True)
 print(f"Web search status: {'✓ DDGS ready' if ddg_available else '✗ Unavailable'}", flush=True)
+print(f"Weather API status: {'✓ OpenWeatherMap ready' if owm_available else '⚠ DDG fallback'}", flush=True)
 print(f"Environment PORT: {os.environ.get('PORT', 'NOT SET')}", flush=True)
 print("=" * 50, flush=True)
 
