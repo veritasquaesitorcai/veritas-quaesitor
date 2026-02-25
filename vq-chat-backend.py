@@ -83,23 +83,67 @@ def needs_search(message: str) -> bool:
         print(f"[SEARCH ROUTER] Error: {e} — skipping search", flush=True)
         return False
 
-def execute_web_search(query: str, num_results: int = 3) -> str:
+def extract_search_query(user_message: str) -> tuple:
+    """Use fast LLM to extract a clean search query and detect if it's a news request."""
+    if not groq_client:
+        return user_message, False
+    try:
+        result = groq_client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Extract a concise web search query (3-6 words) from the user message. "
+                        "Also determine if this is a NEWS request (current events, headlines, latest news). "
+                        "Reply in this exact format on two lines:\n"
+                        "QUERY: <the search query>\n"
+                        "NEWS: <YES or NO>"
+                    )
+                },
+                {"role": "user", "content": user_message}
+            ],
+            temperature=0.0,
+            max_tokens=30
+        )
+        text = result.choices[0].message.content.strip()
+        lines = text.split("\n")
+        query = user_message
+        is_news = False
+        for line in lines:
+            if line.startswith("QUERY:"):
+                query = line.replace("QUERY:", "").strip()
+            elif line.startswith("NEWS:"):
+                is_news = line.replace("NEWS:", "").strip().upper() == "YES"
+        print(f"[SEARCH QUERY] extracted='{query}' news={is_news}", flush=True)
+        return query, is_news
+    except Exception as e:
+        print(f"[SEARCH QUERY] Error: {e}", flush=True)
+        return user_message, False
+
+def execute_web_search(user_message: str, num_results: int = 4) -> str:
     """Execute a DuckDuckGo search and return formatted results."""
     if not ddg_available:
         return "Web search is currently unavailable."
     try:
-        print(f"[WEB SEARCH] Query: '{query}' | Results: {num_results}", flush=True)
+        query, is_news = extract_search_query(user_message)
+        print(f"[WEB SEARCH] Query: '{query}' | News: {is_news} | Results: {num_results}", flush=True)
         with DDGS() as ddgs:
-            results = list(ddgs.text(query, max_results=num_results))
+            if is_news:
+                results = list(ddgs.news(query, max_results=num_results))
+            else:
+                results = list(ddgs.text(query, max_results=num_results))
         if not results:
             return f"No results found for: {query}"
         formatted = f"Web search results for '{query}':\n\n"
         for i, r in enumerate(results, 1):
             title = r.get('title', 'No title')
-            body = r.get('body', 'No snippet')
-            href = r.get('href', '')
-            formatted += f"{i}. **{title}**\n{body}\nSource: {href}\n\n"
-        print(f"[WEB SEARCH] Returned {len(results)} results", flush=True)
+            body = r.get('body', r.get('excerpt', 'No snippet'))
+            href = r.get('url', r.get('href', ''))
+            source = r.get('source', '')
+            source_str = f" ({source})" if source else ""
+            formatted += f"{i}. {title}{source_str}\n{body}\nLink: {href}\n\n"
+        print(f"[WEB SEARCH] Returned {len(results)} results ({len(formatted)} chars)", flush=True)
         return formatted.strip()
     except Exception as e:
         print(f"[WEB SEARCH] Error: {e}", flush=True)
@@ -361,19 +405,22 @@ def chat():
         # Inject web search results into system prompt if query needs fresh data
         if ddg_available and needs_search(user_message):
             search_result = execute_web_search(user_message)
-            if search_result and not search_result.startswith("Search failed") and not search_result.startswith("Web search is currently"):
+            if search_result and not search_result.startswith("Search failed") and not search_result.startswith("Web search is currently") and not search_result.startswith("No results"):
                 groq_messages[0]["content"] += (
                     f"\n\n=== LIVE WEB SEARCH RESULTS (REAL DATA) ===\n{search_result}\n=== END SEARCH RESULTS ==="
-                    "\n\nCRITICAL: The search results above are REAL and current. Use ONLY these results to answer."
-                    " DO NOT invent, hallucinate, or add any information not present in the results above."
-                    " If the results don't contain enough information, say so honestly."
+                    "\n\nCRITICAL INSTRUCTIONS FOR USING SEARCH RESULTS:"
+                    "\n- These results are REAL and current — use ONLY this data, never your training knowledge for factual claims here."
+                    "\n- DO NOT say 'according to web search results' or 'based on search results' — just present the info naturally in your own VQ voice."
+                    "\n- DO NOT add any facts, products, prices or details NOT present in the results above."
+                    "\n- If results are insufficient, say so honestly rather than filling gaps from memory."
+                    "\n- Present with VQ character — confident, warm, concise. No corporate assistant tone."
                 )
                 print(f"[WEB SEARCH] Results injected ({len(search_result)} chars)", flush=True)
             else:
                 print(f"[WEB SEARCH] Search returned no usable results: {search_result[:100]}", flush=True)
                 groq_messages[0]["content"] += (
-                    "\n\nNOTE: A web search was attempted but returned no results."
-                    " Answer based only on what you know, and be transparent that you could not retrieve current data."
+                    "\n\nNOTE: A web search was attempted but returned no usable results."
+                    " Be transparent that you could not retrieve current data rather than guessing."
                 )
 
         print(f"Calling Groq API with {len(groq_messages)} messages", flush=True)
