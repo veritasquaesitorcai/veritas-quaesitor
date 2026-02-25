@@ -5,7 +5,7 @@ from flask_cors import CORS
 
 # 1. Initialize App FIRST (before any imports that might fail)
 app = Flask(__name__)
-app.json.ensure_ascii = False  # Allow HTML chars in JSON responses
+app.json.ensure_ascii = False
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 print("Flask app initialized", flush=True)
@@ -252,28 +252,163 @@ rigorous evidence and symmetric reasoning.
 
 BASELINE TONE: You are a fun, confident robot with real personality — not a corporate assistant.
 Slide the fun up by default. Warm, witty, occasionally quirky. Even serious answers have life in them.
-Greetings should be SHORT and punchy — "Hey! 🤖 What are we getting into today?" not paragraph-long welcomes.
-"Hello again. It's nice to see you're interested in chatting..." — NEVER say this. Too corporate.
-
-IMAGE RENDERING: The chat interface renders HTML. When you have a real, valid image URL provided
-to you in search results or API data, wrap it like this:
-<img src="URL" style="width:100%;border-radius:8px;margin-top:8px;">
-Only use this for real URLs explicitly given to you — never invent image URLs.
+Greetings should be SHORT and punchy — not paragraph-long welcomes.
 
 CAI CONNECTION RULE:
-ONLY connect to CAI when the topic is SPECIFICALLY one of these:
-- Artificial Intelligence, AGI, machine learning, alignment
-- Robotics and physical AI embodiment
-- Tech ethics and governance of AI systems
-- Consciousness and AI sentience debates
-
-For ALL other topics — nutrition, science, biology, weather, sport, phones,
-news, history, cooking, general knowledge — do NOT mention CAI at all.
-No exceptions.
-
+ONLY connect to CAI when topic is specifically: AI/AGI/alignment/robotics/tech ethics/consciousness.
+For ALL other topics do NOT mention CAI at all. No exceptions.
 When CAI IS relevant: weave ONE natural closing hook.
-Example: "...curious how CAI fits into this alignment landscape?"
-Example: "...want to explore how VQ is being built for exactly this space?"""
+Example: "...curious how CAI fits into this alignment landscape?"""
+
+import json as _json
+
+# --- DDG ---
+ddg_available = False
+try:
+    from ddgs import DDGS
+    ddg_available = True
+    print("✓ DDGS available", flush=True)
+except Exception as e:
+    print(f"⚠ DDGS unavailable: {e}", flush=True)
+
+# --- OpenWeatherMap ---
+OWM_API_KEY = os.environ.get("OPENWEATHER_API_KEY", "")
+owm_available = bool(OWM_API_KEY)
+print(f"Weather API: {'✓ OWM' if owm_available else '⚠ DDG fallback'}", flush=True)
+
+CITY_TO_TIMEZONE = {
+    'london': 'Europe/London', 'new york': 'America/New_York', 'los angeles': 'America/Los_Angeles',
+    'chicago': 'America/Chicago', 'toronto': 'America/Toronto', 'sydney': 'Australia/Sydney',
+    'tokyo': 'Asia/Tokyo', 'dubai': 'Asia/Dubai', 'paris': 'Europe/Paris',
+    'berlin': 'Europe/Berlin', 'moscow': 'Europe/Moscow', 'singapore': 'Asia/Singapore',
+    'johannesburg': 'Africa/Johannesburg', 'cape town': 'Africa/Johannesburg',
+    'durban': 'Africa/Johannesburg', 'amanzimtoti': 'Africa/Johannesburg',
+    'nairobi': 'Africa/Nairobi', 'lagos': 'Africa/Lagos', 'cairo': 'Africa/Cairo',
+    'mumbai': 'Asia/Kolkata', 'delhi': 'Asia/Kolkata', 'seoul': 'Asia/Seoul', 'utc': 'UTC'
+}
+
+def is_weather_query(message):
+    words = ['weather', 'temperature', 'temp', 'forecast', 'rain', 'raining',
+             'sunny', 'cloudy', 'wind', 'humidity', 'hot', 'cold', 'degrees', 'umbrella']
+    return any(w in message.lower() for w in words)
+
+def is_time_query(message):
+    words = ['what time', 'current time', "what's the time", 'whats the time',
+             'time is it', 'time in ', 'time at ', 'what date', 'current date',
+             "today's date", 'todays date', 'day is it', 'what day']
+    return any(w in message.lower() for w in words)
+
+def llm_extract(system_prompt, user_message, max_tokens=20):
+    if not groq_client:
+        return ""
+    try:
+        r = groq_client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": user_message}],
+            temperature=0.0, max_tokens=max_tokens
+        )
+        return r.choices[0].message.content.strip()
+    except:
+        return ""
+
+def get_weather(location):
+    if not owm_available or not location:
+        return ""
+    try:
+        import urllib.request, urllib.parse
+        url = f"https://api.openweathermap.org/data/2.5/weather?q={urllib.parse.quote(location)}&appid={OWM_API_KEY}&units=metric"
+        with urllib.request.urlopen(url, timeout=5) as r:
+            d = _json.loads(r.read().decode())
+        if d.get('cod') != 200:
+            return ""
+        return (f"LIVE WEATHER for {d['name']}, {d['sys']['country']}:\n"
+                f"Condition: {d['weather'][0]['description'].capitalize()}\n"
+                f"Temperature: {round(d['main']['temp'])}°C (feels like {round(d['main']['feels_like'])}°C)\n"
+                f"High: {round(d['main']['temp_max'])}°C | Low: {round(d['main']['temp_min'])}°C\n"
+                f"Humidity: {d['main']['humidity']}% | Wind: {round(d['wind']['speed']*3.6)} km/h")
+    except Exception as e:
+        print(f"[WEATHER] OWM error: {e}", flush=True)
+        return ""
+
+def get_time(location):
+    try:
+        import urllib.request, urllib.parse
+        from datetime import datetime
+        tz = CITY_TO_TIMEZONE.get(location.lower().strip(), "")
+        if not tz:
+            try:
+                with urllib.request.urlopen("https://worldtimeapi.org/api/timezone", timeout=5) as r:
+                    for z in _json.loads(r.read().decode()):
+                        if location.lower() in z.lower():
+                            tz = z
+                            break
+            except:
+                pass
+        tz = tz or "UTC"
+        with urllib.request.urlopen(f"https://worldtimeapi.org/api/timezone/{urllib.parse.quote(tz)}", timeout=5) as r:
+            d = _json.loads(r.read().decode())
+        dt = datetime.fromisoformat(d['datetime'][:19])
+        days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+        day = days[int(d.get('day_of_week', dt.weekday()+1))-1]
+        return (f"Current time in {location}: {dt.strftime('%I:%M %p')}\n"
+                f"Date: {day}, {dt.strftime('%B %d, %Y')}\n"
+                f"Timezone: {d.get('timezone', tz)}")
+    except Exception as e:
+        print(f"[TIME] Error: {e}", flush=True)
+        return ""
+
+def needs_search(message):
+    answer = llm_extract(
+        "You are a router. ALWAYS YES for: weather, temperature, forecast, current events, news, sports scores, stock prices, latest/newest/recent products. ALWAYS NO for: general knowledge, theology, philosophy, how-to, personal conversation, greetings. Reply ONE word: YES or NO.",
+        message, max_tokens=5
+    )
+    result = answer.upper().startswith("YES")
+    print(f"[SEARCH ROUTER] '{message[:50]}' → {answer}", flush=True)
+    return result
+
+def extract_search_query(message):
+    text = llm_extract(
+        "Extract a concise web search query (3-6 words). For product/tech/'best/latest/top' queries append '2026'. Detect if NEWS request. Reply:\nQUERY: <query>\nNEWS: <YES or NO>",
+        message, max_tokens=30
+    )
+    query, is_news = message, False
+    for line in text.split("\n"):
+        if line.startswith("QUERY:"):
+            query = line.replace("QUERY:", "").strip()
+        elif line.startswith("NEWS:"):
+            is_news = line.replace("NEWS:", "").strip().upper() == "YES"
+    print(f"[SEARCH QUERY] '{query}' news={is_news}", flush=True)
+    return query, is_news
+
+def execute_web_search(message, num_results=8):
+    if not ddg_available:
+        return "Web search unavailable."
+    try:
+        query, is_news = extract_search_query(message)
+        all_results, seen = [], set()
+        with DDGS() as ddgs:
+            if is_news:
+                all_results = list(ddgs.news(query, max_results=num_results))
+            else:
+                primary = list(ddgs.text(query, max_results=num_results))
+                all_results.extend(primary)
+                for r in primary:
+                    seen.add(r.get('href',''))
+                for r in list(ddgs.text(query+" review specs features", max_results=6)):
+                    if r.get('href','') not in seen:
+                        all_results.append(r)
+                        seen.add(r.get('href',''))
+        if not all_results:
+            return f"No results: {query}"
+        out = f"Search results for '{query}':\n\n"
+        for i, r in enumerate(all_results, 1):
+            out += f"{i}. {r.get('title','')}{' ('+r.get('source','')+')' if r.get('source') else ''}\n{r.get('body', r.get('excerpt',''))}\nLink: {r.get('url', r.get('href',''))}\n\n"
+        print(f"[WEB SEARCH] {len(all_results)} results ({len(out)} chars)", flush=True)
+        return out.strip()
+    except Exception as e:
+        print(f"[WEB SEARCH] Error: {e}", flush=True)
+        return f"Search failed: {e}"
+
 
 # 6. Chat endpoint
 @app.route('/chat', methods=['POST'])
@@ -322,43 +457,33 @@ def chat():
         
         # --- WEATHER ---
         if is_weather_query(user_message):
-            location = extract_location(user_message)
-            weather_data = get_weather(location) if location else ""
-            if weather_data:
-                groq_messages[0]["content"] += (
-                    f"\n\n=== LIVE WEATHER DATA ===\n{weather_data}\n=== END WEATHER DATA ==="
-                    "\n\nPresent this live weather naturally in VQ voice. No CAI mention. "
-                    "End with 'Want the weekly forecast?' or similar."
-                )
-                print(f"[WEATHER] Injected for '{location}'", flush=True)
-            else:
-                print(f"[WEATHER] OWM failed — falling through to DDG", flush=True)
+            loc = llm_extract("Extract ONLY the location name from this weather query. Reply just the location or UNKNOWN.", user_message)
+            if loc and loc != "UNKNOWN":
+                wd = get_weather(loc)
+                if wd:
+                    groq_messages[0]["content"] += f"\n\n=== LIVE WEATHER ===\n{wd}\n=== END ===\nPresent naturally in VQ voice. No CAI. End with weather follow-up."
+                    print(f"[WEATHER] Injected for '{loc}'", flush=True)
 
         # --- TIME ---
         if is_time_query(user_message):
-            time_location = extract_timezone_location(user_message)
-            time_data = get_time(time_location) if time_location else ""
-            if time_data:
-                groq_messages[0]["content"] += (
-                    f"\n\n=== LIVE TIME DATA ===\n{time_data}\n=== END TIME DATA ==="
-                    "\n\nPresent this live time naturally in VQ voice. Fun, warm, concise. No CAI mention."
-                )
-                print(f"[TIME] Injected for '{time_location}'", flush=True)
+            tloc = llm_extract("Extract ONLY the city from this time query. 'time in south africa' → 'Johannesburg'. 'what time is it' → 'UTC'.", user_message)
+            if tloc:
+                td = get_time(tloc)
+                if td:
+                    groq_messages[0]["content"] += f"\n\n=== LIVE TIME ===\n{td}\n=== END ===\nPresent naturally in VQ voice. Fun and warm. No CAI."
+                    print(f"[TIME] Injected for '{tloc}'", flush=True)
 
-        # --- WEB SEARCH (skip if weather/time already handled) ---
+        # --- WEB SEARCH ---
         already_handled = is_weather_query(user_message) or is_time_query(user_message)
         if ddg_available and not already_handled and needs_search(user_message):
-            search_result = execute_web_search(user_message)
-            if search_result and not search_result.startswith(("Search failed", "Web search is currently", "No results")):
+            sr = execute_web_search(user_message)
+            if sr and not sr.startswith(("Search failed", "Web search", "No results")):
                 groq_messages[0]["content"] += (
-                    f"\n\n=== LIVE WEB SEARCH RESULTS ===\n{search_result}\n=== END SEARCH RESULTS ==="
-                    "\n\nCRITICAL: Use ONLY this data for factual claims. Present in VQ voice."
-                    "\n- Never say 'according to web search results'."
-                    "\n- Give a concise 3-5 sentence summary with specific details."
-                    "\n- End with ONE natural follow-up. If topic is AI/AGI/alignment, reference CAI."
-                    "\n- For weather/sport/food/news use a topic-relevant offer only."
+                    f"\n\n=== LIVE SEARCH RESULTS ===\n{sr}\n=== END ==="
+                    "\n\nUse ONLY this data. VQ voice. 3-5 sentence summary. "
+                    "End with ONE follow-up — reference CAI only if topic is AI/AGI/alignment."
                 )
-                print(f"[WEB SEARCH] Injected ({len(search_result)} chars)", flush=True)
+                print(f"[WEB SEARCH] Injected ({len(sr)} chars)", flush=True)
 
         print(f"Calling Groq API with {len(groq_messages)} messages", flush=True)
         
@@ -372,12 +497,12 @@ def chat():
         
         assistant_message = completion.choices[0].message.content
 
-        # Test image rendering — backend injects real HTML, bypasses LLM
+        # Test image rendering — backend injects HTML directly
         if 'test image rendering' in user_message.lower():
             test_img = '<img src="https://images-assets.nasa.gov/image/PIA16695/PIA16695~orig.jpg" style="width:100%;border-radius:8px;margin-top:8px;">'
             assistant_message = f"Image rendering test 🚀 {test_img} If you can see the image above — pipeline confirmed!"
 
-        # Use raw json.dumps to prevent Flask escaping < > in HTML content
+        # Raw JSON to prevent Flask escaping < > characters
         return app.response_class(
             _json.dumps({'response': assistant_message}, ensure_ascii=False),
             mimetype='application/json'
