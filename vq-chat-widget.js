@@ -578,12 +578,19 @@ Where do we Start?`
         }
         
         function addMessageToUI(role, content) {
+            const hasImage = /<img/i.test(content);
             const messageDiv = document.createElement('div');
             messageDiv.className = role === 'user' ? 'vq-message vq-user-message' : 'vq-message';
-            
+
+            // If content has an image, convert newlines to <br> so we can drop pre-wrap
+            // Otherwise keep pre-wrap for normal text line breaks
+            const formattedContent = hasImage
+                ? content.replace(/\n/g, '<br>')
+                : content;
+
             messageDiv.innerHTML = `
                 <div class="vq-message-avatar">${role === 'user' ? '👤' : '🕊️'}</div>
-                <div class="vq-message-content">${content}</div>
+                <div class="vq-message-content" style="${hasImage ? '' : 'white-space:pre-wrap'}">${formattedContent}</div>
             `;
             
             messagesContainer.appendChild(messageDiv);
