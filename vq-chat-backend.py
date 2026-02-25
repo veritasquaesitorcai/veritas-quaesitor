@@ -134,6 +134,122 @@ def get_weather(location: str) -> str:
         print(f"[WEATHER] Fetch error: {e}", flush=True)
         return ""
 
+def is_time_query(message: str) -> bool:
+    """Detect if message is asking about current time or date."""
+    time_words = ['what time', 'current time', 'what's the time', "what's the time",
+                  'time is it', 'time in ', 'time at ', 'what date', 'current date',
+                  'today's date', "today's date", 'day is it', 'what day']
+    msg_lower = message.lower()
+    return any(w in msg_lower for w in time_words)
+
+def extract_timezone_location(message: str) -> str:
+    """Use fast LLM to extract timezone/location from time query."""
+    if not groq_client:
+        return ""
+    try:
+        result = groq_client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Extract ONLY the city or timezone from the time query. "
+                        "Reply with just the city name, nothing else. "
+                        "Examples: 'what time is it in Tokyo' → 'Tokyo', "
+                        "'time in New York' → 'New York', "
+                        "'what time is it' (no location) → 'UTC'. "
+                        "Reply with just the location or UTC."
+                    )
+                },
+                {"role": "user", "content": message}
+            ],
+            temperature=0.0,
+            max_tokens=20
+        )
+        location = result.choices[0].message.content.strip()
+        print(f"[TIME] Extracted location: '{location}'", flush=True)
+        return location
+    except Exception as e:
+        print(f"[TIME] Location extraction error: {e}", flush=True)
+        return "UTC"
+
+# Timezone mapping for common cities
+CITY_TO_TIMEZONE = {
+    'london': 'Europe/London', 'new york': 'America/New_York', 'los angeles': 'America/Los_Angeles',
+    'chicago': 'America/Chicago', 'toronto': 'America/Toronto', 'sydney': 'Australia/Sydney',
+    'melbourne': 'Australia/Melbourne', 'tokyo': 'Asia/Tokyo', 'beijing': 'Asia/Shanghai',
+    'shanghai': 'Asia/Shanghai', 'dubai': 'Asia/Dubai', 'paris': 'Europe/Paris',
+    'berlin': 'Europe/Berlin', 'moscow': 'Europe/Moscow', 'singapore': 'Asia/Singapore',
+    'hong kong': 'Asia/Hong_Kong', 'johannesburg': 'Africa/Johannesburg',
+    'cape town': 'Africa/Johannesburg', 'durban': 'Africa/Johannesburg',
+    'amanzimtoti': 'Africa/Johannesburg', 'nairobi': 'Africa/Nairobi',
+    'lagos': 'Africa/Lagos', 'cairo': 'Africa/Cairo', 'mumbai': 'Asia/Kolkata',
+    'delhi': 'Asia/Kolkata', 'karachi': 'Asia/Karachi', 'dhaka': 'Asia/Dhaka',
+    'jakarta': 'Asia/Jakarta', 'bangkok': 'Asia/Bangkok', 'seoul': 'Asia/Seoul',
+    'utc': 'UTC'
+}
+
+def get_time(location: str) -> str:
+    """Fetch current time from WorldTimeAPI or fall back to Python datetime."""
+    try:
+        import urllib.request
+        import urllib.parse
+        from datetime import datetime
+        import pytz
+
+        # Try to map city to timezone
+        location_lower = location.lower().strip()
+        timezone_str = CITY_TO_TIMEZONE.get(location_lower, "")
+
+        # If not in our map, try WorldTimeAPI search
+        if not timezone_str:
+            try:
+                search_url = f"https://worldtimeapi.org/api/timezone"
+                with urllib.request.urlopen(search_url, timeout=5) as resp:
+                    all_zones = json.loads(resp.read().decode())
+                # Find best match
+                for zone in all_zones:
+                    if location_lower in zone.lower():
+                        timezone_str = zone
+                        break
+            except Exception:
+                timezone_str = "UTC"
+
+        if not timezone_str:
+            timezone_str = "UTC"
+
+        # Fetch time from WorldTimeAPI
+        encoded_tz = urllib.parse.quote(timezone_str)
+        url = f"https://worldtimeapi.org/api/timezone/{encoded_tz}"
+        with urllib.request.urlopen(url, timeout=5) as response:
+            data = json.loads(response.read().decode())
+
+        datetime_str = data.get('datetime', '')
+        day_of_week = data.get('day_of_week', '')
+        timezone = data.get('timezone', timezone_str)
+
+        # Parse and format nicely
+        dt = datetime.fromisoformat(datetime_str[:19])
+        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+        day_name = days[int(day_of_week) - 1] if day_of_week else dt.strftime('%A')
+        formatted_time = dt.strftime('%I:%M %p')
+        formatted_date = dt.strftime('%B %d, %Y')
+
+        result = (
+            f"Current time in {location}: {formatted_time}\n"
+            f"Date: {day_name}, {formatted_date}\n"
+            f"Timezone: {timezone}"
+        )
+        print(f"[TIME] Fetched time for '{location}': {formatted_time}", flush=True)
+        return result
+
+    except Exception as e:
+        print(f"[TIME] Fetch error: {e} — using server time", flush=True)
+        # Fallback to server time
+        from datetime import datetime, timezone as tz
+        now = datetime.now(tz.utc)
+        return f"Current time (UTC): {now.strftime('%I:%M %p')}\nDate: {now.strftime('%A, %B %d, %Y')}\nNote: Could not retrieve local time for '{location}'"
+
 def needs_search(message: str) -> bool:
     """Ask a fast LLM classifier: does this question need a live web search?"""
     if not groq_client:
@@ -537,6 +653,19 @@ def chat():
             else:
                 print(f"[WEATHER] OWM unavailable/failed — falling through to DDG", flush=True)
 
+        # Time: fetch live time via WorldTimeAPI
+        if is_time_query(user_message):
+            time_location = extract_timezone_location(user_message)
+            time_data = get_time(time_location) if time_location else ""
+            if time_data:
+                groq_messages[0]["content"] += (
+                    f"\n\n=== LIVE TIME DATA ===\n{time_data}\n=== END TIME DATA ==="
+                    "\n\nThis is REAL current time data. Present it naturally in VQ voice — "
+                    "fun, warm, concise. State the time and date clearly. "
+                    "Do NOT mention CAI. A small fun observation is welcome."
+                )
+                print(f"[TIME] Live data injected for '{time_location}'", flush=True)
+
         # Inject web search results into system prompt if query needs fresh data
         if ddg_available and needs_search(user_message):
             search_result = execute_web_search(user_message)
@@ -590,6 +719,7 @@ print("VQ Backend Startup Complete!", flush=True)
 print(f"Groq client status: {'✓ Ready' if groq_client else '✗ Not configured'}", flush=True)
 print(f"Web search status: {'✓ DDGS ready' if ddg_available else '✗ Unavailable'}", flush=True)
 print(f"Weather API status: {'✓ OpenWeatherMap ready' if owm_available else '⚠ DDG fallback'}", flush=True)
+print("Time API status: ✓ WorldTimeAPI (no key required)", flush=True)
 print(f"Environment PORT: {os.environ.get('PORT', 'NOT SET')}", flush=True)
 print("=" * 50, flush=True)
 
