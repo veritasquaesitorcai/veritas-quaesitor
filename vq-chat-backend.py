@@ -716,8 +716,8 @@ def chat():
 
         # Test image rendering: inject directly from backend, bypass LLM interpretation
         if 'test image rendering' in user_message.lower():
-            test_img = '<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Earth_Eastern_Hemisphere.jpg/600px-Earth_Eastern_Hemisphere.jpg" style="width:100%;border-radius:8px;margin-top:8px;">'
-            assistant_message = f"Image rendering test 🌍\n\n{test_img}\n\nIf you can see Earth above — pipeline confirmed. NASA imagery incoming! 🚀"
+            test_img = '<img src="https://apod.nasa.gov/apod/image/2401/AntennaeGalaxies_HubbleSchmidt_960.jpg" style="width:100%;border-radius:8px;margin-top:8px;">'
+            assistant_message = f"Image rendering test 🌌 {test_img} If you can see galaxies above — pipeline confirmed. NASA imagery incoming! 🚀"
 
         return jsonify({'response': assistant_message})
         
