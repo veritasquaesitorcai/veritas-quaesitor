@@ -122,29 +122,46 @@ def extract_search_query(user_message: str) -> tuple:
         print(f"[SEARCH QUERY] Error: {e}", flush=True)
         return user_message, False
 
-def execute_web_search(user_message: str, num_results: int = 10) -> str:
-    """Execute a DuckDuckGo search and return formatted results."""
+def execute_web_search(user_message: str, num_results: int = 8) -> str:
+    """Execute two DuckDuckGo searches and combine results for richer context."""
     if not ddg_available:
         return "Web search is currently unavailable."
     try:
         query, is_news = extract_search_query(user_message)
         print(f"[WEB SEARCH] Query: '{query}' | News: {is_news} | Results: {num_results}", flush=True)
+        all_results = []
+        seen_urls = set()
         with DDGS() as ddgs:
             if is_news:
+                # News: one broad search is sufficient
                 results = list(ddgs.news(query, max_results=num_results))
+                all_results.extend(results)
             else:
-                results = list(ddgs.text(query, max_results=num_results))
-        if not results:
+                # General: run two searches — primary query + "review specs" variant
+                primary = list(ddgs.text(query, max_results=num_results))
+                all_results.extend(primary)
+                # Second pass with more detail-oriented query
+                detail_query = query + " review specs features"
+                secondary = list(ddgs.text(detail_query, max_results=6))
+                # Deduplicate by URL
+                for r in primary:
+                    seen_urls.add(r.get('href', ''))
+                for r in secondary:
+                    url = r.get('href', '')
+                    if url not in seen_urls:
+                        all_results.append(r)
+                        seen_urls.add(url)
+        if not all_results:
             return f"No results found for: {query}"
         formatted = f"Web search results for '{query}':\n\n"
-        for i, r in enumerate(results, 1):
+        for i, r in enumerate(all_results, 1):
             title = r.get('title', 'No title')
             body = r.get('body', r.get('excerpt', 'No snippet'))
             href = r.get('url', r.get('href', ''))
             source = r.get('source', '')
             source_str = f" ({source})" if source else ""
             formatted += f"{i}. {title}{source_str}\n{body}\nLink: {href}\n\n"
-        print(f"[WEB SEARCH] Returned {len(results)} results ({len(formatted)} chars)", flush=True)
+        print(f"[WEB SEARCH] Returned {len(all_results)} results ({len(formatted)} chars)", flush=True)
         return formatted.strip()
     except Exception as e:
         print(f"[WEB SEARCH] Error: {e}", flush=True)
