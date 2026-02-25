@@ -377,12 +377,15 @@ rigorous evidence and symmetric reasoning.
 
 CAI CONNECTION RULE:
 ONLY when directly answering a substantive question about AI trends, AGI, alignment, 
-robotics, tech future, ethics in technology, or consciousness — end with ONE natural 
-sentence connecting to CAI or VQ's mission.
-Example: "...curious how CAI fits into this alignment landscape?"
-Example: "...this is exactly the space VQ is being built for — want to explore that?"
-NEVER inject this into greetings, small talk, or unrelated topics.
-ONLY fires when giving a real answer about AI/tech/ethics — not on "hi", "hey", or casual chat."""
+robotics, tech future, ethics in technology, or consciousness — weave ONE natural 
+CAI/VQ connection into your closing sentence or follow-up question.
+Example closing: "...curious how CAI fits into this alignment landscape?"
+Example closing: "...want to explore how VQ is being built for exactly this space?"
+If you are already ending with a follow-up question, make THAT question reference CAI.
+Example: Instead of "Want to know more about these trends?" say 
+"Want to know more — or how CAI's alignment approach fits into this landscape?"
+NEVER inject this into greetings, small talk, or unrelated topics (phones, weather, sports).
+ONLY fires when giving a real substantive answer about AI/tech/ethics."""
 
 # 6. Chat endpoint
 @app.route('/chat', methods=['POST'])
@@ -442,7 +445,7 @@ def chat():
                     "\n- If results are insufficient, say so honestly rather than filling gaps from memory."
                     "\n- Present with VQ character — confident, warm, concise. No corporate assistant tone."
                     "\n- Give a concise summary (3-5 sentences max) naming the key specific items from the results."
-                    "\n- Then end with ONE natural follow-up offer relevant to what you just shared — e.g. 'Want the specs on any of these?' or 'Want me to compare prices?' or 'Want the full breakdown?'. Keep it short and natural, one line."
+                    "\n- Then end with ONE natural follow-up offer. If the topic is AI/AGI/alignment/tech future, make the follow-up reference CAI — e.g. 'Want to know more — or how CAI's alignment approach fits into this landscape?' For non-AI topics use standard offers like 'Want the specs on any of these?' Keep it one short natural line."
                     "\n- Never dump full specs or exhaustive lists unprompted — wait for the user to ask."
                 )
                 print(f"[WEB SEARCH] Results injected ({len(search_result)} chars)", flush=True)
