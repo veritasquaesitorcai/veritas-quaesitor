@@ -4,7 +4,7 @@ import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-# 1. Initialize App FIRST (before any imports that might fail) 
+# 1. Initialize App FIRST (before any imports that might fail)
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
