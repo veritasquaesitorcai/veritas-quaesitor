@@ -10,6 +10,22 @@
 
     let conversationHistory = [];
     let isTyping = false;
+    let locationContext = null;
+
+    // Fetch location once on load, cache it
+    fetch('https://ipapi.co/json/')
+        .then(r => r.json())
+        .then(data => {
+            locationContext = {
+                city: data.city,
+                country: data.country_name,
+                timezone: data.timezone,
+                lat: data.latitude,
+                lon: data.longitude
+            };
+            console.log('[LOCATION] Detected:', locationContext.city, locationContext.country);
+        })
+        .catch(() => { /* silent fail */ });
 
     const elements = {
         sidebar: document.getElementById('sidebar'),
@@ -245,7 +261,6 @@
         const hasImage = /<img/i.test(content);
 
         if (hasImage) {
-            // Split on <img> tags, render text with pre-wrap, images as real DOM elements
             const parts = content.split(/(<img[^>]*>)/i);
             parts.forEach(part => {
                 if (/^<img/i.test(part)) {
@@ -367,7 +382,8 @@
                 },
                 body: JSON.stringify({
                     message: message,
-                    history: conversationHistory
+                    history: conversationHistory,
+                    locationContext: locationContext
                 })
             });
 
