@@ -215,8 +215,8 @@ def extract_timezone_location(message: str) -> str:
                         "Reply with just the city name, nothing else. "
                         "Examples: 'what time is it in Tokyo' → 'Tokyo', "
                         "'time in New York' → 'New York', "
-                        "'what time is it' (no location) → 'UNKNOWN'. "
-                        "Reply with just the location or UNKNOWN."
+                        "'what time is it' (no location) → 'UTC'. "
+                        "Reply with just the location or UTC."
                     )
                 },
                 {"role": "user", "content": message}
@@ -226,7 +226,7 @@ def extract_timezone_location(message: str) -> str:
         )
         location = result.choices[0].message.content.strip()
         print(f"[TIME] Extracted location: '{location}'", flush=True)
-        return "" if location == "UNKNOWN" else location
+        return location
     except Exception as e:
         print(f"[TIME] Location extraction error: {e}", flush=True)
         return ""
@@ -827,31 +827,22 @@ def chat():
                     )
                     print(f"[WEATHER] No data found for '{location}'", flush=True)
 
-        # Time: fetch live time via WorldTimeAPI, ask for location if none provided
+        # Time: fetch live time via WorldTimeAPI
         if is_time_query(user_message) or pending_intent == 'time':
             time_location = extract_timezone_location(user_message)
-            # If no location in message but user is replying to our ask, treat whole message as location
-            if not time_location and pending_intent == 'time':
+            # If pending reply, treat whole message as location
+            if pending_intent == 'time' and (not time_location or time_location == 'UTC'):
                 time_location = user_message.strip()
                 print(f"[TIME] Pending reply — using message as location: '{time_location}'", flush=True)
-            if not time_location:
-                # No location — tell VQ to ask the user
+            time_data = get_time(time_location) if time_location else ""
+            if time_data:
                 groq_messages[0]["content"] += (
-                    "\n\nTIME INSTRUCTION: The user asked about the time but didn't specify a location. "
-                    "Ask them which city or timezone they want the time for. Keep it short and fun. "
-                    "Do NOT guess or make up a time."
+                    f"\n\n=== LIVE TIME DATA ===\n{time_data}\n=== END TIME DATA ==="
+                    "\n\nThis is REAL current time data. Present it naturally in VQ voice — "
+                    "fun, warm, concise. State the time and date clearly. "
+                    "Do NOT mention CAI. A small fun observation is welcome."
                 )
-                print(f"[TIME] No location — instructing VQ to ask", flush=True)
-            else:
-                time_data = get_time(time_location)
-                if time_data:
-                    groq_messages[0]["content"] += (
-                        f"\n\n=== LIVE TIME DATA ===\n{time_data}\n=== END TIME DATA ==="
-                        "\n\nThis is REAL current time data. Present it naturally in VQ voice — "
-                        "fun, warm, concise. State the time and date clearly. "
-                        "Do NOT mention CAI. A small fun observation is welcome."
-                    )
-                    print(f"[TIME] Live data injected for '{time_location}'", flush=True)
+                print(f"[TIME] Live data injected for '{time_location}'", flush=True)
 
         # Image search: find and inject real image URLs
         if is_image_query(user_message) and ddg_available:
