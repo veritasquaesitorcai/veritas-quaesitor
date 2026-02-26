@@ -241,7 +241,36 @@
         
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
-        contentDiv.textContent = content;
+
+        const hasImage = /<img/i.test(content);
+
+        if (hasImage) {
+            // Split on <img> tags, render text with pre-wrap, images as real DOM elements
+            const parts = content.split(/(<img[^>]*>)/i);
+            parts.forEach(part => {
+                if (/^<img/i.test(part)) {
+                    const tmp = document.createElement('div');
+                    tmp.innerHTML = part;
+                    const imgEl = tmp.firstChild;
+                    if (imgEl) {
+                        imgEl.style.display = 'block';
+                        imgEl.style.width = '100%';
+                        imgEl.style.borderRadius = '8px';
+                        imgEl.style.marginTop = '8px';
+                        imgEl.onerror = function() { this.style.display = 'none'; };
+                        contentDiv.appendChild(imgEl);
+                    }
+                } else if (part.trim()) {
+                    const textEl = document.createElement('span');
+                    textEl.style.whiteSpace = 'pre-wrap';
+                    textEl.style.display = 'block';
+                    textEl.textContent = part;
+                    contentDiv.appendChild(textEl);
+                }
+            });
+        } else {
+            contentDiv.textContent = content;
+        }
         
         messageDiv.appendChild(avatar);
         messageDiv.appendChild(contentDiv);
