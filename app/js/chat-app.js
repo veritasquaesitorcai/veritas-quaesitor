@@ -12,8 +12,8 @@
     let isTyping = false;
     let locationContext = null;
 
-    // Fetch location once on load, cache it
-    fetch('https://ipapi.co/json/')
+    // Fetch location once on load, store as promise so sendMessage can await it
+    const locationPromise = fetch('https://ipapi.co/json/')
         .then(r => r.json())
         .then(data => {
             locationContext = {
@@ -25,7 +25,7 @@
             };
             console.log('[LOCATION] Detected:', locationContext.city, locationContext.country);
         })
-        .catch(() => { /* silent fail */ });
+        .catch(() => { /* silent fail - locationContext stays null */ });
 
     const elements = {
         sidebar: document.getElementById('sidebar'),
@@ -373,6 +373,9 @@
         isTyping = true;
         setStatus('typing', 'Thinking...');
         showTypingIndicator();
+
+        // Ensure location is resolved before sending (handles race on first message)
+        await locationPromise;
 
         try {
             const response = await fetch(CONFIG.apiEndpoint, {
