@@ -18,6 +18,22 @@ I'm here to help.
 Where do we Start?`
     };
 
+    // Fetch location once on load, cache it
+    let locationContext = null;
+    fetch('https://ipapi.co/json/')
+        .then(r => r.json())
+        .then(data => {
+            locationContext = {
+                city: data.city,
+                country: data.country_name,
+                timezone: data.timezone,
+                lat: data.latitude,
+                lon: data.longitude
+            };
+            console.log('[LOCATION] Detected:', locationContext.city, locationContext.country);
+        })
+        .catch(() => { /* silent fail */ });
+
     // Styles
     const styles = `
         #vq-chat-widget * {
@@ -591,12 +607,9 @@ Where do we Start?`
             const bubble = messageDiv.querySelector('.vq-message-content');
 
             if (hasImage) {
-                // Split on <img ...> tags, render text nodes with pre-wrap,
-                // inject actual img elements so pre-wrap can't treat them as text
                 const parts = content.split(/(<img[^>]*>)/i);
                 parts.forEach(part => {
                     if (/^<img/i.test(part)) {
-                        // Parse and append as real DOM element
                         const tmp = document.createElement('div');
                         tmp.innerHTML = part;
                         const imgEl = tmp.firstChild;
@@ -605,14 +618,12 @@ Where do we Start?`
                             imgEl.style.width = '100%';
                             imgEl.style.borderRadius = '8px';
                             imgEl.style.marginTop = '8px';
-                            // Hide broken images silently
                             imgEl.onerror = function() {
                                 this.style.display = 'none';
                             };
                             bubble.appendChild(imgEl);
                         }
                     } else if (part.trim()) {
-                        // Render text with pre-wrap preserved
                         const textEl = document.createElement('span');
                         textEl.style.whiteSpace = 'pre-wrap';
                         textEl.style.display = 'block';
@@ -621,7 +632,6 @@ Where do we Start?`
                     }
                 });
             } else {
-                // Pure text — pre-wrap from CSS applies normally
                 bubble.textContent = content;
             }
 
@@ -640,7 +650,6 @@ Where do we Start?`
                 localStorage.setItem('vq-conversation-history', JSON.stringify(conversationHistory));
             } catch (e) {
                 console.error('Failed to save conversation:', e);
-                // If storage is full, keep only last 20 messages
                 if (conversationHistory.length > 20) {
                     conversationHistory = conversationHistory.slice(-20);
                     localStorage.setItem('vq-conversation-history', JSON.stringify(conversationHistory));
@@ -677,25 +686,17 @@ Where do we Start?`
             const url = window.location.href;
             const pathname = window.location.pathname;
             
-            // Detect which page we're on
             let pageType = 'unknown';
             let relevantContent = '';
 
-            // --- ENVIRONMENT DETECTION (checked FIRST, before site pages) ---
-            // Standalone app or Chrome extension sets window.VQ_APP_MODE before widget loads
-            // If not set, falls through to normal VQ site detection below unchanged.
-            
             if (window.VQ_APP_MODE === 'standalone' || pathname.includes('/app/')) {
-                // Standalone app - grab whatever page content exists
                 pageType = 'standalone-app';
                 relevantContent = extractMainContent('main', '#app', '#root', 'body');
                 
             } else if (window.VQ_APP_MODE === 'extension' || (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id && !url.includes('veritasquaesitorcai.github.io')) || (!url.includes('veritasquaesitorcai.github.io') && !pathname.includes('/app/'))) {
-                // Chrome extension - grab the HOST page content intelligently
                 pageType = 'extension-' + detectExternalPageType();
                 relevantContent = extractExternalPageContent();
 
-            // --- EXISTING VQ SITE DETECTION (unchanged) ---
             } else if (pathname.includes('index-ai') || pathname.includes('ai-index')) {
                 pageType = 'ai-index';
                 relevantContent = extractMainContent('main', 'article', '.methodology');
@@ -733,7 +734,7 @@ Where do we Start?`
                 url: url,
                 pageType: pageType,
                 title: document.title,
-                content: relevantContent.substring(0, 1000) // Limit to 1000 chars
+                content: relevantContent.substring(0, 1000)
             };
         }
 
@@ -762,8 +763,6 @@ Where do we Start?`
             return content || extractMainContent('main');
         }
 
-        // --- EXTENSION HELPERS ---
-        // Detects what KIND of external page the extension is running on
         function detectExternalPageType() {
             const host = window.location.hostname;
             if (host.includes('wikipedia')) return 'wikipedia';
@@ -779,17 +778,14 @@ Where do we Start?`
             return 'webpage';
         }
 
-        // Extracts relevant content from external pages intelligently
         function extractExternalPageContent() {
             const host = window.location.hostname;
             let content = '';
 
-            // --- ALWAYS GRAB THESE (baseline for every external page) ---
             const title = document.title || '';
             const metaDesc = document.querySelector('meta[name="description"]')?.content || '';
             const selectedText = window.getSelection()?.toString().trim() || '';
 
-            // Selected text is PRIORITY - user highlighted something intentionally
             if (selectedText.length > 10) {
                 content += `[USER SELECTED TEXT]: "${selectedText}"\n\n`;
             }
@@ -798,13 +794,9 @@ Where do we Start?`
             if (metaDesc) content += `[PAGE DESCRIPTION]: ${metaDesc}\n`;
             content += '\n';
 
-            // --- SITE-SPECIFIC EXTRACTION ---
-
-            // Wikipedia: handle both main page and article pages
             if (host.includes('wikipedia')) {
                 const article = document.querySelector('#mw-content-text .mw-parser-output');
                 if (article) {
-                    // Article page - grab heading + first paragraphs
                     const h1 = document.querySelector('h1#firstHeading')?.innerText || '';
                     content += `[ARTICLE]: ${h1}\n`;
                     const paragraphs = article.querySelectorAll('p');
@@ -814,12 +806,10 @@ Where do we Start?`
                         }
                     });
                 } else {
-                    // Main page - grab visible sections
                     content += '[PAGE]: Wikipedia Main Page\n';
                     content += getVisibleText(300);
                 }
             }
-            // YouTube: multiple selector attempts (YouTube changes these often)
             else if (host.includes('youtube')) {
                 const titleEl = document.querySelector('h1.ytd-video-title-renderer') 
                     || document.querySelector('h1[class*="title"]')
@@ -835,7 +825,6 @@ Where do we Start?`
                 if (channel) content += `[CHANNEL]: ${channel}\n`;
                 if (desc) content += `[DESCRIPTION]: ${desc.substring(0, 400)}\n`;
             }
-            // ArXiv: paper title + abstract
             else if (host.includes('arxiv')) {
                 const paperTitle = document.querySelector('h1.title')?.innerText 
                     || document.querySelector('.abs-title')?.innerText || '';
@@ -844,7 +833,6 @@ Where do we Start?`
                 if (paperTitle) content += `[PAPER]: ${paperTitle}\n`;
                 if (abstract) content += `[ABSTRACT]: ${abstract}\n`;
             }
-            // Reddit: post title + body + top comments
             else if (host.includes('reddit')) {
                 const postTitle = document.querySelector('h1[data-testid="post-title"]')?.innerText 
                     || document.querySelector('h1')?.innerText || '';
@@ -852,7 +840,6 @@ Where do we Start?`
                     || document.querySelector('.self-text')?.innerText || '';
                 if (postTitle) content += `[POST]: ${postTitle}\n`;
                 if (postBody) content += `[BODY]: ${postBody.substring(0, 300)}\n`;
-                // Grab top 2 comments
                 const comments = document.querySelectorAll('[data-testid="comment"]');
                 let commentCount = 0;
                 comments.forEach(c => {
@@ -865,7 +852,6 @@ Where do we Start?`
                     }
                 });
             }
-            // Twitter/X: tweet content
             else if (host.includes('twitter') || host.includes('x.com')) {
                 const tweets = document.querySelectorAll('[data-testid="tweet"] [data-testid="tweetText"]');
                 let tweetCount = 0;
@@ -876,7 +862,6 @@ Where do we Start?`
                     }
                 });
             }
-            // GitHub: repo name + README or file content
             else if (host.includes('github.com')) {
                 const repoName = document.querySelector('.repository-content h1')?.innerText
                     || document.querySelector('[data-testid="repository-title-link"]')?.innerText || '';
@@ -886,7 +871,6 @@ Where do we Start?`
                 if (readme) content += `[README]: ${readme.substring(0, 400)}\n`;
                 if (fileContent) content += `[FILE]: ${fileContent.substring(0, 400)}\n`;
             }
-            // StackOverflow: question + top answer
             else if (host.includes('stackoverflow')) {
                 const question = document.querySelector('.post-text[itemprop="text"]')?.innerText 
                     || document.querySelector('[class*="question-text"]')?.innerText || '';
@@ -894,7 +878,6 @@ Where do we Start?`
                 if (question) content += `[QUESTION]: ${question.substring(0, 300)}\n`;
                 if (answers[0]) content += `[TOP ANSWER]: ${answers[0].innerText.substring(0, 300)}\n`;
             }
-            // Generic fallback: grab visible text from viewport
             else {
                 content += getVisibleText(500);
             }
@@ -902,14 +885,12 @@ Where do we Start?`
             return content.substring(0, 1000);
         }
 
-        // Gets text that is actually VISIBLE in the current viewport
         function getVisibleText(maxChars) {
             const viewportHeight = window.innerHeight;
             const elements = document.querySelectorAll('h1, h2, h3, p, li, td, th');
             let text = '';
             elements.forEach(el => {
                 const rect = el.getBoundingClientRect();
-                // Only grab elements currently visible on screen
                 if (rect.top >= 0 && rect.bottom <= viewportHeight && el.innerText.trim().length > 20) {
                     text += el.innerText.trim() + '\n';
                 }
@@ -921,19 +902,15 @@ Where do we Start?`
             const message = input.value.trim();
             if (!message) return;
 
-            // Add user message
             addMessage('user', message);
             input.value = '';
             sendBtn.disabled = true;
 
-            // Capture page context
             const pageContext = getSmartPageContext();
 
-            // Show typing indicator
             showTypingIndicator();
 
             try {
-                // Call backend API
                 const response = await fetch(CONFIG.apiEndpoint, {
                     method: 'POST',
                     headers: {
@@ -942,7 +919,8 @@ Where do we Start?`
                     body: JSON.stringify({
                         message: message,
                         history: conversationHistory,
-                        pageContext: pageContext
+                        pageContext: pageContext,
+                        locationContext: locationContext
                     })
                 });
 
@@ -952,10 +930,7 @@ Where do we Start?`
 
                 const data = await response.json();
                 
-                // Hide typing indicator
                 hideTypingIndicator();
-                
-                // Add bot response
                 addMessage('assistant', data.response);
                 
             } catch (error) {
