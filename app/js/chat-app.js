@@ -10,22 +10,6 @@
 
     let conversationHistory = [];
     let isTyping = false;
-    let locationContext = null;
-
-    // Fetch location once on load, store as promise so sendMessage can await it
-    const locationPromise = fetch('https://ipapi.co/json/')
-        .then(r => r.json())
-        .then(data => {
-            locationContext = {
-                city: data.city,
-                country: data.country_name,
-                timezone: data.timezone,
-                lat: data.latitude,
-                lon: data.longitude
-            };
-            console.log('[LOCATION] Detected:', locationContext.city, locationContext.country);
-        })
-        .catch(() => { /* silent fail - locationContext stays null */ });
 
     const elements = {
         sidebar: document.getElementById('sidebar'),
@@ -261,6 +245,7 @@
         const hasImage = /<img/i.test(content);
 
         if (hasImage) {
+            // Split on <img> tags, render text with pre-wrap, images as real DOM elements
             const parts = content.split(/(<img[^>]*>)/i);
             parts.forEach(part => {
                 if (/^<img/i.test(part)) {
@@ -374,9 +359,6 @@
         setStatus('typing', 'Thinking...');
         showTypingIndicator();
 
-        // Ensure location is resolved before sending (handles race on first message)
-        await locationPromise;
-
         try {
             const response = await fetch(CONFIG.apiEndpoint, {
                 method: 'POST',
@@ -385,8 +367,7 @@
                 },
                 body: JSON.stringify({
                     message: message,
-                    history: conversationHistory,
-                    locationContext: locationContext
+                    history: conversationHistory
                 })
             });
 
