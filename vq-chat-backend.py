@@ -67,6 +67,14 @@ def is_weather_query(message: str) -> bool:
     msg_lower = message.lower()
     return any(w in msg_lower for w in weather_words)
 
+def is_time_query(message: str) -> bool:
+    """Detect if message is asking about current time or date."""
+    time_words = ['what time', 'current time', "what's the time", 'whats the time',
+                  'time is it', 'time in ', 'time at ', 'what date', 'current date',
+                  "today's date", 'todays date', 'day is it', 'what day']
+    msg_lower = message.lower()
+    return any(w in msg_lower for w in time_words)
+
 def extract_location(message: str) -> str:
     """Use fast LLM to extract location from weather query."""
     if not groq_client:
@@ -96,6 +104,37 @@ def extract_location(message: str) -> str:
         return location if location != "UNKNOWN" else ""
     except Exception as e:
         print(f"[WEATHER] Location extraction error: {e}", flush=True)
+        return ""
+
+def extract_time_location(message: str) -> str:
+    """Use fast LLM to extract location from time query."""
+    if not groq_client:
+        return ""
+    try:
+        result = groq_client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Extract ONLY the city name from the time query. "
+                        "Reply with just the city name, nothing else. "
+                        "Examples: 'what time is it in Tokyo' → 'Tokyo', "
+                        "'time in New York' → 'New York', "
+                        "'what time is it in amanzimtoti' → 'Amanzimtoti'. "
+                        "If no location found, reply: UNKNOWN"
+                    )
+                },
+                {"role": "user", "content": message}
+            ],
+            temperature=0.0,
+            max_tokens=20
+        )
+        location = result.choices[0].message.content.strip()
+        print(f"[TIME] Extracted location: '{location}'", flush=True)
+        return location if location != "UNKNOWN" else ""
+    except Exception as e:
+        print(f"[TIME] Location extraction error: {e}", flush=True)
         return ""
 
 def get_nearest_major_city(location: str) -> str:
@@ -128,16 +167,18 @@ def get_nearest_major_city(location: str) -> str:
         print(f"[WEATHER] Major city lookup error: {e}", flush=True)
         return ""
 
-def get_weather(location: str) -> tuple:
-    """Fetch live weather from OpenWeatherMap API.
-    Returns (weather_string, actual_location_used).
+def get_weather_and_time(location: str) -> tuple:
+    """Fetch live weather AND local time from a single OpenWeatherMap API call.
+    OWM response contains 'dt' (Unix timestamp) and 'timezone' (UTC offset in seconds).
+    Returns (weather_string, time_string, actual_location_used).
     Falls back to nearest major city if location not found.
     """
     if not owm_available or not location:
-        return "", location
+        return "", "", location
     try:
         import urllib.request
         import urllib.parse
+        from datetime import datetime, timezone, timedelta
 
         def fetch_owm(loc):
             encoded = urllib.parse.quote(loc)
@@ -149,16 +190,16 @@ def get_weather(location: str) -> tuple:
 
         # If location not found, try nearest major city
         if data.get('cod') != 200:
-            print(f"[WEATHER] '{location}' not found ({data.get('message')}) — trying nearest major city", flush=True)
+            print(f"[OWM] '{location}' not found ({data.get('message')}) — trying nearest major city", flush=True)
             major_city = get_nearest_major_city(location)
             if major_city and major_city.lower() != location.lower():
                 data = fetch_owm(major_city)
                 if data.get('cod') != 200:
-                    print(f"[WEATHER] Major city '{major_city}' also failed", flush=True)
-                    return "", location
+                    print(f"[OWM] Major city '{major_city}' also failed", flush=True)
+                    return "", "", location
                 location = f"{location} (nearest: {major_city})"
             else:
-                return "", location
+                return "", "", location
 
         name = data['name']
         country = data['sys']['country']
@@ -169,7 +210,15 @@ def get_weather(location: str) -> tuple:
         wind_speed = round(data['wind']['speed'] * 3.6)  # m/s to km/h
         temp_min = round(data['main']['temp_min'])
         temp_max = round(data['main']['temp_max'])
-        result = (
+
+        # Extract local time using OWM's dt + timezone offset (no external API needed)
+        dt_unix = data['dt']
+        tz_offset = data['timezone']  # seconds offset from UTC
+        local_dt = datetime.fromtimestamp(dt_unix, tz=timezone(timedelta(seconds=tz_offset)))
+        formatted_time = local_dt.strftime('%I:%M %p')
+        formatted_date = local_dt.strftime('%A, %B %d, %Y')
+
+        weather_str = (
             f"LIVE WEATHER for {name}, {country}:\n"
             f"Condition: {description}\n"
             f"Temperature: {temp}°C (feels like {feels_like}°C)\n"
@@ -177,20 +226,19 @@ def get_weather(location: str) -> tuple:
             f"Humidity: {humidity}%\n"
             f"Wind: {wind_speed} km/h"
         )
-        print(f"[WEATHER] Live data fetched for {name}: {temp}°C, {description}", flush=True)
-        return result, location
+
+        time_str = (
+            f"LOCAL TIME for {name}, {country}:\n"
+            f"Time: {formatted_time}\n"
+            f"Date: {formatted_date}"
+        )
+
+        print(f"[OWM] Weather+time for {name}: {temp}°C, {description}, {formatted_time}", flush=True)
+        return weather_str, time_str, location
 
     except Exception as e:
-        print(f"[WEATHER] Fetch error: {e}", flush=True)
-        return "", location
-
-def is_time_query(message: str) -> bool:
-    """Detect if message is asking about current time or date."""
-    time_words = ['what time', 'current time', "what's the time", 'whats the time',
-                  'time is it', 'time in ', 'time at ', 'what date', 'current date',
-                  "today's date", 'todays date', 'day is it', 'what day']
-    msg_lower = message.lower()
-    return any(w in msg_lower for w in time_words)
+        print(f"[OWM] Fetch error: {e}", flush=True)
+        return "", "", location
 
 def is_image_query(message: str) -> bool:
     """Detect if message is asking to show/find an image."""
@@ -199,114 +247,6 @@ def is_image_query(message: str) -> bool:
                    'show a', 'show an', 'display', 'see a', 'see an', 'see what']
     msg_lower = message.lower()
     return any(w in msg_lower for w in image_words)
-
-def extract_timezone_location(message: str) -> str:
-    """Use fast LLM to extract timezone/location from time query."""
-    if not groq_client:
-        return ""
-    try:
-        result = groq_client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "Extract ONLY the city or timezone from the time query. "
-                        "Reply with just the city name, nothing else. "
-                        "Examples: 'what time is it in Tokyo' → 'Tokyo', "
-                        "'time in New York' → 'New York', "
-                        "'what time is it' (no location) → 'UTC'. "
-                        "Reply with just the location or UTC."
-                    )
-                },
-                {"role": "user", "content": message}
-            ],
-            temperature=0.0,
-            max_tokens=20
-        )
-        location = result.choices[0].message.content.strip()
-        print(f"[TIME] Extracted location: '{location}'", flush=True)
-        return location
-    except Exception as e:
-        print(f"[TIME] Location extraction error: {e}", flush=True)
-        return ""
-
-# Timezone mapping for common cities
-CITY_TO_TIMEZONE = {
-    'london': 'Europe/London', 'new york': 'America/New_York', 'los angeles': 'America/Los_Angeles',
-    'chicago': 'America/Chicago', 'toronto': 'America/Toronto', 'sydney': 'Australia/Sydney',
-    'melbourne': 'Australia/Melbourne', 'tokyo': 'Asia/Tokyo', 'beijing': 'Asia/Shanghai',
-    'shanghai': 'Asia/Shanghai', 'dubai': 'Asia/Dubai', 'paris': 'Europe/Paris',
-    'berlin': 'Europe/Berlin', 'moscow': 'Europe/Moscow', 'singapore': 'Asia/Singapore',
-    'hong kong': 'Asia/Hong_Kong', 'johannesburg': 'Africa/Johannesburg',
-    'cape town': 'Africa/Johannesburg', 'durban': 'Africa/Johannesburg',
-    'amanzimtoti': 'Africa/Johannesburg', 'nairobi': 'Africa/Nairobi',
-    'lagos': 'Africa/Lagos', 'cairo': 'Africa/Cairo', 'mumbai': 'Asia/Kolkata',
-    'delhi': 'Asia/Kolkata', 'karachi': 'Asia/Karachi', 'dhaka': 'Asia/Dhaka',
-    'jakarta': 'Asia/Jakarta', 'bangkok': 'Asia/Bangkok', 'seoul': 'Asia/Seoul',
-    'utc': 'UTC'
-}
-
-def get_time(location: str) -> str:
-    """Fetch current time from WorldTimeAPI or fall back to Python datetime."""
-    try:
-        import urllib.request
-        import urllib.parse
-        from datetime import datetime
-        import pytz
-
-        # Try to map city to timezone
-        location_lower = location.lower().strip()
-        timezone_str = CITY_TO_TIMEZONE.get(location_lower, "")
-
-        # If not in our map, try WorldTimeAPI search
-        if not timezone_str:
-            try:
-                search_url = f"https://worldtimeapi.org/api/timezone"
-                with urllib.request.urlopen(search_url, timeout=5) as resp:
-                    all_zones = json.loads(resp.read().decode())
-                # Find best match
-                for zone in all_zones:
-                    if location_lower in zone.lower():
-                        timezone_str = zone
-                        break
-            except Exception:
-                timezone_str = "UTC"
-
-        if not timezone_str:
-            timezone_str = "UTC"
-
-        # Fetch time from WorldTimeAPI
-        encoded_tz = urllib.parse.quote(timezone_str)
-        url = f"https://worldtimeapi.org/api/timezone/{encoded_tz}"
-        with urllib.request.urlopen(url, timeout=5) as response:
-            data = json.loads(response.read().decode())
-
-        datetime_str = data.get('datetime', '')
-        day_of_week = data.get('day_of_week', '')
-        timezone = data.get('timezone', timezone_str)
-
-        # Parse and format nicely
-        dt = datetime.fromisoformat(datetime_str[:19])
-        days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-        day_name = days[int(day_of_week) - 1] if day_of_week else dt.strftime('%A')
-        formatted_time = dt.strftime('%I:%M %p')
-        formatted_date = dt.strftime('%B %d, %Y')
-
-        result = (
-            f"Current time in {location}: {formatted_time}\n"
-            f"Date: {day_name}, {formatted_date}\n"
-            f"Timezone: {timezone}"
-        )
-        print(f"[TIME] Fetched time for '{location}': {formatted_time}", flush=True)
-        return result
-
-    except Exception as e:
-        print(f"[TIME] Fetch error: {e} — using server time", flush=True)
-        # Fallback to server time
-        from datetime import datetime, timezone as tz
-        now = datetime.now(tz.utc)
-        return f"Current time (UTC): {now.strftime('%I:%M %p')}\nDate: {now.strftime('%A, %B %d, %Y')}\nNote: Could not retrieve local time for '{location}'"
 
 def execute_image_search(user_message: str, num_results: int = 5) -> list:
     """Search DuckDuckGo for images and return URLs with titles."""
@@ -788,61 +728,67 @@ def chat():
                 })
         
         groq_messages.append({"role": "user", "content": user_message})
-        
+
         # Detect if user is replying with a location to a previous ask
         pending_intent = get_pending_location_intent(history)
 
-        # Weather: try OpenWeatherMap, ask for location if none provided
-        if is_weather_query(user_message) or pending_intent == 'weather':
-            location = extract_location(user_message)
-            # If no location in message but user is replying to our ask, treat whole message as location
-            if not location and pending_intent == 'weather':
-                location = user_message.strip()
-                print(f"[WEATHER] Pending reply — using message as location: '{location}'", flush=True)
+        # Weather + Time: both served from a single OWM call
+        weather_needed = is_weather_query(user_message) or pending_intent == 'weather'
+        time_needed = is_time_query(user_message) or pending_intent == 'time'
+
+        if weather_needed or time_needed:
+            # Extract location — try weather extractor first, then time extractor
+            location = extract_location(user_message) if weather_needed else ""
             if not location:
-                # No location — tell VQ to ask the user naturally
-                groq_messages[0]["content"] += (
-                    "\n\nWEATHER INSTRUCTION: The user asked about weather but didn't specify a location. "
-                    "Ask them which city or area they want the weather for. Keep it short and fun. "
-                    "Do NOT guess or make up weather data."
-                )
-                print(f"[WEATHER] No location — instructing VQ to ask", flush=True)
-            else:
-                weather_data, used_location = get_weather(location)
-                if weather_data:
-                    note = f" (showing nearest major city data)" if "nearest:" in used_location else ""
+                location = extract_time_location(user_message)
+            # If pending reply with no location extracted, treat whole message as location
+            if not location and pending_intent in ('weather', 'time'):
+                location = user_message.strip()
+                print(f"[OWM] Pending reply — using message as location: '{location}'", flush=True)
+
+            if not location:
+                # Still no location — ask the user
+                if weather_needed:
                     groq_messages[0]["content"] += (
-                        f"\n\n=== LIVE WEATHER DATA{note} ===\n{weather_data}\n=== END WEATHER DATA ==="
+                        "\n\nWEATHER INSTRUCTION: The user asked about weather but didn't specify a location. "
+                        "Ask them which city or area they want the weather for. Keep it short and fun. "
+                        "Do NOT guess or make up weather data."
+                    )
+                else:
+                    groq_messages[0]["content"] += (
+                        "\n\nTIME INSTRUCTION: The user asked about the time but didn't specify a location. "
+                        "Ask them which city they want the time for. Keep it short and fun. "
+                        "Do NOT guess or make up a time."
+                    )
+                print(f"[OWM] No location — instructing VQ to ask", flush=True)
+            else:
+                weather_str, time_str, used_location = get_weather_and_time(location)
+                note = " (nearest major city)" if "nearest:" in used_location else ""
+
+                if weather_str and weather_needed:
+                    groq_messages[0]["content"] += (
+                        f"\n\n=== LIVE WEATHER DATA{note} ===\n{weather_str}\n=== END WEATHER DATA ==="
                         "\n\nThis is REAL live weather data. Present it naturally in VQ voice — "
                         "warm, concise, with personality. Include the key facts: current temp, "
                         "condition, feels-like, high/low. Maybe a fun observation about the weather. "
                         "Do NOT mention CAI. End with 'Want the weekly forecast?' or similar."
                     )
-                    print(f"[WEATHER] Live data injected for '{used_location}'", flush=True)
-                else:
-                    groq_messages[0]["content"] += (
-                        f"\n\nWEATHER INSTRUCTION: Weather data could not be retrieved for '{location}'. "
-                        "Let the user know you couldn't find data for that location and ask them to "
-                        "try a nearby major city instead. Keep it friendly."
-                    )
-                    print(f"[WEATHER] No data found for '{location}'", flush=True)
+                    print(f"[OWM] Weather injected for '{used_location}'", flush=True)
 
-        # Time: fetch live time via WorldTimeAPI
-        if is_time_query(user_message) or pending_intent == 'time':
-            time_location = extract_timezone_location(user_message)
-            # If pending reply, treat whole message as location
-            if pending_intent == 'time' and (not time_location or time_location == 'UTC'):
-                time_location = user_message.strip()
-                print(f"[TIME] Pending reply — using message as location: '{time_location}'", flush=True)
-            time_data = get_time(time_location) if time_location else ""
-            if time_data:
-                groq_messages[0]["content"] += (
-                    f"\n\n=== LIVE TIME DATA ===\n{time_data}\n=== END TIME DATA ==="
-                    "\n\nThis is REAL current time data. Present it naturally in VQ voice — "
-                    "fun, warm, concise. State the time and date clearly. "
-                    "Do NOT mention CAI. A small fun observation is welcome."
-                )
-                print(f"[TIME] Live data injected for '{time_location}'", flush=True)
+                if time_str and time_needed:
+                    groq_messages[0]["content"] += (
+                        f"\n\n=== LIVE TIME DATA{note} ===\n{time_str}\n=== END TIME DATA ==="
+                        "\n\nThis is REAL current time data from OpenWeatherMap. Present it naturally "
+                        "in VQ voice — fun, warm, concise. State the time and date clearly. "
+                        "Do NOT mention CAI. A small fun observation is welcome."
+                    )
+                    print(f"[OWM] Time injected for '{used_location}'", flush=True)
+
+                if not weather_str and not time_str:
+                    groq_messages[0]["content"] += (
+                        f"\n\nINSTRUCTION: Data could not be retrieved for '{location}'. "
+                        "Let the user know and ask them to try a nearby major city. Keep it friendly."
+                    )
 
         # Image search: find and inject real image URLs
         if is_image_query(user_message) and ddg_available:
@@ -866,8 +812,8 @@ def chat():
                 print(f"[IMAGE SEARCH] No images found", flush=True)
 
         # Web search: inject results if query needs fresh data
-        # Skip if weather or time already handled by dedicated APIs
-        already_handled = is_weather_query(user_message) or is_time_query(user_message)
+        # Skip if weather or time already handled by OWM
+        already_handled = weather_needed or time_needed
         if ddg_available and not already_handled and needs_search(user_message):
             search_result = execute_web_search(user_message)
             if search_result and not search_result.startswith("Search failed") and not search_result.startswith("Web search is currently") and not search_result.startswith("No results"):
@@ -936,8 +882,7 @@ print("VQ Backend Startup Complete!", flush=True)
 print(f"Groq client status: {'✓ Ready' if groq_client else '✗ Not configured'}", flush=True)
 print(f"Web search status: {'✓ DDGS ready' if ddg_available else '✗ Unavailable'}", flush=True)
 print(f"Image search status: {'✓ DDGS Images ready' if ddg_available else '✗ Unavailable'}", flush=True)
-print(f"Weather API status: {'✓ OpenWeatherMap ready' if owm_available else '⚠ DDG fallback'}", flush=True)
-print("Time API status: ✓ WorldTimeAPI (no key required)", flush=True)
+print(f"Weather+Time API status: {'✓ OpenWeatherMap ready' if owm_available else '⚠ DDG fallback'}", flush=True)
 print(f"Environment PORT: {os.environ.get('PORT', 'NOT SET')}", flush=True)
 print("=" * 50, flush=True)
 
