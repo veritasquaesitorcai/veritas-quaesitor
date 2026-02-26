@@ -720,6 +720,30 @@ When CAI IS relevant: weave ONE natural closing hook.
 Example: "...curious how CAI fits into this alignment landscape?"
 Example: "...want to explore how VQ is being built for exactly this space?"""
 
+def get_pending_location_intent(history: list) -> str:
+    """Check if the last assistant message was asking for a location.
+    Returns 'weather', 'time', or '' so a bare location reply can be routed correctly.
+    """
+    if not history:
+        return ""
+    for msg in reversed(history):
+        if msg.get('role') == 'assistant':
+            content = msg.get('content', '').lower()
+            weather_ask = any(p in content for p in [
+                'which city', 'which area', 'what city', 'what location',
+                'weather for', 'want the weather', 'city or area'
+            ])
+            time_ask = any(p in content for p in [
+                'which city', 'which timezone', 'what city', 'city or timezone',
+                'time for', 'want the time', 'particular city'
+            ])
+            if weather_ask:
+                return 'weather'
+            if time_ask:
+                return 'time'
+            break
+    return ""
+
 # 6. Chat endpoint
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -765,9 +789,16 @@ def chat():
         
         groq_messages.append({"role": "user", "content": user_message})
         
+        # Detect if user is replying with a location to a previous ask
+        pending_intent = get_pending_location_intent(history)
+
         # Weather: try OpenWeatherMap, ask for location if none provided
-        if is_weather_query(user_message):
+        if is_weather_query(user_message) or pending_intent == 'weather':
             location = extract_location(user_message)
+            # If no location in message but user is replying to our ask, treat whole message as location
+            if not location and pending_intent == 'weather':
+                location = user_message.strip()
+                print(f"[WEATHER] Pending reply — using message as location: '{location}'", flush=True)
             if not location:
                 # No location — tell VQ to ask the user naturally
                 groq_messages[0]["content"] += (
@@ -797,8 +828,12 @@ def chat():
                     print(f"[WEATHER] No data found for '{location}'", flush=True)
 
         # Time: fetch live time via WorldTimeAPI, ask for location if none provided
-        if is_time_query(user_message):
+        if is_time_query(user_message) or pending_intent == 'time':
             time_location = extract_timezone_location(user_message)
+            # If no location in message but user is replying to our ask, treat whole message as location
+            if not time_location and pending_intent == 'time':
+                time_location = user_message.strip()
+                print(f"[TIME] Pending reply — using message as location: '{time_location}'", flush=True)
             if not time_location:
                 # No location — tell VQ to ask the user
                 groq_messages[0]["content"] += (
