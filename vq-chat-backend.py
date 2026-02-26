@@ -226,7 +226,7 @@ def extract_timezone_location(message: str) -> str:
         )
         location = result.choices[0].message.content.strip()
         print(f"[TIME] Extracted location: '{location}'", flush=True)
-        return "" if location == "UNKNOWN" else location
+        return "" if location in ("UNKNOWN", "UTC") else location
     except Exception as e:
         print(f"[TIME] Location extraction error: {e}", flush=True)
         return ""
