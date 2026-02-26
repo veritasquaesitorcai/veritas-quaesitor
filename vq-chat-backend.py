@@ -298,12 +298,23 @@ def execute_image_search(user_message: str, num_results: int = 5) -> list:
                 size='Medium'
             ))
 
+        # Domains that block hotlinking or frequently 404
+        blocked_domains = [
+            'wikimedia.org', 'wikipedia.org', 'upload.wiki',
+            'pinterest.com', 'pin.it', 'instagram.com',
+            'facebook.com', 'fbcdn.net', 'twimg.com'
+        ]
+
         images = []
         for r in results:
             url = r.get('image', '')
             title = r.get('title', '')
-            if url and url.startswith('http'):
-                images.append({'url': url, 'title': title})
+            if not url or not url.startswith('http'):
+                continue
+            if any(blocked in url for blocked in blocked_domains):
+                print(f"[IMAGE SEARCH] Skipped blocked domain: {url[:60]}", flush=True)
+                continue
+            images.append({'url': url, 'title': title})
 
         print(f"[IMAGE SEARCH] Found {len(images)} images for '{query}'", flush=True)
         return images
@@ -675,6 +686,7 @@ def chat():
         user_message = data.get('message', '')
         history = data.get('history', [])
         page_context = data.get('pageContext', None)
+        location_context = data.get('locationContext', None)
         
         if not user_message:
             return jsonify({'error': 'No message provided'}), 400
@@ -708,6 +720,10 @@ def chat():
         # Weather: try OpenWeatherMap first, fall back to DDG
         if is_weather_query(user_message):
             location = extract_location(user_message)
+            # Auto-fill from IP location if user didn't specify one
+            if not location and location_context:
+                location = location_context.get('city', '')
+                print(f"[WEATHER] No location in message — using IP location: '{location}'", flush=True)
             weather_data = get_weather(location) if location else ""
             if weather_data:
                 groq_messages[0]["content"] += (
@@ -724,6 +740,13 @@ def chat():
         # Time: fetch live time via WorldTimeAPI
         if is_time_query(user_message):
             time_location = extract_timezone_location(user_message)
+            # Auto-fill from IP location if user asked "what time is it" with no location
+            if (not time_location or time_location == 'UTC') and location_context:
+                tz = location_context.get('timezone', '')
+                city = location_context.get('city', '')
+                if tz:
+                    time_location = tz
+                    print(f"[TIME] No location in message — using IP timezone: '{tz}' ({city})", flush=True)
             time_data = get_time(time_location) if time_location else ""
             if time_data:
                 groq_messages[0]["content"] += (
@@ -796,6 +819,11 @@ def chat():
         )
         
         assistant_message = completion.choices[0].message.content
+
+        # Strip markdown code fences that prevent HTML from rendering
+        import re as _re
+        assistant_message = _re.sub(r'```(?:html)?\s*', '', assistant_message)
+        assistant_message = _re.sub(r'```\s*', '', assistant_message)
 
         # Test image rendering: inject directly from backend, bypass LLM interpretation
         if 'test image rendering' in user_message.lower():
