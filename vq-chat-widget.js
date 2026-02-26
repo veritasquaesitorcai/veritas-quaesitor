@@ -18,9 +18,9 @@ I'm here to help.
 Where do we Start?`
     };
 
-    // Fetch location once on load, cache it
+    // Fetch location once on load, store as promise so sendMessage can await it
     let locationContext = null;
-    fetch('https://ipapi.co/json/')
+    const locationPromise = fetch('https://ipapi.co/json/')
         .then(r => r.json())
         .then(data => {
             locationContext = {
@@ -32,7 +32,7 @@ Where do we Start?`
             };
             console.log('[LOCATION] Detected:', locationContext.city, locationContext.country);
         })
-        .catch(() => { /* silent fail */ });
+        .catch(() => { /* silent fail - locationContext stays null */ });
 
     // Styles
     const styles = `
@@ -907,6 +907,9 @@ Where do we Start?`
             sendBtn.disabled = true;
 
             const pageContext = getSmartPageContext();
+
+            // Ensure location is resolved before sending (handles race on first message)
+            await locationPromise;
 
             showTypingIndicator();
 
