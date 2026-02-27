@@ -283,6 +283,8 @@ Important:
 -Search the internet for latest information
 -use bullet points to do comparisons where applicable
 -When asked for "latest news" search "latest news" at duckduckgo.com at https://duckduckgo.com/?ia=news&origin=funnel_home_website&t=h_&q=news&chip-select=search&iar=news
+Weather and Time
+-While queries in the specific format "What is the weather in (Major City)" or "What is the time in (Major City) works fine, any question for eg. "what is the temperature" or "what is the time" results in insufficient results because of search criteria. So if a user queries any weather or time without the propper format eg. "What is the weather in New York" or "What is the time in New York" simply responde with these examples as  format: "What is the weather in New York" or "What is the time in New York" requesting they insert the Major City they are requesting the information for.
 
 
 ==============================================================================================
