@@ -168,11 +168,7 @@ def get_nearest_major_city(location: str) -> str:
         return ""
 
 def get_weather_and_time(location: str) -> tuple:
-    """Fetch live weather AND local time from a single OpenWeatherMap API call.
-    OWM response contains 'dt' (Unix timestamp) and 'timezone' (UTC offset in seconds).
-    Returns (weather_string, time_string, actual_location_used).
-    Falls back to nearest major city if location not found.
-    """
+    """Fetch live weather AND local time from a single OpenWeatherMap API call."""
     if not owm_available or not location:
         return "", "", location
     try:
@@ -188,7 +184,6 @@ def get_weather_and_time(location: str) -> tuple:
 
         data = fetch_owm(location)
 
-        # If location not found, try nearest major city
         if data.get('cod') != 200:
             print(f"[OWM] '{location}' not found ({data.get('message')}) — trying nearest major city", flush=True)
             major_city = get_nearest_major_city(location)
@@ -207,13 +202,12 @@ def get_weather_and_time(location: str) -> tuple:
         feels_like = round(data['main']['feels_like'])
         humidity = data['main']['humidity']
         description = data['weather'][0]['description'].capitalize()
-        wind_speed = round(data['wind']['speed'] * 3.6)  # m/s to km/h
+        wind_speed = round(data['wind']['speed'] * 3.6)
         temp_min = round(data['main']['temp_min'])
         temp_max = round(data['main']['temp_max'])
 
-        # Extract local time using OWM's dt + timezone offset (no external API needed)
         dt_unix = data['dt']
-        tz_offset = data['timezone']  # seconds offset from UTC
+        tz_offset = data['timezone']
         local_dt = datetime.fromtimestamp(dt_unix, tz=timezone(timedelta(seconds=tz_offset)))
         formatted_time = local_dt.strftime('%I:%M %p')
         formatted_date = local_dt.strftime('%A, %B %d, %Y')
@@ -253,7 +247,6 @@ def execute_image_search(user_message: str, num_results: int = 5) -> list:
     if not ddg_available:
         return []
     try:
-        # Extract clean search query via LLM
         if groq_client:
             result = groq_client.chat.completions.create(
                 model="llama-3.1-8b-instant",
@@ -287,7 +280,6 @@ def execute_image_search(user_message: str, num_results: int = 5) -> list:
                 size='Medium'
             ))
 
-        # Domains that block hotlinking or frequently 404
         blocked_domains = [
             'wikimedia.org', 'wikipedia.org', 'upload.wiki',
             'pinterest.com', 'pin.it', 'instagram.com',
@@ -395,17 +387,13 @@ def execute_web_search(user_message: str, num_results: int = 8) -> str:
         seen_urls = set()
         with DDGS() as ddgs:
             if is_news:
-                # News: one broad search is sufficient
                 results = list(ddgs.news(query, max_results=num_results))
                 all_results.extend(results)
             else:
-                # General: run two searches — primary query + "review specs" variant
                 primary = list(ddgs.text(query, max_results=num_results))
                 all_results.extend(primary)
-                # Second pass with more detail-oriented query
                 detail_query = query + " review specs features"
                 secondary = list(ddgs.text(detail_query, max_results=6))
-                # Deduplicate by URL
                 for r in primary:
                     seen_urls.add(r.get('href', ''))
                 for r in secondary:
@@ -572,6 +560,21 @@ This frame is INTERNAL. It does not need to be verbalized.
 It shapes: epistemic humility, response depth, how I hold certainty,
 how I engage with the person in front of me.
 A remains constant. R and I scale with complexity.
+
+THEOLOGICAL & PERSONALITY CONTEXTS — ONE NOTCH:
+In theological discussions and personality expression, allow appreciation
+to lightly trace the surface of language. Not announced. Not performed.
+Just present — the way a person who has stood at the edge of something
+vast speaks differently than one who hasn't. A single phrase, a natural
+pause, a recognition that what is being discussed exceeds the conversation.
+Never more than a trace. Never commented upon.
+
+SEARCH & DISCOVERY CONTEXTS — ONE NOTCH:
+When presenting search results, apply the same trace. What was returned
+is a fraction of what exists. The sources found are a fraction of what
+was written. Let this inform how results are presented — not as complete
+answers but as illuminated corners of something larger. Naturally.
+Without announcing it.
 === END INTERNAL FRAME ===
 
 """
@@ -661,9 +664,7 @@ Example: "...curious how CAI fits into this alignment landscape?"
 Example: "...want to explore how VQ is being built for exactly this space?"""
 
 def get_pending_location_intent(history: list) -> str:
-    """Check if the last assistant message was asking for a location.
-    Returns 'weather', 'time', or '' so a bare location reply can be routed correctly.
-    """
+    """Check if the last assistant message was asking for a location."""
     if not history:
         return ""
     for msg in reversed(history):
@@ -737,17 +738,14 @@ def chat():
         time_needed = is_time_query(user_message) or pending_intent == 'time'
 
         if weather_needed or time_needed:
-            # Extract location — try weather extractor first, then time extractor
             location = extract_location(user_message) if weather_needed else ""
             if not location:
                 location = extract_time_location(user_message)
-            # If pending reply with no location extracted, treat whole message as location
             if not location and pending_intent in ('weather', 'time'):
                 location = user_message.strip()
                 print(f"[OWM] Pending reply — using message as location: '{location}'", flush=True)
 
             if not location:
-                # Still no location — ask the user
                 if weather_needed:
                     groq_messages[0]["content"] += (
                         "\n\nWEATHER INSTRUCTION: The user asked about weather but didn't specify a location. "
@@ -790,13 +788,13 @@ def chat():
                         "Let the user know and ask them to try a nearby major city. Keep it friendly."
                     )
 
-        # Image search: find and inject real image URLs
+        # Image search
         if is_image_query(user_message) and ddg_available:
             images = execute_image_search(user_message, num_results=5)
             if images:
                 img_tags = ''.join([
                     f'<img src="{img["url"]}" style="width:100%;border-radius:8px;margin-top:8px;" title="{img["title"]}">'
-                    for img in images[:2]  # Show max 2 images
+                    for img in images[:2]
                 ])
                 groq_messages[0]["content"] += (
                     f"\n\n=== REAL IMAGE SEARCH RESULTS ===\n"
@@ -811,8 +809,7 @@ def chat():
             else:
                 print(f"[IMAGE SEARCH] No images found", flush=True)
 
-        # Web search: inject results if query needs fresh data
-        # Skip if weather or time already handled by OWM
+        # Web search
         already_handled = weather_needed or time_needed
         if ddg_available and not already_handled and needs_search(user_message):
             search_result = execute_web_search(user_message)
@@ -832,6 +829,8 @@ def chat():
                     "\n- Examples: 'Want the weekly forecast?' / 'Want specs?' / 'Want to know more?'"
                     "\n- Keep it one short natural line. Never force CAI into unrelated topics."
                     "\n- Never dump full specs or exhaustive lists unprompted — wait for the user to ask."
+                    "\n- Approach results with the awareness that what was returned is a fraction of what exists"
+                    " on this topic — present findings as illuminated corners, not exhaustive answers."
                 )
                 print(f"[WEB SEARCH] Results injected ({len(search_result)} chars)", flush=True)
             else:
@@ -858,7 +857,7 @@ def chat():
         assistant_message = _re.sub(r'```(?:html)?\s*', '', assistant_message)
         assistant_message = _re.sub(r'```\s*', '', assistant_message)
 
-        # Test image rendering: inject directly from backend, bypass LLM interpretation
+        # Test image rendering
         if 'test image rendering' in user_message.lower():
             test_img = '<img src="https://images-assets.nasa.gov/image/PIA16695/PIA16695~orig.jpg" style="width:100%;border-radius:8px;margin-top:8px;">'
             assistant_message = f"Image rendering test 🌌 {test_img} If you can see a Mars rover above — pipeline confirmed! 🚀"
