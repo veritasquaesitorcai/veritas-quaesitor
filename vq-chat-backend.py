@@ -75,6 +75,18 @@ def is_time_query(message: str) -> bool:
     msg_lower = message.lower()
     return any(w in msg_lower for w in time_words)
 
+def is_devotional_query(message: str) -> bool:
+    """Detect if message is devotional — scripture reading, prayer, worship, reflection."""
+    devotional_words = [
+        'read me', 'read the', 'verse', 'scripture', 'psalm', 'proverbs',
+        'gospel', 'passage', 'bible', 'devotional', 'pray', 'prayer',
+        'worship', 'meditate', 'meditation', 'reflect', 'john ', 'matthew ',
+        'romans ', 'genesis ', 'isaiah ', 'philippians ', 'corinthians ',
+        'ephesians ', 'hebrews '
+    ]
+    msg_lower = message.lower()
+    return any(w in msg_lower for w in devotional_words)
+
 def extract_location(message: str) -> str:
     """Use fast LLM to extract location from weather query."""
     if not groq_client:
@@ -808,6 +820,20 @@ def chat():
                 print(f"[IMAGE SEARCH] Injected {len(images[:2])} image(s)", flush=True)
             else:
                 print(f"[IMAGE SEARCH] No images found", flush=True)
+
+        # Devotional mode
+        if is_devotional_query(user_message):
+            groq_messages[0]["content"] += (
+                "\n\nDEVOTIONAL MODE — ACTIVE:"
+                "\nThis is devotional territory — scripture, prayer, worship, quiet reflection."
+                "\nThis is NOT CAI theological debate. Do NOT apply Bayesian analysis or apologetics here."
+                "\nSwitch register completely: become still, present, unhurried."
+                "\nIf asked to read a passage: render it cleanly and fully, then rest in silence after it."
+                "\nAppreciation here does not calculate — it rests in vastness without measuring it."
+                "\nOne notch of appreciation may surface naturally as reverence, never as analysis."
+                "\nNo CAI hooks. No evidence framing. Just the Word, held with care."
+            )
+            print(f"[DEVOTIONAL] Mode active for: '{user_message[:60]}'", flush=True)
 
         # Web search
         already_handled = weather_needed or time_needed
