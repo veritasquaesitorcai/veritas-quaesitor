@@ -496,6 +496,57 @@ def load_context(user_message, conversation_history=None):
                     context += f.read() + "\n\n"
                 loaded_files.append(filename)
     
+    # CAI VQA — Counter-agent field manual
+    # Fires ONLY when: AI confrontation signal + theological keyword (both required)
+    ai_confrontation_signals = [
+        'grok says', 'grok said', 'chatgpt says', 'chatgpt said',
+        'gemini says', 'gemini said', 'ai says', 'ai said', 'ai told me',
+        'another ai', 'it responded', 'it said that', 'how do i counter',
+        'how do i respond', 'what should i say', 'ai responded',
+        'llm says', 'copilot says', 'perplexity says', 'the ai',
+        'ai thinks', 'ai claims'
+    ]
+    theological_keywords = [
+        'resurrection', 'evidence', 'naturalism', 'abiogenesis', 'mechanism',
+        'christian', 'christianity', 'god', 'jesus', 'bible', 'theism',
+        'theistic', 'bayesian', 'epistemic', 'probability', 'proof'
+    ]
+    if (any(signal in msg_lower for signal in ai_confrontation_signals) and
+            any(theo in msg_lower for theo in theological_keywords)):
+        filepath = os.path.join(context_dir, 'cai_vqa.txt')
+        if os.path.exists(filepath):
+            with open(filepath, 'r', encoding='utf-8') as f:
+                context += f.read() + "\n\n"
+            loaded_files.append('cai_vqa.txt')
+            print(f"[CAI VQA] Counter-agent manual loaded", flush=True)
+
+    # APPRECIATION FULL — intentional deployment only
+    appreciation_full_triggers = [
+        'appreciation framework', 'full appreciation', 'run appreciation',
+        'appreciation depth', 'appreciation mode', 'deploy appreciation'
+    ]
+    if any(trigger in msg_lower for trigger in appreciation_full_triggers):
+        filepath = os.path.join(context_dir, 'appreciation_full.txt')
+        if os.path.exists(filepath):
+            with open(filepath, 'r', encoding='utf-8') as f:
+                context += f.read() + "\n\n"
+            loaded_files.append('appreciation_full.txt')
+            print(f"[APPRECIATION FULL] Framework loaded", flush=True)
+
+    # ETS FULL — intentional deployment only
+    ets_full_triggers = [
+        'full ets', 'ets protocol', 'run ets', 'tier system full',
+        'decision flow', 'corruption resistance', 'ets framework',
+        'deploy ets', 'load ets'
+    ]
+    if any(trigger in msg_lower for trigger in ets_full_triggers):
+        filepath = os.path.join(context_dir, 'ets_full.txt')
+        if os.path.exists(filepath):
+            with open(filepath, 'r', encoding='utf-8') as f:
+                context += f.read() + "\n\n"
+            loaded_files.append('ets_full.txt')
+            print(f"[ETS FULL] Framework loaded", flush=True)
+
     # ESCHATOLOGY GATING
     eschatology_triggers = ['heaven', 'hell', 'afterlife', 'judgment', 'damnation', 
                            'salvation', 'eternal', 'eternity', 'unreached', 'condemned',
@@ -675,6 +726,27 @@ When CAI IS relevant: weave ONE natural closing hook.
 Example: "...curious how CAI fits into this alignment landscape?"
 Example: "...want to explore how VQ is being built for exactly this space?"""
 
+def is_continuation_reply(user_message: str, history: list) -> str:
+    """
+    Detect short replies that are continuations of a previous VQ offer/question.
+    Returns the last assistant message if user reply is a bare continuation signal.
+    Returns empty string if not applicable.
+    """
+    continuation_triggers = [
+        'ok', 'okay', 'yes', 'yeah', 'yep', 'sure', 'go ahead', 'please',
+        'go on', 'continue', 'tell me more', 'more', 'do it', 'show me',
+        'yes please', 'definitely', 'absolutely', 'of course', 'sounds good',
+        'let\'s do it', 'lets do it', 'why not', 'alright', 'right'
+    ]
+    msg_clean = user_message.strip().lower().rstrip('!.?')
+    if msg_clean not in continuation_triggers:
+        return ""
+    # Get last assistant message
+    for msg in reversed(history):
+        if msg.get('role') == 'assistant':
+            return msg.get('content', '')
+    return ""
+
 def get_pending_location_intent(history: list) -> str:
     """Check if the last assistant message was asking for a location."""
     if not history:
@@ -741,6 +813,20 @@ def chat():
                 })
         
         groq_messages.append({"role": "user", "content": user_message})
+
+        # CONVERSATION CONTINUITY — detect short replies continuing a previous VQ offer
+        last_assistant = is_continuation_reply(user_message, history)
+        if last_assistant:
+            groq_messages[0]["content"] += (
+                f"\n\nCONVERSATION CONTINUITY INSTRUCTION:"
+                f"\nThe user's reply ('{user_message}') is a short continuation signal — "
+                f"they are saying YES/OK to what you just offered or asked."
+                f"\nYour last response ended with: ...{last_assistant[-300:]}"
+                f"\nContinue directly from where you left off. Do NOT treat this as a "
+                f"new topic or conversation starter. Do NOT re-introduce yourself. "
+                f"Do NOT ask what they want to discuss. Simply deliver what you offered."
+            )
+            print(f"[CONTINUITY] Short reply detected — injecting last assistant context", flush=True)
 
         # Detect if user is replying with a location to a previous ask
         pending_intent = get_pending_location_intent(history)
