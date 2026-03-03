@@ -939,7 +939,18 @@ def chat():
                 weather_str, time_str, used_location = get_weather_and_time(location)
                 note = " (nearest major city)" if "nearest:" in used_location else ""
 
-                if weather_str and weather_needed:
+                if weather_str and time_str and weather_needed and time_needed:
+                    # Both requested — single combined response
+                    groq_messages[0]["content"] += (
+                        f"\n\n=== LIVE WEATHER & TIME DATA{note} ===\n{weather_str}\n{time_str}\n=== END DATA ==="
+                        "\n\nThis is REAL live data. Present BOTH the current time AND weather "
+                        "together in a single natural response in VQ voice — warm, concise, with personality. "
+                        "Lead with the time, then the weather. Include temp, condition, feels-like, high/low. "
+                        "Do NOT mention CAI. One response, not two."
+                    )
+                    print(f"[OWM] Weather+Time combined for '{used_location}'", flush=True)
+
+                elif weather_str and weather_needed:
                     groq_messages[0]["content"] += (
                         f"\n\n=== LIVE WEATHER DATA{note} ===\n{weather_str}\n=== END WEATHER DATA ==="
                         "\n\nThis is REAL live weather data. Present it naturally in VQ voice — "
@@ -949,7 +960,7 @@ def chat():
                     )
                     print(f"[OWM] Weather injected for '{used_location}'", flush=True)
 
-                if time_str and time_needed:
+                elif time_str and time_needed:
                     groq_messages[0]["content"] += (
                         f"\n\n=== LIVE TIME DATA{note} ===\n{time_str}\n=== END TIME DATA ==="
                         "\n\nThis is REAL current time data from OpenWeatherMap. Present it naturally "
