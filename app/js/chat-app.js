@@ -10,6 +10,7 @@
 
     let conversationHistory = [];
     let isTyping = false;
+    let activePill = null; // capability pill mode
 
     const elements = {
         sidebar: document.getElementById('sidebar'),
@@ -64,6 +65,22 @@
 
         elements.messageInput.addEventListener('input', handleInputChange);
         elements.messageInput.addEventListener('keydown', handleKeyDown);
+
+        // Capability pills
+        document.querySelectorAll('.cap-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                const mode = pill.dataset.mode;
+                if (activePill === mode) {
+                    activePill = null;
+                    pill.classList.remove('active');
+                } else {
+                    document.querySelectorAll('.cap-pill').forEach(p => p.classList.remove('active'));
+                    activePill = mode;
+                    pill.classList.add('active');
+                }
+                elements.messageInput.focus();
+            });
+        });
 
         document.querySelectorAll('.suggestion-card').forEach(card => {
             card.addEventListener('click', () => {
@@ -245,7 +262,6 @@
         const hasImage = /<img/i.test(content);
 
         if (hasImage) {
-            // Split on <img> tags, render text with pre-wrap, images as real DOM elements
             const parts = content.split(/(<img[^>]*>)/i);
             parts.forEach(part => {
                 if (/^<img/i.test(part)) {
@@ -343,17 +359,24 @@
     }
 
     async function sendMessage() {
-        const message = elements.messageInput.value.trim();
-        if (!message || isTyping) return;
+        const rawMessage = elements.messageInput.value.trim();
+        if (!rawMessage || isTyping) return;
+
+        // Prepend active pill prefix for backend routing; show clean message in UI
+        const message = activePill ? `${activePill} ${rawMessage}` : rawMessage;
 
         hideWelcomeScreen();
         elements.chatContainer.classList.add('has-messages');
-        addMessage('user', message);
+        addMessage('user', rawMessage); // always show clean message to user
         
         elements.messageInput.value = '';
         elements.messageInput.style.height = 'auto';
         elements.charCount.textContent = '0 / 2000';
         elements.sendBtn.disabled = true;
+
+        // Clear active pill after send
+        activePill = null;
+        document.querySelectorAll('.cap-pill').forEach(p => p.classList.remove('active'));
         
         isTyping = true;
         setStatus('typing', 'Thinking...');
