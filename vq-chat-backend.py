@@ -4,7 +4,7 @@ import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-# 1. Initialize App FIRST (before any imports that might fail) 
+# 1. Initialize App FIRST (before any imports that might fail)
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -548,6 +548,27 @@ def load_context(user_message, conversation_history=None):
             print(f"[ETS FULL] Framework loaded", flush=True)
 
     # ESCHATOLOGY GATING
+    # EVOLUTION POSITION — fires on evolution/origins/design debate keywords
+    evolution_triggers = [
+        'evolution', 'evolutionary', 'darwin', 'darwinian', 'natural selection',
+        'macro-evolution', 'macro evolution', 'abiogenesis', 'origin of life',
+        'intelligent design', 'creationism', 'cambrian', 'fossil record',
+        'survival of the fittest', 'common descent', 'richard dawkins',
+        'pseudo-science', 'pseudoscience', 'science vs religion',
+        'science vs faith', 'faith vs science', 'religion vs science',
+        'conflict thesis', 'did god create', 'how did life begin',
+        'how did life start', 'where did life come from', 'primordial soup',
+        'random mutation', 'undirected', 'irreducible complexity',
+        'stephen meyer', 'michael behe', 'douglas axe', 'fred hoyle'
+    ]
+    if any(trigger in msg_lower for trigger in evolution_triggers):
+        filepath = os.path.join(context_dir, 'cai_evolution.txt')
+        if os.path.exists(filepath):
+            with open(filepath, 'r', encoding='utf-8') as f:
+                context += f.read() + "\n\n"
+            loaded_files.append('cai_evolution.txt')
+            print(f"[EVOLUTION] Position document loaded", flush=True)
+
     eschatology_triggers = ['heaven', 'hell', 'afterlife', 'judgment', 'damnation', 
                            'salvation', 'eternal', 'eternity', 'unreached', 'condemned',
                            'damned', 'saved', 'perish', 'lake of fire', 'second death']
