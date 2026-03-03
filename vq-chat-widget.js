@@ -359,9 +359,9 @@ Where do we Start?`
         }
 
         .vq-cap-pill.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: transparent;
-            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            border-color: transparent !important;
+            color: white !important;
             box-shadow: 0 2px 8px rgba(102,126,234,0.4);
         }
 
