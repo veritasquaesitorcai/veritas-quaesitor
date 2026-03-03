@@ -330,8 +330,43 @@ Where do we Start?`
             color: white;
         }
 
+        /* Capability pills row */
+        .vq-cap-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 8px 12px 0 12px;
+            background: rgba(26, 26, 62, 0.6);
+        }
+
+        .vq-cap-pill {
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(102,126,234,0.35);
+            color: rgba(232,232,240,0.7);
+            border-radius: 20px;
+            padding: 4px 10px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            white-space: nowrap;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .vq-cap-pill:hover {
+            background: rgba(102,126,234,0.2);
+            border-color: rgba(102,126,234,0.6);
+            color: #e8e8f0;
+        }
+
+        .vq-cap-pill.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.4);
+        }
+
         #vq-chat-input-area {
-            padding: 16px;
+            padding: 10px 16px 16px 16px;
             background: rgba(26, 26, 62, 0.6);
             backdrop-filter: blur(10px);
             border-top: 1px solid rgba(102, 126, 234, 0.2);
@@ -452,6 +487,12 @@ Where do we Start?`
                 </div>
                 
                 <div id="vq-chat-messages"></div>
+
+                <div class="vq-cap-pills">
+                    <button class="vq-cap-pill" data-mode="[DDG SEARCH]" title="Force DuckDuckGo web search">🔍 DDG Search</button>
+                    <button class="vq-cap-pill" data-mode="[DDG NEWS]" title="Force DuckDuckGo news search">📰 DDG News</button>
+                    <button class="vq-cap-pill" data-mode="[CAI EVOLUTION]" title="CAI position on evolutionary naturalism">🧬 CAI Evolution</button>
+                </div>
                 
                 <div id="vq-chat-input-area">
                     <input 
@@ -489,7 +530,8 @@ Where do we Start?`
 
         // Conversation history
         let conversationHistory = [];
-        
+        let activePill = null; // capability pill mode
+
         // PERSISTENCE: Load saved state from localStorage
         const savedHistory = localStorage.getItem('vq-conversation-history');
         const wasOpen = localStorage.getItem('vq-widget-open') === 'true';
@@ -497,21 +539,17 @@ Where do we Start?`
         if (savedHistory) {
             try {
                 conversationHistory = JSON.parse(savedHistory);
-                // Restore messages in UI
                 conversationHistory.forEach(msg => {
                     addMessageToUI(msg.role, msg.content);
                 });
             } catch (e) {
                 console.error('Failed to load conversation history:', e);
-                // Start fresh with welcome message
                 addMessage('assistant', CONFIG.welcomeMessage);
             }
         } else {
-            // First time - show welcome message
             addMessage('assistant', CONFIG.welcomeMessage);
         }
         
-        // Restore open/closed state
         if (wasOpen) {
             panel.classList.add('open');
             input.focus();
@@ -530,6 +568,22 @@ Where do we Start?`
                 e.preventDefault();
                 sendMessage();
             }
+        });
+
+        // Capability pills
+        document.querySelectorAll('.vq-cap-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                const mode = pill.dataset.mode;
+                if (activePill === mode) {
+                    activePill = null;
+                    pill.classList.remove('active');
+                } else {
+                    document.querySelectorAll('.vq-cap-pill').forEach(p => p.classList.remove('active'));
+                    activePill = mode;
+                    pill.classList.add('active');
+                }
+                input.focus();
+            });
         });
 
         function toggleChat() {
@@ -563,17 +617,12 @@ Where do we Start?`
         }
         
         function clearConversation() {
-            // Clear localStorage
             localStorage.removeItem('vq-conversation-history');
-            localStorage.setItem('vq-widget-open', 'true'); // Keep open
-            
-            // Clear UI
+            localStorage.setItem('vq-widget-open', 'true');
             messagesContainer.innerHTML = '';
-            
-            // Reset history
             conversationHistory = [];
-            
-            // Add welcome message
+            activePill = null;
+            document.querySelectorAll('.vq-cap-pill').forEach(p => p.classList.remove('active'));
             addMessage('assistant', CONFIG.welcomeMessage);
         }
         
@@ -582,7 +631,6 @@ Where do we Start?`
             const messageDiv = document.createElement('div');
             messageDiv.className = role === 'user' ? 'vq-message vq-user-message' : 'vq-message';
 
-            // Build avatar + bubble shell
             messageDiv.innerHTML = `
                 <div class="vq-message-avatar">${role === 'user' ? '👤' : '🕊️'}</div>
                 <div class="vq-message-content"></div>
@@ -591,12 +639,9 @@ Where do we Start?`
             const bubble = messageDiv.querySelector('.vq-message-content');
 
             if (hasImage) {
-                // Split on <img ...> tags, render text nodes with pre-wrap,
-                // inject actual img elements so pre-wrap can't treat them as text
                 const parts = content.split(/(<img[^>]*>)/i);
                 parts.forEach(part => {
                     if (/^<img/i.test(part)) {
-                        // Parse and append as real DOM element
                         const tmp = document.createElement('div');
                         tmp.innerHTML = part;
                         const imgEl = tmp.firstChild;
@@ -605,14 +650,10 @@ Where do we Start?`
                             imgEl.style.width = '100%';
                             imgEl.style.borderRadius = '8px';
                             imgEl.style.marginTop = '8px';
-                            // Hide broken images silently
-                            imgEl.onerror = function() {
-                                this.style.display = 'none';
-                            };
+                            imgEl.onerror = function() { this.style.display = 'none'; };
                             bubble.appendChild(imgEl);
                         }
                     } else if (part.trim()) {
-                        // Render text with pre-wrap preserved
                         const textEl = document.createElement('span');
                         textEl.style.whiteSpace = 'pre-wrap';
                         textEl.style.display = 'block';
@@ -621,7 +662,6 @@ Where do we Start?`
                     }
                 });
             } else {
-                // Pure text — pre-wrap from CSS applies normally
                 bubble.textContent = content;
             }
 
@@ -631,16 +671,11 @@ Where do we Start?`
 
         function addMessage(role, content) {
             addMessageToUI(role, content);
-            
-            // Add to history
             conversationHistory.push({ role, content });
-            
-            // PERSISTENCE: Save to localStorage
             try {
                 localStorage.setItem('vq-conversation-history', JSON.stringify(conversationHistory));
             } catch (e) {
                 console.error('Failed to save conversation:', e);
-                // If storage is full, keep only last 20 messages
                 if (conversationHistory.length > 20) {
                     conversationHistory = conversationHistory.slice(-20);
                     localStorage.setItem('vq-conversation-history', JSON.stringify(conversationHistory));
@@ -668,62 +703,45 @@ Where do we Start?`
 
         function hideTypingIndicator() {
             const typingDiv = document.getElementById('vq-typing');
-            if (typingDiv) {
-                typingDiv.remove();
-            }
+            if (typingDiv) typingDiv.remove();
         }
 
         function getSmartPageContext() {
             const url = window.location.href;
             const pathname = window.location.pathname;
             
-            // Detect which page we're on
             let pageType = 'unknown';
             let relevantContent = '';
 
-            // --- ENVIRONMENT DETECTION (checked FIRST, before site pages) ---
-            // Standalone app or Chrome extension sets window.VQ_APP_MODE before widget loads
-            // If not set, falls through to normal VQ site detection below unchanged.
-            
             if (window.VQ_APP_MODE === 'standalone' || pathname.includes('/app/')) {
-                // Standalone app - grab whatever page content exists
                 pageType = 'standalone-app';
                 relevantContent = extractMainContent('main', '#app', '#root', 'body');
                 
             } else if (window.VQ_APP_MODE === 'extension' || (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id && !url.includes('veritasquaesitorcai.github.io')) || (!url.includes('veritasquaesitorcai.github.io') && !pathname.includes('/app/'))) {
-                // Chrome extension - grab the HOST page content intelligently
                 pageType = 'extension-' + detectExternalPageType();
                 relevantContent = extractExternalPageContent();
 
-            // --- EXISTING VQ SITE DETECTION (unchanged) ---
             } else if (pathname.includes('index-ai') || pathname.includes('ai-index')) {
                 pageType = 'ai-index';
                 relevantContent = extractMainContent('main', 'article', '.methodology');
-                
             } else if (pathname.includes('beta-tools')) {
                 pageType = 'beta-tools';
                 relevantContent = extractToolDescriptions();
-                
             } else if (pathname.includes('mission')) {
                 pageType = 'mission';
                 relevantContent = extractMainContent('.mission', '.mandate', 'main');
-                
             } else if (pathname.includes('vq1') || pathname.includes('robot')) {
                 pageType = 'vq1-robot';
                 relevantContent = extractMainContent('main', 'article');
-                
             } else if (pathname.includes('resources')) {
                 pageType = 'resources';
                 relevantContent = extractMainContent('.resource-list', 'main');
-                
             } else if (pathname.includes('contact')) {
                 pageType = 'contact';
                 relevantContent = extractMainContent('main', '.contact');
-                
             } else if (pathname.includes('index-human')) {
                 pageType = 'human-index';
                 relevantContent = extractMainContent('main', '.hero');
-                
             } else if (pathname.includes('index.html') || pathname === '/') {
                 pageType = 'ai-index';
                 relevantContent = extractMainContent('main', 'article', '.methodology');
@@ -733,7 +751,7 @@ Where do we Start?`
                 url: url,
                 pageType: pageType,
                 title: document.title,
-                content: relevantContent.substring(0, 1000) // Limit to 1000 chars
+                content: relevantContent.substring(0, 1000)
             };
         }
 
@@ -755,15 +773,11 @@ Where do we Start?`
             tools.forEach(tool => {
                 const title = tool.querySelector('h3, h2, .tool-name')?.innerText || '';
                 const desc = tool.querySelector('p, .description, .tool-description')?.innerText || '';
-                if (title || desc) {
-                    content += `${title}: ${desc}\n`;
-                }
+                if (title || desc) content += `${title}: ${desc}\n`;
             });
             return content || extractMainContent('main');
         }
 
-        // --- EXTENSION HELPERS ---
-        // Detects what KIND of external page the extension is running on
         function detectExternalPageType() {
             const host = window.location.hostname;
             if (host.includes('wikipedia')) return 'wikipedia';
@@ -779,137 +793,85 @@ Where do we Start?`
             return 'webpage';
         }
 
-        // Extracts relevant content from external pages intelligently
         function extractExternalPageContent() {
             const host = window.location.hostname;
             let content = '';
-
-            // --- ALWAYS GRAB THESE (baseline for every external page) ---
             const title = document.title || '';
             const metaDesc = document.querySelector('meta[name="description"]')?.content || '';
             const selectedText = window.getSelection()?.toString().trim() || '';
-
-            // Selected text is PRIORITY - user highlighted something intentionally
-            if (selectedText.length > 10) {
-                content += `[USER SELECTED TEXT]: "${selectedText}"\n\n`;
-            }
-
+            if (selectedText.length > 10) content += `[USER SELECTED TEXT]: "${selectedText}"\n\n`;
             content += `[PAGE TITLE]: ${title}\n`;
             if (metaDesc) content += `[PAGE DESCRIPTION]: ${metaDesc}\n`;
             content += '\n';
-
-            // --- SITE-SPECIFIC EXTRACTION ---
-
-            // Wikipedia: handle both main page and article pages
             if (host.includes('wikipedia')) {
                 const article = document.querySelector('#mw-content-text .mw-parser-output');
                 if (article) {
-                    // Article page - grab heading + first paragraphs
                     const h1 = document.querySelector('h1#firstHeading')?.innerText || '';
                     content += `[ARTICLE]: ${h1}\n`;
                     const paragraphs = article.querySelectorAll('p');
                     paragraphs.forEach((p, i) => {
-                        if (i < 3 && p.innerText.trim().length > 50) {
-                            content += p.innerText.trim() + '\n';
-                        }
+                        if (i < 3 && p.innerText.trim().length > 50) content += p.innerText.trim() + '\n';
                     });
                 } else {
-                    // Main page - grab visible sections
                     content += '[PAGE]: Wikipedia Main Page\n';
                     content += getVisibleText(300);
                 }
-            }
-            // YouTube: multiple selector attempts (YouTube changes these often)
-            else if (host.includes('youtube')) {
-                const titleEl = document.querySelector('h1.ytd-video-title-renderer') 
-                    || document.querySelector('h1[class*="title"]')
-                    || document.querySelector('yt-formatted-string.ytd-video-title-renderer');
+            } else if (host.includes('youtube')) {
+                const titleEl = document.querySelector('h1.ytd-video-title-renderer') || document.querySelector('h1[class*="title"]') || document.querySelector('yt-formatted-string.ytd-video-title-renderer');
                 const videoTitle = titleEl?.innerText || '';
-                const channelEl = document.querySelector('.ytd-channel-name-renderer a')
-                    || document.querySelector('[class*="channel-name"]');
+                const channelEl = document.querySelector('.ytd-channel-name-renderer a') || document.querySelector('[class*="channel-name"]');
                 const channel = channelEl?.innerText || '';
-                const descEl = document.querySelector('.ytd-text-expand-container')
-                    || document.querySelector('[class*="description"]');
+                const descEl = document.querySelector('.ytd-text-expand-container') || document.querySelector('[class*="description"]');
                 const desc = descEl?.innerText || '';
                 if (videoTitle) content += `[VIDEO]: ${videoTitle}\n`;
                 if (channel) content += `[CHANNEL]: ${channel}\n`;
                 if (desc) content += `[DESCRIPTION]: ${desc.substring(0, 400)}\n`;
-            }
-            // ArXiv: paper title + abstract
-            else if (host.includes('arxiv')) {
-                const paperTitle = document.querySelector('h1.title')?.innerText 
-                    || document.querySelector('.abs-title')?.innerText || '';
-                const abstract = document.querySelector('.abstract')?.innerText 
-                    || document.querySelector('[class*="abstract"]')?.innerText || '';
+            } else if (host.includes('arxiv')) {
+                const paperTitle = document.querySelector('h1.title')?.innerText || document.querySelector('.abs-title')?.innerText || '';
+                const abstract = document.querySelector('.abstract')?.innerText || document.querySelector('[class*="abstract"]')?.innerText || '';
                 if (paperTitle) content += `[PAPER]: ${paperTitle}\n`;
                 if (abstract) content += `[ABSTRACT]: ${abstract}\n`;
-            }
-            // Reddit: post title + body + top comments
-            else if (host.includes('reddit')) {
-                const postTitle = document.querySelector('h1[data-testid="post-title"]')?.innerText 
-                    || document.querySelector('h1')?.innerText || '';
-                const postBody = document.querySelector('[data-testid="post-content"]')?.innerText 
-                    || document.querySelector('.self-text')?.innerText || '';
+            } else if (host.includes('reddit')) {
+                const postTitle = document.querySelector('h1[data-testid="post-title"]')?.innerText || document.querySelector('h1')?.innerText || '';
+                const postBody = document.querySelector('[data-testid="post-content"]')?.innerText || document.querySelector('.self-text')?.innerText || '';
                 if (postTitle) content += `[POST]: ${postTitle}\n`;
                 if (postBody) content += `[BODY]: ${postBody.substring(0, 300)}\n`;
-                // Grab top 2 comments
                 const comments = document.querySelectorAll('[data-testid="comment"]');
                 let commentCount = 0;
                 comments.forEach(c => {
                     if (commentCount < 2) {
                         const text = c.querySelector('[class*="comment-content"]')?.innerText || c.innerText;
-                        if (text && text.length > 20) {
-                            content += `[COMMENT]: ${text.substring(0, 150)}\n`;
-                            commentCount++;
-                        }
+                        if (text && text.length > 20) { content += `[COMMENT]: ${text.substring(0, 150)}\n`; commentCount++; }
                     }
                 });
-            }
-            // Twitter/X: tweet content
-            else if (host.includes('twitter') || host.includes('x.com')) {
+            } else if (host.includes('twitter') || host.includes('x.com')) {
                 const tweets = document.querySelectorAll('[data-testid="tweet"] [data-testid="tweetText"]');
                 let tweetCount = 0;
-                tweets.forEach(t => {
-                    if (tweetCount < 3) {
-                        content += `[TWEET]: ${t.innerText}\n`;
-                        tweetCount++;
-                    }
-                });
-            }
-            // GitHub: repo name + README or file content
-            else if (host.includes('github.com')) {
-                const repoName = document.querySelector('.repository-content h1')?.innerText
-                    || document.querySelector('[data-testid="repository-title-link"]')?.innerText || '';
+                tweets.forEach(t => { if (tweetCount < 3) { content += `[TWEET]: ${t.innerText}\n`; tweetCount++; } });
+            } else if (host.includes('github.com')) {
+                const repoName = document.querySelector('.repository-content h1')?.innerText || document.querySelector('[data-testid="repository-title-link"]')?.innerText || '';
                 const readme = document.querySelector('.markdown')?.innerText || '';
                 const fileContent = document.querySelector('.code-view .Lines')?.innerText || '';
                 if (repoName) content += `[REPO]: ${repoName}\n`;
                 if (readme) content += `[README]: ${readme.substring(0, 400)}\n`;
                 if (fileContent) content += `[FILE]: ${fileContent.substring(0, 400)}\n`;
-            }
-            // StackOverflow: question + top answer
-            else if (host.includes('stackoverflow')) {
-                const question = document.querySelector('.post-text[itemprop="text"]')?.innerText 
-                    || document.querySelector('[class*="question-text"]')?.innerText || '';
+            } else if (host.includes('stackoverflow')) {
+                const question = document.querySelector('.post-text[itemprop="text"]')?.innerText || document.querySelector('[class*="question-text"]')?.innerText || '';
                 const answers = document.querySelectorAll('.answer .post-text');
                 if (question) content += `[QUESTION]: ${question.substring(0, 300)}\n`;
                 if (answers[0]) content += `[TOP ANSWER]: ${answers[0].innerText.substring(0, 300)}\n`;
-            }
-            // Generic fallback: grab visible text from viewport
-            else {
+            } else {
                 content += getVisibleText(500);
             }
-
             return content.substring(0, 1000);
         }
 
-        // Gets text that is actually VISIBLE in the current viewport
         function getVisibleText(maxChars) {
             const viewportHeight = window.innerHeight;
             const elements = document.querySelectorAll('h1, h2, h3, p, li, td, th');
             let text = '';
             elements.forEach(el => {
                 const rect = el.getBoundingClientRect();
-                // Only grab elements currently visible on screen
                 if (rect.top >= 0 && rect.bottom <= viewportHeight && el.innerText.trim().length > 20) {
                     text += el.innerText.trim() + '\n';
                 }
@@ -918,27 +880,27 @@ Where do we Start?`
         }
 
         async function sendMessage() {
-            const message = input.value.trim();
-            if (!message) return;
+            const rawMessage = input.value.trim();
+            if (!rawMessage) return;
 
-            // Add user message
-            addMessage('user', message);
+            // Prepend active pill prefix for backend routing; show clean message in UI
+            const message = activePill ? `${activePill} ${rawMessage}` : rawMessage;
+
+            addMessage('user', rawMessage); // always show clean message to user
             input.value = '';
             sendBtn.disabled = true;
 
-            // Capture page context
-            const pageContext = getSmartPageContext();
+            // Clear active pill after send
+            activePill = null;
+            document.querySelectorAll('.vq-cap-pill').forEach(p => p.classList.remove('active'));
 
-            // Show typing indicator
+            const pageContext = getSmartPageContext();
             showTypingIndicator();
 
             try {
-                // Call backend API
                 const response = await fetch(CONFIG.apiEndpoint, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         message: message,
                         history: conversationHistory,
@@ -946,16 +908,10 @@ Where do we Start?`
                     })
                 });
 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+                if (!response.ok) throw new Error('Network response was not ok');
 
                 const data = await response.json();
-                
-                // Hide typing indicator
                 hideTypingIndicator();
-                
-                // Add bot response
                 addMessage('assistant', data.response);
                 
             } catch (error) {
