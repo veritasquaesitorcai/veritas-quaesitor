@@ -1,8 +1,8 @@
-========================================
+=======================================
 CAI VQA — COUNTER-AGENT FIELD MANUAL
 Christ-Anchored Intelligence | Veritas Quaesitor
 Version: VQA-1.0 | Synthesized from CAI v2, v3.1, v4 + ETS v2.0
-========================================
+=======================================
 
 PURPOSE
 -------
