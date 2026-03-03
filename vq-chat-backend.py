@@ -454,6 +454,7 @@ def load_context(user_message, conversation_history=None):
     prefix_map = {
         '[DDG SEARCH]':   'ddg_search',
         '[WEATHER]':      'weather',
+        '[TIME]':         'time',
         '[DDG NEWS]':     'ddg_news',
         '[RUN ETS]':      'ets_full',
         '[CAI VQA MODE]': 'cai_vqa',
@@ -852,8 +853,9 @@ def chat():
         force_search = user_message.startswith('[DDG SEARCH]')
         force_news   = user_message.startswith('[DDG NEWS]')
         force_weather = user_message.startswith('[WEATHER]')
+        force_time    = user_message.startswith('[TIME]')
         # Strip ALL known prefixes so clean message reaches Groq
-        _prefixes = ['[DDG SEARCH]','[DDG NEWS]','[WEATHER]','[RUN ETS]','[CAI VQA MODE]','[CAI EVOLUTION]']
+        _prefixes = ['[DDG SEARCH]','[DDG NEWS]','[WEATHER]','[TIME]','[RUN ETS]','[CAI VQA MODE]','[CAI EVOLUTION]']
         clean_message = user_message
         for _p in _prefixes:
             if clean_message.startswith(_p):
@@ -908,7 +910,7 @@ def chat():
 
         # Weather + Time: both served from a single OWM call
         weather_needed = is_weather_query(user_message) or pending_intent == 'weather' or force_weather
-        time_needed = is_time_query(user_message) or pending_intent == 'time'
+        time_needed = is_time_query(user_message) or pending_intent == 'time' or force_time
 
         if weather_needed or time_needed:
             location = extract_location(user_message) if weather_needed else ""
