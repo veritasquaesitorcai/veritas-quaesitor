@@ -455,6 +455,7 @@ def load_context(user_message, conversation_history=None):
         '[DDG SEARCH]':   'ddg_search',
         '[WEATHER]':      'weather',
         '[TIME]':         'time',
+        '[TIME AND WEATHER]': 'time_and_weather',
         '[DDG NEWS]':     'ddg_news',
         '[RUN ETS]':      'ets_full',
         '[CAI VQA MODE]': 'cai_vqa',
@@ -852,10 +853,10 @@ def chat():
         # load_context handles context loading; here we handle search/weather/news forcing
         force_search = user_message.startswith('[DDG SEARCH]')
         force_news   = user_message.startswith('[DDG NEWS]')
-        force_weather = user_message.startswith('[WEATHER]')
-        force_time    = user_message.startswith('[TIME]')
+        force_weather = user_message.startswith('[WEATHER]') or user_message.startswith('[TIME AND WEATHER]')
+        force_time    = user_message.startswith('[TIME]') or user_message.startswith('[TIME AND WEATHER]')
         # Strip ALL known prefixes so clean message reaches Groq
-        _prefixes = ['[DDG SEARCH]','[DDG NEWS]','[WEATHER]','[TIME]','[RUN ETS]','[CAI VQA MODE]','[CAI EVOLUTION]']
+        _prefixes = ['[DDG SEARCH]','[DDG NEWS]','[WEATHER]','[TIME]','[TIME AND WEATHER]','[RUN ETS]','[CAI VQA MODE]','[CAI EVOLUTION]']
         clean_message = user_message
         for _p in _prefixes:
             if clean_message.startswith(_p):
