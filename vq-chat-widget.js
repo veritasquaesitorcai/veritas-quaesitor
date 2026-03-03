@@ -491,6 +491,7 @@ Where do we Start?`
                 <div class="vq-cap-pills">
                     <button class="vq-cap-pill" data-mode="[DDG SEARCH]" title="Force DuckDuckGo web search">🔍 DDG Search</button>
                     <button class="vq-cap-pill" data-mode="[DDG NEWS]" title="Force DuckDuckGo news search">📰 DDG News</button>
+                    <button class="vq-cap-pill" data-mode="[TIME]" title="Get current time for any city">🕐 Time</button>
                     <button class="vq-cap-pill" data-mode="[CAI EVOLUTION]" title="CAI position on evolutionary naturalism">🧬 CAI Evolution</button>
                 </div>
                 
