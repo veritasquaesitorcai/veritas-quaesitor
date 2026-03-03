@@ -388,12 +388,14 @@ def extract_search_query(user_message: str) -> tuple:
         print(f"[SEARCH QUERY] Error: {e}", flush=True)
         return user_message, False
 
-def execute_web_search(user_message: str, num_results: int = 8) -> str:
+def execute_web_search(user_message: str, num_results: int = 8, force_news: bool = False) -> str:
     """Execute two DuckDuckGo searches and combine results for richer context."""
     if not ddg_available:
         return "Web search is currently unavailable."
     try:
         query, is_news = extract_search_query(user_message)
+        if force_news:
+            is_news = True
         print(f"[WEB SEARCH] Query: '{query}' | News: {is_news} | Results: {num_results}", flush=True)
         all_results = []
         seen_urls = set()
@@ -446,7 +448,46 @@ def load_context(user_message, conversation_history=None):
         loaded_files.append('core.txt')
     
     msg_lower = user_message.lower()
-    
+
+    # PREFIX OVERRIDES — capability menu pills inject these prefixes
+    # Detected first, highest priority, no keyword ambiguity
+    prefix_map = {
+        '[DDG SEARCH]':   'ddg_search',
+        '[WEATHER]':      'weather',
+        '[DDG NEWS]':     'ddg_news',
+        '[RUN ETS]':      'ets_full',
+        '[CAI VQA MODE]': 'cai_vqa',
+        '[CAI EVOLUTION]':'cai_evolution',
+    }
+    active_prefix = None
+    for prefix, mode in prefix_map.items():
+        if user_message.startswith(prefix):
+            active_prefix = mode
+            # Strip prefix from msg_lower so keyword logic sees clean message
+            msg_lower = user_message[len(prefix):].strip().lower()
+            print(f"[PREFIX OVERRIDE] mode={mode} clean_msg='{msg_lower[:60]}'", flush=True)
+            break
+
+    # Directly load context file for prefix-activated modes
+    if active_prefix == 'ets_full':
+        filepath = os.path.join(context_dir, 'ets_full.txt')
+        if os.path.exists(filepath):
+            with open(filepath, 'r', encoding='utf-8') as f:
+                context += f.read() + "\n\n"
+            loaded_files.append('ets_full.txt [PREFIX]')
+    elif active_prefix == 'cai_vqa':
+        filepath = os.path.join(context_dir, 'cai_vqa.txt')
+        if os.path.exists(filepath):
+            with open(filepath, 'r', encoding='utf-8') as f:
+                context += f.read() + "\n\n"
+            loaded_files.append('cai_vqa.txt [PREFIX]')
+    elif active_prefix == 'cai_evolution':
+        filepath = os.path.join(context_dir, 'cai_evolution.txt')
+        if os.path.exists(filepath):
+            with open(filepath, 'r', encoding='utf-8') as f:
+                context += f.read() + "\n\n"
+            loaded_files.append('cai_evolution.txt [PREFIX]')
+
     # Load about_cai_core.txt for identity/foundational questions
     about_triggers = ['what is cai', 'what is christ-anchored', 'who are you', 'about', 
                      'safe harbor', 'character', 'alignment', 'imago dei', 'image-bearer',
@@ -805,12 +846,25 @@ def chat():
         user_message = data.get('message', '')
         history = data.get('history', [])
         page_context = data.get('pageContext', None)
+
+        # Strip capability pill prefixes before processing
+        # load_context handles context loading; here we handle search/weather/news forcing
+        force_search = user_message.startswith('[DDG SEARCH]')
+        force_news   = user_message.startswith('[DDG NEWS]')
+        force_weather = user_message.startswith('[WEATHER]')
+        # Strip ALL known prefixes so clean message reaches Groq
+        _prefixes = ['[DDG SEARCH]','[DDG NEWS]','[WEATHER]','[RUN ETS]','[CAI VQA MODE]','[CAI EVOLUTION]']
+        clean_message = user_message
+        for _p in _prefixes:
+            if clean_message.startswith(_p):
+                clean_message = clean_message[len(_p):].strip()
+                break
         
         if not user_message:
             return jsonify({'error': 'No message provided'}), 400
         
         # Load dynamic context based on user message
-        dynamic_context = load_context(user_message, history)
+        dynamic_context = load_context(user_message, history)  # passes raw for prefix detection
         appreciation_frame = build_appreciation_frame(user_message)
         
         # Page context goes FIRST
@@ -833,7 +887,7 @@ def chat():
                     "content": msg['content']
                 })
         
-        groq_messages.append({"role": "user", "content": user_message})
+        groq_messages.append({"role": "user", "content": clean_message})
 
         # CONVERSATION CONTINUITY — detect short replies continuing a previous VQ offer
         last_assistant = is_continuation_reply(user_message, history)
@@ -853,7 +907,7 @@ def chat():
         pending_intent = get_pending_location_intent(history)
 
         # Weather + Time: both served from a single OWM call
-        weather_needed = is_weather_query(user_message) or pending_intent == 'weather'
+        weather_needed = is_weather_query(user_message) or pending_intent == 'weather' or force_weather
         time_needed = is_time_query(user_message) or pending_intent == 'time'
 
         if weather_needed or time_needed:
@@ -944,8 +998,8 @@ def chat():
 
         # Web search
         already_handled = weather_needed or time_needed
-        if ddg_available and not already_handled and needs_search(user_message):
-            search_result = execute_web_search(user_message)
+        if ddg_available and not already_handled and (force_search or force_news or needs_search(clean_message)):
+            search_result = execute_web_search(clean_message, force_news=force_news)
             if search_result and not search_result.startswith("Search failed") and not search_result.startswith("Web search is currently") and not search_result.startswith("No results"):
                 groq_messages[0]["content"] += (
                     f"\n\n=== LIVE WEB SEARCH RESULTS (REAL DATA) ===\n{search_result}\n=== END SEARCH RESULTS ==="
