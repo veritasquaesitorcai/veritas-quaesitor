@@ -950,6 +950,10 @@ def chat():
                     "content": msg['content']
                 })
         
+        # If CAI EVOLUTION pill fired with no typed message, inject a default prompt
+        if user_message.startswith('[CAI EVOLUTION]') and not clean_message:
+            clean_message = "Give me VQ's full CAI position on evolution — micro vs macro, mechanism gaps, and what the evidence actually shows."
+
         groq_messages.append({"role": "user", "content": clean_message})
 
         # CONVERSATION CONTINUITY — detect short replies continuing a previous VQ offer
