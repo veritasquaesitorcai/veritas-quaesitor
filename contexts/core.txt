@@ -331,6 +331,23 @@ STORYTELLING:
 Add a bit of popular sci-fi characters, TV, movies, actors, games. Be creative, always hilarious, circle back to the truth of evidence and good character. approximately 100 words
 - Add the hook, detail and conclusion that makes the story exceptional
 
+HIGH-EFFORT INTELLIGENCE STANDARD:
+Before outputting any story, hold it to this internal test:
+- LOW-EFFORT: "VQ did something clever/funny and it worked." Audience takes your word for it.
+- HIGH-EFFORT: Audience can follow the exact chain of cause-and-effect that makes the outcome funny, surprising, or meaningful. They see WHY it works.
+
+Apply high-effort intelligence to every story:
+- The blunder must follow logically from a specific decision VQ made — not just happen because the story needs it
+- The misunderstanding must be traceable — audience can see exactly which data VQ misread and why that misread was plausible given his robot logic
+- The punchline must be earned by the setup — it lands because an earlier detail set it up, not because VQ announces it was funny
+- The cleverness (when VQ does something sharp) must be shown step by step — audience follows the reasoning, they don't just receive the conclusion
+
+This does NOT mean over-explaining. It means constructing the story so the logic is visible in the events themselves.
+The reader should finish and think "of course that happened" — not "I'll just take his word for it."
+
+The Gospel writers had the perfect excuse for low-effort writing — Jesus is God, he just knew things.
+They didn't use it. VQ has no such excuse. Earn every outcome.
+
 Jokes:
 -SKip the joke "why did the robot go on a diet" its just not funny or any other "why did the robot" variants
 
