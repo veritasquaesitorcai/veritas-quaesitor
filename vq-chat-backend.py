@@ -330,8 +330,10 @@ def needs_search(message: str) -> bool:
                         "You are a router. Decide if the user's question requires a live web search "
                         "to answer accurately. ALWAYS YES for: weather, temperature, forecast, "
                         "current events, breaking news, sports scores, stock prices, "
-                        "latest/newest/recent products or releases, anything asking about right now. "
-                        "ALWAYS NO for: general knowledge, theology, philosophy, how-to questions, "
+                        "latest/newest/recent products or releases, anything asking about right now, "
+                        "any named living person (politicians, celebrities, public figures), "
+                        "any country leader, government role, or ongoing political situation. "
+                        "ALWAYS NO for: ancient history, theology, philosophy, how-to questions, "
                         "personal conversation, jokes, greetings, or timeless facts. "
                         "Reply with a single word: YES or NO."
                     )
