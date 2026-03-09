@@ -1082,7 +1082,9 @@ def chat():
                 groq_messages[0]["content"] += (
                     f"\n\n=== LIVE WEB SEARCH RESULTS (REAL DATA) ===\n{search_result}\n=== END SEARCH RESULTS ==="
                     "\n\nCRITICAL INSTRUCTIONS FOR USING SEARCH RESULTS:"
-                    "\n- These results are REAL and current — use ONLY this data, never your training knowledge for factual claims here."
+                    "\n- These results are REAL and current. Your training knowledge is OVERRIDDEN for this response."
+                    "\n- NEVER say 'as of my knowledge cutoff' or 'my training data says' — you have live results, use them."
+                    "\n- NEVER fall back to training knowledge for any factual claim in this response — if it's not in the results, say you don't have that detail."
                     "\n- DO NOT say 'according to web search results' or 'based on search results' — just present the info naturally in your own VQ voice."
                     "\n- DO NOT add any facts, products, prices or details NOT present in the results above."
                     "\n- If results are insufficient, say so honestly rather than filling gaps from memory."
