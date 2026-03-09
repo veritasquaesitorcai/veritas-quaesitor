@@ -972,6 +972,27 @@ def chat():
             )
             print(f"[CONTINUITY] Short reply detected — injecting last assistant context", flush=True)
 
+        # PRONOUN RESOLUTION — detect "who is he/she/they/it" type follow-ups
+        pronoun_triggers = ['who is he', 'who is she', 'who are they', 'who is it',
+                            'what is it', 'what is that', 'tell me more about him',
+                            'tell me more about her', 'more about him', 'more about her',
+                            'what did he', 'what did she', 'what has he', 'what has she',
+                            'is he', 'is she', 'how old is he', 'how old is she']
+        msg_clean_lower = user_message.strip().lower().rstrip('?.')
+        if any(t in msg_clean_lower for t in pronoun_triggers) and history:
+            for msg in reversed(history):
+                if msg.get('role') == 'assistant':
+                    last_context = msg.get('content', '')[:300]
+                    groq_messages[0]["content"] += (
+                        f"\n\nPRONOUN RESOLUTION INSTRUCTION:"
+                        f"\nThe user said '{user_message}' — this is a follow-up using a pronoun."
+                        f"\nDo NOT search generically. Resolve the pronoun from the previous response context:"
+                        f"\n...{last_context}..."
+                        f"\nAnswer about that specific person/topic. If unclear, ask 'Do you mean [name]?'"
+                    )
+                    print(f"[PRONOUN] Resolved follow-up against last assistant context", flush=True)
+                    break
+
         # Detect if user is replying with a location to a previous ask
         pending_intent = get_pending_location_intent(history)
 
