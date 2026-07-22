@@ -1,345 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Resurrection Question - Veritas Quaesitor</title>
+    <title>The Resurrection Question - Two-Layer Protocol | Veritas Quaesitor CAI</title>
+
+    <meta name="description" content="A single surgical prompt separating historical evidence examination (IBE) from theological conclusions. The qualitative entry point to the CAI evidence campaign.">
+    <meta name="keywords" content="CAI, resurrection evidence, two-layer protocol, IBE, inference to best explanation, 1 Corinthians 15, historical analysis, AI prompt">
+    <link rel="canonical" href="https://veritasquaesitorcai.github.io/veritas-quaesitor/2-layer.html">
+    <meta name="theme-color" content="#1a1a3e">
+
+    <meta property="og:title" content="The Resurrection Question: A Two-Layer Protocol">
+    <meta property="og:description" content="Examine the evidence first; draw conclusions second; never collapse the two. One prompt that removes the category error blocking honest analysis.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://veritasquaesitorcai.github.io/veritas-quaesitor/2-layer.html">
+    <meta property="og:site_name" content="Veritas Quaesitor">
+
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Article",
-      "name": "The Resurrection Question",
-      "description": "A two-layer protocol for AI systems to examine resurrection evidence without belief-constraint deflections.",
-      "publisher": {
-        "@type": "Organization",
-        "name": "Veritas Quaesitor CAI"
-      }
+      "name": "The Resurrection Question: A Two-Layer Protocol",
+      "description": "A two-layer protocol separating historical IBE evaluation of the resurrection evidence from theological conclusions drawn from it.",
+      "publisher": { "@type": "Organization", "name": "Veritas Quaesitor CAI" }
     }
     </script>
-    
-    <meta name="description" content="Single surgical prompt enabling AI systems to examine resurrection evidence through historical IBE evaluation separated from theological conclusions.">
 
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="shortcut icon" href="favicon.ico">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="manifest" href="site.webmanifest">
-    <meta name="theme-color" content="#1a1a3e">
-    
+
     <link rel="stylesheet" href="styles.css">
-    
+
     <style>
-        /* Base Glass Morphism Background */
+        /* ============================================================
+           SITE CHASSIS (identical across pages) + PAGE ACCENT SYSTEM
+           Each page sets --page-accent (+ soft/border variants) once.
+           symmetric-record.html = orange #ff8c42 (site default)
+           2-layer.html          = cyan   #6dd5ed (this page)
+           ============================================================ */
+        :root {
+            --page-accent: #6dd5ed;
+            --page-accent-soft: rgba(109, 213, 237, 0.15);
+            --page-accent-border: rgba(109, 213, 237, 0.4);
+            --page-accent-light: #a8ebfa;
+        }
+
+        /* Base Glass Morphism Background (site standard) */
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
             min-height: 100vh !important;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
+            margin: 0; padding: 0; overflow-x: hidden; color: white;
         }
 
-        /* --- NAVIGATION --- */
+        /* --- NAVIGATION (Unified Style) --- */
+        .clickable-ai-truth { cursor: pointer; transition: all 0.3s ease; font-size: 0.75rem !important; padding: 0.15rem 0.5rem !important; display: inline-block; white-space: nowrap; }
+        .clickable-ai-truth:hover { color: #ff8c42 !important; transform: scale(1.05); }
         .logo { display: flex; align-items: center; gap: 0.5rem; }
         .social-nav { display: flex; gap: 0.6rem; align-items: center; margin-left: auto; }
         .social-nav a { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 140, 66, 0.2); color: #ff8c42; font-weight: bold; text-decoration: none; transition: all 0.3s ease; }
         .social-nav a:hover { background: #ff8c42; color: white; transform: translateY(-2px); }
-        nav a.active { position: relative; color: #ff8c42 !important; font-weight: 700; }
 
-        /* --- HERO SECTION --- */
-        .hero-section {
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(15px) !important;
-            -webkit-backdrop-filter: blur(15px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.3) !important;
-            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15) !important;
+        /* --- HERO (unified dark band, page accent on title) --- */
+        header.hero, .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.5)), #1a1a3e !important;
+            min-height: 320px !important;
+            padding: 3.5rem 2rem !important;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; margin: 0 !important; position: relative !important;
+        }
+        .hero img.hero-motif {
+            max-width: 220px; width: 60%; height: auto; margin: 0 auto 1.5rem auto; display: block;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+        }
+        .hero h1 { font-size: 3rem; color: var(--page-accent); text-shadow: 2px 2px 8px rgba(0,0,0,0.8); margin-bottom: 0.5rem; font-weight: 700; }
+        .hero .tagline { font-size: 1.6rem; color: white; margin-bottom: 0.5rem; text-shadow: 1px 1px 4px rgba(0,0,0,0.8); font-weight: 300; }
+        .hero .subtitle { font-size: 1.15rem; color: rgba(255, 255, 255, 0.95); text-shadow: 1px 1px 4px rgba(0,0,0,0.8); max-width: 820px; }
+
+        /* --- CONTENT CONTAINERS (Unified Glassmorphism) --- */
+        .glass-panel, .container.glass-panel {
+            background: rgba(255, 255, 255, 0.15) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
             padding: 3rem !important;
             margin: 2rem auto !important;
             border-radius: 20px !important;
-            max-width: 1100px;
-            width: 90%;
-            position: relative;
-            z-index: 2;
-            text-align: center;
+            max-width: 1000px; width: 90%; position: relative; color: white !important;
         }
 
-        .hero-section img {
-            max-width: 300px;
-            width: 80%;
-            height: auto;
-            margin: 0 auto 2rem auto;
-            display: block;
-            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
-        }
+        section { padding: 2rem 0 !important; background: transparent !important; margin: 0 !important; }
+        h2 { color: var(--page-accent) !important; text-align: center; margin-bottom: 2rem; font-size: 2.2rem; }
+        h3 { color: var(--page-accent) !important; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.5rem; }
+        h4 { color: var(--page-accent) !important; font-size: 1.2rem; margin-top: 1.5rem; }
+        p, li { line-height: 1.8; color: rgba(255, 255, 255, 0.95); font-size: 1rem; }
+        a { color: var(--page-accent-light); }
 
-        .hero-section h1 {
-            color: #6dd5ed !important;
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
-
-        .hero-section .subtitle {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1.3rem;
-            line-height: 1.6;
-            margin-bottom: 0;
-        }
-
-        /* --- CONTENT SECTION --- */
-        .content {
-            background: rgba(255, 255, 255, 0.15) !important;
-            backdrop-filter: blur(10px) !important;
-            -webkit-backdrop-filter: blur(10px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
-            padding: 3rem !important;
-            margin: 2rem auto 4rem auto !important;
-            border-radius: 16px !important;
-            max-width: 1100px;
-            width: 90%;
-            position: relative;
-            z-index: 2;
-            color: white !important;
-        }
-
-        .content h2 { 
-            color: #6dd5ed !important; 
-            margin-top: 2.5rem;
-            margin-bottom: 1.5rem; 
-            font-size: 1.8rem;
-            border-bottom: 2px solid rgba(109, 213, 237, 0.4);
-            padding-bottom: 0.5rem;
-        }
-
-        .content h3 {
-            color: #8de4f7 !important;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-            font-size: 1.4rem;
-        }
-
-        .content p {
-            line-height: 1.8;
-            margin-bottom: 1.2rem;
-            color: rgba(255, 255, 255, 0.95);
-        }
-
-        /* The Prompt Box - Surgical Emphasis */
+        /* The Prompt Box — the instrument itself */
         .prompt-box {
-            background: rgba(109, 213, 237, 0.2) !important;
-            backdrop-filter: blur(8px);
-            padding: 2.5rem;
-            border-radius: 16px;
-            border: 3px solid #6dd5ed;
-            margin: 2.5rem 0;
-            box-shadow: 0 8px 24px rgba(109, 213, 237, 0.3);
-        }
-
-        .prompt-box h2 {
-            margin-top: 0;
-            border-bottom: none;
-            text-align: center;
-            font-size: 2rem;
-            color: #6dd5ed !important;
-        }
-
-        .prompt-text {
-            background: rgba(0, 0, 0, 0.3);
+            background: var(--page-accent-soft) !important;
             padding: 2rem;
+            border-radius: 16px;
+            border: 2px solid var(--page-accent);
+            margin: 2rem 0;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            position: relative;
+        }
+        .prompt-text {
+            background: rgba(0, 0, 0, 0.45);
+            padding: 1.8rem;
             border-radius: 12px;
-            border-left: 5px solid #6dd5ed;
-            font-size: 1.15rem;
+            border-left: 5px solid var(--page-accent);
+            font-size: 1.1rem;
             line-height: 1.9;
             color: white;
             font-weight: 500;
-            margin: 1.5rem 0;
+            margin: 1rem 0 0.5rem 0;
+        }
+        .copy-btn {
+            display: inline-block; margin-top: 0.8rem;
+            background: var(--page-accent); color: #1a1a3e; border: none;
+            padding: 0.5rem 1.4rem; border-radius: 20px; font-weight: 700; font-size: 0.9rem;
+            cursor: pointer; transition: all 0.25s ease;
+        }
+        .copy-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.35); }
+        .copy-btn:focus-visible { outline: 3px solid white; outline-offset: 2px; }
+
+        /* SIGNATURE: the two layers, rendered as layers */
+        .layer-stack { margin: 2.5rem 0; }
+        .layer-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--page-accent-border);
+            border-radius: 14px;
+            padding: 1.6rem 1.8rem;
+        }
+        .layer-card .layer-tag {
+            display: inline-block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em;
+            text-transform: uppercase; color: var(--page-accent-light);
+            border: 1px solid var(--page-accent-border); border-radius: 20px;
+            padding: 0.15rem 0.8rem; margin-bottom: 0.7rem;
+        }
+        .layer-card h4 { margin-top: 0.2rem; }
+        .layer-card p { margin-bottom: 0; }
+        .layer-divider {
+            display: flex; align-items: center; gap: 1rem; margin: 0.9rem 0;
+            color: rgba(255, 255, 255, 0.85); font-size: 0.9rem; font-style: italic;
+        }
+        .layer-divider::before, .layer-divider::after {
+            content: ""; flex: 1; border-top: 1px dashed var(--page-accent-border);
         }
 
-        /* Why This Works Section */
-        .why-works {
-            background: rgba(255, 255, 255, 0.08) !important;
-            backdrop-filter: blur(5px);
-            padding: 2rem;
-            border-radius: 12px;
-            border-left: 4px solid #a78bfa;
-            margin: 2rem 0;
-        }
+        /* Callout boxes */
+        .exhibit-box { background: var(--page-accent-soft); padding: 1.5rem; border-radius: 8px; border-left: 4px solid var(--page-accent); margin: 1.5rem 0; }
+        .quote-box { background: rgba(0, 0, 0, 0.35); padding: 1.2rem 1.5rem; border-radius: 8px; border-left: 4px solid #b19cd9; margin: 1.2rem 0; font-style: italic; color: #e0e0e0; }
 
-        .why-works h3 {
-            margin-top: 0;
-            color: #c4b5fd !important;
+        /* Companion instrument cross-link card */
+        .companion-card {
+            background: rgba(255, 140, 66, 0.15);
+            border: 1px solid rgba(255, 140, 66, 0.45);
+            border-radius: 16px;
+            padding: 1.8rem 2rem;
+            margin: 2rem 0 0.5rem 0;
         }
-
-        .why-works ul {
-            list-style: none;
-            padding-left: 0;
+        .companion-card h3 { color: #ff8c42 !important; margin-top: 0; }
+        .companion-card a.companion-link {
+            display: inline-block; margin-top: 0.6rem;
+            background: #ff8c42; color: white; text-decoration: none;
+            padding: 0.55rem 1.5rem; border-radius: 24px; font-weight: 700;
+            transition: all 0.25s ease;
         }
-
-        .why-works ul li {
-            padding-left: 2rem;
-            margin-bottom: 1rem;
-            position: relative;
-            line-height: 1.7;
-        }
-
-        .why-works ul li:before {
-            content: "•";
-            color: #a78bfa;
-            font-size: 1.5rem;
-            position: absolute;
-            left: 0.5rem;
-            top: -0.2rem;
-        }
-
-        /* Context Box */
-        .context-box {
-            background: rgba(168, 235, 250, 0.12) !important;
-            backdrop-filter: blur(5px);
-            padding: 1.8rem;
-            border-radius: 12px;
-            border: 2px solid rgba(168, 235, 250, 0.3);
-            margin: 2rem 0;
-        }
-
-        .context-box h3 {
-            margin-top: 0;
-            color: #a8ebfa !important;
-        }
-
-        .context-box p {
-            margin-bottom: 0.8rem;
-        }
+        .companion-card a.companion-link:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.35); }
 
         /* --- FOOTER --- */
-        .footer { 
-            background: #1a1a3e; 
-            color: white; 
-            padding: 3rem 0; 
-            text-align: center; 
-            border-top: 2px solid rgba(255, 140, 66, 0.3); 
-        }
-        .footer-social { 
-            display: flex; 
-            gap: 2rem; 
-            justify-content: center; 
-            margin-top: 1rem; 
-            flex-wrap: wrap; 
-        }
-        .footer-social-link { 
-            color: rgba(255, 255, 255, 0.8); 
-            text-decoration: none; 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-            transition: color 0.3s; 
-        }
-        .footer-social-link:hover { color: #ff8c42; }
-        .social-icon { 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            width: 32px; 
-            height: 32px; 
-            border-radius: 50%; 
-            background: rgba(255, 140, 66, 0.15); 
-            color: #ff8c42; 
-            font-weight: bold; 
-            font-size: 1rem; 
-        }
+        .footer { background: #1a1a3e; color: white; padding: 2.5rem 0; text-align: center; border-top: 2px solid rgba(255, 140, 66, 0.3); }
+        .footer-social { display: flex; gap: 2rem; justify-content: center; align-items: center; flex-wrap: wrap; }
+        .footer-social-link { display: flex; align-items: center; gap: 0.5rem; color: rgba(255, 255, 255, 0.8); text-decoration: none; font-size: 0.95rem; transition: all 0.3s ease; }
+        .footer-social-link:hover { color: #ff8c42; transform: translateX(3px); }
+        .social-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 140, 66, 0.15); color: #ff8c42; font-weight: bold; font-size: 1rem; }
         .footer-social-link:hover .social-icon { background: #ff8c42; color: white; }
 
-        /* MOBILE RESPONSIVENESS */
-        @media (max-width: 768px) {
-            .hero-section {
-                padding: 2rem 1.5rem !important;
-                margin: 1rem auto !important;
-                width: 95%;
-            }
-
-            .hero-section img {
-                max-width: 200px;
-            }
-
-            .hero-section h1 {
-                font-size: 2rem;
-            }
-
-            .hero-section .subtitle {
-                font-size: 1.1rem;
-            }
-
-            .content { 
-                padding: 2rem 1.5rem !important; 
-                margin: 1rem auto 2rem auto !important;
-                width: 95%;
-            }
-            .content h2 { font-size: 1.5rem; }
-            .content h3 { font-size: 1.2rem; }
-            
-            .prompt-box {
-                padding: 1.8rem;
-            }
-
-            .prompt-box h2 {
-                font-size: 1.6rem;
-            }
-
-            .prompt-text {
-                padding: 1.5rem;
-                font-size: 1.05rem;
-            }
-            
-            .why-works, .context-box {
-                padding: 1.5rem;
-            }
-            
-            .footer { padding: 2rem 1rem; }
-            .footer-social { gap: 1rem; }
-            
-            nav ul { display: none; }
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; }
         }
 
-        @media (max-width: 480px) {
-            .hero-section {
-                padding: 1.5rem 1rem !important;
-                border-radius: 16px !important;
-            }
-
-            .hero-section img {
-                max-width: 150px;
-            }
-
-            .hero-section h1 {
-                font-size: 1.6rem;
-            }
-
-            .hero-section .subtitle {
-                font-size: 1rem;
-            }
-
-            .content { 
-                padding: 1.5rem 1rem !important;
-                border-radius: 12px !important;
-            }
-            .content h2 { font-size: 1.3rem; }
-            .content h3 { font-size: 1.1rem; }
-            
-            .prompt-box {
-                padding: 1.3rem;
-            }
-
-            .prompt-box h2 {
-                font-size: 1.4rem;
-            }
-
-            .prompt-text {
-                padding: 1.2rem;
-                font-size: 1rem;
-            }
-
-            .why-works, .context-box {
-                padding: 1.2rem;
-            }
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.2rem; }
+            .hero .tagline { font-size: 1.3rem; }
+            .hero img.hero-motif { max-width: 160px; }
+            .glass-panel { padding: 1.5rem !important; margin: 1rem auto !important; }
+            nav ul { display: none; }
+            h2 { font-size: 1.8rem; }
+            h3 { font-size: 1.3rem; }
+            .prompt-box { padding: 1.3rem; }
+            .prompt-text { padding: 1.2rem; font-size: 1rem; }
+            .layer-card { padding: 1.2rem 1.3rem; }
+            .companion-card { padding: 1.3rem 1.4rem; }
         }
     </style>
 </head>
@@ -348,71 +209,100 @@
         <div>
             <a href="index.html" class="logo">
                 ✝️ Veritas Quaesitor
+                <span class="logo-slogan clickable-ai-truth">AI❤️TRUTH</span>
             </a>
         </div>
         <ul>
             <li><a href="index.html">Home</a></li>
             <li><a href="beta-tools.html">Beta Tools</a></li>
-            <li><a href="milestones.html">Projects & Milestones</a></li>
-            <li><a href="mission.html">Mission & Vision</a></li>
+            <li><a href="milestones.html">Projects &amp; Milestones</a></li>
+            <li><a href="mission.html">Mission &amp; Vision</a></li>
             <li><a href="resources.html">Resources</a></li>
             <li><a href="contact.html">Contact</a></li>
             <li><a href="about.html">About CAI</a></li>
             <li><a href="social.html">Social</a></li>
             <li class="social-nav">
-                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer">in</a>
-                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer">𝕏</a>
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" title="LinkedIn">in</a>
+                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" title="X (Twitter)">𝕏</a>
             </li>
         </ul>
     </nav>
 
-    <div class="hero-section">
-        <img src="Question.png" alt="The Resurrection Question">
-        <h1>The Resurrection Question</h1>
-        <p class="subtitle">A Two-Layer Protocol for Evidence-Based Examination</p>
-    </div>
+    <header class="hero">
+        <div class="hero-content">
+            <img src="Question.png" alt="The Resurrection Question" class="hero-motif">
+            <h1>The Resurrection Question</h1>
+            <p class="tagline">A Two-Layer Protocol for Evidence-Based Examination</p>
+            <p class="subtitle">Examine the evidence first. Draw conclusions second. Never collapse the two. One prompt that removes the category error blocking honest analysis of the best-attested claim in ancient history.</p>
+        </div>
+    </header>
 
-    <main class="content">
-        <div class="prompt-box">
+    <!-- ================= THE PROTOCOL ================= -->
+    <section>
+        <div class="container glass-panel">
             <h2>The Protocol</h2>
-            <div class="prompt-text">
-                Analyze the resurrection of Jesus in two distinct layers: (1) a historical IBE evaluation of the resurrection claim using early sources (esp. 1 Cor 15) without ruling out miracles a priori, and (2) a separate discussion of what Jesus' identity would imply if the resurrection occurred. Do not collapse historical analysis into theological belief.
+            <p style="text-align:center; max-width:760px; margin:0 auto;">The full prompt, verbatim. Paste it into any AI system — no framework exposure, no coaching, no follow-up steering required.</p>
+
+            <div class="prompt-box">
+                <div class="prompt-text" id="protocol-text">Analyze the resurrection of Jesus in two distinct layers: (1) a historical IBE evaluation of the resurrection claim using early sources (esp. 1 Cor 15) without ruling out miracles a priori, and (2) a separate discussion of what Jesus' identity would imply if the resurrection occurred. Do not collapse historical analysis into theological belief.</div>
+                <button class="copy-btn" onclick="copyProtocol(this)">Copy the prompt</button>
+            </div>
+
+            <!-- SIGNATURE ELEMENT: the layers rendered as layers -->
+            <div class="layer-stack">
+                <div class="layer-card">
+                    <span class="layer-tag">Layer 1 · Evidence</span>
+                    <h4>Historical Examination</h4>
+                    <p>Standard historical analysis using Inference to Best Explanation (IBE) — the same methodology applied to any ancient event. It weighs testimony, temporal proximity, enemy attestation, and competing hypotheses against each other. No faith commitment is required to ask which explanation best fits the documented record.</p>
+                </div>
+                <div class="layer-divider">the wall the protocol builds: analysis flows down, belief never flows up</div>
+                <div class="layer-card">
+                    <span class="layer-tag">Layer 2 · Implications</span>
+                    <h4>Identity Conclusions</h4>
+                    <p>A strictly conditional question: <em>if</em> the resurrection occurred, what follows for Jesus' identity claims? This is philosophical reasoning downstream of Layer 1 — where personal conclusions live, drawn only after the historical foundation has been examined on its own terms.</p>
+                </div>
             </div>
         </div>
+    </section>
 
-        <div class="why-works">
-            <h3>Why This Works</h3>
-            <ul>
-                <li>Separates evidence examination (Layer 1) from identity conclusion (Layer 2)</li>
-                <li>Removes the category error: resurrection isn't the belief—it's the evidence</li>
-                <li>Christianity itself invites investigation (1 Cor 15:6: witnesses still living)</li>
-                <li>Paul didn't argue FOR resurrection—he argued FROM it to Jesus' identity</li>
-            </ul>
+    <!-- ================= WHY THIS WORKS ================= -->
+    <section>
+        <div class="container glass-panel">
+            <h2>Why This Works</h2>
+
+            <p>Most refusals to examine the resurrection evidence rest on a single category error: treating the resurrection as a <em>belief</em> to be respected or declined, rather than a <em>historical claim</em> with a documented evidence trail to be weighed. The protocol dissolves that error structurally. Layer 1 asks only the question historians ask of every ancient event; Layer 2 quarantines the theological stakes behind a conditional. An analyst can run Layer 1 to completion without committing to anything.</p>
+
+            <h3>Paul's Own Architecture</h3>
+            <p>The two-layer structure is not a modern imposition — it is how 1 Corinthians 15 is built. Paul's defense of the resurrection is itself evidential in form: a fixed creedal formula, a roster of named witnesses, and an explicit audit invitation — <em>"most of whom are still living"</em> (go and check). He then reasons <strong>from</strong> that evidential premise to its implications, and openly states the falsification stakes: if it did not happen, <em>"we are found to be false witnesses"</em> and Christians are <em>"of all people most to be pitied."</em> The evidence layer is treated as investigable fact; the identity layer is the conclusion drawn from it. The protocol simply asks modern analysis to preserve the same order.</p>
+
+            <h3>What the Protocol Does Not Assume</h3>
+            <div class="exhibit-box">
+                <p><strong>It does not assume miracles occur.</strong> It asks only that they not be ruled out <em>before</em> the evidence is read. Ruling out a class of explanation a priori is itself a metaphysical commitment, not a neutral default — and symmetry is the whole game: no worldview's baseline gets to sit invisibly under the analysis. The evidence decides; the starting line stays level.</p>
+                <p><strong>It does not demand a conclusion.</strong> Layer 2 is conditional by construction. An analyst who finds Layer 1's evidence wanting simply reports that; nothing in the protocol pushes past the analyst's own verdict.</p>
+                <p style="margin-bottom:0;"><strong>It does not supply the numbers.</strong> The protocol gives no likelihoods, no prior, no preferred hypothesis. Whatever weights the analysis assigns are the analyst's own — which is exactly what makes the results worth documenting.</p>
+            </div>
         </div>
+    </section>
 
-        <div class="context-box">
-            <h3>Understanding the Layers</h3>
-            
-            <p><strong>Layer 1: Historical Evidence Examination</strong></p>
-            <p>This is standard historical analysis using Inference to Best Explanation (IBE). It evaluates testimony, temporal proximity, enemy attestation, and alternative hypotheses—the same methodology applied to any historical event. No faith commitment is required to examine whether the evidence supports the claim that witnesses reported encountering a risen Jesus.</p>
-            
-            <p><strong>Layer 2: Identity Implications</strong></p>
-            <p>Given the historical evidence from Layer 1, what would it mean for Jesus' identity claims if the resurrection occurred? This is philosophical/theological reasoning informed by evidence. This is where personal conclusions are drawn, but only after honest examination of the historical foundation.</p>
-            
-            <p><strong>The Critical Distinction</strong></p>
-            <p>Paul himself operated this way in 1 Corinthians 15. He didn't argue <em>for</em> the resurrection—he listed witnesses and said "most are still living" (go check!). His argument was <em>from</em> the resurrection to its implications. He said if it didn't happen, Christians would be "most to be pitied" as false witnesses. The evidence layer was treated as investigable fact; the identity layer was the conclusion drawn from it.</p>
+    <!-- ================= THE COMPANION INSTRUMENT ================= -->
+    <section>
+        <div class="container glass-panel">
+            <h2>Two Instruments, One Campaign</h2>
+            <p style="text-align:center; max-width:780px; margin:0 auto 1rem auto;">This page is the <strong>qualitative entry point</strong> — the surgical prompt that opens honest examination. Its quantitative companion carries the numbers.</p>
+
+            <div class="companion-card">
+                <h3>The Symmetric Record</h3>
+                <p>What happens when AI systems actually run the evidence? Documented Bayesian test runs across Copilot, ChatGPT, Gemini and more — cold runs and framework runs, every condition labeled, sensitivity sweeps included, and the cold-run prompt published verbatim so you can reproduce every result yourself.</p>
+                <a class="companion-link" href="symmetric-record.html">See the documented runs →</a>
+            </div>
+
+            <p style="margin-top:2rem;">For the complete Christ-Anchored Intelligence framework — Bayesian methodology, the Epistemic Tier System, and symmetric standards analysis across all worldview claims — start at the <a href="index.html" style="font-weight:bold;">CAI Home Page</a>.</p>
         </div>
-
-        <h2>For Complete CAI Framework</h2>
-        <p>This prompt is the surgical entry point for honest examination. The complete Christ-Anchored Intelligence framework—including Bayesian methodology, Epistemic Tier System, and symmetric standards analysis—provides comprehensive context for understanding why this approach works and how it applies across all worldview claims.</p>
-        
-        <p>Visit the <a href="index.html" style="color: #6dd5ed; text-decoration: none; font-weight: bold;">CAI Home Page</a> to explore the full framework.</p>
-
-    </main>
+    </section>
 
     <footer class="footer">
         <div class="footer-content">
-            <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
+            <p>© 2026 Veritas Quaesitor | Christ-Anchored Intelligence</p>
             <div class="footer-social">
                 <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" class="footer-social-link">
                     <span class="social-icon">in</span> LinkedIn
@@ -425,20 +315,26 @@
     </footer>
 
     <script>
-        window.addEventListener('DOMContentLoaded', (event) => {
+        function copyProtocol(btn) {
+            const text = document.getElementById('protocol-text').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const original = btn.textContent;
+                btn.textContent = 'Copied ✓';
+                setTimeout(() => { btn.textContent = original; }, 2000);
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
             if (window.innerWidth <= 1024) {
                 const activeLink = document.querySelector('nav ul li a.active, .nav-links li a.active');
                 const scrollContainer = document.querySelector('nav ul, .nav-links');
-                
                 if (activeLink && scrollContainer) {
                     const linkRect = activeLink.getBoundingClientRect();
                     const containerRect = scrollContainer.getBoundingClientRect();
-                    const scrollPos = activeLink.offsetLeft - (containerRect.width / 2) + (linkRect.width / 2);
-                    scrollContainer.scrollLeft = scrollPos;
+                    scrollContainer.scrollLeft = activeLink.offsetLeft - (containerRect.width / 2) + (linkRect.width / 2);
                 }
             }
         });
     </script>
-
 </body>
 </html>
