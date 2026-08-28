@@ -1141,7 +1141,27 @@ def chat():
             max_tokens=1200
         )
         
-        assistant_message = completion.choices[0].message.content
+        assistant_message = completion.choices[0].message.content or ""
+
+        # gpt-oss sometimes routes the whole answer to the reasoning channel,
+        # leaving content empty — which renders as VQ saying nothing.
+        if not assistant_message.strip():
+            assistant_message = getattr(completion.choices[0].message, "reasoning", "") or ""
+        if not assistant_message.strip():
+            try:
+                retry = groq_client.chat.completions.create(
+                    model="openai/gpt-oss-120b",
+                    messages=groq_messages,
+                    temperature=0.7,
+                    max_tokens=1200,
+                    reasoning_effort="low"
+                )
+                assistant_message = retry.choices[0].message.content or ""
+                print("[EMPTY CONTENT] retried with reasoning_effort=low", flush=True)
+            except Exception as _e:
+                print(f"[EMPTY CONTENT] retry failed: {_e}", flush=True)
+        if not assistant_message.strip():
+            assistant_message = "Friend, that one came back empty on my end. Ask me again?"
 
         # Strip markdown code fences that prevent HTML from rendering
         import re as _re
