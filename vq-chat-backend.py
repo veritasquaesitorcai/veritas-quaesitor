@@ -93,7 +93,7 @@ def extract_location(message: str) -> str:
         return ""
     try:
         result = groq_client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
             messages=[
                 {
                     "role": "system",
@@ -124,7 +124,7 @@ def extract_time_location(message: str) -> str:
         return ""
     try:
         result = groq_client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
             messages=[
                 {
                     "role": "system",
@@ -155,7 +155,7 @@ def get_nearest_major_city(location: str) -> str:
         return ""
     try:
         result = groq_client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
             messages=[
                 {
                     "role": "system",
@@ -261,7 +261,7 @@ def execute_image_search(user_message: str, num_results: int = 5) -> list:
     try:
         if groq_client:
             result = groq_client.chat.completions.create(
-                model="llama-3.1-8b-instant",
+                model="meta-llama/llama-4-scout-17b-16e-instruct",
                 messages=[
                     {
                         "role": "system",
@@ -322,7 +322,7 @@ def needs_search(message: str) -> bool:
         return False
     try:
         result = groq_client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
             messages=[
                 {
                     "role": "system",
@@ -357,7 +357,7 @@ def extract_search_query(user_message: str) -> tuple:
         return user_message, False
     try:
         result = groq_client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="meta-llama/llama-4-scout-17b-16e-instruct",
             messages=[
                 {
                     "role": "system",
@@ -1135,7 +1135,7 @@ def chat():
         
         # Call Groq
         completion = groq_client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model="meta-llama/llama-4-maverick-17b-128e-instruct",
             messages=groq_messages,
             temperature=0.7,
             max_tokens=1200
