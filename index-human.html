@@ -258,7 +258,7 @@
         .hp-note { font-size: 1.05rem !important; color: var(--hp-dim) !important; font-style: italic; }
 
         .hp-runs { list-style: none; padding: 0; margin: 1rem 0 1.2rem; }
-        .hp-runs li { max-width: none; display: grid; grid-template-columns: 7.5rem 1fr; gap: 1rem; padding: 0.85rem 0; border-top: 1px solid rgba(255,255,255,0.09); }
+        .hp-runs li { max-width: none; display: grid; grid-template-columns: 8.5rem 1fr; gap: 1rem; padding: 0.85rem 0; border-top: 1px solid rgba(255,255,255,0.09); }
         .hp-runs li:first-child { border-top: 0; }
         .hp-runs b { color: var(--hp-signal); font-size: 1.35rem; font-variant-numeric: tabular-nums; }
 
@@ -287,7 +287,7 @@
             .hp-panel { padding: 1.8rem 1.3rem; width: 94%; }
             .hp h2 { font-size: 1.55rem !important; }
             .hp p, .hp li { font-size: 1.05rem; }
-            .hp-runs li { grid-template-columns: 5.5rem 1fr; }
+            .hp-runs li { grid-template-columns: 1fr; gap: 0.2rem; }
         }
     </style>
 </head>
@@ -410,10 +410,10 @@
             <h2>What other AI systems concluded</h2>
             <ul class="hp-runs">
                 <li><b>99.9%</b><span><strong>xAI Grok</strong>, publicly, from the same cautious starting point we use.</span></li>
+                <li><b>59&ndash;99.9%</b><span><strong>Microsoft Copilot</strong> rated every clue itself, with no input from us. Across the fair starting points it tested, its own ratings gave 59% to 99.9%. From its own very sceptical start of 1 in 10,000 it reached 12.6%, and even there the evidence raised its odds about 1,400-fold.</span></li>
                 <li><b>75&ndash;80%</b><span><strong>ChatGPT and Gemini</strong>, given only a short summary and starting from 50/50.</span></li>
-                <li><b>12.6%</b><span><strong>Microsoft Copilot</strong> chose a very sceptical start (1 in 10,000). The evidence still raised its odds about 1,400-fold.</span></li>
             </ul>
-            <p>The results differ mainly because each system chose a different starting point. In every recorded run, the evidence moved the estimate up. Every run, with its conditions, is on the <a href="symmetric-record.html">Symmetric Record</a>.</p>
+            <p>The results differ with each system's starting point and how strongly it rated each clue. In every recorded run, the evidence moved the estimate up. Every run, with its conditions, is on the <a href="symmetric-record.html">Symmetric Record</a>.</p>
         </div>
     </section>
 
