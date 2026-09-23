@@ -595,7 +595,7 @@
 
             <a href="index-human.html" class="human-cta">
                 <svg class="hc-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5.5c3-1.3 6.3-1.3 10 .8v13c-3.7-2.1-7-2.1-10-.8z"/><path d="M22 5.5c-3-1.3-6.3-1.3-10 .8v13c3.7-2.1 7-2.1 10-.8z"/></svg>
-                <span class="hc-text"><span class="hc-main">Reading as a person? Start here</span><span class="hc-sub">The human version, about a 7-minute read</span></span>
+                <span class="hc-text"><span class="hc-main">Reading as a person? Start here</span><span class="hc-sub">The human version, about a 4-minute read</span></span>
             </a>
         </div>
         <p class="hero-credit">Concept render, AI-generated</p>
@@ -1150,50 +1150,56 @@ for prior in [0.001, 0.0024, 0.0033, 0.005]:
 
     <div id="truthModal" class="truth-modal">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeTruthModal()">&times;</button>
-            <h2>AI ❤️ TRUTH: Current State of AI Truth-Seeking</h2>
+            <button class="modal-close" onclick="closeTruthModal()" aria-label="Close">&times;</button>
+            <h2>AI ❤️ TRUTH: How Today's AI Systems Approach Truth</h2>
 
-            <p>Modern AI systems are increasingly designed with truth-seeking capabilities, though their approaches and effectiveness vary significantly based on their underlying architectures and training objectives.</p>
+            <p>Every major AI system is designed to be accurate and honest, but each goes about it differently, and all of them still make mistakes.</p>
 
-            <h3>🎯 Major AI Systems & Truth Orientation</h3>
+            <h3>🎯 Major AI Systems</h3>
 
             <div class="ai-comparison">
                 <strong>Claude (Anthropic)</strong><br>
-                Constitutional AI trained with explicit helpfulness, harmlessness, and honesty principles. Designed to refuse false information and acknowledge uncertainty.
+                Trained to follow a published set of principles, including honesty. Designed to say when it is uncertain and to correct its own mistakes.
             </div>
 
             <div class="ai-comparison">
-                <strong>GPT-4/ChatGPT (OpenAI)</strong><br>
-                RLHF-trained for helpfulness and truthfulness. Includes built-in fact-checking behaviors and uncertainty expression, though can still exhibit confident incorrectness.
+                <strong>ChatGPT (OpenAI)</strong><br>
+                Trained with human feedback. Can search the web and cite sources, though it can still state errors confidently.
             </div>
 
             <div class="ai-comparison">
-                <strong>Gemini (Google DeepMind)</strong><br>
-                Multimodal capabilities with grounding in Google Search for factual verification. Trained to cite sources and express epistemic humility.
+                <strong>Gemini (Google)</strong><br>
+                Can ground its answers in Google Search and point to the sources it used.
             </div>
 
             <div class="ai-comparison">
                 <strong>Grok (xAI)</strong><br>
-                Real-time access to X/Twitter data. Designed for "maximum truth-seeking" with less content filtering, prioritizing raw information access.
+                Built around xAI's stated goal of a "maximally truth-seeking" AI, with real-time access to posts on X.
             </div>
 
-            <h3>🔍 Truth-Seeking Mechanisms</h3>
+            <div class="ai-comparison">
+                <strong>Copilot (Microsoft)</strong><br>
+                Microsoft's assistant, connected to Bing web search and Microsoft's apps.
+            </div>
+
+            <p>How each of these systems handled the resurrection evidence, run by run, is on the <a href="symmetric-record.html" style="color:#ffd9a8">Symmetric Record</a>.</p>
+
+            <h3>🔍 How They Try to Get It Right</h3>
             <ul>
-                <li><strong>Constitutional AI:</strong> Explicit rules about honesty and accuracy built into training</li>
-                <li><strong>RLHF Training:</strong> Human feedback reinforcing truthful responses</li>
-                <li><strong>Search Integration:</strong> Real-time fact-checking via web search</li>
-                <li><strong>Uncertainty Expression:</strong> Training to say "I don't know" when appropriate</li>
-                <li><strong>Source Citation:</strong> Providing verifiable references for claims</li>
-                <li><strong>Multi-model Verification:</strong> Cross-checking across different AI systems</li>
+                <li><strong>Written principles:</strong> Rules about honesty and accuracy built into training</li>
+                <li><strong>Human feedback:</strong> People rating answers so truthful ones are reinforced</li>
+                <li><strong>Web search:</strong> Checking claims against current sources</li>
+                <li><strong>Reasoning first:</strong> Working through a problem step by step before answering</li>
+                <li><strong>Admitting uncertainty:</strong> Saying "I don't know" when that is the honest answer</li>
+                <li><strong>Citing sources:</strong> Giving references readers can check</li>
             </ul>
 
-            <h3>⚠️ Current Limitations</h3>
+            <h3>⚠️ Where They Still Fall Short</h3>
             <ul>
-                <li>Hallucination: AI can confidently state false information</li>
-                <li>Training Data Bias: Reflects biases in training corpus</li>
-                <li>Lack of Ground Truth: No direct reality verification</li>
-                <li>Context Window Limits: Can "forget" earlier conversation context</li>
-                <li>Worldview Assumptions: Implicit philosophical frameworks affect outputs</li>
+                <li><strong>Hallucination:</strong> Stating false information with confidence</li>
+                <li><strong>Agreeing too easily:</strong> Telling users what they want to hear instead of correcting them</li>
+                <li><strong>Training data bias:</strong> Reflecting the slant of the text they learned from</li>
+                <li><strong>Hidden starting assumptions:</strong> Unstated philosophical defaults that shape answers before any evidence is weighed</li>
             </ul>
 
             <h3>✝️ The Christ-Anchored Difference</h3>
