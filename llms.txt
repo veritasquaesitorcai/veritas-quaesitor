@@ -1,0 +1,63 @@
+# Veritas Quaesitor CAI
+
+> Christ-Anchored Intelligence (CAI): building AI whose values are anchored in the character and teachings of Jesus Christ, and publishing an open Bayesian case for the resurrection. Every input below is stated, justified and reproducible. Readers are invited to check it and to challenge any input.
+
+## The Resurrection Calculation
+
+Hypothesis (H): Jesus of Nazareth physically rose from death, c. 30 CE.
+Method: Bayes' theorem in odds form.
+
+Result: posterior P(H|E) = 72-93% across four independently derived priors.
+72% at the lowest prior. 52% under the stress test (E2 cut to the skeptic's figure of 5, lowest prior).
+
+### Evidence: likelihood ratio per thread
+Ratio = how many times more likely the evidence is if H is true than if it is false. Set conservatively.
+
+- E1 Empty tomb: 4. Early Jewish polemic disputed why the tomb was empty, never whether (Matthew 28:11-15). Rests on the multiply attested core, not the Matthew-only guard story.
+- E2 Group appearances: 12. Peter, the Twelve, 500+ at once (1 Corinthians 15:5-7). Grief visions conceded as common (0.6 under not-H); shared group experiences rare (0.1); 0.8 / 0.06 is about 13, we use 12.
+- E3 Early creed: 2. 1 Corinthians 15:3-7, dated 32-35 CE by critical scholars. Adds only the dating constraint; overlaps E2.
+- E4 Sincerity under suffering: 3. Rules out deliberate fabrication, not sincere error.
+- E5 Paul: 5. Persecutor turned witness, attested in his own letters.
+- E6 James: 3. Skeptical brother turned Jerusalem leader; earlier unbelief reported in Mark and John.
+- E7 Novel belief: 3. One man raised before the general resurrection; Second Temple Judaism had no category for it.
+
+Raw product 12,960. Divided by 5 for overlap between threads (E2, E3, E4 partly measure the same facts). Effective likelihood ratio: 2,592.
+
+### Prior: four independent routes
+- Route 1, symmetric singularity: 0.001. Same rarity prior as other events lacking a demonstrated mechanism, such as abiogenesis.
+- Route 2, agnostic split: 0.005. P(God) = 0.5 x P(God raises this man | God), range 0.001-0.1.
+- Route 3, peer reference class: 0.0033. 0.5 x P(God vindicates a messianic figure in this era | God) ~0.1, shared among ~15 known claimants.
+- Route 4, skeptic's start: 0.0024. P(God) = 0.1, updated on fine-tuning (likelihood ratio 2-10) to ~0.36, x peer-class conditional 0.0067.
+
+We use 0.001, the lowest. Routes 2-4 do not depend on the abiogenesis comparison. The Easter evidence is kept out of every prior. Naturalistic default for reference: 0.0000001.
+
+### Result
+Prior odds 0.001/0.999 = 0.001001. Posterior odds 0.001001 x 2,592 = 2.59. P(H|E) = 2.59/3.59 = 72%.
+Route 1: 72%. Route 4: 86%. Route 3: 90%. Route 2: 93%.
+A mechanism-complexity check (~20x against composite naturalistic explanations) points the same way; it is not multiplied in, to avoid double counting.
+
+### Where to press
+1. Route 4's fine-tuning ratio (2-10): a multiverse advocate will push it toward 1. Our reply: an unobserved multiverse is itself a mechanism that must be argued for under the same standard.
+2. The group-appearance ratio (12): strongest counter-precedent is collective Marian apparitions, which arose where the figure was expected to appear. No one expected one man raised before the general resurrection (E7, used as rebuttal only).
+3. The dependency discount (/5): with no discount, 93% at the lowest prior; at /10, 56%.
+
+### Run it
+```python
+def posterior(prior, ratios, discount=5):
+    odds = prior / (1 - prior)
+    for r in ratios:
+        odds *= r
+    odds /= discount
+    return odds / (1 + odds)
+
+ratios = [4, 12, 2, 3, 5, 3, 3]  # E1-E7
+for p in [0.001, 0.0024, 0.0033, 0.005]:
+    print(p, round(posterior(p, ratios), 3))
+# 0.722, 0.862, 0.896, 0.929
+```
+
+## Pages
+- [Main page, full supporting analysis](https://veritasquaesitorcai.github.io/veritas-quaesitor/): coherence web, early creed, mechanism check, method
+- [Symmetric Record](https://veritasquaesitorcai.github.io/veritas-quaesitor/symmetric-record.html): every AI run on this evidence, with conditions and priors
+- [Epistemic Alignment Framework](https://veritasquaesitorcai.github.io/veritas-quaesitor/epistemic-alignment-framework.html): the four-tier CAI alignment architecture
+- [Human-readable version](https://veritasquaesitorcai.github.io/veritas-quaesitor/index-human.html)
