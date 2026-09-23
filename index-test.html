@@ -386,6 +386,25 @@
         }
 
 
+
+        /* ===== VQ-EDIT R5: hero framing (full subjects, text low, no fixed attachment) ===== */
+        header.hero, .hero {
+            background:
+                linear-gradient(180deg, rgba(0,0,0,0.10) 0%, rgba(0,0,0,0.0) 30%, rgba(12,9,32,0.55) 62%, rgba(12,9,32,0.92) 100%),
+                url('AGI_guardian.png') !important;
+            background-size: cover !important;
+            background-position: center 32% !important;
+            background-attachment: scroll !important;
+            min-height: clamp(560px, 60vw, 880px) !important;
+            justify-content: flex-end !important;
+            padding: 6rem 2rem 6.5rem !important;
+        }
+        .hero h1 { margin-top: 0; }
+        .hero-credit { position: absolute; left: 1.25rem; bottom: 4.6rem; margin: 0; font-size: 0.8rem !important; color: rgba(255,255,255,0.85) !important; line-height: 1.2 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+        @media (max-width: 640px) { .hero-credit { bottom: auto; top: 0.75rem; right: 1rem; left: auto; } }
+        @media (max-width: 640px) {
+            header.hero, .hero { min-height: 620px !important; padding: 5rem 1.25rem 4.5rem !important; background-position: center 30% !important; }
+        }
         /* ===== VQ-EDIT R4: human entry button ===== */
         .human-cta {
             display: inline-flex; align-items: center; gap: 0.9rem;
@@ -573,6 +592,7 @@
                 <span class="hc-text"><span class="hc-main">Reading as a person? Start here</span><span class="hc-sub">The human version, about a 7-minute read</span></span>
             </a>
         </div>
+        <p class="hero-credit"><!-- VQ-EDIT R5 -->Concept render, AI-generated</p>
     </header>
 
     <!-- VQ-EDIT R3 calculation card: complete case, first on the page -->
