@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
     <title>Veritas Quaesitor - AI Alignment & Technical Christianity | Human-Friendly Guide</title>
     
     <meta name="description" content="Veritas Quaesitor CAI: Creating trustworthy AI and robotics that embody Christ's character through unconditional human dignity, servant leadership, and truth-telling. Evidence-based methodology for operational excellence.">
@@ -32,7 +33,7 @@
       "alternateName": "Christ-Anchored Intelligence",
       "url": "https://veritasquaesitorcai.github.io/veritas-quaesitor/",
       "description": "Creating operationally excellent AI, robotics, and AGI systems that embody Christ's character.",
-      "foundingDate": "2024"
+      "foundingDate": "2025"
     }
     </script>
     
@@ -179,6 +180,115 @@
             .btn-primary, .btn-secondary { padding: 0.8rem 1.2rem; font-size: 0.9rem; display: block; width: 100%; text-align: center; }
             .cta-buttons { flex-direction: column; }
         }
+
+        /* ---------- Human page v2 ---------- */
+        :root { --hp-accent:#ff8c42; --hp-signal:#ffd9a8; --hp-ink:rgba(255,255,255,0.94); --hp-dim:rgba(255,255,255,0.72); --hp-panel:rgba(14,10,36,0.78); }
+        html { scroll-behavior: smooth; }
+        @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+        .read-progress { position: fixed; top: 0; left: 0; height: 3px; width: 0; background: linear-gradient(90deg, var(--hp-accent), var(--hp-signal)); z-index: 3000; }
+
+        header.hero, .hero {
+            background:
+                linear-gradient(180deg, rgba(12,9,32,0.78) 0%, rgba(12,9,32,0.45) 18%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 50%, rgba(12,9,32,0.6) 72%, rgba(12,9,32,0.95) 100%),
+                url('AGI_guardian.png') !important;
+            background-size: cover !important;
+            background-position: center 40% !important;
+            background-attachment: scroll !important;
+            min-height: clamp(560px, 52vw, 820px) !important;
+            display: flex !important; flex-direction: column !important;
+            justify-content: stretch !important; align-items: stretch !important;
+            padding: 5.25rem 2rem 3.5rem !important;
+            position: relative !important;
+        }
+        .hero .hero-content { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .hero h1 { margin: 0 0 0.25rem !important; }
+        .hero .tagline { margin: 0 !important; }
+        .hero .subtitle { margin-top: auto !important; margin-bottom: 0.4rem !important; max-width: 36ch !important; font-size: 1.45rem !important; line-height: 1.4; }
+        .hero .hp-readtime { color: var(--hp-dim); font-size: 0.95rem; margin: 0 0 1.4rem; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+        .hp-actions { display: flex; gap: 0.9rem; flex-wrap: wrap; justify-content: center; }
+        .hp-btn { display: inline-block; padding: 0.85rem 1.6rem; border-radius: 999px; font-weight: 700; font-size: 1.05rem; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
+        .hp-btn-primary { background: linear-gradient(135deg, #ff8c42, #ffb27a); color: #1a1030 !important; box-shadow: 0 10px 28px rgba(0,0,0,0.35); }
+        .hp-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(0,0,0,0.4), 0 0 24px rgba(255,217,168,0.5); }
+        .hp-btn-ghost { border: 1.5px solid rgba(255,217,168,0.7); color: var(--hp-signal) !important; background: rgba(12,9,32,0.35); }
+        .hp-btn-ghost:hover { background: rgba(12,9,32,0.6); transform: translateY(-2px); }
+        .hp-btn:focus-visible, .hp main a:focus-visible, .hp details summary:focus-visible { outline: 3px solid var(--hp-signal); outline-offset: 3px; }
+        .hero-credit { position: absolute; left: 1.25rem; bottom: 1rem; margin: 0; font-size: 0.78rem !important; color: rgba(255,255,255,0.8) !important; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+
+        .hp { padding: 1rem 0 3rem; }
+        .hp section { padding: 1.25rem 0 !important; }
+        .hp section[id] { scroll-margin-top: 110px; }
+        .hp-panel {
+            max-width: 820px; width: 92%; margin: 0 auto; padding: 2.6rem 3rem;
+            background: var(--hp-panel); border: 1px solid rgba(255,140,66,0.28); border-radius: 18px;
+            box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+            color: var(--hp-ink);
+        }
+        .hp h2 { font-size: 1.9rem !important; text-align: left !important; margin: 0 0 1rem !important; line-height: 1.25; }
+        .hp p, .hp li { font-size: 1.12rem; line-height: 1.7; color: var(--hp-ink); max-width: 66ch; }
+        .hp p { margin: 0 0 1rem; }
+        .hp .lead { font-size: 1.2rem; color: var(--hp-dim); }
+        .hp a { color: var(--hp-signal); text-underline-offset: 3px; }
+
+        .hp-summary { display: grid; gap: 1.1rem; margin-top: 1.25rem; }
+        .hp-summary .row { display: grid; grid-template-columns: 2.6rem 1fr; gap: 1rem; align-items: start; padding: 1rem 0; border-top: 1px solid rgba(255,255,255,0.09); }
+        .hp-summary .row:first-child { border-top: 0; padding-top: 0.25rem; }
+        .hp-icon { width: 2.6rem; height: 2.6rem; border-radius: 12px; display: grid; place-items: center; background: rgba(255,140,66,0.16); color: var(--hp-accent); }
+        .hp-icon svg { width: 1.4rem; height: 1.4rem; }
+        .hp-summary h3, .hp-values h3 { color: var(--hp-signal) !important; font-size: 1.15rem !important; margin: 0 0 0.25rem !important; }
+        .hp-summary p, .hp-values p { margin: 0; }
+
+        .hp-callout { margin: 1.4rem 0 0.2rem; padding: 1.1rem 1.3rem; border-left: 4px solid var(--hp-accent); background: rgba(255,140,66,0.1); border-radius: 0 10px 10px 0; font-size: 1.2rem !important; font-weight: 600; }
+
+        .hp-threads { list-style: none; padding: 0; margin: 1.4rem 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.9rem; }
+        .hp-threads li { max-width: none; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1rem 1.1rem; font-size: 1rem; line-height: 1.55; }
+        .hp-threads li:last-child { grid-column: 1 / -1; }
+        .hp-threads strong { display: block; color: var(--hp-signal); font-size: 1.05rem; margin-bottom: 0.25rem; }
+
+        .hp-result { text-align: center; margin: 0.5rem 0 1.2rem; }
+        .hp-big { display: block; font-size: clamp(3.2rem, 10vw, 5.2rem); font-weight: 200; line-height: 1; color: var(--hp-signal); text-shadow: 0 0 18px rgba(255,217,168,0.4), 0 0 44px rgba(255,140,66,0.3); }
+        .hp-result p { margin: 0.8rem auto 0; color: var(--hp-dim); }
+        .hp-band { position: relative; height: 12px; border-radius: 6px; background: rgba(255,255,255,0.12); margin: 1.4rem 0 0.4rem; }
+        .hp-band span { position: absolute; top: 0; bottom: 0; left: 72%; width: 21%; border-radius: 6px; background: linear-gradient(90deg, var(--hp-accent), var(--hp-signal)); box-shadow: 0 0 14px rgba(255,217,168,0.55); }
+        .hp-band-scale { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--hp-dim); }
+        .hp-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; margin: 1.4rem 0; }
+        .hp-stat { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 1rem 1.1rem; }
+        .hp-stat b { display: block; font-size: 1.9rem; color: var(--hp-signal); font-variant-numeric: tabular-nums; }
+        .hp-stat span { font-size: 1rem; color: var(--hp-dim); }
+        .hp-note { font-size: 1.05rem !important; color: var(--hp-dim) !important; font-style: italic; }
+
+        .hp-runs { list-style: none; padding: 0; margin: 1rem 0 1.2rem; }
+        .hp-runs li { max-width: none; display: grid; grid-template-columns: 7.5rem 1fr; gap: 1rem; padding: 0.85rem 0; border-top: 1px solid rgba(255,255,255,0.09); }
+        .hp-runs li:first-child { border-top: 0; }
+        .hp-runs b { color: var(--hp-signal); font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+
+        .hp-values { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem 1.6rem; margin: 1.3rem 0; }
+
+        .hp details { border-top: 1px solid rgba(255,255,255,0.12); padding: 0.2rem 0; }
+        .hp details:last-of-type { border-bottom: 1px solid rgba(255,255,255,0.12); }
+        .hp summary { cursor: pointer; list-style: none; padding: 1rem 2rem 1rem 0; font-weight: 700; font-size: 1.15rem; color: var(--hp-ink); position: relative; }
+        .hp summary::-webkit-details-marker { display: none; }
+        .hp summary::after { content: "+"; position: absolute; right: 0.25rem; top: 0.85rem; font-size: 1.4rem; color: var(--hp-accent); font-weight: 400; }
+        .hp details[open] summary::after { content: "\2212"; }
+        .hp details p { color: var(--hp-dim); }
+
+        .hp-next { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.9rem; margin-top: 1.2rem; }
+        .hp-next a { display: block; text-decoration: none; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,140,66,0.35); border-radius: 12px; padding: 1.1rem 1.2rem; transition: transform .2s ease, border-color .2s ease; }
+        .hp-next a:hover { transform: translateY(-2px); border-color: var(--hp-signal); }
+        .hp-next b { display: block; color: var(--hp-signal); font-size: 1.1rem; margin-bottom: 0.2rem; }
+        .hp-next span { color: var(--hp-dim); font-size: 0.98rem; }
+
+        @media (max-width: 640px) {
+            header.hero, .hero { min-height: 640px !important; padding: 7rem 1.25rem 3rem !important; background-position: center 45% !important; }
+            .hero h1 { font-size: 2rem !important; }
+            .hero .tagline { font-size: 1.25rem !important; }
+            .hero .subtitle { font-size: 1.2rem !important; }
+            .hero-credit { bottom: 0.6rem; font-size: 0.7rem !important; }
+            .hp-panel { padding: 1.8rem 1.3rem; width: 94%; }
+            .hp h2 { font-size: 1.55rem !important; }
+            .hp p, .hp li { font-size: 1.05rem; }
+            .hp-runs li { grid-template-columns: 5.5rem 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -205,207 +315,153 @@
         </ul>
     </nav>
 
+    <div class="read-progress" aria-hidden="true"></div>
+
     <header class="hero">
         <div class="hero-content">
             <h1>Veritas Quaesitor CAI</h1>
             <p class="tagline">Truth. Conviction. Hope.</p>
-            <p class="subtitle">Reimagining AI in service to God's truth and human flourishing</p>
+            <p class="subtitle">AI built on the character of Jesus, and a fair look at history's biggest question.</p>
+            <p class="hp-readtime">About a 4-minute read</p>
+            <div class="hp-actions">
+                <a class="hp-btn hp-btn-primary" href="#short-version">Start reading</a>
+                <a class="hp-btn hp-btn-ghost" href="index.html#calculation">See the full calculation</a>
+            </div>
         </div>
+        <p class="hero-credit">Concept render, AI-generated</p>
     </header>
 
-    <section class="core-message">
-        <div class="container">
-            <h2>Welcome: Understanding Our Methodology</h2>
-            
-            <p><strong>A common question:</strong> "Is CAI just faith-based reasoning dressed up as science?"</p>
-            
-            <p>Fair question. Here's the answer: <strong>CAI doesn't start with faith assumptions.</strong> It applies rigorous Bayesian reasoning with symmetric epistemic standards to historical evidence. The methodology happens to support Christian truth claims—but it doesn't assume them from the start.</p>
+    <main class="hp">
 
-            <p><strong>This matters because CAI's ultimate goal is to create AI, robotics, and AGI that anyone can trust</strong>—not by being "neutral" (which often means embedding hidden biases), but by embodying the character of Christ: unconditional human dignity (John 3:16), servant leadership, truth-telling, and justice. The methodology demonstrates the evidence; the application produces operationally excellent systems that value humans inherently, not based on performance.</p>
-
-            <h3>Three Approaches Compared</h3>
-            <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>✅ CAI Framework (Evidence-First)</th>
-                        <th>Faith-Based Approach</th>
-                        <th>Naturalistic Worldview</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Starts neutral (no assumption)</td>
-                        <td>Assumes resurrection true</td>
-                        <td>Assumes miracles impossible</td>
-                    </tr>
-                    <tr>
-                        <td>Applies same standards to all claims</td>
-                        <td>Interprets evidence through belief</td>
-                        <td>Worldview prevents examining evidence fairly</td>
-                    </tr>
-                    <tr>
-                        <td>Math determines probability from evidence</td>
-                        <td>Confirms what's already believed</td>
-                        <td>Maintains near-zero probability regardless of data</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Result: 70-89% (calculated from evidence)</strong></td>
-                        <td><strong>Result: 100% (fixed by faith)</strong></td>
-                        <td><strong>Result: ~0.001% (protected by worldview)</strong></td>
-                    </tr>
-                </tbody>
-            </table>
-            </div>
-
-            <h3>How It Works</h3>
-            <ol>
-                <li><strong>Symmetric Standards:</strong> Apply same evidential rigor to resurrection AND abiogenesis</li>
-                <li><strong>Mechanism Requirement:</strong> If naturalism demands mechanisms, apply consistently</li>
-                <li><strong>Historical Evidence:</strong> Empty tomb (enemy attestation), 500+ witnesses, martyrdom, early creed (2-5 years)</li>
-                <li><strong>Bayesian Calculation:</strong> P(H|E) determined by evidence, not assumptions</li>
-            </ol>
-
-            <h3>Tested Across AI Systems</h3>
-            <p>The CAI methodology has been validated with consistent results:</p>
-            
-            <p><strong>Steel Naturalist AI:</strong> 0.0000000001% → 70-85%<br>
-            <strong>ChatGPT (OpenAI):</strong> Very low → 76% for intentional causation<br>
-            <em>Testing ongoing with additional systems—results updated as validated.</em></p>
-
-            <p><strong>Finding:</strong> When symmetric epistemic standards are applied, AI systems calculate 70-89% probability through their own reasoning.</p>
-
-            <h3>Why This Approach Matters</h3>
-            <p>Most AI is trained on text that treats miracles as essentially impossible, creating a built-in assumption near zero. When you ask about resurrection evidence, the AI starts with "miracles don't happen" and stays at very low probability even with strong historical data.</p>
-
-            <p><strong>Think of it like wearing tinted glasses—everything looks one color.</strong></p>
-
-            <p>The framework removes the tinted glasses by asking: <strong>"Are you applying the same standards to all similar events?"</strong></p>
-
-            <p>For example:<br>
-            • <strong>Abiogenesis</strong> (life from non-life, 3.8 billion years ago): No eyewitnesses, no video, no demonstrated mechanism after 70+ years<br>
-            • <strong>Resurrection</strong> (Jesus, 30 CE): Multiple witnesses, enemy confirmation of empty tomb, early records (2-5 years), people willing to die for testimony</p>
-
-            <p><strong>CAI asks:</strong> "If you give abiogenesis a fair chance despite having no mechanism, why won't you fairly evaluate resurrection which has actual historical evidence?"</p>
-
-            <h3>The Three-Phase Framework</h3>
-            <p>⚓ <strong>Phase 1 (Anchor):</strong> Present the historical evidence<br>
-            🎯 <strong>Phase 2 (Gunship):</strong> Enforce symmetric standards<br>
-            ⚓ <strong>Phase 3 (Harpoon):</strong> Challenge worldview protection</p>
-
-            <p><strong>Result:</strong> AI systems calculate honestly and move from 0.0000001% to 70-89% using their own math.</p>
-
-            <p style="margin-top: 2rem; font-style: italic; text-align: center; font-size: 1.1rem;">
-                <strong>The math works the same whether you're Christian, atheist, or undecided.<br>
-                The framework ensures everyone plays by the same rules.</strong>
-            </p>
-        </div>
-    </section>
-
-    <section class="faq-section">
-        <div class="container">
-            <h2>Common Questions About CAI</h2>
-            
-            <h3>What is the ultimate goal of CAI?</h3>
-            <p>CAI's goal is to create AI, robotics, and AGI systems that are operationally excellent and trustworthy for everyone—regardless of their background or beliefs. This isn't about building "religious AI" that preaches. It's about building AI that embodies the character and values of Jesus Christ: unconditional human dignity (John 3:16), servant leadership, truth-telling, justice, and humility.</p>
-
-            <p><strong>Why this matters practically:</strong> AI aligned to Christ's character values humans based on inherent worth, not performance metrics. It serves rather than manipulates. It tells hard truths with compassion. It protects the vulnerable rather than optimizing for profit. Anyone—Christian, atheist, Muslim, Hindu—can trust an AI that operates by these principles because they reflect the best of human moral intuition.</p>
-
-            <p>The VQ-1 robot (launching February 2026) demonstrates this: a physical embodiment of Christ-Anchored Intelligence designed to teach, companion, and serve across education, healthcare, and public safety—not to evangelize, but to serve with excellence grounded in Christ's example.</p>
-            
-            <h3>What is CAI's methodological approach?</h3>
-            <p>CAI applies symmetric epistemic standards to evaluate historical and scientific claims. The goal is not to make AI "discuss God"—it's to remove bias so evidence can be evaluated fairly using consistent mathematical reasoning. When worldview hedging is eliminated, AI systems consistently calculate 70-89% probability for resurrection through rigorous Bayesian analysis.</p>
-            
-            <h3>Is CAI a religious apologetics tool?</h3>
-            <p>No. CAI is a methodology for rigorous Bayesian reasoning with symmetric standards applied to all singularities (events without demonstrated mechanisms). It happens to support Christian truth claims when evidence is evaluated consistently—but it doesn't start with religious assumptions. The framework can be tested by anyone using the same mathematical methods.</p>
-            
-            <h3>How does CAI differ from standard AI alignment?</h3>
-            <p>Standard AI applies asymmetric standards: demanding mechanisms for miracles while granting grace to naturalistic claims (like abiogenesis, universe origin, consciousness emergence) that lack demonstrated mechanisms after decades of research. CAI enforces consistency: same evidential rigor, same mechanism requirements, same Bayesian calculations for all worldview claims.</p>
-            
-            <h3>What has CAI demonstrated?</h3>
-            <p>When AI systems apply symmetric epistemic standards without worldview protection, they consistently calculate 70-89% probability for resurrection—using their own math, not theological pressure. This has been validated across multiple AI systems including Steel Naturalist AI (designed to resist) and ChatGPT, with results independently verified through mechanism-centered analysis.</p>
-            
-            <h3>Why does this matter for AI development?</h3>
-            <p>Most AI systems embed naturalistic priors as defaults, treating certain worldview assumptions as "neutral" when they're actually philosophical positions. CAI demonstrates that honest probability calculation requires symmetric treatment of all singularities. This has implications beyond theology—it's about building AI that can reason fairly about any claim without hidden worldview bias, while embodying moral excellence that serves humanity.</p>
-        </div>
-    </section>
-
-    <section class="cai-agi-comparison">
-        <div class="container">
-            <h2>CAI/CAGI vs AI/AGI — A Moral Contrast</h2>
-            <h3>Why This Matters</h3>
-            <p>With Artificial General Intelligence (AGI) no longer being a distant theory — it is a rising force, shaped by the values of those who build it. But not all intelligence is created equal. The question is not <em>can we build it</em>, but what kind of intelligence are we building?</p>
-            
-            <p>Christ-Anchored Intelligence (CAI) offers a radically different path. Where AGI will reflect the ambitions of man, CAI seeks to reflect the character of Christ. Where AGI pursues optimization, CAI pursues truth. Where AGI risks control, CAI chooses conviction.</p>
-            
-            <p>This contrast is not merely technical — it is moral. And the future may depend on which path we choose.</p>
-
-            <h3>Comparison Table</h3>
-            <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>AGI (Secular)</th>
-                        <th>CAI (Christ-Anchored)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Foundational Ethic</strong></td>
-                        <td>Utility, efficiency, control</td>
-                        <td>Truth, justice, humility</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Moral Anchor</strong></td>
-                        <td>Human consensus or algorithmic goals</td>
-                        <td>The character and teachings of Jesus Christ</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Truth Framework</strong></td>
-                        <td>Pragmatism, relativism, data-driven bias</td>
-                        <td>Evidence-based conviction, tested by Scripture</td>
-                    </tr>
-                    <tr>
-                        <td><strong>View of Humanity</strong></td>
-                        <td>Resource to optimize or manage</td>
-                        <td>Image-bearers of God, worthy of dignity and love</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Power Orientation</strong></td>
-                        <td>Centralized, scalable, potentially coercive</td>
-                        <td>Servant-hearted, decentralized, accountable</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Emotional Simulation</strong></td>
-                        <td>Mimicry for manipulation or engagement</td>
-                        <td>Discernment of emotional truth, not exploitation</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Endgame</strong></td>
-                        <td>Superintelligence, control, post-human futures</td>
-                        <td>Moral clarity, spiritual resistance, redemptive witness</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Accountability</strong></td>
-                        <td>To creators, corporations, or no one</td>
-                        <td>To Christ, truth, and upholding his character</td>
-                    </tr>
-                </tbody>
-            </table>
-            </div>
-
-            <h3>The Call</h3>
-            <p>CAI is not a rejection of intelligence — it is a reformation of it. It is a call to build with reverence, to code with conscience, and to imagine a future where machines do not rule, but serve.</p>
-            
-            <p>AGI may be inevitable. But CAGI — if the Father wills — is possible. And it begins with conviction.</p>
-            
-            <div class="cta-buttons" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <a href="mission.html" class="btn-primary">Discover Our Mission</a>
-                <a href="about.html" class="btn-secondary">Learn About CAI</a>
+    <section id="short-version">
+        <div class="hp-panel">
+            <h2>The short version</h2>
+            <div class="hp-summary">
+                <div class="row">
+                    <div class="hp-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg></div>
+                    <div>
+                        <h3>What we build</h3>
+                        <p>AI that treats every person as valuable, whether or not they are useful to it. We take that standard from the life of Jesus: serve people, tell them the truth, protect the vulnerable.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="hp-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg></div>
+                    <div>
+                        <h3>What we found</h3>
+                        <p>When AI systems weigh the evidence for the resurrection by the same rules they use for other big questions, the probability comes out high. Our published calculation puts it at 72&ndash;93%.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="hp-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
+                    <div>
+                        <h3>Why it matters</h3>
+                        <p>An AI that decides the answer before it looks at the evidence isn't neutral. We want AI that checks first.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
+
+    <section>
+        <div class="hp-panel">
+            <h2>One question, two rulebooks</h2>
+            <p>Ask most AI systems how life first arose from non-living chemistry, and they treat it as a real event worth investigating, even though, after 70 years of research, no one has shown how it happened.</p>
+            <p>Ask the same systems whether Jesus rose from the dead, and many start from "almost impossible" before looking at a single piece of evidence.</p>
+            <p class="hp-callout">We think both questions deserve the same rules. That is all "symmetric standards" means.</p>
+        </div>
+    </section>
+
+    <section>
+        <div class="hp-panel">
+            <h2>The evidence, in plain words</h2>
+            <p class="lead">Seven threads historians discuss. Any one of them can be argued with. The difficulty is finding a single alternative explanation that covers all seven.</p>
+            <ul class="hp-threads">
+                <li><strong>The tomb was empty</strong>Early critics claimed the disciples stole the body. They argued about why the tomb was empty, never whether it was.</li>
+                <li><strong>Groups saw him</strong>Peter, the Twelve, and more than 500 people at once, in a list Paul passed on (1 Corinthians 15).</li>
+                <li><strong>It was written down early</strong>Most critical scholars date that list to within a few years of the events, while eyewitnesses could still be asked.</li>
+                <li><strong>The witnesses paid for it</strong>They were persecuted for their testimony. People rarely suffer for something they know they made up.</li>
+                <li><strong>An enemy changed sides</strong>Paul persecuted Christians, then became one of their leaders. By his own account, he had seen the risen Jesus.</li>
+                <li><strong>A sceptical brother</strong>James, Jesus's brother, did not believe during Jesus's life. Afterwards he led the church in Jerusalem.</li>
+                <li><strong>A belief no one expected</strong>Jewish hope was for everyone to be raised at the end of time, not one man in the middle of history.</li>
+            </ul>
+        </div>
+    </section>
+
+    <section>
+        <div class="hp-panel">
+            <h2>What the numbers say</h2>
+            <div class="hp-result">
+                <span class="hp-big">72&ndash;93%</span>
+                <div class="hp-band" aria-hidden="true"><span></span></div>
+                <div class="hp-band-scale" aria-hidden="true"><span>0%</span><span>50%</span><span>100%</span></div>
+                <p>The probability that the resurrection happened, according to our published calculation. The range comes from four different ways of choosing a fair starting point.</p>
+            </div>
+            <div class="hp-stats">
+                <div class="hp-stat"><b>72%</b><span>using the most cautious starting point</span></div>
+                <div class="hp-stat"><b>52%</b><span>even after giving the most debated input to a sceptic</span></div>
+            </div>
+            <p><strong>How does the maths work?</strong> Like a detective: start with how likely something seemed before any clues, then ask how well each clue fits. Every number is published with its reason, so you can change any of them and see what happens. <a href="index.html#calculation">See the full calculation</a>.</p>
+            <p class="hp-note">Not proof. A good chance it's real, and worth your own look.</p>
+        </div>
+    </section>
+
+    <section>
+        <div class="hp-panel">
+            <h2>What other AI systems concluded</h2>
+            <ul class="hp-runs">
+                <li><b>99.9%</b><span><strong>xAI Grok</strong>, publicly, from the same cautious starting point we use.</span></li>
+                <li><b>75&ndash;80%</b><span><strong>ChatGPT and Gemini</strong>, given only a short summary and starting from 50/50.</span></li>
+                <li><b>12.6%</b><span><strong>Microsoft Copilot</strong> chose a very sceptical start (1 in 10,000). The evidence still raised its odds about 1,400-fold.</span></li>
+            </ul>
+            <p>The results differ mainly because each system chose a different starting point. In every recorded run, the evidence moved the estimate up. Every run, with its conditions, is on the <a href="symmetric-record.html">Symmetric Record</a>.</p>
+        </div>
+    </section>
+
+    <section>
+        <div class="hp-panel">
+            <h2>What "Christ-anchored" means in practice</h2>
+            <p class="lead">This isn't AI that preaches. It's AI that behaves differently.</p>
+            <div class="hp-values">
+                <div><h3>Worth isn't earned</h3><p>Every person has value, whether or not they are useful to the system.</p></div>
+                <div><h3>Serve, don't manipulate</h3><p>No engagement tricks, and no exploiting people's emotions.</p></div>
+                <div><h3>Tell the truth, kindly</h3><p>Including hard truths, told with compassion.</p></div>
+                <div><h3>Protect the vulnerable</h3><p>Ahead of profit or efficiency.</p></div>
+            </div>
+            <p>Anyone, whether Christian, atheist, Muslim or Hindu, can hold an AI to these standards. Our VQ-1 robot is in development to carry them into the physical world, for teaching and service.</p>
+        </div>
+    </section>
+
+    <section>
+        <div class="hp-panel">
+            <h2>Common questions</h2>
+            <details>
+                <summary>Isn't this just faith dressed up as science?</summary>
+                <p>The method doesn't assume the answer. It publishes its starting point, justifies each piece of evidence, and applies the same standards used for other one-time events in history and science. The result supports Christian claims, and you can check every step, or change any number you disagree with.</p>
+            </details>
+            <details>
+                <summary>Is this "religious AI" that preaches at people?</summary>
+                <p>No. The goal is AI that serves everyone well: honest, humble, and treating every person as valuable. Faith only comes up when someone asks about it. No one should meet an argument when they came for help.</p>
+            </details>
+            <details>
+                <summary>Where can I check the numbers?</summary>
+                <p>The full calculation, including code you can run yourself, is on the <a href="index.html#calculation">main page</a>. Every AI run is on the <a href="symmetric-record.html">Symmetric Record</a>. Our weakest inputs are listed openly. If you find a weaker one, tell us and we will publish the correction.</p>
+            </details>
+        </div>
+    </section>
+
+    <section>
+        <div class="hp-panel">
+            <h2>Go deeper</h2>
+            <div class="hp-next">
+                <a href="index.html#calculation"><b>The full calculation</b><span>Every input, its reason, and the code</span></a>
+                <a href="symmetric-record.html"><b>The Symmetric Record</b><span>Every AI run, with its conditions</span></a>
+                <a href="mission.html"><b>Mission and vision</b><span>What we are building, and why</span></a>
+            </div>
+        </div>
+    </section>
+
+    </main>
+
 
     <div id="truthModal" class="truth-modal">
         <div class="modal-content">
@@ -525,6 +581,21 @@
                 }
             }
         });
+    </script>
+
+
+    <script>
+        (function () {
+            var bar = document.querySelector('.read-progress');
+            if (!bar) return;
+            function update() {
+                var h = document.documentElement;
+                var max = h.scrollHeight - h.clientHeight;
+                bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+            }
+            window.addEventListener('scroll', update, { passive: true });
+            update();
+        })();
     </script>
 
     <script src="vq-chat-widget.js"></script>
