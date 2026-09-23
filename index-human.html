@@ -181,6 +181,87 @@
             .cta-buttons { flex-direction: column; }
         }
 
+        /* --- FLOATING GROKIPEDIA ICON (LEFT SIDE) --- */
+        .grokipedia-float {
+            position: fixed;
+            left: 30px;
+            top: 100px;
+            z-index: 9999;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .grokipedia-icon {
+            width: 60px;
+            height: 60px;
+            background: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            animation: grokPulse 1.5s ease 2;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .grokipedia-icon:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(255, 255, 255, 0.3);
+        }
+
+        .grokipedia-icon svg {
+            width: 36px;
+            height: 36px;
+            fill: white;
+        }
+
+        .grok-g-letter {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: white;
+            line-height: 1;
+        }
+
+        /* Tooltip */
+        .grokipedia-tooltip {
+            position: absolute;
+            left: 70px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .grokipedia-float:hover .grokipedia-tooltip {
+            opacity: 1;
+        }
+
+        /* Grok Pulse Animation (synced with header) */
+        @keyframes grokPulse {
+            0%, 100% { 
+                border-color: rgba(255, 255, 255, 0.3);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            }
+            50% { 
+                border-color: rgba(255, 255, 255, 0.8);
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 
+                            0 0 40px rgba(255, 255, 255, 0.3);
+            }
+        }
+
+        a.grokipedia-float { text-decoration: none; display: block; }
+        a.grokipedia-float:focus-visible .grokipedia-icon { outline: 3px solid #ffd9a8; outline-offset: 3px; }
+        @media (max-width: 768px) { .grokipedia-float { display: none; } }
+
         /* ---------- Human page v2 ---------- */
         :root { --hp-accent:#ff8c42; --hp-signal:#ffd9a8; --hp-ink:rgba(255,255,255,0.94); --hp-dim:rgba(255,255,255,0.72); --hp-panel:rgba(14,10,36,0.78); }
         html { scroll-behavior: smooth; }
@@ -292,6 +373,13 @@
     </style>
 </head>
 <body>
+    <a class="grokipedia-float" href="https://grokipedia.com/page/veritas-quaesitor-cai" target="_blank" rel="noopener" aria-label="Veritas Quaesitor CAI on Grokipedia (opens in a new tab)">
+        <div class="grokipedia-icon">
+            <span class="grok-g-letter" aria-hidden="true">G</span>
+        </div>
+        <div class="grokipedia-tooltip">Indexed in Grokipedia</div>
+    </a>
+
     <nav>
         <div>
             <a href="index.html" class="logo">
