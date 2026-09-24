@@ -248,6 +248,27 @@
         saveConversation();
     }
 
+
+    // Build an <img> from a model-supplied tag using only its https src (no other attributes survive)
+    function safeImageFrom(tagHtml) {
+        const m = /\ssrc\s*=\s*["']([^"']+)["']/i.exec(tagHtml);
+        if (!m) return null;
+        let url;
+        try { url = new URL(m[1]); } catch (e) { return null; }
+        if (url.protocol !== 'https:') return null;
+        const img = document.createElement('img');
+        img.src = url.href;
+        img.alt = '';
+        img.loading = 'lazy';
+        img.referrerPolicy = 'no-referrer';
+        img.style.display = 'block';
+        img.style.width = '100%';
+        img.style.borderRadius = '8px';
+        img.style.marginTop = '8px';
+        img.onerror = function() { this.style.display = 'none'; };
+        return img;
+    }
+
     function addMessageToUI(role, content) {
         const messageDiv = document.createElement('div');
         messageDiv.className = role === 'user' ? 'message user' : 'message';
@@ -265,17 +286,8 @@
             const parts = content.split(/(<img[^>]*>)/i);
             parts.forEach(part => {
                 if (/^<img/i.test(part)) {
-                    const tmp = document.createElement('div');
-                    tmp.innerHTML = part;
-                    const imgEl = tmp.firstChild;
-                    if (imgEl) {
-                        imgEl.style.display = 'block';
-                        imgEl.style.width = '100%';
-                        imgEl.style.borderRadius = '8px';
-                        imgEl.style.marginTop = '8px';
-                        imgEl.onerror = function() { this.style.display = 'none'; };
-                        contentDiv.appendChild(imgEl);
-                    }
+                    const imgEl = safeImageFrom(part);
+                    if (imgEl) contentDiv.appendChild(imgEl);
                 } else if (part.trim()) {
                     const textEl = document.createElement('span');
                     textEl.style.whiteSpace = 'pre-wrap';
@@ -390,15 +402,22 @@
                 },
                 body: JSON.stringify({
                     message: message,
-                    history: conversationHistory
+                    history: conversationHistory.slice(-20)
                 })
             });
 
+            const data = await response.json().catch(() => ({}));
+
             if (!response.ok) {
+                if (data && data.response) {
+                    hideTypingIndicator();
+                    addMessageToUI('assistant', data.response);
+                    setStatus('online', 'Online');
+                    return;
+                }
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
 
-            const data = await response.json();
             
             hideTypingIndicator();
             addMessage('assistant', data.response);
