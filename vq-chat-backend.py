@@ -6,7 +6,70 @@ from flask_cors import CORS
 
 # 1. Initialize App FIRST (before any imports that might fail)
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+
+# Only these sites may call the chat API from a browser. Override with ALLOWED_ORIGINS
+# (comma-separated) in Railway if you add another front end or test locally.
+ALLOWED_ORIGINS = [o.strip() for o in os.environ.get(
+    "ALLOWED_ORIGINS", "https://veritasquaesitorcai.github.io").split(",") if o.strip()]
+CORS(app, resources={r"/*": {"origins": ALLOWED_ORIGINS}})
+
+# Simple per-visitor rate limit (in memory; fine for a single gunicorn worker)
+import time as _time
+from collections import defaultdict, deque
+RATE_PER_MINUTE = int(os.environ.get("RATE_PER_MINUTE", "10"))
+RATE_PER_DAY = int(os.environ.get("RATE_PER_DAY", "150"))
+_hits = defaultdict(deque)
+
+def _client_ip():
+    fwd = request.headers.get("X-Forwarded-For", "")
+    return fwd.split(",")[0].strip() if fwd else (request.remote_addr or "unknown")
+
+def _rate_limited(ip):
+    now = _time.time()
+    q = _hits[ip]
+    while q and now - q[0] > 86400:
+        q.popleft()
+    last_minute = sum(1 for t in q if now - t < 60)
+    if last_minute >= RATE_PER_MINUTE or len(q) >= RATE_PER_DAY:
+        return True
+    q.append(now)
+    if len(_hits) > 50000:  # keep memory bounded
+        for k in [k for k, v in _hits.items() if not v or now - v[-1] > 86400]:
+            _hits.pop(k, None)
+    return False
+
+@app.before_request
+def _guard_chat():
+    if request.path != "/chat" or request.method != "POST":
+        return None
+    origin = request.headers.get("Origin", "")
+    if origin not in ALLOWED_ORIGINS:
+        print(f"[GUARD] blocked origin '{origin}'", flush=True)
+        return jsonify({"error": "forbidden",
+                        "response": "This chat is only available on the Veritas Quaesitor website."}), 403
+    if _rate_limited(_client_ip()):
+        return jsonify({"error": "rate_limited",
+                        "response": "You're sending messages a little fast. Take a breath and try again in a minute."}), 429
+    return None
+
+MAX_MESSAGE_CHARS = 4000
+MAX_HISTORY_MESSAGES = 20
+MAX_HISTORY_CHARS = 6000
+
+def _clean_history(history, current_message):
+    """Keep only user/assistant turns, recent and size-limited, without the current message duplicated."""
+    if not isinstance(history, list):
+        return []
+    cleaned = []
+    for m in history[-(MAX_HISTORY_MESSAGES + 1):]:
+        if not isinstance(m, dict):
+            continue
+        role, content = m.get("role"), m.get("content")
+        if role in ("user", "assistant") and isinstance(content, str) and content.strip():
+            cleaned.append({"role": role, "content": content[:MAX_HISTORY_CHARS]})
+    if cleaned and cleaned[-1]["role"] == "user" and cleaned[-1]["content"].strip() in current_message:
+        cleaned.pop()
+    return cleaned[-MAX_HISTORY_MESSAGES:]
 
 print("Flask app initialized", flush=True)
 
@@ -948,10 +1011,19 @@ def chat():
                 'response': 'Backend configuration issue. Please contact admin.'
             }), 503
         
-        data = request.json
+        data = request.get_json(silent=True) or {}
         user_message = data.get('message', '')
-        history = data.get('history', [])
+        if not isinstance(user_message, str):
+            user_message = ''
+        if len(user_message) > MAX_MESSAGE_CHARS:
+            return jsonify({'error': 'message_too_long',
+                            'response': f'That message is a bit long for me. Please keep it under {MAX_MESSAGE_CHARS} characters.'}), 400
+        history = _clean_history(data.get('history', []), user_message)
         page_context = data.get('pageContext', None)
+        if not isinstance(page_context, dict):
+            page_context = None
+        elif isinstance(page_context.get('content'), str):
+            page_context['content'] = page_context['content'][:3000]
 
         # Strip capability pill prefixes before processing
         # load_context handles context loading; here we handle search/weather/news forcing
