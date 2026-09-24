@@ -2,25 +2,31 @@
   "name": "VQ Chat - Veritas Quaesitor",
   "short_name": "VQ Chat",
   "description": "Christ-Anchored Intelligence chat interface for exploring evidence-based faith and AI alignment",
-  "start_url": "/app/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#0f0f23",
   "theme_color": "#667eea",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>",
+      "src": "../android-chrome-192x192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>",
+      "src": "../android-chrome-512x512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
-  "categories": ["education", "productivity", "lifestyle"],
-  "lang": "en-US"
+  "categories": [
+    "education",
+    "productivity",
+    "lifestyle"
+  ],
+  "lang": "en-US",
+  "scope": "./",
+  "id": "./"
 }
