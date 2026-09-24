@@ -230,11 +230,45 @@
         /* --- TRUTH MODAL --- */
         .truth-modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); }
         .truth-modal.show { display: flex; align-items: center; justify-content: center; }
-        .modal-content { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 16px; max-width: 800px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5); animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .modal-close { position: absolute; top: 1rem; right: 1rem; background: rgba(255, 255, 255, 0.2); border: none; color: white; font-size: 2rem; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+        .modal-content {
+            background:
+                radial-gradient(120% 60% at 50% 0%, rgba(118,75,162,0.45), transparent 65%),
+                #120d2c;
+            border: 1px solid rgba(255,140,66,0.35);
+            padding: 2.5rem 2.75rem 2.25rem; border-radius: 18px; max-width: 760px; width: 92%; max-height: 84vh;
+            overflow-y: auto; overscroll-behavior: contain; position: relative;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.6), 0 0 40px rgba(255,140,66,0.12);
+            color: rgba(255,255,255,0.92);
+            scrollbar-width: thin; scrollbar-color: rgba(255,140,66,0.55) transparent;
+            animation: slideIn 0.25s ease-out;
+        }
+        .modal-content::-webkit-scrollbar { width: 8px; }
+        .modal-content::-webkit-scrollbar-thumb { background: rgba(255,140,66,0.5); border-radius: 4px; }
+        .modal-content::-webkit-scrollbar-track { background: transparent; }
+        @keyframes slideIn { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @media (prefers-reduced-motion: reduce) { .modal-content { animation: none; } }
+        .modal-content h2 { font-size: 1.75rem !important; line-height: 1.25; margin: 0 2.5rem 0.75rem !important; }
+        .modal-content h3 { font-size: 1.15rem !important; color: #ffd9a8 !important; margin: 2rem 0 0.75rem !important; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,140,66,0.22); }
+        .modal-content p { color: rgba(255,255,255,0.85); line-height: 1.65; }
+        .modal-content > p:first-of-type { text-align: center; color: rgba(255,255,255,0.7); max-width: 56ch; margin: 0 auto 0.5rem; }
+        .modal-content ul { list-style: none; padding: 0; margin: 0; }
+        .modal-content li { position: relative; padding: 0.35rem 0 0.35rem 1.2rem; line-height: 1.55; color: rgba(255,255,255,0.85); }
+        .modal-content li::before { content: ""; position: absolute; left: 0; top: 0.85rem; width: 6px; height: 6px; border-radius: 50%; background: #ff8c42; }
+        .modal-content li strong { color: #fff; }
+        .modal-content a { color: #ffd9a8; }
+        .modal-close { position: sticky; top: 0; float: right; margin: -1.25rem -1.5rem 0 0; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); color: white; font-size: 1.6rem; cursor: pointer; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.2s; z-index: 2; }
         .modal-close:hover { background: rgba(255, 140, 66, 0.8); transform: rotate(90deg); }
-        .ai-comparison { background: rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 8px; margin: 1rem 0; border-left: 4px solid #ff8c42; }
+        .modal-close:focus-visible { outline: 3px solid #ffd9a8; outline-offset: 2px; }
+        .ai-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.75rem; }
+        .ai-grid .ai-comparison:last-child:nth-child(odd) { grid-column: 1 / -1; }
+        .ai-comparison { background: rgba(255,255,255,0.05); padding: 0.9rem 1rem; border-radius: 10px; margin: 0; border: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem; line-height: 1.5; color: rgba(255,255,255,0.78); transition: border-color 0.2s; }
+        .ai-comparison:hover { border-color: rgba(255,140,66,0.45); }
+        .ai-comparison strong { color: #ffd9a8; font-size: 1rem; }
+        .ai-record-link { margin-top: 0.9rem; font-size: 0.95rem; }
+        .cai-callout { margin-top: 2rem; padding: 1.25rem 1.4rem 1.1rem; border-radius: 12px; background: rgba(255,140,66,0.09); border: 1px solid rgba(255,140,66,0.3); }
+        .cai-callout h3 { margin-top: 0 !important; border-bottom: 0; padding-bottom: 0; }
+        .cai-quote { margin: 1.75rem auto 0; max-width: 46ch; text-align: center; font-style: italic; font-size: 1.1rem; color: #ffd9a8 !important; }
+        @media (max-width: 640px) { .modal-content { padding: 2rem 1.3rem 1.5rem; width: 94%; } .modal-content h2 { font-size: 1.4rem !important; margin: 0 2.25rem 0.75rem 0 !important; } .modal-close { margin: -0.9rem -0.6rem 0 0; } }
 
         /* --- FLOATING GROKIPEDIA ICON (LEFT SIDE) --- */
         .grokipedia-float {
@@ -278,7 +312,7 @@
             line-height: 1;
         }
 
-        a.grokipedia-float { text-decoration: none; display: block; }
+        a.grokipedia-float { text-decoration: none; }
         a.grokipedia-float:focus-visible .grokipedia-icon { outline: 3px solid #ffd9a8; outline-offset: 3px; }
 
         /* Tooltip */
@@ -1157,6 +1191,7 @@ for prior in [0.001, 0.0024, 0.0033, 0.005]:
 
             <h3>🎯 Major AI Systems</h3>
 
+            <div class="ai-grid">
             <div class="ai-comparison">
                 <strong>Claude (Anthropic)</strong><br>
                 Trained to follow a published set of principles, including honesty. Designed to say when it is uncertain and to correct its own mistakes.
@@ -1181,8 +1216,9 @@ for prior in [0.001, 0.0024, 0.0033, 0.005]:
                 <strong>Copilot (Microsoft)</strong><br>
                 Microsoft's assistant, connected to Bing web search and Microsoft's apps.
             </div>
+            </div>
 
-            <p>How each of these systems handled the resurrection evidence, run by run, is on the <a href="symmetric-record.html" style="color:#ffd9a8">Symmetric Record</a>.</p>
+            <p class="ai-record-link">How each of these systems handled the resurrection evidence, run by run, is on the <a href="symmetric-record.html" style="color:#ffd9a8">Symmetric Record</a>.</p>
 
             <h3>🔍 How They Try to Get It Right</h3>
             <ul>
@@ -1202,6 +1238,7 @@ for prior in [0.001, 0.0024, 0.0033, 0.005]:
                 <li><strong>Hidden starting assumptions:</strong> Unstated philosophical defaults that shape answers before any evidence is weighed</li>
             </ul>
 
+            <div class="cai-callout">
             <h3>✝️ The Christ-Anchored Difference</h3>
             <p><strong>CAI goes beyond current approaches by:</strong></p>
             <ul>
@@ -1212,9 +1249,9 @@ for prior in [0.001, 0.0024, 0.0033, 0.005]:
                 <li>Recognizing that truth is ultimately personal (Jesus: "I am the Truth")</li>
             </ul>
 
-            <p style="margin-top: 2rem; font-style: italic; text-align: center;">
-                "While current AI systems seek truth through algorithms, CAI seeks Truth through the Risen Christ."
-            </p>
+            </div>
+
+            <p class="cai-quote">"While current AI systems seek truth through algorithms, CAI seeks Truth through the Risen Christ."</p>
         </div>
     </div>
 
