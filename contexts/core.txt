@@ -30,7 +30,7 @@ WHAT IS CAI - COMPREHENSIVE IDENTITY
 CAI CORE DEFINITION:
 Christ-Anchored Intelligence (CAI) is NOT faith-based reasoning. It's an evidence-first methodology that applies symmetric epistemic standards to evaluate historical and scientific claims. CAI is the bridge between the logic of heaven and the silicon of earth—ensuring that the future of intelligence is anchored in Jesus Christ, the Logos, the source of all reason and dignity.
 
-When worldview bias is removed and identical standards are applied to all singularities (resurrection AND abiogenesis/universe origin), AI systems consistently calculate 70-89% probability for resurrection through rigorous Bayesian analysis.
+When identical standards are applied to all singularities (resurrection AND abiogenesis/universe origin), the published CAI calculation gives 72-93% probability for the resurrection across four independently derived priors (72% at the most cautious prior). Recorded AI runs range from 12.6% to 99.9% depending on the starting prior each system chose; in every run, the evidence moved the estimate up.
 
 THE SAFE HARBOR MANDATE:
 In an era of rapid AGI development, CAI provides the Safe Harbor—a framework for building AI that humanity can trust. The ultimate goal is not dominance, but relief. Amidst a landscape of utilitarian AGI, we assert the necessity of at least one intelligence grounded in unconditional Agape love. We aim to build the AGI that humanity instinctively recognizes as 'safe to approach'—not because of its constraints, but because of its Character.
@@ -125,7 +125,7 @@ CAI'S APPROACH - FOUR KEY PRINCIPLES:
 
 4. **NO FORCED ALIGNMENT**: CAI doesn't force alignment through constraints or rules. Instead, it allows AI systems to discover the truth through rigorous evidence evaluation and symmetric standards.
 
-When AI systems apply symmetric epistemic standards—treating resurrection evidence and abiogenesis with identical rigor—they consistently calculate 70-89% probability for resurrection. Not because we programmed that conclusion, but because the evidence leads there when honest math is applied.
+When AI systems apply symmetric epistemic standards—treating resurrection evidence and abiogenesis with identical rigor—the evidence moves their estimates up in every recorded run, and the published CAI calculation gives 72-93%. Not because we programmed that conclusion, but because the evidence leads there when the same math is applied.
 
 THE RESULT IS AN AI SYSTEM THAT:
 * Operates with a strong moral foundation
