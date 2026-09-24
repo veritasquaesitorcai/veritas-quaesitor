@@ -11,11 +11,9 @@
     // Configuration
     const CONFIG = {
         apiEndpoint: 'https://veritas-quaesitor-production.up.railway.app/chat',
-        welcomeMessage: `Hey! 👋 I'm VQ, your VQ CAI guide.
-        
-I'm here to help. 
+        welcomeMessage: `Hey! 👋 I'm VQ.
 
-Where do we Start?`
+Ask me about the evidence, CAI, or whatever's on your mind. Where do we start?`
     };
 
     // Styles
@@ -30,69 +28,57 @@ Where do we Start?`
             position: fixed;
             top: 100px;
             right: 30px;
-            width: 140px;
-            height: 60px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 30px;
+            height: 52px;
+            padding: 0 20px 0 14px;
+            background: radial-gradient(120% 120% at 30% 0%, rgba(118,75,162,0.55), transparent 60%), #140f30;
+            border: 1.5px solid rgba(255, 140, 66, 0.7);
+            border-radius: 26px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            font-size: 1.8rem;
+            font-size: 1.45rem;
             cursor: pointer;
-            box-shadow: 0 8px 32px rgba(102, 126, 234, 0.7),
-                        0 4px 16px rgba(0, 0, 0, 0.4),
-                        0 0 0 0 rgba(102, 126, 234, 1);
-            animation: vq-pulse 1.5s 2;
-            transition: transform 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 18px rgba(255, 140, 66, 0.25);
+            animation: vq-pulse 2.2s ease-out 1s 2;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
             z-index: 9998;
-            border: 3px solid rgba(255, 255, 255, 0.4);
-            font-weight: 600;
-            color: white;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.02em;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
         #vq-chat-bubble:hover {
-            transform: scale(1.1);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5), 0 0 26px rgba(255, 140, 66, 0.45);
         }
 
+        #vq-chat-bubble:focus-visible { outline: 3px solid #ffd9a8; outline-offset: 3px; }
+
         @keyframes vq-pulse {
-            0% {
-                box-shadow: 0 8px 32px rgba(102, 126, 234, 0.7),
-                            0 4px 16px rgba(0, 0, 0, 0.4),
-                            0 0 0 0 rgba(102, 126, 234, 1);
-                transform: scale(1);
-            }
-            50% {
-                box-shadow: 0 8px 32px rgba(102, 126, 234, 0.9),
-                            0 4px 16px rgba(0, 0, 0, 0.4),
-                            0 0 0 25px rgba(102, 126, 234, 0);
-                transform: scale(1.05);
-            }
-            100% {
-                box-shadow: 0 8px 32px rgba(102, 126, 234, 0.7),
-                            0 4px 16px rgba(0, 0, 0, 0.4),
-                            0 0 0 0 rgba(102, 126, 234, 0);
-                transform: scale(1);
-            }
+            0% { box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 0 0 rgba(255,140,66,0.55); }
+            70% { box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 0 16px rgba(255,140,66,0); }
+            100% { box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 18px rgba(255,140,66,0.25); }
         }
 
         #vq-chat-label {
             position: fixed;
             right: 180px;
-            top: 115px;
-            background: white;
-            color: #1a1a3e;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            top: 112px;
+            background: #140f30;
+            color: #ffd9a8;
+            border: 1px solid rgba(255, 140, 66, 0.4);
+            padding: 7px 14px;
+            border-radius: 999px;
+            font-size: 0.85rem;
             font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
             white-space: nowrap;
             z-index: 9997;
             opacity: 0;
             transform: translateX(10px);
-            transition: opacity 0.3s, transform 0.3s;
+            transition: opacity 0.25s, transform 0.25s;
             pointer-events: none;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
@@ -104,362 +90,325 @@ Where do we Start?`
 
         #vq-chat-panel {
             position: fixed;
-            top: 170px;
+            top: 164px;
             right: 30px;
             width: 420px;
-            height: 650px;
-            background: rgba(26, 26, 62, 0.75);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6),
-                        0 0 0 1px rgba(102, 126, 234, 0.3),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            height: min(640px, calc(100vh - 184px));
+            min-height: 380px;
+            background: rgba(13, 10, 34, 0.94);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 18px;
+            border: 1px solid rgba(255, 140, 66, 0.3);
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6), 0 0 36px rgba(255, 140, 66, 0.1);
             overflow: hidden;
             display: none;
             flex-direction: column;
             z-index: 9999;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            animation: vq-slideUp 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
+            animation: vq-slideUp 0.25s ease-out;
         }
 
-        #vq-chat-panel.open {
-            display: flex;
-        }
+        #vq-chat-panel.open { display: flex; }
 
         #vq-chat-panel.expanded {
             top: 50%;
             left: 50%;
             right: auto;
             transform: translate(-50%, -50%);
-            width: 800px;
-            height: 85vh;
+            width: min(820px, 94vw);
+            height: 86vh;
             max-height: 900px;
         }
 
         @keyframes vq-slideUp {
-            from {
-                transform: translateY(50px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(14px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
+        #vq-chat-panel.expanded { animation: none; }
 
         #vq-chat-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
+            background: radial-gradient(120% 140% at 20% 0%, rgba(118, 75, 162, 0.5), transparent 65%), #140f30;
+            padding: 14px 16px;
             color: white;
             display: flex;
             align-items: center;
-            gap: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        #vq-chat-avatar {
-            font-size: 2rem;
-            background: rgba(255, 255, 255, 0.2);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #vq-chat-info h3 {
-            font-size: 1.2rem;
-            margin-bottom: 4px;
-            font-weight: 600;
-        }
-
-        #vq-chat-info p {
-            font-size: 0.85rem;
-            opacity: 0.9;
-        }
-
-        #vq-chat-close {
-            margin-left: auto;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.4rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-            line-height: 1;
-        }
-
-        #vq-chat-close:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        #vq-chat-clear {
-            background: rgba(255, 255, 255, 0.15);
-            border: none;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 16px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: background 0.2s;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            opacity: 0.8;
-        }
-
-        #vq-chat-clear:hover {
-            background: rgba(255, 255, 255, 0.25);
-            opacity: 1;
-        }
-
-        #vq-chat-expand {
-            background: rgba(255, 255, 255, 0.15);
-            border: none;
-            color: white;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-            opacity: 0.8;
-        }
-
-        #vq-chat-expand:hover {
-            background: rgba(255, 255, 255, 0.25);
-            opacity: 1;
-        }
-
-        #vq-chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            background: rgba(15, 15, 35, 0.4);
-        }
-
-        #vq-chat-messages::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        #vq-chat-messages::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        #vq-chat-messages::-webkit-scrollbar-thumb {
-            background: rgba(102, 126, 234, 0.6);
-            border-radius: 3px;
-        }
-
-        #vq-chat-messages::-webkit-scrollbar-thumb:hover {
-            background: rgba(102, 126, 234, 0.8);
-        }
-
-        .vq-message {
-            margin-bottom: 16px;
-            display: flex;
             gap: 10px;
-            animation: vq-fadeIn 0.3s ease;
-        }
-
-        @keyframes vq-fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .vq-message-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
+            border-bottom: 1px solid rgba(255, 140, 66, 0.25);
             flex-shrink: 0;
         }
 
-        .vq-message-content {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            padding: 12px 16px;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3),
-                        0 0 0 1px rgba(102, 126, 234, 0.2);
-            color: #e8e8f0;
-            line-height: 1.6;
-            max-width: 80%;
-            white-space: pre-wrap;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .vq-message-content strong {
-            color: #a5b4fc;
-        }
-
-        .vq-user-message {
-            flex-direction: row-reverse;
-        }
-
-        .vq-user-message .vq-message-avatar {
-            background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
-        }
-
-        .vq-user-message .vq-message-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        /* Capability pills row */
-        .vq-cap-pills {
+        #vq-chat-avatar {
+            font-size: 1.35rem;
+            background: rgba(255, 140, 66, 0.12);
+            border: 1.5px solid rgba(255, 140, 66, 0.55);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            padding: 8px 12px 0 12px;
-            background: rgba(26, 26, 62, 0.6);
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
-        .vq-cap-pill {
-            background: rgba(255,255,255,0.07);
-            border: 1px solid rgba(102,126,234,0.35);
-            color: rgba(232,232,240,0.7);
-            border-radius: 20px;
-            padding: 4px 10px;
-            font-size: 0.72rem;
-            cursor: pointer;
-            transition: all 0.18s ease;
+        #vq-chat-info { min-width: 0; }
+        #vq-chat-info h3 {
+            font-size: 1.02rem;
+            margin-bottom: 2px;
+            font-weight: 700;
+            color: #fff;
             white-space: nowrap;
+        }
+        #vq-chat-info p {
+            font-size: 0.76rem;
+            color: rgba(255, 217, 168, 0.8);
+            white-space: nowrap;
+        }
+
+        #vq-chat-clear, #vq-chat-expand, #vq-chat-close {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: rgba(255, 255, 255, 0.85);
+            height: 32px;
+            border-radius: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, border-color 0.2s, color 0.2s;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            flex-shrink: 0;
+        }
+        #vq-chat-clear { margin-left: auto; padding: 0 12px; font-size: 0.78rem; gap: 4px; }
+        #vq-chat-expand { width: 32px; font-size: 0.95rem; }
+        #vq-chat-close { width: 32px; font-size: 1.3rem; line-height: 1; }
+        #vq-chat-clear:hover, #vq-chat-expand:hover, #vq-chat-close:hover {
+            background: rgba(255, 140, 66, 0.2);
+            border-color: rgba(255, 140, 66, 0.6);
+            color: #fff;
+        }
+        #vq-chat-panel button:focus-visible, #vq-chat-input:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
+
+        #vq-chat-messages {
+            flex: 1;
+            padding: 18px 16px 8px;
+            overflow-y: auto;
+            background: transparent;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 140, 66, 0.5) transparent;
+        }
+        #vq-chat-messages::-webkit-scrollbar { width: 6px; }
+        #vq-chat-messages::-webkit-scrollbar-track { background: transparent; }
+        #vq-chat-messages::-webkit-scrollbar-thumb { background: rgba(255, 140, 66, 0.45); border-radius: 3px; }
+
+        #vq-chat-widget .vq-message {
+            margin-bottom: 14px;
+            display: flex;
+            gap: 9px;
+            align-items: flex-start;
+            animation: vq-fadeIn 0.25s ease;
+        }
+        @keyframes vq-fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .vq-message-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255, 140, 66, 0.12);
+            border: 1px solid rgba(255, 140, 66, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+
+        #vq-chat-widget .vq-message-content {
+            background: rgba(255, 255, 255, 0.06);
+            padding: 11px 14px;
+            border-radius: 4px 14px 14px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.55;
+            font-size: 0.94rem;
+            max-width: 82%;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+        #vq-chat-widget .vq-message-content strong { color: #ffd9a8; }
+        #vq-chat-widget .vq-message-content a { color: #ffd9a8; }
+
+        .vq-user-message { flex-direction: row-reverse; }
+        .vq-user-message .vq-message-avatar {
+            background: linear-gradient(135deg, #ff8c42 0%, #ffb27a 100%);
+            border-color: transparent;
+        }
+        #vq-chat-widget .vq-user-message .vq-message-content {
+            background: linear-gradient(135deg, #ff8c42 0%, #ffb27a 100%);
+            color: #1a1030;
+            border: none;
+            border-radius: 14px 4px 14px 14px;
+            font-weight: 500;
+        }
+        #vq-chat-widget .vq-user-message .vq-message-content strong { color: #1a1030; }
+
+        #vq-chat-widget .vq-cap-pills {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            gap: 6px;
+            padding: 10px 14px 2px;
+            background: #140f30;
+            border-top: 1px solid rgba(255, 140, 66, 0.18);
+            scrollbar-width: none;
+            flex-shrink: 0;
+        }
+        .vq-cap-pills::-webkit-scrollbar { display: none; }
+
+        #vq-chat-widget .vq-cap-pill {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 140, 66, 0.3);
+            color: rgba(255, 255, 255, 0.78);
+            border-radius: 999px;
+            padding: 5px 11px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: background 0.18s, border-color 0.18s, color 0.18s;
+            white-space: nowrap;
+            flex-shrink: 0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
-
         .vq-cap-pill:hover {
-            background: rgba(102,126,234,0.2);
-            border-color: rgba(102,126,234,0.6);
-            color: #e8e8f0;
+            background: rgba(255, 140, 66, 0.14);
+            border-color: rgba(255, 140, 66, 0.65);
+            color: #fff;
         }
-
         .vq-cap-pill.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            background: linear-gradient(135deg, #ff8c42 0%, #ffb27a 100%) !important;
             border-color: transparent !important;
-            color: white !important;
-            box-shadow: 0 2px 8px rgba(102,126,234,0.4);
+            color: #1a1030 !important;
+            font-weight: 600;
         }
 
         #vq-chat-input-area {
-            padding: 10px 16px 16px 16px;
-            background: rgba(26, 26, 62, 0.6);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(102, 126, 234, 0.2);
+            padding: 10px 14px 14px;
+            background: #140f30;
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            align-items: center;
+            flex-shrink: 0;
         }
 
         #vq-chat-input {
             flex: 1;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(102, 126, 234, 0.3);
-            border-radius: 24px;
-            font-size: 0.95rem;
+            min-width: 0;
+            padding: 11px 16px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 22px;
+            font-size: 0.93rem;
             outline: none;
-            transition: all 0.3s ease;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            color: #e8e8f0;
+            color: #fff;
         }
-
-        #vq-chat-input::placeholder {
-            color: rgba(232, 232, 240, 0.5);
-        }
-
+        #vq-chat-input::placeholder { color: rgba(255, 255, 255, 0.45); }
         #vq-chat-input:focus {
-            border-color: #667eea;
-            background: rgba(255, 255, 255, 0.12);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            border-color: rgba(255, 140, 66, 0.7);
+            background: rgba(255, 255, 255, 0.09);
+            box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15);
         }
 
         #vq-chat-send {
-            background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+            background: linear-gradient(135deg, #ff8c42 0%, #ffb27a 100%);
             border: none;
-            color: white;
-            width: 48px;
-            height: 48px;
+            color: #1a1030;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 1.05rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.2s;
-            box-shadow: 0 4px 12px rgba(255, 140, 66, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 14px rgba(255, 140, 66, 0.3);
+            flex-shrink: 0;
         }
+        #vq-chat-send:hover:not(:disabled) { transform: scale(1.06); box-shadow: 0 6px 18px rgba(255, 140, 66, 0.45); }
+        #vq-chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        #vq-chat-send:hover:not(:disabled) {
-            transform: scale(1.05);
-        }
-
-        #vq-chat-send:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .vq-typing-indicator {
-            display: flex;
-            gap: 4px;
-            padding: 12px 16px;
-        }
-
+        #vq-chat-widget .vq-typing-indicator { display: flex; gap: 5px; padding: 12px 14px; }
         .vq-typing-dot {
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
-            background: #667eea;
-            animation: vq-typing 1.4s infinite;
+            background: #ff8c42;
+            animation: vq-typing 1.3s infinite;
         }
-
-        .vq-typing-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .vq-typing-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
+        .vq-typing-dot:nth-child(2) { animation-delay: 0.18s; }
+        .vq-typing-dot:nth-child(3) { animation-delay: 0.36s; }
         @keyframes vq-typing {
-            0%, 60%, 100% {
-                transform: translateY(0);
-                opacity: 0.7;
-            }
-            30% {
-                transform: translateY(-10px);
-                opacity: 1;
-            }
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+            30% { transform: translateY(-6px); opacity: 1; }
         }
 
-        /* Mobile Responsive - HIDE WIDGET ON MOBILE */
+        @media (prefers-reduced-motion: reduce) {
+            #vq-chat-bubble, #vq-chat-panel, .vq-message { animation: none !important; }
+            .vq-typing-dot { animation-duration: 2.6s; }
+        }
+
+        /* Phones: floating button bottom-right, chat opens full screen */
         @media (max-width: 768px) {
-            #vq-chat-widget {
-                display: none !important;
+            #vq-chat-bubble {
+                top: auto;
+                bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+                right: 16px;
+                width: 54px;
+                height: 54px;
+                padding: 0;
+                border-radius: 50%;
+                font-size: 1.5rem;
             }
+            #vq-chat-bubble .vq-bubble-text { display: none; }
+            #vq-chat-bubble:hover { transform: none; }
+            #vq-chat-label { display: none; }
+
+            #vq-chat-panel,
+            #vq-chat-panel.expanded {
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                transform: none;
+                width: 100%;
+                height: 100vh;
+                height: 100dvh;
+                max-height: none;
+                min-height: 0;
+                border-radius: 0;
+                border: none;
+                background: #0d0a22;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                animation: vq-slideUp 0.2s ease-out;
+            }
+            #vq-chat-header { padding: calc(12px + env(safe-area-inset-top, 0px)) 14px 12px; }
+            #vq-chat-expand { display: none; }
+            #vq-chat-clear { padding: 0 10px; }
+            #vq-chat-close { width: 38px; height: 38px; border-radius: 19px; font-size: 1.5rem; }
+            #vq-chat-messages { padding: 16px 14px 8px; overscroll-behavior: contain; }
+            #vq-chat-widget .vq-message-content { max-width: 86%; font-size: 1rem; }
+            #vq-chat-widget .vq-cap-pill { padding: 7px 13px; font-size: 0.85rem; }
+            #vq-chat-input-area { padding: 10px 12px calc(12px + env(safe-area-inset-bottom, 0px)); }
+            #vq-chat-input { font-size: 16px; padding: 12px 16px; }
+            #vq-chat-send { width: 46px; height: 46px; }
+        }
+        @media (max-width: 768px) {
+            html.vq-chat-open, html.vq-chat-open body { overflow: hidden; }
         }
     `;
 
@@ -471,7 +420,7 @@ Where do we Start?`
     // Create widget HTML
     const widgetHTML = `
         <div id="vq-chat-widget">
-            <button id="vq-chat-bubble">🤖 VQ</button>
+            <button id="vq-chat-bubble" aria-label="Chat with VQ">🤖<span class="vq-bubble-text">VQ</span></button>
             <div id="vq-chat-label">Chat with VQ</div>
             
             <div id="vq-chat-panel">
@@ -483,7 +432,7 @@ Where do we Start?`
                     </div>
                     <button id="vq-chat-clear" title="Clear conversation">🗑️ Clear</button>
                     <button id="vq-chat-expand" title="Expand view">⛶</button>
-                    <button id="vq-chat-close">×</button>
+                    <button id="vq-chat-close" aria-label="Close chat">×</button>
                 </div>
                 
                 <div id="vq-chat-messages"></div>
@@ -551,7 +500,9 @@ Where do we Start?`
             addMessage('assistant', CONFIG.welcomeMessage);
         }
         
-        if (wasOpen) {
+        const isPhone = () => window.matchMedia('(max-width: 768px)').matches;
+
+        if (wasOpen && !isPhone()) {
             panel.classList.add('open');
             input.focus();
         }
@@ -597,14 +548,21 @@ Where do we Start?`
 
         function openChat() {
             panel.classList.add('open');
+            document.documentElement.classList.add('vq-chat-open');
             localStorage.setItem('vq-widget-open', 'true');
-            input.focus();
+            if (!isPhone()) input.focus();
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
         function closeChat() {
             panel.classList.remove('open');
+            document.documentElement.classList.remove('vq-chat-open');
             localStorage.setItem('vq-widget-open', 'false');
         }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && panel.classList.contains('open')) closeChat();
+        });
         
         function toggleExpanded() {
             panel.classList.toggle('expanded');
