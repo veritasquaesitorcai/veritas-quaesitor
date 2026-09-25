@@ -1,7 +1,7 @@
 import os
 import sys
 import json
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response, stream_with_context
 from flask_cors import CORS
 
 # 1. Initialize App FIRST (before any imports that might fail)
@@ -19,12 +19,18 @@ from collections import defaultdict, deque
 RATE_PER_MINUTE = int(os.environ.get("RATE_PER_MINUTE", "10"))
 RATE_PER_DAY = int(os.environ.get("RATE_PER_DAY", "150"))
 _hits = defaultdict(deque)
+import threading as _threading
+_hits_lock = _threading.Lock()
 
 def _client_ip():
     fwd = request.headers.get("X-Forwarded-For", "")
     return fwd.split(",")[0].strip() if fwd else (request.remote_addr or "unknown")
 
 def _rate_limited(ip):
+    with _hits_lock:
+        return _rate_limited_locked(ip)
+
+def _rate_limited_locked(ip):
     now = _time.time()
     q = _hits[ip]
     while q and now - q[0] > 86400:
@@ -1247,6 +1253,48 @@ def chat():
 
         print(f"Calling Groq API with {len(groq_messages)} messages", flush=True)
         
+        # Streaming reply: words are sent to the browser as they are generated
+        if data.get('stream'):
+            def _sse(obj):
+                return "data: " + json.dumps(obj) + "\n\n"
+
+            def _generate():
+                parts = []
+                try:
+                    stream = groq_client.chat.completions.create(
+                        model="openai/gpt-oss-120b",
+                        messages=groq_messages,
+                        temperature=0.7,
+                        max_tokens=1200,
+                        stream=True
+                    )
+                    for chunk in stream:
+                        if not chunk.choices:
+                            continue
+                        delta = getattr(chunk.choices[0].delta, "content", None)
+                        if delta:
+                            parts.append(delta)
+                            yield _sse({"delta": delta})
+                    if not "".join(parts).strip():
+                        # gpt-oss sometimes puts the whole answer in its reasoning channel; ask again briefly
+                        retry = groq_client.chat.completions.create(
+                            model="openai/gpt-oss-120b",
+                            messages=groq_messages,
+                            temperature=0.7,
+                            max_tokens=1200,
+                            reasoning_effort="low"
+                        )
+                        text = retry.choices[0].message.content or ""
+                        print("[STREAM] empty stream, retried with reasoning_effort=low", flush=True)
+                        yield _sse({"replace": text or "Friend, that one came back empty on my end. Ask me again?"})
+                    yield _sse({"done": True})
+                except Exception as _e:
+                    print(f"[STREAM] error: {_e}", flush=True)
+                    yield _sse({"replace": "Friend, something needs attention. Please try again.", "done": True})
+
+            return Response(stream_with_context(_generate()), mimetype="text/event-stream",
+                            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
         # Call Groq
         completion = groq_client.chat.completions.create(
             model="openai/gpt-oss-120b",
