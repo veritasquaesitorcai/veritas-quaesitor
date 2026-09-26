@@ -852,7 +852,7 @@
         const n = Array.isArray(meta.sources) ? meta.sources.length : 0;
         if (n) return `${(meta.live || []).indexOf('News search') >= 0 ? 'Searched the news' : 'Searched the web'} · ${n} source${n === 1 ? '' : 's'}`;
         if (isBigQuestion(meta)) return 'Christian starting point · naturalism noted';
-        if (meta.mode) return meta.mode;
+        if (meta.mode) return `${meta.mode} mode`;
         const extra = (meta.knowledge || []).filter(k => k !== 'VQ core identity');
         if (extra.length) return `Drew on ${extra[0]}${extra.length > 1 ? ` +${extra.length - 1}` : ''}`;
         if ((meta.live || []).length) return meta.live.join(' · ');
@@ -879,7 +879,14 @@
         if (!text) return;
         const chip = el('button', 'insight-chip');
         chip.type = 'button';
+        chip.title = 'Show what happened behind this answer';
+        chip.setAttribute('aria-label', `Behind this answer: ${text}`);
+        const ic = el('span', 'insight-chip-icon');
+        ic.setAttribute('aria-hidden', 'true');
+        ic.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg>';
+        chip.appendChild(ic);
         chip.appendChild(el('span', null, text));
+        chip.appendChild(el('span', 'insight-chip-more', 'details'));
         chip.addEventListener('click', () => {
             openPanel(isWide());
             focusEntryFor(messageDiv);
@@ -1047,6 +1054,10 @@
         if (!entry) return;
         selectAnswer(messageDiv, entry);
         entry.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        entry.classList.remove('fresh');
+        void entry.offsetWidth;
+        entry.classList.add('fresh');
+        setTimeout(() => entry.classList.remove('fresh'), 1400);
     }
 
     function findQuestionFor(rec) {
