@@ -874,7 +874,7 @@
             box.appendChild(el('p', null, 'Each answer adds an entry here: what VQ drew on, what it searched, the sources it found, and the starting point it answered from.'));
             b.appendChild(box);
         } else {
-            msgs.forEach(m => b.appendChild(buildEntry(m)));
+            msgs.slice().reverse().forEach(m => b.appendChild(buildEntry(m)));   // newest first
         }
         ensureNote();
         scrollPanelToEnd(true);
@@ -886,17 +886,15 @@
         if (empty) empty.remove();
         const entry = buildEntry(messageDiv);
         if (liveEntry) { liveEntry.replaceWith(entry); liveEntry = null; }
-        else b.insertBefore(entry, ensureNote());
+        else b.insertBefore(entry, b.firstChild);
         entry.classList.add('fresh');
         setTimeout(() => entry.classList.remove('fresh'), 1400);
         scrollPanelToEnd();
     }
 
+    // Newest entry sits at the top of the log
     function scrollPanelToEnd(instant) {
-        const b = elements.panelBody;
-        const entries = b.querySelectorAll('.insight-entry');
-        const last = entries[entries.length - 1];
-        if (last) last.scrollIntoView({ behavior: instant ? 'auto' : 'smooth', block: 'start' });
+        elements.panelBody.scrollTo({ top: 0, behavior: instant ? 'auto' : 'smooth' });
     }
 
     function selectAnswer(messageDiv, entry) {
@@ -932,10 +930,11 @@
         const ol = el('ol', 'code');
         ol.id = 'live-steps';
         liveEntry.appendChild(ol);
-        b.insertBefore(liveEntry, ensureNote());
+        b.insertBefore(liveEntry, b.firstChild);
+        ensureNote();
         liveLineNo = 0;
         pushLiveStep('Reading your question');
-        liveEntry.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        scrollPanelToEnd();
     }
 
     function pushLiveStep(label, detail) {
