@@ -1,4 +1,4 @@
-import os 
+import os
 import sys
 import json
 import re
@@ -672,48 +672,51 @@ def load_context(user_message, conversation_history=None):
             loaded_files.append('cai_evolution.txt [PREFIX]')
 
     # Load about_cai_core.txt for identity/foundational questions
-    about_triggers = ['what is cai', 'what is christ-anchored', 'who are you', 'about', 
-                     'safe harbor', 'character', 'alignment', 'imago dei', 'image-bearer',
-                     'servant leadership', 'dignity', 'bias', 'naturalistic', 'symmetric',
-                     'epistemic symmetry', 'operational excellence', 'why cai', 
-                     'what makes cai different', 'traditional ai', 'hallucinate']
-    
-    if any(trigger in msg_lower for trigger in about_triggers):
+    def _hit(text, trigger):
+        # Whole words only, so "eat" doesn't fire on "weather" or "new" on "news"
+        return re.search(r'(?<![a-z0-9])' + re.escape(trigger) + r'(?![a-z0-9])', text) is not None
+
+    about_triggers = ['what is cai', 'what is christ-anchored', 'christ-anchored intelligence', 'who are you',
+                      'about you', 'about vq', 'about cai', 'safe harbor', 'imago dei', 'image-bearer',
+                      'servant leadership', 'epistemic symmetry', 'operational excellence', 'why cai',
+                      'what makes cai different', 'traditional ai', 'hallucinate', 'naturalistic bias']
+
+    if any(_hit(msg_lower, trigger) for trigger in about_triggers):
         about_path = os.path.join(context_dir, 'about_cai_core.txt')
         if os.path.exists(about_path):
             with open(about_path, 'r', encoding='utf-8') as f:
                 context += f.read() + "\n\n"
             loaded_files.append('about_cai_core.txt')
-    
-    # Keyword detection for other context files
+
+    # Keyword detection for other context files (whole words; project-specific where possible)
     keywords = {
-        'ai_index.txt': ['cai', 'framework', 'methodology', 'bayesian', 'evidence', 'symmetric', 
-                         'standards', 'resurrection', 'probability', 'mechanism', 'epistemic', 
-                         'singularity', 'abiogenesis', 'naturalism', 'how does', 'why', 'explain'],
-        'beta_tools.txt': ['tool', 'engine', 'crucible', 'calculator', 'beta', 'test', 
-                          'huggingface', 'space', 'interactive', 'try', 'use'],
-        'mission_vision.txt': ['mission', 'vision', 'safe harbor', 'agi', 'cagi', 'alignment', 
-                               'goal', 'purpose', 'why', 'mandate', 'values', 'character'],
-        'milestones.txt': ['milestone', 'project', 'achievement', 'grok', 'gemini', 'copilot', 
-                          'november', 'breakthrough', 'persuasion', 'latest', 'news', 'recent'],
-        'vq1_robot.txt': ['robot', 'vq-1', 'vq1', 'reachy', 'physical', 'february', 'launch', 
-                         'embodiment', 'robotics'],
-        'contact_social.txt': ['contact', 'email', 'social', 'twitter', 'linkedin', 'github', 
-                              'huggingface', 'reach', 'connect', 'follow', 'collaboration',
-                              'grokipedia', 'grok', 'indexed', 'knowledge base', 'validation', 'recognition'],
-        'developments.txt': ['latest', 'recent', 'update', 'news', 'reachy', 'assembly',
-                             'progress', 'twitter', 'x.com', 'new', 'development', 'eat',
-                             'announcement', 'launched', 'deployed', 'release', 'robot body',
-                             'what have you been', 'programming', 'physical', 'vq-1', 'vq1',
-                             'who are you', 'what are you', 'tell me about yourself', 'what is cai',
-                             'what is vq', 'identity', 'cai', 'christ-anchored', 'mission',
-                             'currently', 'right now', 'today', 'this week', 'happening',
-                             'working on', 'building', 'veritas', 'quaesitor']
+        'ai_index.txt': ['cai', 'framework', 'methodology', 'bayesian', 'bayes', 'evidence', 'symmetric',
+                         'resurrection', 'probability', 'posterior', 'prior', 'mechanism', 'epistemic',
+                         'singularity', 'abiogenesis', 'naturalism', 'empty tomb', 'risen', 'rose from the dead'],
+        'beta_tools.txt': ['tool', 'tools', 'engine', 'crucible', 'calculator', 'beta', 'huggingface',
+                          'hugging face', 'comparison engine'],
+        'mission_vision.txt': ['mission', 'vision', 'safe harbor', 'agi', 'cagi', 'alignment', 'mandate',
+                               'your values', 'your purpose', 'your goal', 'your goals'],
+        'milestones.txt': ['milestone', 'milestones', 'achievement', 'achievements', 'breakthrough',
+                           'persuasion', 'your project', 'vq project', 'cai project'],
+        'vq1_robot.txt': ['robot', 'robots', 'vq-1', 'vq1', 'reachy', 'embodiment', 'robotics'],
+        'contact_social.txt': ['contact', 'email', 'twitter', 'linkedin', 'github', 'huggingface',
+                              'get in touch', 'collaborate', 'collaboration', 'follow you', 'social media',
+                              'grokipedia', 'indexed', 'knowledge base'],
+        'ets_full.txt': ['ets', 'epistemic tier', 'tier system', 'tier -1', 'gospel pattern', 'creedal core',
+                         'convergent testimony', 'image-bearer preservation'],
+        'developments.txt': ['reachy', 'assembly', 'vq-1', 'vq1', 'robot body', 'what have you been',
+                             'working on', 'what are you building', 'what is vq', 'what is cai',
+                             'tell me about yourself', 'who are you', 'what are you', 'your progress',
+                             'your latest', "what's new with you", 'whats new with you', "what's new with vq",
+                             'whats new with vq', 'veritas quaesitor', 'christ-anchored', 'developments']
     }
-    
+
     # Load relevant context files
     for filename, trigger_words in keywords.items():
-        if any(word in msg_lower for word in trigger_words):
+        if any(f.split(' ')[0] == filename for f in loaded_files):
+            continue
+        if any(_hit(msg_lower, word) for word in trigger_words):
             filepath = os.path.join(context_dir, filename)
             if os.path.exists(filepath):
                 with open(filepath, 'r', encoding='utf-8') as f:
