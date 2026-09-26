@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="description" content="VQ Chat - Christ-Anchored Intelligence chat interface for exploring evidence-based faith and AI alignment">
+    <meta name="theme-color" content="#667eea">
+    <title>VQ Chat (panel test) - Veritas Quaesitor</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="stylesheet" href="css/app.css">
+    <link rel="manifest" href="manifest.json">
+    <style>
+        .message-body { display: flex; flex-direction: column; gap: 0.35rem; max-width: 75%; min-width: 0; }
+        .message.user .message-body { align-items: flex-end; }
+        .message-body .message-content { max-width: 100%; }
+        .message-content.rich { white-space: normal; }
+        .message-content .md > :first-child { margin-top: 0; }
+        .message-content .md > :last-child { margin-bottom: 0; }
+        .message-content .md p { margin: 0 0 0.75em; }
+        .message-content .md ul, .message-content .md ol { margin: 0 0 0.75em 1.3em; padding: 0; }
+        .message-content .md li { margin: 0.2em 0; }
+        .message-content .md h1, .message-content .md h2, .message-content .md h3, .message-content .md h4 { margin: 1em 0 0.4em; font-size: 1.05em; }
+        .message-content .md a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+        .message-content .md code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.9em; padding: 0.1em 0.35em; border-radius: 4px; background: rgba(255,255,255,0.08); }
+        .message-content .md pre { overflow-x: auto; padding: 0.75em 1em; border-radius: 8px; background: rgba(0,0,0,0.35); margin: 0 0 0.75em; }
+        .message-content .md pre code { padding: 0; background: none; }
+        .message-content .md blockquote { margin: 0 0 0.75em; padding-left: 0.9em; border-left: 3px solid rgba(255,255,255,0.25); opacity: 0.9; }
+        .message-content .md table { border-collapse: collapse; margin: 0 0 0.75em; display: block; overflow-x: auto; }
+        .message-content .md th, .message-content .md td { border: 1px solid rgba(255,255,255,0.15); padding: 0.35em 0.6em; text-align: left; }
+        .message-content .md hr { border: 0; border-top: 1px solid rgba(255,255,255,0.15); margin: 0.9em 0; }
+        .message-actions { display: flex; gap: 0.4rem; padding-left: 0.25rem; }
+        .msg-action { background: transparent; border: 1px solid rgba(255,255,255,0.14); color: rgba(255,255,255,0.65); font-size: 0.78rem; padding: 0.2rem 0.65rem; border-radius: 999px; cursor: pointer; }
+        .msg-action:hover { color: #fff; border-color: rgba(255,255,255,0.35); }
+        .msg-action:focus-visible, .chat-history-delete:focus-visible, .chat-history-item:focus-visible { outline: 2px solid rgba(255,255,255,0.7); outline-offset: 2px; }
+        .chat-history-delete { margin-left: auto; background: none; border: 0; color: rgba(255,255,255,0.4); font-size: 1.1rem; line-height: 1; cursor: pointer; padding: 0 0.2rem; opacity: 0; transition: opacity 0.15s; }
+        .chat-history-item:hover .chat-history-delete, .chat-history-item.active .chat-history-delete, .chat-history-delete:focus-visible { opacity: 1; }
+        .chat-history-delete:hover { color: #ef4444; }
+        .sidebar.minimized .chat-history-delete { display: none; }
+        @media (hover: none) { .chat-history-delete { opacity: 1; } }
+        @media (max-width: 768px) { .message-body { max-width: 85%; } }
+        .trace { margin: 0.1rem 0 0 0.25rem; font-size: 0.82rem; color: rgba(255,255,255,0.72); }
+        .trace summary { cursor: pointer; width: fit-content; list-style: none; padding: 0.15rem 0.6rem; border-radius: 999px; border: 1px dashed rgba(255,255,255,0.22); }
+        .trace summary::-webkit-details-marker { display: none; }
+        .trace summary::before { content: "\25B8  "; }
+        .trace[open] summary::before { content: "\25BE  "; }
+        .trace summary:focus-visible { outline: 2px solid rgba(255,255,255,0.7); outline-offset: 2px; }
+        .trace dl { margin: 0.6rem 0 0.4rem; padding: 0.75rem 0.9rem; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); display: grid; grid-template-columns: max-content 1fr; gap: 0.45rem 0.9rem; }
+        .trace dt { color: rgba(255,255,255,0.5); }
+        .trace dd { margin: 0; min-width: 0; }
+        .trace ul { margin: 0; padding-left: 1.1em; }
+        .trace a { color: inherit; text-decoration: underline; text-underline-offset: 2px; overflow-wrap: anywhere; }
+        .trace-chip { display: inline-block; margin: 0 0.3rem 0.3rem 0; padding: 0.05rem 0.5rem; border-radius: 999px; background: rgba(255,255,255,0.08); }
+        .trace-note { margin: 0; font-size: 0.75rem; opacity: 0.6; }
+        @media (max-width: 520px) { .trace dl { grid-template-columns: 1fr; } .trace dt { margin-top: 0.3rem; } }
+
+        /* ---- Panel test ---- */
+        :root { --insight-width: 360px; }
+        .insight-toggle { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--border-subtle); background: transparent; color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: background .2s, color .2s; }
+        .insight-toggle:hover, body.insight-open .insight-toggle { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+        .insight-toggle svg { width: 18px; height: 18px; }
+        #insight-panel { width: 0; flex-shrink: 0; overflow: hidden; background: var(--bg-darker); border-left: 1px solid var(--border-subtle); display: flex; flex-direction: column; transition: width .28s ease; }
+        body.insight-open #insight-panel { width: var(--insight-width); }
+        .insight-head { height: var(--header-height); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem 0 1.25rem; border-bottom: 1px solid var(--border-subtle); min-width: var(--insight-width); }
+        .insight-head h2 { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--text-primary); }
+        .insight-close { background: none; border: 0; color: var(--text-tertiary); font-size: 1.4rem; line-height: 1; cursor: pointer; width: 32px; height: 32px; border-radius: 8px; }
+        .insight-close:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
+        #insight-body { flex: 1; overflow-y: auto; padding: 1.1rem 1.25rem 1.5rem; min-width: var(--insight-width); scrollbar-width: thin; }
+        .insight-q { display: flex; flex-direction: column; gap: 0.2rem; padding-bottom: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); }
+        .insight-q-label { font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-tertiary); }
+        .insight-q-text { font-size: 0.95rem; color: var(--text-primary); line-height: 1.45; }
+        .insight-sec { margin-bottom: 1.35rem; }
+        .insight-sec h3 { margin: 0 0 0.6rem; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-tertiary); }
+        .insight-sec p { margin: 0; font-size: 0.88rem; line-height: 1.6; color: var(--text-secondary); }
+        .steps { list-style: none; margin: 0; padding: 0; position: relative; }
+        .step { position: relative; display: grid; grid-template-columns: 14px 1fr auto; gap: 0.7rem; padding: 0 0 0.85rem; }
+        .step::before { content: ""; position: absolute; left: 6px; top: 14px; bottom: 0; width: 1px; background: var(--border-subtle); }
+        .step:last-child::before { display: none; }
+        .step-dot { width: 13px; height: 13px; margin-top: 3px; border-radius: 50%; border: 2px solid rgba(255,140,66,0.85); background: var(--bg-darker); box-sizing: border-box; }
+        .step.done .step-dot, .steps:not(.live) .step-dot { background: rgba(255,140,66,0.85); }
+        .step.active .step-dot { animation: stepPulse 1.2s ease-in-out infinite; }
+        @keyframes stepPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(255,140,66,0.45); } 50% { box-shadow: 0 0 0 5px rgba(255,140,66,0); } }
+        .step-text { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+        .step-label { font-size: 0.88rem; color: var(--text-primary); }
+        .step-detail { font-size: 0.8rem; color: var(--text-tertiary); overflow-wrap: anywhere; }
+        .step-time { font-size: 0.75rem; color: var(--text-tertiary); font-variant-numeric: tabular-nums; padding-top: 2px; }
+        .src-card { display: flex; gap: 0.65rem; align-items: flex-start; padding: 0.65rem 0.75rem; margin-bottom: 0.5rem; border-radius: 10px; border: 1px solid var(--border-subtle); background: rgba(255,255,255,0.03); text-decoration: none; transition: border-color .2s, background .2s; }
+        .src-card:hover { border-color: rgba(255,140,66,0.5); background: rgba(255,255,255,0.05); }
+        .src-num { flex-shrink: 0; width: 20px; height: 20px; border-radius: 6px; background: rgba(255,140,66,0.15); color: #ffb27a; font-size: 0.72rem; display: inline-flex; align-items: center; justify-content: center; }
+        .src-card-text { display: flex; flex-direction: column; min-width: 0; }
+        .src-card-title { font-size: 0.85rem; color: var(--text-primary); line-height: 1.35; }
+        .src-card-host { font-size: 0.75rem; color: var(--text-tertiary); }
+        .insight-empty { padding: 1rem 0 1.5rem; }
+        .insight-empty-title { color: var(--text-primary) !important; font-size: 0.95rem !important; margin-bottom: 0.4rem !important; }
+        .insight-empty p { font-size: 0.88rem; line-height: 1.6; color: var(--text-secondary); margin: 0; }
+        .insight-note { margin: 0.5rem 0 0; padding-top: 1rem; border-top: 1px solid var(--border-subtle); font-size: 0.75rem; line-height: 1.5; color: var(--text-tertiary); }
+        .src-row { display: flex; flex-wrap: wrap; gap: 0.4rem; padding-left: 0.25rem; }
+        .src-chip { display: inline-flex; align-items: center; gap: 0.45rem; max-width: 260px; padding: 0.25rem 0.6rem 0.25rem 0.3rem; border-radius: 8px; border: 1px solid var(--border-subtle); background: rgba(255,255,255,0.03); color: var(--text-secondary); font-size: 0.78rem; text-decoration: none; }
+        .src-chip:hover { border-color: rgba(255,140,66,0.5); color: var(--text-primary); }
+        .src-dot { width: 18px; height: 18px; border-radius: 5px; background: rgba(255,140,66,0.15); color: #ffb27a; font-size: 0.68rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .src-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .insight-chip { align-self: flex-start; margin-left: 0.25rem; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.22rem 0.7rem; border-radius: 999px; border: 1px solid var(--border-subtle); background: transparent; color: var(--text-secondary); font-size: 0.78rem; cursor: pointer; }
+        .insight-chip:hover { color: var(--text-primary); border-color: rgba(255,140,66,0.5); }
+        .insight-chip-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,140,66,0.85); }
+        .message.selected .message-content { box-shadow: 0 0 0 1px rgba(255,140,66,0.45); }
+        .message.pending { align-items: center; }
+        .status-line { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0.25rem; color: var(--text-secondary); font-size: 0.95rem; }
+        .status-pulse { width: 9px; height: 9px; border-radius: 50%; background: #ff8c42; animation: stepPulse 1.2s ease-in-out infinite; flex-shrink: 0; }
+        .status-text { color: var(--text-primary); }
+        .status-detail { color: var(--text-tertiary); font-size: 0.85rem; }
+        .input-disclaimer { text-align: center; font-size: 0.75rem; color: var(--text-tertiary); margin-top: 0.4rem; }
+        #insight-scrim { display: none; }
+        @media (max-width: 1099px) {
+            #insight-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(92vw, var(--insight-width)) !important; transform: translateX(100%); transition: transform .28s ease; z-index: 200; box-shadow: -20px 0 50px rgba(0,0,0,0.5); }
+            body.insight-open #insight-panel { transform: translateX(0); }
+            .insight-head, #insight-body { min-width: 0; }
+            body.insight-open #insight-scrim { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 150; }
+        }
+        @media (prefers-reduced-motion: reduce) { #insight-panel, .step.active .step-dot, .status-pulse { transition: none; animation: none; } }
+    </style>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🤖%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+    <div id="app-container">
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-top">
+                <button id="sidebar-toggle" class="sidebar-toggle" title="Toggle sidebar">
+                    ≡
+                </button>
+            </div>
+            
+            <div class="sidebar-header">
+                <button id="new-chat-btn" class="new-chat-btn">
+                    <span class="icon">✏️</span>
+                    <span class="text">New Chat</span>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-label">Recent Chats</div>
+                    <div id="chat-history" class="chat-history">
+                        <div class="empty-state">No conversations yet</div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="sidebar-btn" id="help-btn">
+                    <span>ℹ️</span>
+                    <span>About VQ</span>
+                </button>
+            </div>
+        </aside>
+
+        <div id="main-content" class="main-content">
+            <header id="app-header">
+                <div class="header-center">
+                    <div class="app-avatar-small">🤖</div>
+                    <h1 class="app-title">Veritas Quaesitor</h1>
+                </div>
+
+                <div class="header-right">
+                    <span class="status-indicator">
+                        <span class="status-dot"></span>
+                        <span id="status-text">Online</span>
+                    </span>
+                    <button id="insight-toggle" class="insight-toggle" type="button" aria-controls="insight-panel" aria-expanded="false" title="Behind this answer" aria-label="Show or hide answer details">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg>
+                    </button>
+                </div>
+            </header>
+
+            <main id="chat-container">
+                <div id="messages-area"></div>
+                
+                <div id="welcome-screen" class="welcome-screen">
+                    <div class="welcome-avatar">🤖</div>
+                    <h2 class="welcome-title">Hey! I'm VQ</h2>
+                    <p class="welcome-subtitle">Your guide to Christ-Anchored Intelligence</p>
+                    
+                    <div class="suggestion-grid">
+                        <button class="suggestion-card cai-card-rotate-1" data-prompt-a="Explain CAI methodology" data-prompt-b="What evidence supports the resurrection?" data-prompt-c="How does Bayesian reasoning apply to faith?">
+                            <span class="suggestion-icon">🧭</span>
+                            <span class="suggestion-text cai-text-rotate-1"></span>
+                        </button>
+                        <button class="suggestion-card cai-card-rotate-2" data-prompt-a="Tell me about the Beta Tools" data-prompt-b="How does CAI handle mechanism challenges?" data-prompt-c="What is Epistemic Truth Symmetry?">
+                            <span class="suggestion-icon">📊</span>
+                            <span class="suggestion-text cai-text-rotate-2"></span>
+                        </button>
+                        <button class="suggestion-card" data-prompt="tell me new fun stories">
+                            <span class="suggestion-icon">🎭</span>
+                            <span class="suggestion-text">Fictional Robot stories</span>
+                        </button>
+                    </div>
+                </div>
+            </main>
+
+            <footer id="input-area">
+                <div class="input-container">
+
+                    <div class="cap-pills-row">
+                        <button class="cap-pill" data-mode="[DDG SEARCH]" title="Force DuckDuckGo web search">🔍 DDG Search</button>
+                        <button class="cap-pill" data-mode="[TIME AND WEATHER]" title="Get live weather and time for any city">🌤⏰ Time & Weather</button>
+                        <button class="cap-pill" data-mode="[DDG NEWS]" title="Force DuckDuckGo news search">📰 DDG News</button>
+                        <button class="cap-pill" data-mode="[RUN ETS]" title="Deploy full Epistemic Tier System">⚖️ ETS</button>
+                        <button class="cap-pill" data-mode="[CAI VQA MODE]" title="Counter-AI rebuttal mode">🛡 Counter-AI</button>
+                        <button class="cap-pill" data-mode="[CAI EVOLUTION]" title="CAI position on evolutionary naturalism">🧬 CAI Evolution</button>
+                    </div>
+
+                    <div class="input-wrapper">
+                        <button class="input-btn mobile-new-chat-btn" id="mobile-new-chat-btn" title="New Chat">
+                            <span>✏️</span>
+                        </button>
+                        
+                        <textarea 
+                            id="message-input" 
+                            placeholder="Ask about CAI, resurrection evidence, or anything..."
+                            rows="1"
+                            maxlength="2000"
+                        ></textarea>
+                        
+                        <button id="send-btn" class="send-btn" disabled>
+                            <span>➤</span>
+                        </button>
+                    </div>
+                    
+                    <p class="input-disclaimer">VQ can make mistakes. Check sources on anything important.</p>
+                    <div class="input-footer">
+                        <span class="char-count" id="char-count">0 / 2000</span>
+                        <span class="footer-links">
+                            VQ Chat v3.1 • 
+                            <a href="../privacy.html" target="_blank">Privacy</a> • 
+                            <a href="../terms.html" target="_blank">Terms</a>
+                        </span>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
+        <aside id="insight-panel" aria-label="Behind this answer">
+            <div class="insight-head">
+                <h2>Behind this answer</h2>
+                <button id="insight-close" class="insight-close" type="button" aria-label="Close panel">×</button>
+            </div>
+            <div id="insight-body"></div>
+        </aside>
+        <div id="insight-scrim"></div>
+    </div>
+
+    <div id="info-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="close-modal">×</button>
+            <div class="modal-header">
+                <div class="modal-avatar">🤖</div>
+                <h2>About VQ</h2>
+            </div>
+            <div class="modal-body">
+                <p><strong>Veritas Quaesitor</strong> means "Truth Seeker" in Latin.</p>
+                
+                <p>I'm a Christ-Anchored Intelligence (CAI v3.1) designed to explore truth through rigorous evidence and symmetric reasoning.</p>
+                
+                <h3>What I Can Help With:</h3>
+                <ul>
+                    <li>CAI methodology and framework</li>
+                    <li>Resurrection evidence analysis</li>
+                    <li>Bayesian reasoning for faith claims</li>
+                    <li>Beta Tools exploration</li>
+                    <li>AI alignment and ethics</li>
+                    <li>General theological discussion</li>
+                </ul>
+                
+                <h3>Mission:</h3>
+                <p>Building defensive infrastructure for truth in the AI age. All truth leads to Christ.</p>
+                
+                <div class="modal-links">
+                    <a href="https://veritasquaesitorcai.github.io" target="_blank">Visit Website</a>
+                    <a href="https://github.com/VeritasQuaesitorCAI" target="_blank">GitHub</a>
+                    <a href="mailto:veritasquaesitorai@gmail.com">Contact</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
+    <script src="js/chat-app-test.js"></script>
+</body>
+</html>
