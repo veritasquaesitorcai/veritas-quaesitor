@@ -39,7 +39,7 @@
         .table-expand { margin-top: 0.4rem; background: transparent; border: 1px solid rgba(255,255,255,0.14); color: rgba(255,255,255,0.65); font-size: 0.75rem; padding: 0.2rem 0.65rem; border-radius: 999px; cursor: pointer; }
         .table-expand:hover { color: #fff; border-color: rgba(255,255,255,0.35); }
         .table-card { margin: 0.4em 0 1em; width: min(34rem, 100%); border: 1px solid rgba(255,255,255,0.14); border-radius: 12px; background: rgba(255,255,255,0.03); cursor: pointer; overflow: hidden; transition: border-color .2s, background .2s, transform .2s; }
-        .table-card:hover { border-color: rgba(255,140,66,0.55); background: rgba(255,255,255,0.05); }
+        .table-card:hover { border-color: rgba(var(--ui-accent-rgb),0.55); background: rgba(255,255,255,0.05); }
         .table-card:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
         .table-card-head { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0.85rem; }
         .table-card-icon { flex-shrink: 0; width: 36px; height: 36px; border-radius: 9px; background: rgba(130,170,255,0.12); color: #82aaff; display: inline-flex; align-items: center; justify-content: center; }
@@ -47,8 +47,8 @@
         .table-card-meta { display: flex; flex-direction: column; min-width: 0; flex: 1; }
         .table-card-title { font-weight: 600; font-size: 0.92rem; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .table-card-size { font-size: 0.78rem; color: var(--text-tertiary); }
-        .table-card-open { flex-shrink: 0; padding: 0.45rem 0.9rem; border-radius: 999px; background: linear-gradient(135deg, #ff8c42, #ffb27a); color: #1a1030; font-weight: 700; font-size: 0.82rem; }
-        .table-card:hover .table-card-open { box-shadow: 0 0 16px rgba(255,140,66,0.45); }
+        .table-card-open { flex-shrink: 0; padding: 0.45rem 0.9rem; border-radius: 999px; background: linear-gradient(135deg, var(--ui-accent), var(--ui-accent-2)); color: #1a1030; font-weight: 700; font-size: 0.82rem; }
+        .table-card:hover .table-card-open { box-shadow: 0 0 16px rgba(var(--ui-accent-rgb),0.45); }
         .table-preview-wrap { border-top: 1px solid rgba(255,255,255,0.08); max-height: 7.2rem; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent); mask-image: linear-gradient(to bottom, #000 55%, transparent); pointer-events: none; }
         .md .table-preview { width: 100%; min-width: 0; table-layout: fixed; font-size: 0.78rem; }
         .md .table-preview th, .md .table-preview td { min-width: 0; max-width: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0.35em 0.7em; }
@@ -109,7 +109,7 @@
         /* ---- Panel test ---- */
         :root {
             --sidebar-width: clamp(240px, 19vw, 380px); --insight-width: clamp(260px, 19vw, 380px);
-            --ui-scale: 1; --ui-line: 1.6; --chat-max: 56rem; --ui-accent: #ff8c42;
+            --ui-scale: 1; --ui-line: 1.6; --chat-max: 56rem; --ui-accent: #ff8c42; --ui-accent-2: #ffb27a; --ui-accent-rgb: 255,140,66;
             --tk-kw: #c792ea; --tk-fn: #ffcb6b; --tk-str: #c3e88d; --tk-num: #f78c6c; --tk-id: #82aaff; --tk-com: #6b7394;
             --mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
         }
@@ -127,7 +127,7 @@
         #insight-body { flex: 1; overflow-y: auto; padding: 0.4rem 0 1.5rem; min-width: var(--insight-width); scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent; }
         .insight-entry { padding: 1rem 1.25rem 1.1rem; border-bottom: 1px solid var(--border-subtle); cursor: pointer; transition: background .3s; scroll-margin-top: 0.5rem; }
         .insight-entry:hover { background: rgba(255,255,255,0.02); }
-        .insight-entry.selected { background: rgba(255,140,66,0.05); box-shadow: inset 2px 0 0 rgba(255,140,66,0.8); }
+        .insight-entry.selected { background: rgba(var(--ui-accent-rgb),0.05); box-shadow: inset 2px 0 0 rgba(var(--ui-accent-rgb),0.8); }
         .insight-entry.live { cursor: default; }
         .insight-entry.fresh { animation: entryIn 1.4s ease-out; }
         @keyframes entryIn { from { background: rgba(130,170,255,0.08); } to { background: transparent; } }
@@ -165,7 +165,7 @@
         .insight-chip-icon svg { width: 13px; height: 13px; }
         .insight-chip-more { color: var(--tk-com); }
         .insight-chip:hover .insight-chip-more { color: var(--tk-id); }
-        .message.selected .message-content { box-shadow: 0 0 0 1px rgba(255,140,66,0.45); }
+        .message.selected .message-content { box-shadow: 0 0 0 1px rgba(var(--ui-accent-rgb),0.45); }
         .message.pending { align-items: center; }
         .status-line { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.5rem 0.25rem; font-family: var(--mono); font-size: 0.88rem; }
         .status-line .status-text { color: var(--tk-kw); }
@@ -190,6 +190,13 @@
         body.ui-focus .main-content { margin-left: 0 !important; }
         .insight-chip, .table-card-open, .status-line .status-text { accent-color: var(--ui-accent); }
         .send-btn, #send-btn { background: var(--accent-gradient) !important; }
+        /* Accent colour reaches the visible parts of the app when the user picks one */
+        body.ui-accent-custom .message.user .message-content { background: var(--accent-gradient); color: #16112e; border-color: transparent; }
+        body.ui-accent-custom .new-chat-btn { border-color: rgba(var(--ui-accent-rgb),0.6); }
+        body.ui-accent-custom .insight-chip { border-color: rgba(var(--ui-accent-rgb),0.4); }
+        body.ui-accent-custom .message-content a { color: var(--ui-accent-2); }
+        body.ui-accent-custom .cap-pill { border-color: rgba(var(--ui-accent-rgb),0.45); }
+        body.ui-accent-custom #message-input:focus, body.ui-accent-custom .input-wrapper:focus-within { border-color: rgba(var(--ui-accent-rgb),0.7) !important; }
         @media (max-width: 1279px) {
             #insight-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(92vw, var(--insight-width)) !important; transform: translateX(100%); transition: transform .28s ease; z-index: 200; box-shadow: -20px 0 50px rgba(0,0,0,0.5); }
             body.insight-open #insight-panel { transform: translateX(0); }
@@ -367,6 +374,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-09-26-ui"></script>
+    <script src="js/chat-app-test.js?v=2026-09-26-accent"></script>
 </body>
 </html>
