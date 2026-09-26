@@ -949,8 +949,9 @@
         ol.appendChild(codeLine(++n, 'Gathered', "what's relevant", extra.length ? extra.join(', ') : 'core knowledge only', null, { detailClass: extra.length ? 'tk-fn' : 'tk-str' }));
         (meta.steps || []).forEach(st => {
             const [v, r] = splitVerb(st.label);
-            const k = (meta.sources || []).length;
-            ol.appendChild(codeLine(++n, v, r, k ? `${k} sources found` : 'no usable results', st.ms));
+            const k = typeof st.found === 'number' ? st.found : (meta.sources || []).length;
+            const q = st.query ? `"${st.query}" · ` : '';
+            ol.appendChild(codeLine(++n, v, r, `${q}${k ? `${k} sources found` : 'no usable results'}`, st.ms));
         });
         (meta.live || []).filter(x => /weather|time|image/i.test(x)).forEach(x => ol.appendChild(codeLine(++n, 'Fetched', x.toLowerCase())));
         if (isBigQuestion(meta)) ol.appendChild(codeLine(++n, 'Answered', 'from a Christian starting point', 'naturalism named as another view', null, { restClass: 'tk-fn' }));
