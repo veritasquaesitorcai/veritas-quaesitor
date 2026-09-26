@@ -289,6 +289,7 @@
     function renderActiveChat() {
         elements.messagesArea.textContent = '';
         if (conversationHistory.length === 0) {
+            if (elements.panel) rebuildPanelLog();
             showWelcomeScreen();
             elements.chatContainer.classList.remove('has-messages');
             return;
@@ -296,7 +297,7 @@
         hideWelcomeScreen();
         elements.chatContainer.classList.add('has-messages');
         conversationHistory.forEach(msg => { const d = addMessageToUI(msg.role, msg.content, msg.meta); if (d && msg.role === 'assistant') d._record = msg; });
-        showLatestInPanel();
+        rebuildPanelLog();
         refreshRetryButton();
         scrollToBottom();
     }
@@ -655,11 +656,12 @@
     }
 
 
-    // ---------- "Behind this answer" side panel ----------
+    // ---------- "Behind this answer" side panel (a running log, one entry per answer) ----------
 
     const PANEL_KEY = 'vq-insight-panel';
-    let panelMessageDiv = null;
-    let liveSteps = null;
+    const entryFor = new WeakMap();   // answer record -> panel entry element
+    let liveEntry = null;
+    let liveLineNo = 0;
 
     function isWide() { return window.matchMedia('(min-width: 1100px)').matches; }
 
@@ -670,13 +672,13 @@
         elements.panelClose.addEventListener('click', () => closePanel(true));
         elements.panelToggle.addEventListener('click', () => {
             if (document.body.classList.contains('insight-open')) closePanel(true);
-            else { openPanel(true); showLatestInPanel(); }
+            else { openPanel(true); scrollPanelToEnd(); }
         });
         elements.panelScrim.addEventListener('click', () => closePanel(false));
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && document.body.classList.contains('insight-open') && !isWide()) closePanel(false);
         });
-        showLatestInPanel();
+        rebuildPanelLog();
     }
 
     function openPanel(remember) {
@@ -689,13 +691,6 @@
         document.body.classList.remove('insight-open');
         elements.panelToggle.setAttribute('aria-expanded', 'false');
         if (remember) localStorage.setItem(PANEL_KEY, 'closed');
-        markSelected(null);
-    }
-
-    function markSelected(div) {
-        elements.messagesArea.querySelectorAll('.message.selected').forEach(m => m.classList.remove('selected'));
-        if (div) div.classList.add('selected');
-        panelMessageDiv = div;
     }
 
     function el(tag, cls, text) {
@@ -746,115 +741,176 @@
         if (!text) return;
         const chip = el('button', 'insight-chip');
         chip.type = 'button';
-        chip.appendChild(el('span', 'insight-chip-dot'));
         chip.appendChild(el('span', null, text));
         chip.addEventListener('click', () => {
             openPanel(isWide());
-            renderPanelFor(messageDiv);
+            focusEntryFor(messageDiv);
         });
         body.appendChild(chip);
     }
 
-    function showLatestInPanel() {
-        if (!elements.panel) return;
-        const msgs = elements.messagesArea.querySelectorAll('.message:not(.user):not(.pending):not(.streaming)');
-        for (let i = msgs.length - 1; i >= 0; i--) {
-            if (msgs[i]._record) { renderPanelFor(msgs[i]); return; }
+    // ---- code-style colouring: verbs like keywords, names like functions, values like strings, numbers like numbers
+    function colorize(parent, text, base) {
+        String(text).split(/(\d+(?:\.\d+)?)/).forEach(part => {
+            if (!part) return;
+            parent.appendChild(el('span', /^\d/.test(part) ? 'tk-num' : base, part));
+        });
+    }
+
+    function codeLine(no, verb, rest, detail, ms, opts) {
+        opts = opts || {};
+        const li = el('li', 'cl' + (opts.active ? ' active' : ''));
+        li.appendChild(el('span', 'cl-no', String(no)));
+        const txt = el('span', 'cl-txt');
+        txt.appendChild(el('span', 'tk-kw', verb));
+        if (rest) { txt.appendChild(document.createTextNode(' ')); txt.appendChild(el('span', opts.restClass || 'tk-id', rest)); }
+        if (detail) {
+            const d = el('span', 'cl-detail');
+            d.appendChild(el('span', 'tk-com', '→ '));
+            colorize(d, detail, opts.detailClass || 'tk-str');
+            txt.appendChild(d);
         }
-        renderEmptyPanel();
-    }
-
-    function renderEmptyPanel() {
-        const b = elements.panelBody;
-        b.textContent = '';
-        markSelected(null);
-        const box = el('div', 'insight-empty');
-        box.appendChild(el('p', 'insight-empty-title', 'Details for each answer appear here'));
-        box.appendChild(el('p', null, 'What VQ drew on, what it searched, the sources it found, and the starting point it answered from.'));
-        b.appendChild(box);
-        b.appendChild(footerNote());
-    }
-
-    function footerNote() {
-        return el('p', 'insight-note', "Recorded by VQ's system while preparing each answer, not written by the model. VQ can make mistakes, so check sources on anything important.");
-    }
-
-    function stepRow(label, detail, ms, state) {
-        const li = el('li', 'step' + (state ? ' ' + state : ''));
-        li.appendChild(el('span', 'step-dot'));
-        const t = el('div', 'step-text');
-        t.appendChild(el('span', 'step-label', label));
-        if (detail) t.appendChild(el('span', 'step-detail', detail));
-        li.appendChild(t);
-        if (typeof ms === 'number') li.appendChild(el('span', 'step-time', ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`));
+        if (opts.active) txt.appendChild(el('span', 'cl-cursor'));
+        li.appendChild(txt);
+        if (typeof ms === 'number') li.appendChild(el('span', 'cl-ms tk-num', ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`));
         return li;
     }
 
-    function renderPanelFor(messageDiv) {
-        const rec = messageDiv && messageDiv._record;
-        if (!rec) { renderEmptyPanel(); return; }
-        markSelected(messageDiv);
+    function splitVerb(label) {
+        const i = label.indexOf(' ');
+        return i < 0 ? [label, ''] : [label.slice(0, i), label.slice(i + 1)];
+    }
+
+    function entryHeader(label, question) {
+        const h = el('div', 'entry-head');
+        h.appendChild(el('span', 'tk-com', `// ${label}`));
+        const q = question.length > 110 ? question.slice(0, 108) + '…' : question;
+        h.appendChild(el('span', 'tk-str entry-q', `"${q}"`));
+        return h;
+    }
+
+    function buildEntry(messageDiv) {
+        const rec = messageDiv._record;
         const meta = rec.meta || {};
-        const b = elements.panelBody;
-        b.textContent = '';
+        const art = el('article', 'insight-entry');
+        art.appendChild(entryHeader('answer to', findQuestionFor(rec) || ''));
 
-        const q = findQuestionFor(rec);
-        if (q) {
-            const head = el('div', 'insight-q');
-            head.appendChild(el('span', 'insight-q-label', 'Answer to'));
-            head.appendChild(el('span', 'insight-q-text', q.length > 90 ? q.slice(0, 88) + '…' : q));
-            b.appendChild(head);
-        }
-
-        // Steps
-        const sec = el('section', 'insight-sec');
-        sec.appendChild(el('h3', null, 'Steps'));
-        const ol = el('ol', 'steps');
+        const ol = el('ol', 'code');
+        let n = 0;
         const extra = (meta.knowledge || []).filter(k => k !== 'VQ core identity');
-        ol.appendChild(stepRow('Read your question', meta.mode ? `Mode: ${meta.mode}` : null));
-        ol.appendChild(stepRow("Gathered what's relevant", extra.length ? `Drew on ${extra.join(', ')}` : 'Core knowledge only'));
-        (meta.steps || []).forEach(st => ol.appendChild(stepRow(st.label, (meta.sources || []).length ? `${meta.sources.length} sources found` : 'No usable results', st.ms)));
-        (meta.live || []).filter(x => /weather|time|image/i.test(x)).forEach(x => ol.appendChild(stepRow(x)));
-        if (isBigQuestion(meta)) ol.appendChild(stepRow('Answered from a Christian starting point', 'Naturalism named as another view'));
+        ol.appendChild(codeLine(++n, 'Read', 'your question', meta.mode ? `mode: ${meta.mode}` : null));
+        ol.appendChild(codeLine(++n, 'Gathered', "what's relevant", extra.length ? extra.join(', ') : 'core knowledge only', null, { detailClass: extra.length ? 'tk-fn' : 'tk-str' }));
+        (meta.steps || []).forEach(st => {
+            const [v, r] = splitVerb(st.label);
+            const k = (meta.sources || []).length;
+            ol.appendChild(codeLine(++n, v, r, k ? `${k} sources found` : 'no usable results', st.ms));
+        });
+        (meta.live || []).filter(x => /weather|time|image/i.test(x)).forEach(x => ol.appendChild(codeLine(++n, 'Fetched', x.toLowerCase())));
+        if (isBigQuestion(meta)) ol.appendChild(codeLine(++n, 'Answered', 'from a Christian starting point', 'naturalism named as another view', null, { restClass: 'tk-fn' }));
         const tm = rec.timing || {};
-        ol.appendChild(stepRow('Wrote the answer', typeof tm.firstMs === 'number' && tm.firstMs >= 100 ? `First words after ${(tm.firstMs / 1000).toFixed(1)} s` : null, tm.totalMs));
-        sec.appendChild(ol);
-        b.appendChild(sec);
+        ol.appendChild(codeLine(++n, 'Wrote', 'the answer', typeof tm.firstMs === 'number' && tm.firstMs >= 100 ? `first words after ${(tm.firstMs / 1000).toFixed(1)}s` : null, tm.totalMs));
+        art.appendChild(ol);
 
         if (isBigQuestion(meta)) {
-            const sp = el('section', 'insight-sec');
-            sp.appendChild(el('h3', null, 'Starting point'));
+            const sp = el('div', 'entry-block');
+            sp.appendChild(el('span', 'tk-com', '// starting point'));
             sp.appendChild(el('p', null, 'This answer comes from a Christian view of reality: the world is created and held in being by God, and minds, moral truth and meaning are real. Naturalism starts from a different assumption, and VQ names it as a view rather than treating it as the default.'));
-            b.appendChild(sp);
+            art.appendChild(sp);
         }
 
         const sources = Array.isArray(meta.sources) ? meta.sources : [];
         if (sources.length) {
-            const ss = el('section', 'insight-sec');
-            ss.appendChild(el('h3', null, `Sources · ${sources.length}`));
+            const ss = el('div', 'entry-block');
+            ss.appendChild(el('span', 'tk-com', `// sources (${sources.length})`));
             sources.forEach((src, i) => {
                 let url;
                 try { url = new URL(src.url); } catch (e) { return; }
                 if (url.protocol !== 'https:' && url.protocol !== 'http:') return;
                 const a = el('a', 'src-card');
                 a.href = url.href; a.target = '_blank'; a.rel = 'noopener noreferrer';
-                a.appendChild(el('span', 'src-num', String(i + 1)));
+                a.appendChild(el('span', 'tk-num src-num', `[${i + 1}]`));
                 const tx = el('span', 'src-card-text');
                 tx.appendChild(el('span', 'src-card-title', src.title || url.hostname));
-                tx.appendChild(el('span', 'src-card-host', hostOf(url.href)));
+                tx.appendChild(el('span', 'tk-fn src-card-host', hostOf(url.href)));
                 a.appendChild(tx);
                 ss.appendChild(a);
             });
-            b.appendChild(ss);
+            art.appendChild(ss);
         }
 
-        const cx = el('section', 'insight-sec');
-        cx.appendChild(el('h3', null, 'Context'));
-        cx.appendChild(el('p', null, typeof meta.history_used === 'number' && meta.history_used ? `Used the last ${meta.history_used} messages of this chat.` : 'First message in this chat.'));
-        b.appendChild(cx);
+        const cx = el('div', 'entry-ctx');
+        cx.appendChild(el('span', 'tk-com', '// context: '));
+        colorize(cx, typeof meta.history_used === 'number' && meta.history_used ? `used the last ${meta.history_used} messages` : 'first message in this chat', 'tk-id');
+        art.appendChild(cx);
 
-        b.appendChild(footerNote());
-        b.scrollTop = 0;
+        art.addEventListener('click', (e) => {
+            if (e.target.closest('a')) return;
+            selectAnswer(messageDiv, art);
+            messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+        entryFor.set(rec, art);
+        return art;
+    }
+
+    function panelNote() {
+        return el('p', 'insight-note', "Recorded by VQ's system while preparing each answer, not written by the model. VQ can make mistakes, so check sources on anything important.");
+    }
+
+    function ensureNote() {
+        let note = elements.panelBody.querySelector('.insight-note');
+        if (!note) { note = panelNote(); elements.panelBody.appendChild(note); }
+        return note;
+    }
+
+    function rebuildPanelLog() {
+        if (!elements.panel) return;
+        const b = elements.panelBody;
+        b.textContent = '';
+        liveEntry = null;
+        const msgs = [...elements.messagesArea.querySelectorAll('.message:not(.user):not(.pending):not(.streaming)')].filter(m => m._record);
+        if (!msgs.length) {
+            const box = el('div', 'insight-empty');
+            box.appendChild(el('span', 'tk-com', '// nothing here yet'));
+            box.appendChild(el('p', null, 'Each answer adds an entry here: what VQ drew on, what it searched, the sources it found, and the starting point it answered from.'));
+            b.appendChild(box);
+        } else {
+            msgs.forEach(m => b.appendChild(buildEntry(m)));
+        }
+        ensureNote();
+        scrollPanelToEnd(true);
+    }
+
+    function addPanelEntry(messageDiv) {
+        const b = elements.panelBody;
+        const empty = b.querySelector('.insight-empty');
+        if (empty) empty.remove();
+        const entry = buildEntry(messageDiv);
+        if (liveEntry) { liveEntry.replaceWith(entry); liveEntry = null; }
+        else b.insertBefore(entry, ensureNote());
+        entry.classList.add('fresh');
+        setTimeout(() => entry.classList.remove('fresh'), 1400);
+        scrollPanelToEnd();
+    }
+
+    function scrollPanelToEnd(instant) {
+        const b = elements.panelBody;
+        const entries = b.querySelectorAll('.insight-entry');
+        const last = entries[entries.length - 1];
+        if (last) last.scrollIntoView({ behavior: instant ? 'auto' : 'smooth', block: 'start' });
+    }
+
+    function selectAnswer(messageDiv, entry) {
+        elements.messagesArea.querySelectorAll('.message.selected').forEach(m => m.classList.remove('selected'));
+        elements.panelBody.querySelectorAll('.insight-entry.selected').forEach(e => e.classList.remove('selected'));
+        if (messageDiv) messageDiv.classList.add('selected');
+        if (entry) entry.classList.add('selected');
+    }
+
+    function focusEntryFor(messageDiv) {
+        const entry = messageDiv._record && entryFor.get(messageDiv._record);
+        if (!entry) return;
+        selectAnswer(messageDiv, entry);
+        entry.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function findQuestionFor(rec) {
@@ -865,30 +921,36 @@
         return null;
     }
 
-    // Live view while an answer is being prepared
+    // Live entry while an answer is being prepared: appended below the earlier entries
     function startLivePanel(question) {
-        liveSteps = [];
-        markSelected(null);
         const b = elements.panelBody;
-        b.textContent = '';
-        const head = el('div', 'insight-q');
-        head.appendChild(el('span', 'insight-q-label', 'Working on'));
-        head.appendChild(el('span', 'insight-q-text', question.length > 90 ? question.slice(0, 88) + '…' : question));
-        b.appendChild(head);
-        const sec = el('section', 'insight-sec');
-        sec.appendChild(el('h3', null, 'Steps'));
-        const ol = el('ol', 'steps live');
+        const empty = b.querySelector('.insight-empty');
+        if (empty) empty.remove();
+        if (liveEntry) liveEntry.remove();
+        liveEntry = el('article', 'insight-entry live');
+        liveEntry.appendChild(entryHeader('working on', question));
+        const ol = el('ol', 'code');
         ol.id = 'live-steps';
-        sec.appendChild(ol);
-        b.appendChild(sec);
+        liveEntry.appendChild(ol);
+        b.insertBefore(liveEntry, ensureNote());
+        liveLineNo = 0;
         pushLiveStep('Reading your question');
+        liveEntry.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function pushLiveStep(label, detail) {
         const ol = document.getElementById('live-steps');
         if (!ol) return;
-        ol.querySelectorAll('.step.active').forEach(s => { s.classList.remove('active'); s.classList.add('done'); });
-        ol.appendChild(stepRow(label, detail, null, 'active'));
+        ol.querySelectorAll('.cl.active').forEach(s => {
+            s.classList.remove('active');
+            const c = s.querySelector('.cl-cursor'); if (c) c.remove();
+        });
+        const [v, r] = splitVerb(label);
+        ol.appendChild(codeLine(++liveLineNo, v, r, detail, null, { active: true }));
+    }
+
+    function dropLiveEntry() {
+        if (liveEntry) { liveEntry.remove(); liveEntry = null; }
     }
 
     // Status line in the chat while waiting (replaces the three dots)
@@ -948,6 +1010,8 @@
         const last = conversationHistory[conversationHistory.length - 1];
         if (!last || last.role !== 'assistant') return;
         conversationHistory.pop();
+        const oldEntry = entryFor.get(last);
+        if (oldEntry) oldEntry.remove();
         const msgs = elements.messagesArea.querySelectorAll('.message:not(.user)');
         const lastDiv = msgs[msgs.length - 1];
         if (lastDiv) lastDiv.remove();
@@ -1049,6 +1113,7 @@
             if (!response.ok) {
                 // Friendly messages from the server (rate limit, too long) are shown but not saved
                 if (data && data.response) {
+                    dropLiveEntry();
                     addMessageToUI('assistant', data.response);
                     setStatus('online', 'Online');
                     return;
@@ -1060,6 +1125,7 @@
             if (chat && chatId !== store.activeId) {
                 // The user switched chats while waiting: file the reply under the chat it belongs to
                 chat.messages.push({ role: 'assistant', content: data.response, meta: data.meta || null, timing: data.timing || null });
+                dropLiveEntry();
                 chat.updated = Date.now();
                 saveStore();
                 renderSidebar();
@@ -1068,7 +1134,7 @@
                 const div = addMessageToUI('assistant', data.response, data.meta || null);
                 div._record = rec;
                 conversationHistory.push(rec);
-                renderPanelFor(div);
+                addPanelEntry(div);
                 touchActiveChat();
                 refreshRetryButton();
             }
@@ -1078,7 +1144,7 @@
             console.error('Error:', error);
             hideTypingIndicator();
             hidePending();
-            showLatestInPanel();
+            dropLiveEntry();
             addMessageToUI('assistant', "I'm having trouble connecting right now. Please try again in a moment.\n\nIf this persists, you can reach out via the website at veritasquaesitorcai.github.io");
             setStatus('error', 'Connection error');
             setTimeout(() => setStatus('online', 'Online'), 3000);
