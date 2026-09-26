@@ -853,9 +853,11 @@
         if (n) return `${(meta.live || []).indexOf('News search') >= 0 ? 'Searched the news' : 'Searched the web'} · ${n} source${n === 1 ? '' : 's'}`;
         if (isBigQuestion(meta)) return 'Christian starting point · naturalism noted';
         if (meta.mode) return `${meta.mode} mode${meta.continued ? ' · continued' : ''}`;
+        const live = (meta.live || []).filter(x => !/failed/i.test(x));
+        if (live.length) return live.join(' · ');
+        if ((meta.live || []).length) return 'Live lookup failed';
         const extra = (meta.knowledge || []).filter(k => k !== 'VQ core identity');
         if (extra.length) return `Drew on ${extra[0]}${extra.length > 1 ? ` +${extra.length - 1}` : ''}`;
-        if ((meta.live || []).length) return meta.live.join(' · ');
         return null;
     }
 
