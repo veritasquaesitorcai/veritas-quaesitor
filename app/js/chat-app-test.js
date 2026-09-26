@@ -1158,12 +1158,16 @@
         const [a1, a2] = ACCENTS[uiPrefs.accent] || ACCENTS.orange;
         root.setProperty('--accent-gradient', `linear-gradient(135deg, ${a1} 0%, ${a2} 100%)`);
         root.setProperty('--ui-accent', a1);
+        root.setProperty('--ui-accent-2', a2);
+        const hex = a1.replace('#', '');
+        root.setProperty('--ui-accent-rgb', [0, 2, 4].map(i => parseInt(hex.slice(i, i + 2), 16)).join(','));
         root.setProperty('--chat-max', WIDTHS[uiPrefs.width] || WIDTHS.normal);
         const b = document.body.classList;
         b.toggle('ui-hc', uiPrefs.contrast === 'high');
         ['readable', 'serif', 'mono'].forEach(f => b.toggle(`ui-font-${f}`, uiPrefs.font === f));
         b.toggle('ui-reduce-motion', uiPrefs.motion === 'reduced');
         b.toggle('ui-focus', !!uiPrefs.focus);
+        b.toggle('ui-accent-custom', uiPrefs.accent !== 'orange');
     }
 
     function snapshotUI() {
