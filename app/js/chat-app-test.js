@@ -852,7 +852,7 @@
         const n = Array.isArray(meta.sources) ? meta.sources.length : 0;
         if (n) return `${(meta.live || []).indexOf('News search') >= 0 ? 'Searched the news' : 'Searched the web'} · ${n} source${n === 1 ? '' : 's'}`;
         if (isBigQuestion(meta)) return 'Christian starting point · naturalism noted';
-        if (meta.mode) return `${meta.mode} mode`;
+        if (meta.mode) return `${meta.mode} mode${meta.continued ? ' · continued' : ''}`;
         const extra = (meta.knowledge || []).filter(k => k !== 'VQ core identity');
         if (extra.length) return `Drew on ${extra[0]}${extra.length > 1 ? ` +${extra.length - 1}` : ''}`;
         if ((meta.live || []).length) return meta.live.join(' · ');
@@ -943,7 +943,7 @@
         const ol = el('ol', 'code');
         let n = 0;
         const extra = (meta.knowledge || []).filter(k => k !== 'VQ core identity');
-        ol.appendChild(codeLine(++n, 'Read', 'your question', meta.mode ? `mode: ${meta.mode}` : null));
+        ol.appendChild(codeLine(++n, 'Read', 'your question', meta.mode ? `mode: ${meta.mode}${meta.continued ? ' (continued from your last question)' : ''}` : null));
         ol.appendChild(codeLine(++n, 'Gathered', "what's relevant", extra.length ? extra.join(', ') : 'core knowledge only', null, { detailClass: extra.length ? 'tk-fn' : 'tk-str' }));
         (meta.steps || []).forEach(st => {
             const [v, r] = splitVerb(st.label);
@@ -1239,12 +1239,15 @@
         startLivePanel(message.replace(/^\[[A-Z ]+\]\s*/, ''));
 
         const history = conversationHistory.slice(-CONFIG.historySent).map(m => ({ role: m.role, content: m.content }));
+        // Mode of the previous answer, so related follow-ups can stay in that mode without pressing the button again
+        const prevAnswer = [...conversationHistory].reverse().find(m => m.role === 'assistant');
+        const lastMode = (prevAnswer && prevAnswer.meta && prevAnswer.meta.mode_prefix) || null;
 
         try {
             const response = await fetch(CONFIG.apiEndpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message, history: history, stream: true })
+                body: JSON.stringify({ message: message, history: history, stream: true, lastMode: lastMode })
             });
 
             const contentType = response.headers.get('content-type') || '';
