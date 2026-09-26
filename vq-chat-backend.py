@@ -165,6 +165,12 @@ def _regex_location(message: str) -> str:
     msg = re.sub(r'^\[[A-Z ]+\]\s*', '', message or '').strip()
     m = re.search(r"\b(?:in|at|for)\s+([A-Za-z][A-Za-z .,'-]{1,50})", msg)
     if not m:
+        m = re.match(r"^\s*([A-Za-z][A-Za-z .'-]{1,40}?)\s+(?:weather|time|forecast|temperature)\b", msg, re.I)
+        _q = {'what', "what's", 'whats', 'the', 'is', 'how', "how's", 'hows', 'current', 'local', 'today', 'todays',
+              "today's", 'my', 'your', 'our', 'any', 'check', 'get', 'tell', 'me', 'show', 'and', 'nice', 'bad', 'good'}
+        if m and any(t in _q for t in m.group(1).lower().split()):
+            m = None
+    if not m:
         return ""
     loc = _LOC_TAIL.sub('', m.group(1)).strip(" ?.!,")
     if not loc or loc.lower().startswith(('the ', 'my ', 'this ', 'that ')) or loc.lower() in ('the', 'here', 'home', 'it'):
@@ -208,6 +214,9 @@ def extract_location(message: str) -> str:
         )
         location = (result.choices[0].message.content or "").strip().strip('"\'.')
         print(f"[WEATHER] Extracted location: '{location}'", flush=True)
+        if location and location.lower() not in message.lower():
+            print(f"[LOCATION] Ignoring '{location}': not in the message", flush=True)
+            return ""
         return location if location and location.upper() != "UNKNOWN" else ""
     except Exception as e:
         print(f"[WEATHER] Location extraction error: {e}", flush=True)
@@ -250,6 +259,9 @@ def extract_time_location(message: str) -> str:
         )
         location = (result.choices[0].message.content or "").strip().strip('"\'.')
         print(f"[TIME] Extracted location: '{location}'", flush=True)
+        if location and location.lower() not in message.lower():
+            print(f"[LOCATION] Ignoring '{location}': not in the message", flush=True)
+            return ""
         return location if location and location.upper() != "UNKNOWN" else ""
     except Exception as e:
         print(f"[TIME] Location extraction error: {e}", flush=True)
@@ -1347,13 +1359,11 @@ def chat():
 
         weather_str, time_str = "", ""
         if weather_needed or time_needed:
-            location = _regex_location(user_message)
-            if not location and continued_mode:
+            location = extract_location(user_message) if weather_needed else extract_time_location(user_message)
+            if not location and pending_intent not in ('weather', 'time'):
                 location = _location_from_history(history)
-            if not location:
-                location = extract_location(user_message) if weather_needed else ""
-            if not location:
-                location = extract_time_location(user_message)
+                if location:
+                    print(f"[OWM] Using place from earlier in the chat: '{location}'", flush=True)
             if not location and (continued_mode or pending_intent not in ('weather', 'time')):
                 location = _location_from_history(history)
                 if location:
