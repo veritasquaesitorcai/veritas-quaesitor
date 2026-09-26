@@ -432,41 +432,107 @@
         enhanceTables(contentDiv);
     }
 
-    // Tables: give them room, let them scroll sideways instead of squashing, label cells for phones,
-    // and offer a wide view
+    // Tables: small ones stay inline; big ones become a compact preview card that opens full size,
+    // so the answer's text reads first and the table is one clear click away
+    function isBigTable(table) {
+        const cols = tableCols(table);
+        const text = table.textContent.length;
+        const longCell = [...table.querySelectorAll('td')].some(td => td.textContent.length > 110);
+        return cols > 3 || text > 700 || longCell;
+    }
+
+    function tableCols(table) {
+        const firstRow = table.querySelector('tr');
+        return firstRow ? firstRow.children.length : 0;
+    }
+
+    // Title from a heading (or an all-bold line) just above the table; otherwise from the column names
+    function tableTitle(table) {
+        const prev = table.previousElementSibling;
+        const isHeading = prev && (/^H[1-4]$/.test(prev.tagName) ||
+            (prev.tagName === 'P' && prev.children.length === 1 && /^(STRONG|B)$/.test(prev.firstElementChild.tagName) &&
+             prev.textContent.trim() === prev.firstElementChild.textContent.trim()));
+        if (isHeading) {
+            const t = prev.textContent.trim().replace(/:$/, '');
+            if (t && t.length <= 90) return t;
+        }
+        const heads = [...table.querySelectorAll('thead th')].map(th => th.textContent.trim()).filter(Boolean);
+        return heads.length ? heads.slice(0, 3).join(' · ') : 'Table';
+    }
+
     function enhanceTables(contentDiv) {
         const tables = contentDiv.querySelectorAll('.md table');
-        const msg = contentDiv.closest('.message');
-        if (msg) msg.classList.toggle('has-table', tables.length > 0);
         tables.forEach(table => {
             const headers = [...table.querySelectorAll('thead th')].map(th => th.textContent.trim());
             table.querySelectorAll('tbody tr').forEach(tr => {
                 [...tr.children].forEach((cell, i) => { if (headers[i]) cell.setAttribute('data-label', headers[i]); });
             });
-            const wrap = document.createElement('div');
-            wrap.className = 'table-wrap';
-            table.parentNode.insertBefore(wrap, table);
-            const scroller = document.createElement('div');
-            scroller.className = 'table-scroll';
-            scroller.appendChild(table);
-            wrap.appendChild(scroller);
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'table-expand';
-            btn.textContent = 'Expand table';
-            btn.addEventListener('click', () => openTableView(table));
-            wrap.appendChild(btn);
-            // Fade the right edge while there is more table to scroll to
-            const update = () => {
-                const more = scroller.scrollWidth - scroller.clientWidth - scroller.scrollLeft > 4;
-                wrap.classList.toggle('more-right', more);
-            };
-            scroller.addEventListener('scroll', update, { passive: true });
-            requestAnimationFrame(update);
+
+            if (!isBigTable(table)) {
+                const wrap = document.createElement('div');
+                wrap.className = 'table-wrap';
+                table.parentNode.insertBefore(wrap, table);
+                const scroller = document.createElement('div');
+                scroller.className = 'table-scroll';
+                scroller.appendChild(table);
+                wrap.appendChild(scroller);
+                return;
+            }
+
+            const rows = table.querySelectorAll('tbody tr').length;
+            const cols = tableCols(table);
+            const title = tableTitle(table);
+
+            const card = document.createElement('div');
+            card.className = 'table-card';
+            card.setAttribute('role', 'button');
+            card.tabIndex = 0;
+            card.setAttribute('aria-label', `Open table: ${title}`);
+
+            const head = document.createElement('div');
+            head.className = 'table-card-head';
+            const icon = document.createElement('span');
+            icon.className = 'table-card-icon';
+            icon.setAttribute('aria-hidden', 'true');
+            icon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 4v16"/></svg>';
+            const meta = document.createElement('span');
+            meta.className = 'table-card-meta';
+            const t1 = document.createElement('span');
+            t1.className = 'table-card-title';
+            t1.textContent = title;
+            const t2 = document.createElement('span');
+            t2.className = 'table-card-size';
+            t2.textContent = `Table · ${rows} row${rows === 1 ? '' : 's'} · ${cols} columns`;
+            meta.append(t1, t2);
+            const open = document.createElement('span');
+            open.className = 'table-card-open';
+            open.textContent = 'Open table';
+            head.append(icon, meta, open);
+
+            // Mini preview: first 3 columns, first 3 rows, one line per cell
+            const preview = table.cloneNode(true);
+            preview.className = 'table-preview';
+            preview.querySelectorAll('tr').forEach(tr => [...tr.children].forEach((c, i) => { if (i > 2) c.remove(); }));
+            preview.querySelectorAll('tbody tr').forEach((tr, i) => { if (i > 2) tr.remove(); });
+            const pv = document.createElement('div');
+            pv.className = 'table-preview-wrap';
+            pv.setAttribute('aria-hidden', 'true');
+            pv.appendChild(preview);
+
+            card.append(head, pv);
+            const openIt = () => openTableView(table, title);
+            card.addEventListener('click', openIt);
+            card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openIt(); } });
+
+            table.parentNode.insertBefore(card, table);
+            const store = document.createElement('div');
+            store.hidden = true;
+            store.appendChild(table);
+            card.appendChild(store);
         });
     }
 
-    function openTableView(table) {
+    function openTableView(table, title) {
         closeTableView();
         const overlay = document.createElement('div');
         overlay.className = 'table-overlay';
@@ -485,7 +551,10 @@
         const inner = document.createElement('div');
         inner.className = 'md table-overlay-scroll';
         inner.appendChild(table.cloneNode(true));
-        box.append(close, inner);
+        const h = document.createElement('h3');
+        h.className = 'table-overlay-title';
+        h.textContent = title || 'Table';
+        box.append(close, h, inner);
         overlay.appendChild(box);
         overlay.addEventListener('click', (e) => { if (e.target === overlay) closeTableView(); });
         document.body.appendChild(overlay);
