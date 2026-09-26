@@ -157,8 +157,32 @@ def is_devotional_query(message: str) -> bool:
     msg_lower = message.lower()
     return any(w in msg_lower for w in devotional_words)
 
+
+_LOC_TAIL = re.compile(r"\b(right now|now|today|tonight|tomorrow|currently|please|at the moment|this (morning|afternoon|evening|week))\b.*$", re.I)
+
+def _regex_location(message: str) -> str:
+    """Fast, deterministic: pull the place after 'in', 'at' or 'for'."""
+    msg = re.sub(r'^\[[A-Z ]+\]\s*', '', message or '').strip()
+    m = re.search(r"\b(?:in|at|for)\s+([A-Za-z][A-Za-z .,'-]{1,50})", msg)
+    if not m:
+        return ""
+    loc = _LOC_TAIL.sub('', m.group(1)).strip(" ?.!,")
+    if not loc or loc.lower().startswith(('the ', 'my ', 'this ', 'that ')) or loc.lower() in ('the', 'here', 'home', 'it'):
+        return ""
+    return loc
+
 def extract_location(message: str) -> str:
     """Use fast LLM to extract location from weather query."""
+    quick = _regex_location(message)
+    if not quick:
+        bare = re.sub(r'^\[[A-Z ]+\]\s*', '', message or '').strip(' ?.!').lower()
+        if 0 < len(bare.split()) <= 3 and bare.replace(' ', '').isalpha() and bare not in _NOT_PLACES \
+                and not any(w in bare for w in ('time', 'weather', 'date', 'temp', 'forecast')):
+            quick = bare.title()   # a bare place name like "durban"
+    if quick:
+        print(f"[LOCATION] Direct: '{quick}'", flush=True)
+        return quick
+    message = re.sub(r'^\[[A-Z ]+\]\s*', '', message or '')
     if not groq_client:
         return ""
     try:
@@ -179,17 +203,28 @@ def extract_location(message: str) -> str:
                 {"role": "user", "content": message}
             ],
             temperature=0.0,
-            max_tokens=20
+            max_tokens=80,
+            reasoning_effort="low"
         )
-        location = result.choices[0].message.content.strip()
+        location = (result.choices[0].message.content or "").strip().strip('"\'.')
         print(f"[WEATHER] Extracted location: '{location}'", flush=True)
-        return location if location != "UNKNOWN" else ""
+        return location if location and location.upper() != "UNKNOWN" else ""
     except Exception as e:
         print(f"[WEATHER] Location extraction error: {e}", flush=True)
         return ""
 
 def extract_time_location(message: str) -> str:
     """Use fast LLM to extract location from time query."""
+    quick = _regex_location(message)
+    if not quick:
+        bare = re.sub(r'^\[[A-Z ]+\]\s*', '', message or '').strip(' ?.!').lower()
+        if 0 < len(bare.split()) <= 3 and bare.replace(' ', '').isalpha() and bare not in _NOT_PLACES \
+                and not any(w in bare for w in ('time', 'weather', 'date', 'temp', 'forecast')):
+            quick = bare.title()   # a bare place name like "durban"
+    if quick:
+        print(f"[LOCATION] Direct: '{quick}'", flush=True)
+        return quick
+    message = re.sub(r'^\[[A-Z ]+\]\s*', '', message or '')
     if not groq_client:
         return ""
     try:
@@ -210,11 +245,12 @@ def extract_time_location(message: str) -> str:
                 {"role": "user", "content": message}
             ],
             temperature=0.0,
-            max_tokens=20
+            max_tokens=80,
+            reasoning_effort="low"
         )
-        location = result.choices[0].message.content.strip()
+        location = (result.choices[0].message.content or "").strip().strip('"\'.')
         print(f"[TIME] Extracted location: '{location}'", flush=True)
-        return location if location != "UNKNOWN" else ""
+        return location if location and location.upper() != "UNKNOWN" else ""
     except Exception as e:
         print(f"[TIME] Location extraction error: {e}", flush=True)
         return ""
@@ -240,19 +276,76 @@ def get_nearest_major_city(location: str) -> str:
                 {"role": "user", "content": location}
             ],
             temperature=0.0,
-            max_tokens=20
+            max_tokens=80,
+            reasoning_effort="low"
         )
-        major_city = result.choices[0].message.content.strip()
+        major_city = (result.choices[0].message.content or "").strip().strip('"\'.')
         print(f"[WEATHER] Nearest major city for '{location}': '{major_city}'", flush=True)
         return major_city
     except Exception as e:
         print(f"[WEATHER] Major city lookup error: {e}", flush=True)
         return ""
 
+
+_WMO = {0: "Clear sky", 1: "Mainly clear", 2: "Partly cloudy", 3: "Overcast", 45: "Fog", 48: "Freezing fog",
+        51: "Light drizzle", 53: "Drizzle", 55: "Heavy drizzle", 61: "Light rain", 63: "Rain", 65: "Heavy rain",
+        66: "Freezing rain", 67: "Heavy freezing rain", 71: "Light snow", 73: "Snow", 75: "Heavy snow",
+        77: "Snow grains", 80: "Light showers", 81: "Showers", 82: "Heavy showers", 85: "Snow showers",
+        86: "Heavy snow showers", 95: "Thunderstorm", 96: "Thunderstorm with hail", 99: "Severe thunderstorm with hail"}
+
+def _open_meteo_weather_and_time(location: str) -> tuple:
+    """Weather and exact local time from Open-Meteo (free, no API key)."""
+    if not location:
+        return "", "", location
+    try:
+        import urllib.request, urllib.parse
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        q = urllib.parse.quote(location.split('(')[0].split(',')[0].strip())
+        with urllib.request.urlopen(f"https://geocoding-api.open-meteo.com/v1/search?name={q}&count=1", timeout=8) as r:
+            geo = json.loads(r.read().decode())
+        if not geo.get('results'):
+            print(f"[OPEN-METEO] No place found for '{location}'", flush=True)
+            return "", "", location
+        g = geo['results'][0]
+        name, country, tz = g['name'], g.get('country', ''), g.get('timezone', 'UTC')
+        # Time needs only the place's time zone, so it still works if the weather service is busy
+        now = datetime.now(ZoneInfo(tz))
+        time_str = (
+            f"LOCAL TIME for {name}, {country} ({tz}):\n"
+            f"Time: {now.strftime('%I:%M %p')}\n"
+            f"Date: {now.strftime('%A, %B %d, %Y')}"
+        )
+        weather_str = ""
+        try:
+            url = (f"https://api.open-meteo.com/v1/forecast?latitude={g['latitude']}&longitude={g['longitude']}"
+                   "&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m"
+                   "&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1")
+            with urllib.request.urlopen(url, timeout=8) as r:
+                wx = json.loads(r.read().decode())
+            cur, daily = wx.get('current', {}), wx.get('daily', {})
+            weather_str = (
+                f"LIVE WEATHER for {name}, {country}:\n"
+                f"Condition: {_WMO.get(cur.get('weather_code'), 'Unknown')}\n"
+                f"Temperature: {round(cur.get('temperature_2m', 0))}°C (feels like {round(cur.get('apparent_temperature', 0))}°C)\n"
+                f"High: {round((daily.get('temperature_2m_max') or [0])[0])}°C | Low: {round((daily.get('temperature_2m_min') or [0])[0])}°C\n"
+                f"Humidity: {cur.get('relative_humidity_2m', '?')}%\n"
+                f"Wind: {round(cur.get('wind_speed_10m', 0))} km/h"
+            )
+        except Exception as we:
+            print(f"[OPEN-METEO] Weather unavailable ({we}); time still provided", flush=True)
+        print(f"[OPEN-METEO] Weather+time for {name}: {now.strftime('%H:%M')} {tz}", flush=True)
+        return weather_str, time_str, location
+    except Exception as e:
+        print(f"[OPEN-METEO] Error: {e}", flush=True)
+        return "", "", location
+
 def get_weather_and_time(location: str) -> tuple:
     """Fetch live weather AND local time from a single OpenWeatherMap API call."""
-    if not owm_available or not location:
+    if not location:
         return "", "", location
+    if not owm_available:
+        return _open_meteo_weather_and_time(location)
     try:
         import urllib.request
         import urllib.parse
@@ -273,10 +366,10 @@ def get_weather_and_time(location: str) -> tuple:
                 data = fetch_owm(major_city)
                 if data.get('cod') != 200:
                     print(f"[OWM] Major city '{major_city}' also failed", flush=True)
-                    return "", "", location
+                    return _open_meteo_weather_and_time(location)
                 location = f"{location} (nearest: {major_city})"
             else:
-                return "", "", location
+                return _open_meteo_weather_and_time(location)
 
         name = data['name']
         country = data['sys']['country']
@@ -288,9 +381,8 @@ def get_weather_and_time(location: str) -> tuple:
         temp_min = round(data['main']['temp_min'])
         temp_max = round(data['main']['temp_max'])
 
-        dt_unix = data['dt']
         tz_offset = data['timezone']
-        local_dt = datetime.fromtimestamp(dt_unix, tz=timezone(timedelta(seconds=tz_offset)))
+        local_dt = datetime.now(timezone(timedelta(seconds=tz_offset)))
         formatted_time = local_dt.strftime('%I:%M %p')
         formatted_date = local_dt.strftime('%A, %B %d, %Y')
 
@@ -314,7 +406,7 @@ def get_weather_and_time(location: str) -> tuple:
 
     except Exception as e:
         print(f"[OWM] Fetch error: {e}", flush=True)
-        return "", "", location
+        return _open_meteo_weather_and_time(location)
 
 def is_image_query(message: str) -> bool:
     """Detect if message is asking to show/find an image."""
@@ -1013,6 +1105,56 @@ def get_pending_location_intent(history: list) -> str:
 
 # 6. Chat endpoint
 
+
+# ---------- Mode continuity: keep a mode for related follow-ups ----------
+_MODE_PREFIXES = ['[TIME AND WEATHER]', '[DDG SEARCH]', '[DDG NEWS]', '[WEATHER]', '[TIME]', '[RUN ETS]', '[CAI VQA MODE]', '[CAI EVOLUTION]']
+_TIME_WORDS = ['time', 'date', 'day', 'clock', 'hour', 'tomorrow', 'tonight', 'now', 'morning', 'evening']
+_WEATHER_WORDS = ['weather', 'temp', 'rain', 'wind', 'hot', 'cold', 'warm', 'forecast', 'humid', 'sun', 'cloud', 'storm', 'umbrella', 'tomorrow', 'tonight']
+_MODE_TOPIC_WORDS = {
+    '[TIME AND WEATHER]': _TIME_WORDS + _WEATHER_WORDS,
+    '[WEATHER]': _WEATHER_WORDS,
+    '[TIME]': _TIME_WORDS,
+    '[DDG NEWS]': ['news', 'latest', 'update', 'happen', 'today', 'more', 'source', 'report', 'story'],
+    '[DDG SEARCH]': ['search', 'find', 'more', 'source', 'latest', 'link', 'price', 'where', 'when', 'who'],
+    '[RUN ETS]': ['tier', 'ets', 'framework', 'ruling', 'verdict', 'apply', 'case'],
+    '[CAI VQA MODE]': [' ai', 'model', 'claim', 'argument', 'respond', 'reply', 'counter', 'rebut'],
+    '[CAI EVOLUTION]': ['evolution', 'darwin', 'species', 'mutation', 'macro', 'micro', 'fossil', 'genetic', 'dna'],
+}
+_FOLLOWUP_OPENERS = ('and ', 'and?', 'what about', 'how about', 'also', 'same', 'there', 'then', 'more', 'tell me more',
+                     'what else', 'why', 'how come', 'and there', 'ok and', 'okay and')
+
+def _is_mode_followup(message: str, mode: str) -> bool:
+    m = message.strip().lower()
+    words = m.split()
+    if not words or len(words) > 18:
+        return False
+    if mode in ('[TIME AND WEATHER]', '[WEATHER]', '[TIME]') and len(words) <= 3 and m.replace(' ', '').replace('?', '').isalpha():
+        return True   # short replies like "durban" or "and cape town?"
+    if m.startswith(_FOLLOWUP_OPENERS):
+        return True
+    return any(w in m for w in _MODE_TOPIC_WORDS.get(mode, []))
+
+_NOT_PLACES = {'yes', 'no', 'ok', 'okay', 'thanks', 'thank you', 'hi', 'hey', 'hello', 'sure', 'please', 'cool', 'nice'}
+
+def _location_from_history(history: list) -> str:
+    """Most recent place mentioned in this chat, so follow-ups like 'and the time?' keep the same city."""
+    for msg in reversed(history or []):
+        content = (msg.get('content') or '').strip()
+        if not content:
+            continue
+        if msg.get('role') == 'user':
+            loc = _regex_location(content)
+            bare = re.sub(r'^\[[A-Z ]+\]\s*', '', content).strip(' ?.!').lower()
+            if not loc and 0 < len(bare.split()) <= 3 and bare.replace(' ', '').isalpha() and bare not in _NOT_PLACES:
+                loc = bare.title()
+            if loc:
+                return loc
+        else:
+            m = re.search(r"(?:weather|time)\s+(?:in|for)\s+([A-Z][A-Za-z .'-]{1,40})", content)
+            if m:
+                return m.group(1).strip(" .,")
+    return ""
+
 # ---------- "Behind this answer" trace (shown to the user; built only from what the backend actually did) ----------
 CONTEXT_LABELS = {
     'core.txt': 'VQ core identity',
@@ -1079,6 +1221,16 @@ def chat():
         elif isinstance(page_context.get('content'), str):
             page_context['content'] = page_context['content'][:3000]
 
+        # Mode continuity: carry the previous message's mode into a related follow-up
+        continued_mode = False
+        last_mode = data.get('lastMode')
+        if (isinstance(last_mode, str) and last_mode in _MODE_PREFIXES and user_message
+                and not any(user_message.startswith(p) for p in _MODE_PREFIXES)
+                and _is_mode_followup(user_message, last_mode)):
+            user_message = f"{last_mode} {user_message}"
+            continued_mode = True
+            print(f"[MODE] Continuing {last_mode} for follow-up", flush=True)
+
         # Strip capability pill prefixes before processing
         # load_context handles context loading; here we handle search/weather/news forcing
         force_search = user_message.startswith('[DDG SEARCH]')
@@ -1104,6 +1256,8 @@ def chat():
         _clean_lower = clean_message.lower()
         trace = {
             'mode': _mode,
+            'continued': continued_mode,
+            'mode_prefix': next((p for p in _MODE_PREFIXES if user_message.startswith(p)), None),
             'knowledge': [_context_label(n) for n in getattr(g, 'vq_loaded', [])],
             'rules': [],
             'live': [],
@@ -1129,6 +1283,12 @@ def chat():
         
         # Build messages
         groq_messages = [{"role": "system", "content": full_system_prompt}]
+        from datetime import datetime as _dt, timezone as _tz
+        groq_messages[0]["content"] += (
+            f"\n\nCURRENT UTC DATE AND TIME: {_dt.now(_tz.utc).strftime('%A %d %B %Y, %H:%M')} UTC. "
+            "Never state a local time or date for a place unless it is given in LIVE TIME data below. "
+            "If it is needed and missing, say you couldn't fetch it rather than estimating."
+        )
         
         for msg in history:
             if msg.get('role') and msg.get('content'):
@@ -1185,10 +1345,19 @@ def chat():
         weather_needed = is_weather_query(user_message) or pending_intent == 'weather' or force_weather
         time_needed = is_time_query(user_message) or pending_intent == 'time' or force_time
 
+        weather_str, time_str = "", ""
         if weather_needed or time_needed:
-            location = extract_location(user_message) if weather_needed else ""
+            location = _regex_location(user_message)
+            if not location and continued_mode:
+                location = _location_from_history(history)
+            if not location:
+                location = extract_location(user_message) if weather_needed else ""
             if not location:
                 location = extract_time_location(user_message)
+            if not location and (continued_mode or pending_intent not in ('weather', 'time')):
+                location = _location_from_history(history)
+                if location:
+                    print(f"[OWM] Using place from earlier in the chat: '{location}'", flush=True)
             if not location and pending_intent in ('weather', 'time'):
                 location = user_message.strip()
                 print(f"[OWM] Pending reply — using message as location: '{location}'", flush=True)
@@ -1241,6 +1410,11 @@ def chat():
                     )
                     print(f"[OWM] Time injected for '{used_location}'", flush=True)
 
+                if weather_needed and not weather_str and time_str:
+                    groq_messages[0]["content"] += (
+                        "\n\nWEATHER NOTE: Live weather could not be fetched right now. "
+                        "Say so briefly; do not guess the weather."
+                    )
                 if not weather_str and not time_str:
                     groq_messages[0]["content"] += (
                         f"\n\nINSTRUCTION: Data could not be retrieved for '{location}'. "
@@ -1329,9 +1503,9 @@ def chat():
             _run_search()
 
         if weather_needed:
-            trace['live'].append('Live weather')
+            trace['live'].append('Live weather' if weather_str else 'Live weather (lookup failed)')
         if time_needed:
-            trace['live'].append('Live time')
+            trace['live'].append('Live time' if time_str else 'Live time (lookup failed)')
 
         print(f"Calling Groq API with {len(groq_messages)} messages", flush=True)
         
