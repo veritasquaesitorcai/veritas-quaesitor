@@ -48,6 +48,7 @@
         randomizeRotatingCard();
         attachEventListeners();
         renderSidebar();
+        applyUIPrefs();
         renderActiveChat();
         setupPanel();
         if (window.innerWidth > 768) elements.messageInput.focus();
@@ -114,7 +115,7 @@
 
     function loadSidebarState() {
         const isMinimized = localStorage.getItem(CONFIG.sidebarStateKey) === 'minimized';
-        if (isMinimized || window.innerWidth <= 768) elements.sidebar.classList.add('minimized');
+        if (isMinimized || window.innerWidth < 1024) elements.sidebar.classList.add('minimized');
     }
 
     function saveSidebarState() {
@@ -801,7 +802,7 @@
     let liveEntry = null;
     let liveLineNo = 0;
 
-    function isWide() { return window.matchMedia('(min-width: 1100px)').matches; }
+    function isWide() { return window.matchMedia('(min-width: 1280px)').matches; }
 
     function setupPanel() {
         if (!elements.panel) return;
@@ -851,6 +852,7 @@
         if (!meta) return null;
         const n = Array.isArray(meta.sources) ? meta.sources.length : 0;
         if (n) return `${(meta.live || []).indexOf('News search') >= 0 ? 'Searched the news' : 'Searched the web'} · ${n} source${n === 1 ? '' : 's'}`;
+        if ((meta.ui || []).length) return `Changed your screen · ${meta.ui[meta.ui.length - 1]}`;
         if (isBigQuestion(meta)) return 'Christian starting point · naturalism noted';
         if (meta.mode) return `${meta.mode} mode${meta.continued ? ' · continued' : ''}`;
         const live = (meta.live || []).filter(x => !/failed/i.test(x));
@@ -954,6 +956,7 @@
             ol.appendChild(codeLine(++n, v, r, `${q}${k ? `${k} sources found` : 'no usable results'}`, st.ms));
         });
         (meta.live || []).filter(x => /weather|time|image/i.test(x)).forEach(x => ol.appendChild(codeLine(++n, 'Fetched', x.toLowerCase())));
+        (meta.ui || []).forEach(u => ol.appendChild(codeLine(++n, 'Changed', 'your screen', u, null, { detailClass: 'tk-fn' })));
         if (isBigQuestion(meta)) ol.appendChild(codeLine(++n, 'Answered', 'from a Christian starting point', 'naturalism named as another view', null, { restClass: 'tk-fn' }));
         const tm = rec.timing || {};
         ol.appendChild(codeLine(++n, 'Wrote', 'the answer', typeof tm.firstMs === 'number' && tm.firstMs >= 100 ? `first words after ${(tm.firstMs / 1000).toFixed(1)}s` : null, tm.totalMs));
@@ -1128,6 +1131,108 @@
         if (div) div.remove();
     }
 
+
+    // ---------- Screen controls (applied when VQ calls ui_action; also restored on load) ----------
+
+    const UI_KEY = 'vq-ui-prefs';
+    const UI_DEFAULTS = { scale: 1, line: 1.6, accent: 'orange', contrast: 'normal', font: 'default', motion: 'normal', width: 'normal', focus: false };
+    const SIZE_SCALES = { compact: 0.9, comfortable: 1, large: 1.15, extra_large: 1.3 };
+    const ACCENTS = {
+        orange: ['#ff8c42', '#ffb27a'], gold: ['#e8b04a', '#ffd98a'], teal: ['#2fb5a3', '#7fe0d2'], rose: ['#e2627e', '#f5a3b5'],
+        violet: ['#8b6cf0', '#c2b1ff'], green: ['#4caf6a', '#9be0ad'], blue: ['#4a8fe8', '#9cc4ff']
+    };
+    const WIDTHS = { narrow: '44rem', normal: '56rem', wide: '72rem' };
+    let uiPrefs = loadUIPrefs();
+    const uiUndo = [];
+    let pendingNewChat = false;
+
+    function loadUIPrefs() {
+        try { return Object.assign({}, UI_DEFAULTS, JSON.parse(localStorage.getItem(UI_KEY) || '{}')); }
+        catch (e) { return Object.assign({}, UI_DEFAULTS); }
+    }
+
+    function applyUIPrefs() {
+        const root = document.documentElement.style;
+        root.setProperty('--ui-scale', String(uiPrefs.scale));
+        root.setProperty('--ui-line', String(uiPrefs.line));
+        const [a1, a2] = ACCENTS[uiPrefs.accent] || ACCENTS.orange;
+        root.setProperty('--accent-gradient', `linear-gradient(135deg, ${a1} 0%, ${a2} 100%)`);
+        root.setProperty('--ui-accent', a1);
+        root.setProperty('--chat-max', WIDTHS[uiPrefs.width] || WIDTHS.normal);
+        const b = document.body.classList;
+        b.toggle('ui-hc', uiPrefs.contrast === 'high');
+        ['readable', 'serif', 'mono'].forEach(f => b.toggle(`ui-font-${f}`, uiPrefs.font === f));
+        b.toggle('ui-reduce-motion', uiPrefs.motion === 'reduced');
+        b.toggle('ui-focus', !!uiPrefs.focus);
+    }
+
+    function snapshotUI() {
+        return { prefs: Object.assign({}, uiPrefs), panel: document.body.classList.contains('insight-open') };
+    }
+
+    function saveUIPrefs() {
+        try { localStorage.setItem(UI_KEY, JSON.stringify(uiPrefs)); } catch (e) {}
+    }
+
+    function applyUIAction(act) {
+        if (!act || typeof act !== 'object') return;
+        const a = act.action;
+        if (a !== 'undo') uiUndo.push(snapshotUI());
+        if (uiUndo.length > 20) uiUndo.shift();
+        const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+        switch (a) {
+            case 'text_size': {
+                const size = act.size || 'larger';
+                if (size === 'larger') uiPrefs.scale = clamp(+(uiPrefs.scale + 0.1).toFixed(2), 0.8, 1.6);
+                else if (size === 'smaller') uiPrefs.scale = clamp(+(uiPrefs.scale - 0.1).toFixed(2), 0.8, 1.6);
+                else if (SIZE_SCALES[size]) uiPrefs.scale = SIZE_SCALES[size];
+                break;
+            }
+            case 'style': {
+                const st = act.style || {};
+                if (typeof st.text_scale === 'number') uiPrefs.scale = clamp(st.text_scale, 0.8, 1.6);
+                if (typeof st.line_spacing === 'number') uiPrefs.line = clamp(st.line_spacing, 1.3, 2.0);
+                if (ACCENTS[st.accent]) uiPrefs.accent = st.accent;
+                if (['normal', 'high'].includes(st.contrast)) uiPrefs.contrast = st.contrast;
+                if (['default', 'readable', 'serif', 'mono'].includes(st.font)) uiPrefs.font = st.font;
+                if (['normal', 'reduced'].includes(st.motion)) uiPrefs.motion = st.motion;
+                if (WIDTHS[st.width]) uiPrefs.width = st.width;
+                break;
+            }
+            case 'panel':
+                if (act.state === 'close') closePanel(true); else { openPanel(true); scrollPanelToEnd(); }
+                break;
+            case 'focus_mode':
+                uiPrefs.focus = act.state !== 'off';
+                break;
+            case 'show_reasoning': {
+                const answers = [...elements.messagesArea.querySelectorAll('.message:not(.user):not(.pending):not(.streaming)')].filter(m => m._record);
+                const target = act.which === 'previous' ? answers[answers.length - 2] : answers[answers.length - 1];
+                openPanel(isWide());
+                if (target) focusEntryFor(target);
+                break;
+            }
+            case 'new_chat':
+                pendingNewChat = true;   // after this reply has been shown
+                break;
+            case 'reset_display':
+                uiPrefs = Object.assign({}, UI_DEFAULTS);
+                break;
+            case 'undo': {
+                const prev = uiUndo.pop();
+                if (prev) {
+                    uiPrefs = prev.prefs;
+                    if (prev.panel) openPanel(true); else closePanel(true);
+                }
+                break;
+            }
+            default:
+                return;
+        }
+        saveUIPrefs();
+        applyUIPrefs();
+    }
+
     // ---------- Sending ----------
 
     async function sendMessage() {
@@ -1211,6 +1316,7 @@
                     let msg;
                     try { msg = JSON.parse(line.slice(5).trim()); } catch (e) { continue; }
                     if (msg.meta && typeof msg.meta === 'object') meta = msg.meta;
+                    if (msg.ui && typeof msg.ui === 'object') applyUIAction(msg.ui);
                     if (typeof msg.status === 'string') {
                         if (!bubble) showPending(msg.status, msg.detail || '');
                         pushLiveStep(msg.status, msg.detail || null);
@@ -1250,7 +1356,7 @@
             const response = await fetch(CONFIG.apiEndpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: message, history: history, stream: true, lastMode: lastMode })
+                body: JSON.stringify({ message: message, history: history, stream: true, lastMode: lastMode, clientCaps: ['ui'] })
             });
 
             const contentType = response.headers.get('content-type') || '';
@@ -1289,6 +1395,7 @@
                 div._record = rec;
                 conversationHistory.push(rec);
                 addPanelEntry(div);
+                if (pendingNewChat) { pendingNewChat = false; setTimeout(() => { if (!isTyping) startNewChat(); }, 1200); }
                 touchActiveChat();
                 refreshRetryButton();
             }
