@@ -289,7 +289,7 @@
         }
         hideWelcomeScreen();
         elements.chatContainer.classList.add('has-messages');
-        conversationHistory.forEach(msg => addMessageToUI(msg.role, msg.content));
+        conversationHistory.forEach(msg => addMessageToUI(msg.role, msg.content, msg.meta));
         refreshRetryButton();
         scrollToBottom();
     }
@@ -441,7 +441,75 @@
         return { div: messageDiv, content: contentDiv };
     }
 
-    function addMessageToUI(role, content) {
+    // "Behind this answer": what the system actually did for this reply (from the server, not written by the model)
+    function buildTracePanel(meta) {
+        const details = document.createElement('details');
+        details.className = 'trace';
+        const summary = document.createElement('summary');
+        summary.textContent = 'Behind this answer';
+        details.appendChild(summary);
+
+        const list = document.createElement('dl');
+        const row = (label, fill) => {
+            const dt = document.createElement('dt');
+            dt.textContent = label;
+            const dd = document.createElement('dd');
+            fill(dd);
+            list.append(dt, dd);
+        };
+        const text = (value) => (dd) => { dd.textContent = value; };
+        const chips = (items) => (dd) => {
+            items.forEach(item => {
+                const chip = document.createElement('span');
+                chip.className = 'trace-chip';
+                chip.textContent = item;
+                dd.appendChild(chip);
+            });
+        };
+
+        if (meta.mode) row('Mode', text(meta.mode));
+        if (Array.isArray(meta.rules) && meta.rules.length) {
+            row('Rules in play', (dd) => {
+                const ul = document.createElement('ul');
+                meta.rules.forEach(r => { const li = document.createElement('li'); li.textContent = r; ul.appendChild(li); });
+                dd.appendChild(ul);
+            });
+        }
+        if (Array.isArray(meta.knowledge) && meta.knowledge.length) row('Knowledge loaded', chips(meta.knowledge));
+        if (Array.isArray(meta.live) && meta.live.length) row('Live data', chips(meta.live));
+        if (Array.isArray(meta.sources) && meta.sources.length) {
+            row('Sources', (dd) => {
+                const ul = document.createElement('ul');
+                meta.sources.forEach(src => {
+                    let url;
+                    try { url = new URL(src.url); } catch (e) { return; }
+                    if (url.protocol !== 'https:' && url.protocol !== 'http:') return;
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = url.href;
+                    a.textContent = src.title || url.hostname;
+                    a.target = '_blank';
+                    a.rel = 'noopener noreferrer';
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                });
+                dd.appendChild(ul);
+            });
+        }
+        if (typeof meta.history_used === 'number') {
+            row('Conversation', text(meta.history_used ? `Used the last ${meta.history_used} messages` : 'First message in this chat'));
+        }
+        if (meta.model) row('Model', text(meta.model));
+        details.appendChild(list);
+
+        const note = document.createElement('p');
+        note.className = 'trace-note';
+        note.textContent = "Recorded by VQ's system while preparing this reply, not written by the model.";
+        details.appendChild(note);
+        return details;
+    }
+
+    function addMessageToUI(role, content, meta) {
         const messageDiv = document.createElement('div');
         messageDiv.className = role === 'user' ? 'message user' : 'message';
 
@@ -475,6 +543,7 @@
             actions.appendChild(copyBtn);
 
             body.appendChild(actions);
+            if (meta && typeof meta === 'object') body.appendChild(buildTracePanel(meta));
         }
 
         messageDiv.appendChild(avatar);
@@ -629,6 +698,7 @@
         let bubble = null;
         let framePending = false;
         let finished = false;
+        let meta = null;
 
         const paint = () => {
             framePending = false;
@@ -653,6 +723,7 @@
                     if (!line) continue;
                     let msg;
                     try { msg = JSON.parse(line.slice(5).trim()); } catch (e) { continue; }
+                    if (msg.meta && typeof msg.meta === 'object') meta = msg.meta;
                     if (typeof msg.delta === 'string') full += msg.delta;
                     if (typeof msg.replace === 'string') full = msg.replace;
                     if (!framePending && full) {
@@ -666,7 +737,7 @@
             if (bubble) bubble.div.remove();
         }
         const text = cleanReply(full).trim();
-        return text || "Friend, that one came back empty on my end. Ask me again?";
+        return { text: text || "Friend, that one came back empty on my end. Ask me again?", meta };
     }
 
     // Sends the conversation (ending with the latest user message) and shows VQ's reply
@@ -689,7 +760,8 @@
             const contentType = response.headers.get('content-type') || '';
             let data;
             if (response.ok && contentType.includes('text/event-stream') && response.body) {
-                data = { response: await readStream(response) };
+                const streamed = await readStream(response);
+                data = { response: streamed.text, meta: streamed.meta };
             } else {
                 data = await response.json().catch(() => ({}));
             }
@@ -708,13 +780,13 @@
             const chat = store.chats[chatId];
             if (chat && chatId !== store.activeId) {
                 // The user switched chats while waiting: file the reply under the chat it belongs to
-                chat.messages.push({ role: 'assistant', content: data.response });
+                chat.messages.push({ role: 'assistant', content: data.response, meta: data.meta || null });
                 chat.updated = Date.now();
                 saveStore();
                 renderSidebar();
             } else {
-                addMessageToUI('assistant', data.response);
-                conversationHistory.push({ role: 'assistant', content: data.response });
+                addMessageToUI('assistant', data.response, data.meta || null);
+                conversationHistory.push({ role: 'assistant', content: data.response, meta: data.meta || null });
                 touchActiveChat();
                 refreshRetryButton();
             }
