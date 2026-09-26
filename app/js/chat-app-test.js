@@ -429,7 +429,75 @@
                 appendRichText(contentDiv, part);
             }
         });
+        enhanceTables(contentDiv);
     }
+
+    // Tables: give them room, let them scroll sideways instead of squashing, label cells for phones,
+    // and offer a wide view
+    function enhanceTables(contentDiv) {
+        const tables = contentDiv.querySelectorAll('.md table');
+        const msg = contentDiv.closest('.message');
+        if (msg) msg.classList.toggle('has-table', tables.length > 0);
+        tables.forEach(table => {
+            const headers = [...table.querySelectorAll('thead th')].map(th => th.textContent.trim());
+            table.querySelectorAll('tbody tr').forEach(tr => {
+                [...tr.children].forEach((cell, i) => { if (headers[i]) cell.setAttribute('data-label', headers[i]); });
+            });
+            const wrap = document.createElement('div');
+            wrap.className = 'table-wrap';
+            table.parentNode.insertBefore(wrap, table);
+            const scroller = document.createElement('div');
+            scroller.className = 'table-scroll';
+            scroller.appendChild(table);
+            wrap.appendChild(scroller);
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'table-expand';
+            btn.textContent = 'Expand table';
+            btn.addEventListener('click', () => openTableView(table));
+            wrap.appendChild(btn);
+            // Fade the right edge while there is more table to scroll to
+            const update = () => {
+                const more = scroller.scrollWidth - scroller.clientWidth - scroller.scrollLeft > 4;
+                wrap.classList.toggle('more-right', more);
+            };
+            scroller.addEventListener('scroll', update, { passive: true });
+            requestAnimationFrame(update);
+        });
+    }
+
+    function openTableView(table) {
+        closeTableView();
+        const overlay = document.createElement('div');
+        overlay.className = 'table-overlay';
+        overlay.id = 'table-overlay';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('aria-label', 'Table');
+        const box = document.createElement('div');
+        box.className = 'table-overlay-box';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'table-overlay-close';
+        close.setAttribute('aria-label', 'Close table');
+        close.textContent = '×';
+        close.addEventListener('click', closeTableView);
+        const inner = document.createElement('div');
+        inner.className = 'md table-overlay-scroll';
+        inner.appendChild(table.cloneNode(true));
+        box.append(close, inner);
+        overlay.appendChild(box);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) closeTableView(); });
+        document.body.appendChild(overlay);
+        close.focus();
+    }
+
+    function closeTableView() {
+        const o = document.getElementById('table-overlay');
+        if (o) o.remove();
+    }
+
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeTableView(); });
 
     // A reply bubble that fills in as the words arrive
     function createStreamingBubble() {
@@ -535,6 +603,7 @@
             contentDiv.textContent = content;
         } else {
             fillRich(contentDiv, content);
+            if (contentDiv.querySelector('.table-wrap')) messageDiv.classList.add('has-table');
         }
 
         body.appendChild(contentDiv);
