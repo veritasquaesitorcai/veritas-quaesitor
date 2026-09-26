@@ -1,7 +1,8 @@
 import os
 import sys
 import json
-from flask import Flask, request, jsonify, Response, stream_with_context
+import re
+from flask import Flask, request, jsonify, Response, stream_with_context, g
 from flask_cors import CORS
 
 # 1. Initialize App FIRST (before any imports that might fail)
@@ -732,6 +733,10 @@ The theology below is for YOUR understanding so you don't give confused or contr
             loaded_files.append('eschatology.txt [GATED]')
     
     print(f"Loaded contexts: {', '.join(loaded_files)}", flush=True)
+    try:
+        g.vq_loaded = list(loaded_files)
+    except RuntimeError:
+        pass  # called outside a request
     return context
 
 def build_appreciation_frame(user_message):
@@ -1007,6 +1012,49 @@ def get_pending_location_intent(history: list) -> str:
     return ""
 
 # 6. Chat endpoint
+
+# ---------- "Behind this answer" trace (shown to the user; built only from what the backend actually did) ----------
+CONTEXT_LABELS = {
+    'core.txt': 'VQ core identity',
+    'about_cai_core.txt': 'About CAI',
+    'ai_index.txt': 'Published resurrection calculation',
+    'ets_full.txt': 'Epistemic Tier System (full)',
+    'cai_vqa.txt': 'Counter-AI field manual',
+    'cai_evolution.txt': 'CAI position on evolution',
+    'beta_tools.txt': 'Beta tools',
+    'mission_vision.txt': 'Mission and vision',
+    'milestones.txt': 'Project milestones',
+    'vq1_robot.txt': 'VQ-1 robot',
+    'contact_social.txt': 'Contact and social',
+    'developments.txt': 'Recent developments',
+    'appreciation_full.txt': 'Appreciation framework (full)',
+    'eschatology.txt': 'End-times framework',
+}
+MODE_LABELS = {
+    '[DDG SEARCH]': 'Web search', '[DDG NEWS]': 'News search', '[WEATHER]': 'Weather',
+    '[TIME]': 'Time', '[TIME AND WEATHER]': 'Time and weather', '[RUN ETS]': 'Epistemic Tier System',
+    '[CAI VQA MODE]': 'Counter-AI', '[CAI EVOLUTION]': 'CAI on evolution',
+}
+BIG_QUESTION_TRIGGERS = ['reality', 'exist', 'meaning of', 'meaning in', 'purpose', 'conscious', 'soul',
+                         'afterlife', 'die', 'death', 'dead', 'god', 'moral', 'right and wrong', 'evil',
+                         'why are we', 'point of life', 'point of it', 'is there a point', 'what is truth',
+                         'universe', 'heaven', 'hell']
+
+def _context_label(name):
+    base = name.replace(' [PREFIX]', '')
+    return CONTEXT_LABELS.get(base, base.replace('.txt', '').replace('_', ' ').capitalize())
+
+def _parse_sources(search_result):
+    """Pull numbered titles and links out of the formatted web search text."""
+    sources = []
+    for m in re.finditer(r'^\s*\d+\.\s+(.+?)\n(?:.*\n)*?Link:\s*(\S+)', search_result, flags=re.M):
+        title, url = m.group(1).strip(), m.group(2).strip()
+        if url.startswith('http'):
+            sources.append({'title': title[:140], 'url': url})
+        if len(sources) >= 6:
+            break
+    return sources
+
 @app.route('/chat', methods=['POST'])
 def chat():
     try:
@@ -1051,6 +1099,23 @@ def chat():
         # Load dynamic context based on user message
         dynamic_context = load_context(user_message, history)  # passes raw for prefix detection
         appreciation_frame = build_appreciation_frame(user_message)
+
+        _mode = next((lbl for pfx, lbl in MODE_LABELS.items() if user_message.startswith(pfx)), None)
+        _clean_lower = clean_message.lower()
+        trace = {
+            'mode': _mode,
+            'knowledge': [_context_label(n) for n in getattr(g, 'vq_loaded', [])],
+            'rules': [],
+            'live': [],
+            'sources': [],
+            'page': (page_context or {}).get('pageType') if page_context else None,
+            'history_used': len(history),
+            'model': 'gpt-oss-120b (via Groq)',
+        }
+        if any(t in _clean_lower for t in BIG_QUESTION_TRIGGERS):
+            trace['rules'].append('Big-question rule: answer from the anchor and name naturalism as a position, not a default')
+        if appreciation_frame and appreciation_frame.strip():
+            trace['rules'].append('Appreciation frame (always on): humility about how much it cannot see')
         
         # Page context goes FIRST
         page_context_str = ""
@@ -1200,6 +1265,7 @@ def chat():
                     "Add a brief natural caption. Do NOT invent or modify the URLs."
                 )
                 print(f"[IMAGE SEARCH] Injected {len(images[:2])} image(s)", flush=True)
+                trace['live'].append('Image search')
             else:
                 print(f"[IMAGE SEARCH] No images found", flush=True)
 
@@ -1216,6 +1282,7 @@ def chat():
                 "\nNo CAI hooks. No evidence framing. Just the Word, held with care."
             )
             print(f"[DEVOTIONAL] Mode active for: '{user_message[:60]}'", flush=True)
+            trace['rules'].append('Devotional mode')
 
         # Web search
         already_handled = weather_needed or time_needed
@@ -1244,12 +1311,20 @@ def chat():
                     " on this topic — present findings as illuminated corners, not exhaustive answers."
                 )
                 print(f"[WEB SEARCH] Results injected ({len(search_result)} chars)", flush=True)
+                trace['live'].append('News search' if force_news else 'Web search')
+                trace['sources'] = _parse_sources(search_result)
             else:
                 print(f"[WEB SEARCH] Search returned no usable results: {search_result[:100]}", flush=True)
+                trace['live'].append('Web search (no usable results)')
                 groq_messages[0]["content"] += (
                     "\n\nNOTE: A web search was attempted but returned no usable results."
                     " Be transparent that you could not retrieve current data rather than guessing."
                 )
+
+        if weather_needed:
+            trace['live'].append('Live weather')
+        if time_needed:
+            trace['live'].append('Live time')
 
         print(f"Calling Groq API with {len(groq_messages)} messages", flush=True)
         
@@ -1260,6 +1335,7 @@ def chat():
 
             def _generate():
                 parts = []
+                yield _sse({"meta": trace})
                 try:
                     stream = groq_client.chat.completions.create(
                         model="openai/gpt-oss-120b",
@@ -1335,7 +1411,7 @@ def chat():
             test_img = '<img src="https://images-assets.nasa.gov/image/PIA16695/PIA16695~orig.jpg" style="width:100%;border-radius:8px;margin-top:8px;">'
             assistant_message = f"Image rendering test 🌌 {test_img} If you can see a Mars rover above — pipeline confirmed! 🚀"
 
-        return jsonify({'response': assistant_message})
+        return jsonify({'response': assistant_message, 'meta': trace})
         
     except Exception as e:
         print(f"Chat error: {e}", flush=True)
