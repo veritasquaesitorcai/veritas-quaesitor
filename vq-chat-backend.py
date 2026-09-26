@@ -167,8 +167,13 @@ def _regex_location(message: str) -> str:
     if not m:
         m = re.match(r"^\s*([A-Za-z][A-Za-z .'-]{1,40}?)\s+(?:weather|time|forecast|temperature)\b", msg, re.I)
         _q = {'what', "what's", 'whats', 'the', 'is', 'how', "how's", 'hows', 'current', 'local', 'today', 'todays',
-              "today's", 'my', 'your', 'our', 'any', 'check', 'get', 'tell', 'me', 'show', 'and', 'nice', 'bad', 'good'}
+              "today's", 'my', 'your', 'our', 'any', 'check', 'get', 'tell', 'me', 'show', 'and', 'nice', 'bad', 'good',
+              'search', 'find', 'look', 'lookup', 'give', 'need', 'want', 'please', 'web', 'google', 'up'}
         if m and any(t in _q for t in m.group(1).lower().split()):
+            m = None
+    if not m:
+        m = re.search(r"\b(?:weather|time|forecast|temperature)\s+([A-Za-z][A-Za-z .'-]{1,40})\s*[?.!]*$", msg, re.I)
+        if m and m.group(1).strip().lower().split()[0] in ('is', 'like', 'now', 'today', 'there', 'here', 'please', 'going', 'be', 'will', 'right', 'at', 'in', 'for'):
             m = None
     if not m:
         return ""
@@ -1269,7 +1274,8 @@ def chat():
         trace = {
             'mode': _mode,
             'continued': continued_mode,
-            'mode_prefix': next((p for p in _MODE_PREFIXES if user_message.startswith(p)), None),
+            'mode_prefix': next((p for p in _MODE_PREFIXES if user_message.startswith(p)), None)
+                           or ('[TIME AND WEATHER]' if (is_weather_query(clean_message) or is_time_query(clean_message)) else None),
             'knowledge': [_context_label(n) for n in getattr(g, 'vq_loaded', [])],
             'rules': [],
             'live': [],
