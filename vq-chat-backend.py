@@ -1230,6 +1230,99 @@ def format_search_results(query: str, results: list) -> str:
         lines.append(f"[{i}] {r['title']}{date}\n{r['url']}\n{r['content']}")
     return "\n\n".join(lines)
 
+
+# ---------- Screen controls: VQ can adjust the app's display when the user asks ----------
+UI_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "ui_action",
+        "description": ("Change how the VQ Chat app looks or behaves on the user's screen. Only use this when the user "
+                        "asks for a change to the display, layout or chat (bigger text, open the panel, focus mode, "
+                        "show how you got an answer, a new chat, a different look, undo, reset)."),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "action": {"type": "string", "enum": ["text_size", "style", "panel", "focus_mode", "show_reasoning",
+                                                       "new_chat", "reset_display", "undo"]},
+                "size": {"type": "string", "enum": ["smaller", "larger", "compact", "comfortable", "large", "extra_large"],
+                         "description": "For text_size"},
+                "state": {"type": "string", "enum": ["open", "close", "on", "off"], "description": "For panel or focus_mode"},
+                "which": {"type": "string", "enum": ["latest", "previous"], "description": "For show_reasoning"},
+                "style": {
+                    "type": "object",
+                    "description": "For style: combine any of these to match what the user describes",
+                    "properties": {
+                        "text_scale": {"type": "number", "description": "0.8 to 1.6 (1 = normal)"},
+                        "line_spacing": {"type": "number", "description": "1.3 to 2.0"},
+                        "accent": {"type": "string", "enum": ["orange", "gold", "teal", "rose", "violet", "green", "blue"]},
+                        "contrast": {"type": "string", "enum": ["normal", "high"]},
+                        "font": {"type": "string", "enum": ["default", "readable", "serif", "mono"]},
+                        "motion": {"type": "string", "enum": ["normal", "reduced"]},
+                        "width": {"type": "string", "enum": ["narrow", "normal", "wide"]}
+                    }
+                },
+                "note": {"type": "string", "description": "A few words describing the change, e.g. 'warmer, easier to read'"}
+            },
+            "required": ["action"]
+        }
+    }
+}
+
+_UI_ENUMS = UI_TOOL["function"]["parameters"]["properties"]
+_STYLE_ENUMS = _UI_ENUMS["style"]["properties"]
+
+def validate_ui_action(args: dict):
+    """Keep only allowed actions and values; clamp numbers. Returns (clean_dict, summary) or (None, reason)."""
+    if not isinstance(args, dict):
+        return None, "not an object"
+    action = args.get("action")
+    if action not in _UI_ENUMS["action"]["enum"]:
+        return None, f"unknown action {action!r}"
+    clean = {"action": action}
+    for key in ("size", "state", "which"):
+        if args.get(key) in _UI_ENUMS[key]["enum"]:
+            clean[key] = args[key]
+    parts = []
+    if action == "style":
+        st = args.get("style") if isinstance(args.get("style"), dict) else {}
+        style = {}
+        for key, lo, hi in (("text_scale", 0.8, 1.6), ("line_spacing", 1.3, 2.0)):
+            try:
+                if key in st:
+                    style[key] = round(min(hi, max(lo, float(st[key]))), 2)
+            except (TypeError, ValueError):
+                pass
+        for key in ("accent", "contrast", "font", "motion", "width"):
+            if st.get(key) in _STYLE_ENUMS[key]["enum"]:
+                style[key] = st[key]
+        if not style:
+            return None, "style with no valid options"
+        clean["style"] = style
+        parts = [f"{k.replace('_', ' ')} {v}" for k, v in style.items()]
+    note = re.sub(r"[<>{}]", "", str(args.get("note") or ""))[:80].strip()
+    if note:
+        clean["note"] = note
+    labels = {
+        "text_size": f"Text size → {clean.get('size', 'larger').replace('_', ' ')}",
+        "style": "Look → " + ", ".join(parts),
+        "panel": f"Panel → {clean.get('state', 'open')}",
+        "focus_mode": f"Focus mode → {clean.get('state', 'on')}",
+        "show_reasoning": f"Opened the details of the {clean.get('which', 'latest')} answer",
+        "new_chat": "Started a new chat",
+        "reset_display": "Display reset to default",
+        "undo": "Undid the last screen change",
+    }
+    return clean, labels[action]
+
+UI_SYSTEM_NOTE = (
+    "\n\nSCREEN CONTROLS: You can change this app's display with the ui_action tool, but only when the user asks "
+    "for it: bigger or smaller text, open or close the Behind-this-answer panel, focus mode, show how you got an "
+    "answer, start a new chat, adjust the look, undo, or reset. For requests like 'cozier' or 'easier on the eyes' "
+    "you may combine style options creatively within their allowed values. Never change the screen unless the user "
+    "asked. After a change, confirm it in one short sentence and mention they can say 'undo'. If the user asks what "
+    "you can change or how to control the screen, list these abilities briefly in plain words."
+)
+
 # ---------- "Behind this answer" trace (shown to the user; built only from what the backend actually did) ----------
 CONTEXT_LABELS = {
     'core.txt': 'VQ core identity',
@@ -1539,6 +1632,12 @@ def chat():
             or (not tavily_available and ddg_available and needs_search(clean_message))))
         # With Tavily configured, VQ decides for itself when to search (tool call)
         offer_tool = bool(tavily_available and not already_handled and not do_search)
+        caps = data.get('clientCaps') if isinstance(data.get('clientCaps'), list) else []
+        # Screen controls only for apps that can apply them, and never when web results are already in context
+        offer_ui = bool('ui' in caps and data.get('stream') and not do_search)
+        if offer_ui:
+            groq_messages[0]["content"] += UI_SYSTEM_NOTE
+            trace['ui'] = []
         if offer_tool:
             groq_messages[0]["content"] += (
                 "\n\nWEB SEARCH TOOL: You can call web_search when an answer depends on current or specific facts "
@@ -1635,8 +1734,13 @@ def chat():
                     rounds = 0
                     while True:
                         kwargs = dict(model="openai/gpt-oss-120b", messages=msgs, temperature=0.7, max_tokens=1200, stream=True)
+                        _tools = []
                         if offer_tool and rounds < 2:
-                            kwargs.update(tools=[WEB_TOOL], tool_choice="auto")
+                            _tools.append(WEB_TOOL)
+                        if offer_ui and rounds == 0:
+                            _tools.append(UI_TOOL)   # screen changes only before any web results are read
+                        if _tools:
+                            kwargs.update(tools=_tools, tool_choice="auto")
                         stream = groq_client.chat.completions.create(**kwargs)
                         calls = {}
                         for chunk in stream:
@@ -1667,6 +1771,18 @@ def chat():
                                 args = json.loads(c["args"] or "{}")
                             except Exception:
                                 args = {}
+                            if c["name"] == "ui_action":
+                                clean_ui, summary = validate_ui_action(args) if (offer_ui and rounds == 1) else (None, "not allowed now")
+                                if clean_ui:
+                                    yield _sse({"status": "Adjusting your screen", "detail": summary})
+                                    yield _sse({"ui": clean_ui})
+                                    trace.setdefault('ui', []).append(summary)
+                                    result = f"Applied on the user's screen: {summary}."
+                                else:
+                                    print(f"[UI] rejected: {summary}", flush=True)
+                                    result = f"That screen change isn't available ({summary}). Tell the user briefly."
+                                msgs.append({"role": "tool", "tool_call_id": c["id"] or f"call_{i}", "content": result})
+                                continue
                             q = (args.get("query") or clean_message)[:200]
                             topic = args.get("topic") or "general"
                             yield _sse({"status": "Searching the news" if topic == "news" else "Searching the web", "detail": q})
