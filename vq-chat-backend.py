@@ -1284,9 +1284,12 @@ def chat():
             print(f"[DEVOTIONAL] Mode active for: '{user_message[:60]}'", flush=True)
             trace['rules'].append('Devotional mode')
 
-        # Web search
+        # Web search (run later inside the stream when streaming, so progress can be shown live)
         already_handled = weather_needed or time_needed
-        if ddg_available and not already_handled and (force_search or force_news or needs_search(clean_message)):
+        do_search = bool(ddg_available and not already_handled and (force_search or force_news or needs_search(clean_message)))
+
+        def _run_search():
+            _t0 = _time.time()
             search_result = execute_web_search(clean_message, force_news=force_news)
             if search_result and not search_result.startswith("Search failed") and not search_result.startswith("Web search is currently") and not search_result.startswith("No results"):
                 groq_messages[0]["content"] += (
@@ -1320,6 +1323,10 @@ def chat():
                     "\n\nNOTE: A web search was attempted but returned no usable results."
                     " Be transparent that you could not retrieve current data rather than guessing."
                 )
+            trace.setdefault("steps", []).append({"label": "Searched the web" if not force_news else "Searched the news", "ms": int((_time.time() - _t0) * 1000)})
+
+        if do_search and not data.get("stream"):
+            _run_search()
 
         if weather_needed:
             trace['live'].append('Live weather')
@@ -1335,7 +1342,20 @@ def chat():
 
             def _generate():
                 parts = []
+                extra = [k for k in trace['knowledge'] if k != 'VQ core identity']
+                yield _sse({"status": "Gathering what's relevant", "detail": ", ".join(extra[:3]) if extra else None})
+                if do_search:
+                    yield _sse({"status": "Searching the news" if force_news else "Searching the web"})
+                    try:
+                        _run_search()
+                    except Exception as _se:
+                        print(f"[STREAM] search error: {_se}", flush=True)
+                    if trace['sources']:
+                        yield _sse({"status": f"Reading {len(trace['sources'])} sources"})
+                if any(r.startswith('Big-question rule') for r in trace['rules']):
+                    yield _sse({"status": "Answering from a Christian starting point"})
                 yield _sse({"meta": trace})
+                yield _sse({"status": "Writing the answer"})
                 try:
                     stream = groq_client.chat.completions.create(
                         model="openai/gpt-oss-120b",
