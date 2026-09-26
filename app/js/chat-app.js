@@ -1,5 +1,5 @@
 (function() {
-    'use strict';
+    'use strict'; 
 
     const CONFIG = {
         apiEndpoint: 'https://veritas-quaesitor-production.up.railway.app/chat',
