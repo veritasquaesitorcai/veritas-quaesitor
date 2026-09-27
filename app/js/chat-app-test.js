@@ -1442,6 +1442,8 @@
         box.textContent = '';
         if (!sb) return;
         if (!currentUser) {
+            const wrap = document.createElement('div');
+            wrap.className = 'account-row guest';
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'sidebar-btn account-signin';
@@ -1451,7 +1453,9 @@
             t.textContent = 'Sign in to save your chats';
             btn.appendChild(t);
             btn.addEventListener('click', openAuthModal);
-            box.appendChild(btn);
+            wrap.appendChild(btn);
+            addAccountMenu(wrap, [['Export my chats', exportChats], ['Delete all chats…', deleteAllChats]]);
+            box.appendChild(wrap);
             return;
         }
         const row = document.createElement('div');
@@ -1471,6 +1475,13 @@
         who.className = 'acct-text acct-who';
         who.textContent = currentUser.name || currentUser.email;
         who.title = currentUser.email || '';
+        row.append(av, who);
+        addAccountMenu(row, [['Export my chats', exportChats], ['Delete all chats…', deleteAllChats],
+                             ['Sign out', () => sb.auth.signOut()], ['Delete my account…', deleteAccount]]);
+        box.appendChild(row);
+    }
+
+    function addAccountMenu(row, items) {
         const menuBtn = document.createElement('button');
         menuBtn.type = 'button';
         menuBtn.className = 'acct-menu-btn';
@@ -1480,7 +1491,7 @@
         const menu = document.createElement('div');
         menu.className = 'acct-menu';
         menu.hidden = true;
-        [['Export my chats', exportChats], ['Sign out', () => sb.auth.signOut()], ['Delete my account…', deleteAccount]].forEach(([label, fn]) => {
+        items.forEach(([label, fn]) => {
             const it = document.createElement('button');
             it.type = 'button';
             it.textContent = label;
@@ -1494,8 +1505,24 @@
             menuBtn.setAttribute('aria-expanded', String(!menu.hidden));
         });
         document.addEventListener('click', () => { menu.hidden = true; menuBtn.setAttribute('aria-expanded', 'false'); });
-        row.append(av, who, menuBtn, menu);
-        box.appendChild(row);
+        row.append(menuBtn, menu);
+    }
+
+    async function deleteAllChats() {
+        if (isTyping) return;
+        const n = Object.values(store.chats).filter(c => c.messages && c.messages.length).length;
+        if (!n) { alert('There are no chats to delete.'); return; }
+        const where = currentUser ? 'from your account on every device' : 'from this browser';
+        if (!confirm(`Delete all ${n} chat${n === 1 ? '' : 's'} ${where}? This cannot be undone.`)) return;
+        if (currentUser && sb) {
+            const { error } = await sb.from('conversations').delete().eq('user_id', currentUser.id);
+            if (error) { alert('Deleting your chats did not work. Please try again.'); console.error(error); return; }
+        }
+        store = { activeId: null, chats: {} };
+        conversationHistory = [];
+        saveStore(true);
+        renderSidebar();
+        renderActiveChat();
     }
 
     function wireAuthModal() {
