@@ -51,6 +51,7 @@
         applyUIPrefs();
         renderActiveChat();
         setupPanel();
+        setupPanelViews();
         setupAuth();
         if (window.innerWidth > 768) elements.messageInput.focus();
     }
@@ -698,6 +699,17 @@
             copyBtn.addEventListener('click', () => copyText(content.replace(/<img[^>]*>/gi, '').trim(), copyBtn));
             actions.appendChild(copyBtn);
 
+            const noteBtn = document.createElement('button');
+            noteBtn.type = 'button';
+            noteBtn.className = 'msg-action';
+            noteBtn.textContent = 'Save to notes';
+            noteBtn.addEventListener('click', () => {
+                addNote(contentDiv.innerText.trim(), true);
+                noteBtn.textContent = 'Saved ✓';
+                setTimeout(() => { noteBtn.textContent = 'Save to notes'; }, 1500);
+            });
+            actions.appendChild(noteBtn);
+
             body.appendChild(actions);
             if (meta && typeof meta === 'object') {
                 if (Array.isArray(meta.sources) && meta.sources.length) linkCitations(contentDiv, meta.sources);
@@ -1053,6 +1065,7 @@
     }
 
     function buildEntry(messageDiv) {
+        if (uiPrefs.panelDetail === 'plain') return buildPlainEntry(messageDiv);
         const rec = messageDiv._record;
         const meta = rec.meta || {};
         const art = el('article', 'insight-entry');
@@ -1253,7 +1266,8 @@
     // ---------- Screen controls (applied when VQ calls ui_action; also restored on load) ----------
 
     const UI_KEY = 'vq-ui-prefs';
-    const UI_DEFAULTS = { scale: 1, line: 1.6, accent: 'orange', contrast: 'normal', font: 'default', motion: 'normal', width: 'normal', focus: false };
+    const UI_DEFAULTS = { scale: 1, line: 1.6, accent: 'orange', contrast: 'normal', font: 'default', motion: 'normal', width: 'normal', focus: false,
+                          panelView: 'details', panelWidth: 'standard', panelDetail: 'technical' };
     const SIZE_SCALES = { compact: 0.9, comfortable: 1, large: 1.15, extra_large: 1.3 };
     const ACCENTS = {
         orange: ['#ff8c42', '#ffb27a'], gold: ['#e8b04a', '#ffd98a'], teal: ['#2fb5a3', '#7fe0d2'], rose: ['#e2627e', '#f5a3b5'],
@@ -1286,6 +1300,11 @@
         b.toggle('ui-reduce-motion', uiPrefs.motion === 'reduced');
         b.toggle('ui-focus', !!uiPrefs.focus);
         b.toggle('ui-accent-custom', uiPrefs.accent !== 'orange');
+        const pw = uiPrefs.panelWidth;
+        if (typeof pw === 'number') root.setProperty('--insight-width', `${Math.round(pw)}px`);
+        else if (pw === 'wide') root.setProperty('--insight-width', 'clamp(360px, 30vw, 560px)');
+        else root.removeProperty('--insight-width');
+        b.toggle('panel-plain', uiPrefs.panelDetail === 'plain');
     }
 
     function snapshotUI() {
@@ -1344,6 +1363,13 @@
             case 'new_chat':
                 pendingNewChat = true;   // after this reply has been shown
                 break;
+            case 'panel_view':
+                openPanel(true);
+                setPanelView(act.view === 'notes' ? 'notes' : 'details', true);
+                break;
+            case 'add_note':
+                if (act.note) addNote(act.note, true);
+                break;
             case 'reset_display':
                 uiPrefs = Object.assign({}, UI_DEFAULTS);
                 break;
@@ -1363,6 +1389,341 @@
     }
 
 
+
+
+    // ---------- Panel views: Details / Notes, options bar, width ----------
+
+    const PANEL_VIEWS = ['details', 'notes'];
+
+    function setupPanelViews() {
+        document.querySelectorAll('.panel-tab').forEach(tab => {
+            tab.addEventListener('click', () => setPanelView(tab.dataset.view, true));
+        });
+        setupPanelResize();
+        setupSelectionNotes();
+        loadNotes();
+        setPanelView(PANEL_VIEWS.includes(uiPrefs.panelView) ? uiPrefs.panelView : 'details', false);
+    }
+
+    function setPanelView(view, remember) {
+        if (!PANEL_VIEWS.includes(view)) view = 'details';
+        document.querySelectorAll('.panel-tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.view === view)));
+        elements.panelBody.hidden = view !== 'details';
+        const nb = document.getElementById('notes-body');
+        if (nb) nb.hidden = view !== 'notes';
+        if (view === 'notes') renderNotes();
+        if (remember && uiPrefs.panelView !== view) { uiPrefs.panelView = view; saveUIPrefs(); }
+        else uiPrefs.panelView = view;
+        renderPanelOptions();
+    }
+
+    function segmented(label, options, current, onPick) {
+        const g = el('div', 'opt-group');
+        g.appendChild(el('span', 'opt-label', label));
+        const seg = el('div', 'opt-seg');
+        seg.setAttribute('role', 'group');
+        seg.setAttribute('aria-label', label);
+        options.forEach(([value, text]) => {
+            const b = el('button', 'opt-btn', text);
+            b.type = 'button';
+            b.setAttribute('aria-pressed', String(current === value));
+            b.addEventListener('click', () => onPick(value));
+            seg.appendChild(b);
+        });
+        g.appendChild(seg);
+        return g;
+    }
+
+    function renderPanelOptions() {
+        const bar = document.getElementById('panel-options');
+        if (!bar) return;
+        bar.textContent = '';
+        const widthNow = typeof uiPrefs.panelWidth === 'number' ? 'custom' : uiPrefs.panelWidth;
+        bar.appendChild(segmented('Width', [['standard', 'Standard'], ['wide', 'Wide']], widthNow, v => {
+            uiUndo.push(snapshotUI());
+            uiPrefs.panelWidth = v; saveUIPrefs(); applyUIPrefs(); renderPanelOptions();
+        }));
+        if (uiPrefs.panelView === 'details') {
+            bar.appendChild(segmented('Detail', [['plain', 'Plain'], ['technical', 'Technical']], uiPrefs.panelDetail, v => {
+                uiPrefs.panelDetail = v; saveUIPrefs(); applyUIPrefs(); rebuildPanelLog(); renderPanelOptions();
+            }));
+        } else {
+            const g = el('div', 'opt-group opt-actions');
+            [['+ New note', () => addNote('', false, true)], ['Export', exportNotes], ['Clear all', clearNotes]].forEach(([t, fn]) => {
+                const b = el('button', 'opt-btn' + (t === 'Clear all' ? ' danger' : ''), t);
+                b.type = 'button';
+                b.addEventListener('click', fn);
+                g.appendChild(b);
+            });
+            bar.appendChild(g);
+        }
+    }
+
+    function setupPanelResize() {
+        const handle = document.getElementById('panel-resize');
+        if (!handle) return;
+        let dragging = false;
+        const move = (e) => {
+            if (!dragging) return;
+            const max = Math.min(720, window.innerWidth * 0.5);
+            const w = Math.max(260, Math.min(max, window.innerWidth - e.clientX));
+            document.documentElement.style.setProperty('--insight-width', `${Math.round(w)}px`);
+            uiPrefs.panelWidth = Math.round(w);
+        };
+        handle.addEventListener('pointerdown', (e) => {
+            if (!isWide()) return;
+            dragging = true;
+            handle.setPointerCapture(e.pointerId);
+            document.body.classList.add('panel-resizing');
+        });
+        handle.addEventListener('pointermove', move);
+        const stop = () => {
+            if (!dragging) return;
+            dragging = false;
+            document.body.classList.remove('panel-resizing');
+            saveUIPrefs();
+            renderPanelOptions();
+        };
+        handle.addEventListener('pointerup', stop);
+        handle.addEventListener('pointercancel', stop);
+        handle.addEventListener('dblclick', () => { uiPrefs.panelWidth = 'standard'; saveUIPrefs(); applyUIPrefs(); renderPanelOptions(); });
+    }
+
+    // Plain-language version of a panel entry
+    function buildPlainEntry(messageDiv) {
+        const rec = messageDiv._record;
+        const meta = rec.meta || {};
+        const art = el('article', 'insight-entry plain');
+        const q = findQuestionFor(rec) || '';
+        art.appendChild(el('p', 'plain-q', `Your question: “${q.length > 110 ? q.slice(0, 108) + '…' : q}”`));
+        const ul = el('ul', 'plain-steps');
+        const add = (text) => ul.appendChild(el('li', null, text));
+        const extra = (meta.knowledge || []).filter(k => k !== 'VQ core identity');
+        if (meta.mode) add(`Worked in ${meta.mode} mode${meta.continued ? ', carried on from your last question' : ''}.`);
+        if (extra.length) add(`Used background knowledge: ${extra.join(', ')}.`);
+        (meta.steps || []).forEach(st => {
+            const secs = typeof st.ms === 'number' ? ` (${(st.ms / 1000).toFixed(1)} s)` : '';
+            if (st.kind === 'live') {
+                const what = /weather/i.test(st.label) ? 'the current weather' : 'the local time';
+                add(/failed/.test(st.detail || '') ? `Tried to check ${what} for ${String(st.detail).replace(' (lookup failed)', '')}, but the lookup failed.`
+                                                    : `Checked ${what} for ${st.detail || 'the place you mentioned'}${secs}.`);
+            } else {
+                const k = typeof st.found === 'number' ? st.found : (meta.sources || []).length;
+                const pics = st.images ? ` and ${st.images} pictures` : '';
+                add(`Searched ${/news/i.test(st.label) ? 'the news' : 'the web'}${st.query ? ` for “${st.query}”` : ''} and found ${k} sources${pics}${secs}.`);
+            }
+        });
+        (meta.rules || []).filter(r => !/^Appreciation/.test(r)).forEach(r => {
+            if (/^Big-question/.test(r)) add('Answered from a Christian starting point and named naturalism as a different view, not the default.');
+            else if (/^Content discernment/.test(r)) add('Reported what is popular honestly, and only recommended what is good.');
+            else if (/^Devotional/.test(r)) add('Answered in a devotional way.');
+            else add(r + '.');
+        });
+        (meta.ui || []).forEach(u => add(`Changed your screen: ${u}.`));
+        const tm = rec.timing || {};
+        add(typeof tm.totalMs === 'number' ? `Wrote the answer in ${(tm.totalMs / 1000).toFixed(1)} s.` : 'Wrote the answer.');
+        art.appendChild(ul);
+        const sources = Array.isArray(meta.sources) ? meta.sources : [];
+        if (sources.length) {
+            art.appendChild(el('p', 'plain-sub', 'Sources'));
+            sources.forEach((src, i) => {
+                let url;
+                try { url = new URL(src.url); } catch (e) { return; }
+                if (url.protocol !== 'https:' && url.protocol !== 'http:') return;
+                const a = el('a', 'src-card');
+                a.href = url.href; a.target = '_blank'; a.rel = 'noopener noreferrer';
+                a.appendChild(el('span', 'tk-num src-num', `[${i + 1}]`));
+                const tx = el('span', 'src-card-text');
+                tx.appendChild(el('span', 'src-card-title', src.title || url.hostname));
+                tx.appendChild(el('span', 'tk-fn src-card-host', hostOf(url.href)));
+                a.appendChild(tx);
+                art.appendChild(a);
+            });
+        }
+        art.addEventListener('click', (e) => {
+            if (e.target.closest('a')) return;
+            selectAnswer(messageDiv, art);
+            messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+        entryFor.set(rec, art);
+        return art;
+    }
+
+    // ---------- Notes ----------
+
+    let notes = [];
+    let notesSynced = [];      // ids known to be in the account
+    const notesKey = () => (currentUser ? `vq-notes:u:${currentUser.id}` : 'vq-notes');
+
+    function loadNotes() {
+        try { notes = JSON.parse(localStorage.getItem(notesKey()) || '[]'); } catch (e) { notes = []; }
+        if (!Array.isArray(notes)) notes = [];
+    }
+
+    function saveNotes(quiet) {
+        try { localStorage.setItem(notesKey(), JSON.stringify(notes)); } catch (e) {}
+        if (!quiet) scheduleNotesSync();
+    }
+
+    function addNote(text, fromAnswer, focus) {
+        const chat = store.activeId ? store.chats[store.activeId] : null;
+        const note = { id: newId(), content: (text || '').slice(0, 20000), created: Date.now(), updated: Date.now(),
+                       source: fromAnswer && chat ? { chatId: chat.id, title: chat.title } : null };
+        notes.unshift(note);
+        saveNotes();
+        openPanel(isWide());
+        setPanelView('notes', true);
+        if (focus) setTimeout(() => { const ta = document.querySelector(`.note-card[data-id="${note.id}"] textarea`); if (ta) ta.focus(); }, 50);
+        return note;
+    }
+
+    function autoGrow(ta) { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight + 2, 600) + 'px'; }
+
+    function renderNotes() {
+        const nb = document.getElementById('notes-body');
+        if (!nb) return;
+        nb.textContent = '';
+        if (!notes.length) {
+            const box = el('div', 'insight-empty');
+            box.appendChild(el('span', 'tk-com', '// no notes yet'));
+            box.appendChild(el('p', null, 'Save any answer with “Save to notes”, select text in an answer and choose “Add to notes”, ask VQ to note something down, or start a note with + New note.'));
+            nb.appendChild(box);
+            return;
+        }
+        notes.forEach(note => {
+            const card = el('div', 'note-card');
+            card.dataset.id = note.id;
+            const ta = document.createElement('textarea');
+            ta.value = note.content;
+            ta.placeholder = 'Write a note…';
+            ta.setAttribute('aria-label', 'Note');
+            ta.addEventListener('input', () => {
+                note.content = ta.value; note.updated = Date.now(); autoGrow(ta);
+                clearTimeout(ta._t); ta._t = setTimeout(() => saveNotes(), 500);
+            });
+            card.appendChild(ta);
+            const foot = el('div', 'note-foot');
+            const when = new Date(note.updated || note.created);
+            if (note.source && note.source.chatId) {
+                const link = el('button', 'note-src', `from “${(note.source.title || 'a chat').slice(0, 40)}”`);
+                link.type = 'button';
+                link.addEventListener('click', () => { if (store.chats[note.source.chatId]) switchChat(note.source.chatId); });
+                foot.appendChild(link);
+            }
+            foot.appendChild(el('span', 'note-date', when.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ' ' + when.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })));
+            const del = el('button', 'note-del', '×');
+            del.type = 'button';
+            del.setAttribute('aria-label', 'Delete note');
+            del.addEventListener('click', () => { notes = notes.filter(n => n.id !== note.id); saveNotes(); renderNotes(); });
+            foot.appendChild(del);
+            card.appendChild(foot);
+            nb.appendChild(card);
+            requestAnimationFrame(() => autoGrow(ta));
+        });
+    }
+
+    function exportNotes() {
+        if (!notes.length) { alert('There are no notes to export.'); return; }
+        const md = notes.map(n => {
+            const d = new Date(n.updated || n.created).toISOString().slice(0, 16).replace('T', ' ');
+            return `## ${d}${n.source && n.source.title ? ` · from “${n.source.title}”` : ''}\n\n${n.content}\n`;
+        }).join('\n---\n\n');
+        const blob = new Blob([`# VQ notes\n\n${md}`], { type: 'text/markdown' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `vq-notes-${new Date().toISOString().slice(0, 10)}.md`;
+        document.body.appendChild(a); a.click();
+        setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    }
+
+    function clearNotes() {
+        if (!notes.length) return;
+        if (!confirm(`Delete all ${notes.length} note${notes.length === 1 ? '' : 's'}? This cannot be undone.`)) return;
+        notes = [];
+        saveNotes();
+        renderNotes();
+    }
+
+    // Select text in an answer -> small "Add to notes" button
+    function setupSelectionNotes() {
+        const pop = el('button', 'sel-note', 'Add to notes');
+        pop.type = 'button';
+        pop.hidden = true;
+        document.body.appendChild(pop);
+        let picked = '';
+        pop.addEventListener('mousedown', (e) => e.preventDefault());
+        pop.addEventListener('click', () => { if (picked) addNote(picked, true); pop.hidden = true; window.getSelection().removeAllRanges(); });
+        document.addEventListener('selectionchange', () => {
+            const sel = window.getSelection();
+            const text = sel ? sel.toString().trim() : '';
+            if (!text || sel.rangeCount === 0) { pop.hidden = true; return; }
+            const anchor = sel.anchorNode && (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement);
+            if (!anchor || !anchor.closest('.message-content')) { pop.hidden = true; return; }
+            const r = sel.getRangeAt(0).getBoundingClientRect();
+            if (!r || (!r.width && !r.height)) { pop.hidden = true; return; }
+            picked = text.slice(0, 20000);
+            pop.style.left = `${Math.max(8, Math.min(window.innerWidth - 130, r.left + r.width / 2 - 55))}px`;
+            pop.style.top = `${Math.max(8, r.top - 40)}px`;
+            pop.hidden = false;
+        });
+    }
+
+    // Account sync for notes
+    let notesTimer = null, notesSyncing = false;
+    function scheduleNotesSync() {
+        if (!currentUser || !sb) return;
+        clearTimeout(notesTimer);
+        notesTimer = setTimeout(syncNotes, 700);
+    }
+
+    async function syncNotes() {
+        if (!currentUser || !sb || notesSyncing) return;
+        notesSyncing = true;
+        try {
+            const ids = notes.map(n => n.id);
+            const gone = notesSynced.filter(id => !ids.includes(id));
+            if (gone.length) {
+                const d = await sb.from('notes').delete().in('id', gone);
+                if (d.error) throw d.error;
+            }
+            const dirty = notes.filter(n => !n.syncedAt || n.updated > n.syncedAt);
+            if (dirty.length) {
+                const rows = dirty.map(n => ({ id: n.id, content: n.content, source: n.source || null,
+                                               created_at: new Date(n.created).toISOString(), updated_at: new Date(n.updated).toISOString() }));
+                const up = await sb.from('notes').upsert(rows);
+                if (up.error) throw up.error;
+                dirty.forEach(n => { n.syncedAt = n.updated; });
+            }
+            notesSynced = ids;
+            saveNotes(true);
+        } catch (e) {
+            console.error('Saving notes to your account failed; will retry:', e);
+            setTimeout(scheduleNotesSync, 8000);
+        } finally {
+            notesSyncing = false;
+        }
+    }
+
+    async function loadCloudNotes() {
+        const guestNotes = (() => { try { return JSON.parse(localStorage.getItem('vq-notes') || '[]'); } catch (e) { return []; } })();
+        loadNotes();
+        try {
+            const r = await sb.from('notes').select('id,content,source,created_at,updated_at').order('updated_at', { ascending: false }).limit(500);
+            if (r.error) throw r.error;
+            const cloud = r.data.map(n => ({ id: n.id, content: n.content, source: n.source, created: Date.parse(n.created_at), updated: Date.parse(n.updated_at), syncedAt: Date.parse(n.updated_at) }));
+            const local = notes.filter(n => !cloud.some(c => c.id === n.id));
+            notes = cloud.concat(local).sort((a, b) => b.updated - a.updated);
+            notesSynced = cloud.map(n => n.id);
+            if (guestNotes.length && confirm(`Bring the ${guestNotes.length} note${guestNotes.length === 1 ? '' : 's'} from this browser into your account?`)) {
+                guestNotes.forEach(n => { delete n.syncedAt; notes.unshift(n); });
+                try { localStorage.removeItem('vq-notes'); } catch (e) {}
+            }
+            saveNotes();
+        } catch (e) {
+            console.error('Could not load your notes:', e);
+        }
+        if (uiPrefs.panelView === 'notes') renderNotes();
+    }
 
     // ---------- Accounts: sign-in, synced history, limits ----------
 
@@ -1410,11 +1771,16 @@
             await loadCloudStore();
             await offerGuestImport();
             await loadCloudSettings();
+            await loadCloudNotes();
+            setPanelView(uiPrefs.panelView, false);
             hideQuota();
         } else if (currentUser) {
             const oldKey = CONFIG.chatsKey;
             currentUser = null;
-            try { localStorage.removeItem(oldKey); } catch (e) {}   // don't leave a signed-out account's chats on this device
+            try { localStorage.removeItem(oldKey); localStorage.removeItem(`vq-notes:u:${oldKey.split(':u:')[1]}`); } catch (e) {}   // don't leave a signed-out account's chats or notes on this device
+            notesSynced = [];
+            loadNotes();
+            if (uiPrefs.panelView === 'notes') renderNotes();
             CONFIG.chatsKey = GUEST_CHATS_KEY;
             store = { activeId: null, chats: {} };
             loadStore();
