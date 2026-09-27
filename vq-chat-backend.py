@@ -1314,7 +1314,11 @@ WEB_TOOL = {
         "parameters": {
             "type": "object",
             "properties": {
-                "query": {"type": "string", "description": "A short, specific search query"},
+                "query": {"type": "string", "description": ("A short, specific search query. For pictures, describe what should be "
+                                                            "in the image (e.g. 'golden sunset over the ocean', 'tropical beach with "
+                                                            "palm trees and blue sky'), and if the words could also be a place, brand "
+                                                            "or title (like 'Sunny Beach' in Bulgaria), add words that make the "
+                                                            "intended meaning clear.")},
                 "topic": {"type": "string", "enum": ["general", "news"], "description": "Use news for recent events"},
                 "images": {"type": "boolean", "description": "True when the user wants to see pictures; images are then shown to them automatically"}
             },
