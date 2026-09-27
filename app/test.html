@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -197,6 +197,47 @@
         body.ui-accent-custom .message-content a { color: var(--ui-accent-2); }
         body.ui-accent-custom .cap-pill { border-color: rgba(var(--ui-accent-rgb),0.45); }
         body.ui-accent-custom #message-input:focus, body.ui-accent-custom .input-wrapper:focus-within { border-color: rgba(var(--ui-accent-rgb),0.7) !important; }
+        /* ---- Accounts ---- */
+        .account-box { margin-bottom: 0.4rem; }
+        .account-signin { width: 100%; border: 1px dashed rgba(var(--ui-accent-rgb),0.55) !important; }
+        .acct-icon svg { width: 18px; height: 18px; display: block; }
+        .account-row { position: relative; display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.5rem; border-radius: 10px; }
+        .acct-avatar { flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; background: var(--accent-gradient); color: #16112e; font-weight: 700; font-size: 0.85rem; }
+        .acct-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .acct-who { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-primary); font-size: 0.88rem; }
+        .acct-menu-btn { background: none; border: 0; color: var(--text-secondary); font-size: 1.2rem; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; }
+        .acct-menu-btn:hover { background: rgba(255,255,255,0.07); color: var(--text-primary); }
+        .acct-menu { position: absolute; left: 0.25rem; right: 0.25rem; bottom: calc(100% + 0.3rem); background: #17142f; border: 1px solid var(--border-subtle); border-radius: 12px; padding: 0.35rem; box-shadow: 0 12px 30px rgba(0,0,0,0.5); z-index: 60; display: flex; flex-direction: column; }
+        .acct-menu[hidden] { display: none; }
+        .acct-menu button { text-align: left; background: none; border: 0; color: var(--text-primary); padding: 0.55rem 0.7rem; border-radius: 8px; cursor: pointer; font-size: 0.88rem; }
+        .acct-menu button:hover { background: rgba(255,255,255,0.07); }
+        .acct-menu button.danger { color: #ff8a8a; }
+        .sidebar.minimized .acct-text, .sidebar.minimized .acct-menu-btn { display: none; }
+        .auth-modal { position: fixed; inset: 0; z-index: 1200; background: rgba(5,5,15,0.72); display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .auth-modal[hidden] { display: none; }
+        .auth-card { position: relative; width: min(26rem, 100%); background: #131128; border: 1px solid rgba(var(--ui-accent-rgb),0.35); border-radius: 18px; padding: 2rem 1.75rem 1.5rem; box-shadow: 0 30px 80px rgba(0,0,0,0.6); color: var(--text-primary); }
+        .auth-card h2 { margin: 0 0 0.35rem; font-size: 1.35rem; }
+        .auth-sub { margin: 0 0 1.25rem; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.5; }
+        .auth-close { position: absolute; top: 0.6rem; right: 0.7rem; width: 32px; height: 32px; border: 0; background: none; color: var(--text-tertiary); font-size: 1.4rem; border-radius: 8px; cursor: pointer; }
+        .auth-close:hover { background: rgba(255,255,255,0.07); color: var(--text-primary); }
+        .auth-google { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: #fff; color: #1f1f1f; font-weight: 600; font-size: 0.95rem; cursor: pointer; }
+        .auth-google svg { width: 20px; height: 20px; }
+        .auth-google:hover { box-shadow: 0 0 0 3px rgba(var(--ui-accent-rgb),0.35); }
+        .auth-or { display: flex; align-items: center; gap: 0.75rem; margin: 1rem 0; color: var(--text-tertiary); font-size: 0.8rem; }
+        .auth-or::before, .auth-or::after { content: ""; flex: 1; height: 1px; background: var(--border-subtle); }
+        .auth-email { display: flex; flex-direction: column; gap: 0.55rem; }
+        .auth-email input { padding: 0.7rem 0.9rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.05); color: var(--text-primary); font-size: 1rem; }
+        .auth-email input:focus { outline: none; border-color: rgba(var(--ui-accent-rgb),0.7); box-shadow: 0 0 0 3px rgba(var(--ui-accent-rgb),0.2); }
+        .auth-email button { padding: 0.7rem 1rem; border-radius: 12px; border: 0; background: var(--accent-gradient); color: #16112e; font-weight: 700; font-size: 0.95rem; cursor: pointer; }
+        .auth-status { min-height: 1.2em; margin: 0.8rem 0 0; font-size: 0.86rem; color: #9be0ad; line-height: 1.45; }
+        .auth-status.error { color: #ff8a8a; }
+        .auth-legal { margin: 0.8rem 0 0; font-size: 0.75rem; color: var(--text-tertiary); line-height: 1.5; }
+        .auth-legal a { color: var(--text-secondary); }
+        .auth-card button:focus-visible, .auth-card input:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
+        .quota-note { display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap; margin: 0.45rem 0 0; font-size: 0.8rem; color: var(--text-secondary); }
+        .quota-note[hidden] { display: none; }
+        .quota-note button { background: none; border: 1px solid rgba(var(--ui-accent-rgb),0.6); color: var(--text-primary); border-radius: 999px; padding: 0.15rem 0.7rem; font-size: 0.78rem; cursor: pointer; }
+        .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
         @media (max-width: 1279px) {
             #insight-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(92vw, var(--insight-width)) !important; transform: translateX(100%); transition: transform .28s ease; z-index: 200; box-shadow: -20px 0 50px rgba(0,0,0,0.5); }
             body.insight-open #insight-panel { transform: translateX(0); }
@@ -234,6 +275,7 @@
             </nav>
 
             <div class="sidebar-footer">
+                <div id="account-box" class="account-box"></div>
                 <button class="sidebar-btn" id="help-btn">
                     <span>ℹ️</span>
                     <span>About VQ</span>
@@ -314,6 +356,7 @@
                         </button>
                     </div>
                     
+                    <p id="quota-note" class="quota-note" hidden aria-live="polite"></p>
                     <p class="input-disclaimer">VQ can make mistakes. Check sources on anything important.</p>
                     <div class="input-footer">
                         <span class="char-count" id="char-count">0 / 2000</span>
@@ -335,6 +378,26 @@
             <div id="insight-body"></div>
         </aside>
         <div id="insight-scrim"></div>
+    <div id="auth-modal" class="auth-modal" hidden role="dialog" aria-modal="true" aria-labelledby="auth-title">
+        <div class="auth-card">
+            <button type="button" class="auth-close" aria-label="Close">×</button>
+            <h2 id="auth-title">Sign in to VQ</h2>
+            <p class="auth-sub">Free: 30 messages a day, and your chats saved across all your devices.</p>
+            <button type="button" id="auth-google" class="auth-google">
+                <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+                Continue with Google
+            </button>
+            <div class="auth-or"><span>or</span></div>
+            <form id="auth-email-form" class="auth-email">
+                <label for="auth-email" class="sr-only">Email address</label>
+                <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email" required>
+                <button type="submit">Email me a sign-in link</button>
+            </form>
+            <p id="auth-status" class="auth-status" aria-live="polite"></p>
+            <p class="auth-legal">No password needed. By signing in you agree to the <a href="../terms.html" target="_blank" rel="noopener">Terms</a> and <a href="../privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+        </div>
+    </div>
+
     </div>
 
     <div id="info-modal" class="modal hidden">
@@ -374,6 +437,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-09-26-accent"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
+    <script src="js/chat-app-test.js?v=2026-09-27-accounts"></script>
 </body>
 </html>
