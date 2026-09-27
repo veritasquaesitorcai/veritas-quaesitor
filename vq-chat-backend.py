@@ -1377,7 +1377,9 @@ UI_TOOL = {
             "type": "object",
             "properties": {
                 "action": {"type": "string", "enum": ["text_size", "style", "panel", "focus_mode", "show_reasoning",
-                                                       "new_chat", "reset_display", "undo"]},
+                                                       "new_chat", "reset_display", "undo", "panel_view", "add_note"]},
+                "view": {"type": "string", "enum": ["details", "notes"], "description": "For panel_view: which side-panel view to show"},
+                "text": {"type": "string", "description": "For add_note: the text to save in the user's notes (up to 2000 characters)"},
                 "size": {"type": "string", "enum": ["smaller", "larger", "compact", "comfortable", "large", "extra_large"],
                          "description": "For text_size"},
                 "state": {"type": "string", "enum": ["open", "close", "on", "off"], "description": "For panel or focus_mode"},
@@ -1413,7 +1415,7 @@ def validate_ui_action(args: dict):
     if action not in _UI_ENUMS["action"]["enum"]:
         return None, f"unknown action {action!r}"
     clean = {"action": action}
-    for key in ("size", "state", "which"):
+    for key in ("size", "state", "which", "view"):
         if args.get(key) in _UI_ENUMS[key]["enum"]:
             clean[key] = args[key]
     parts = []
@@ -1433,7 +1435,12 @@ def validate_ui_action(args: dict):
             return None, "style with no valid options"
         clean["style"] = style
         parts = [f"{k.replace('_', ' ')} {v}" for k, v in style.items()]
-    note = re.sub(r"[<>{}]", "", str(args.get("note") or ""))[:80].strip()
+    if action == "add_note":
+        text = re.sub(r"[<>]", "", str(args.get("text") or "")).strip()[:2000]
+        if not text:
+            return None, "add_note with no text"
+        clean["note"] = text
+    note = re.sub(r"[<>{}]", "", str(args.get("note") or ""))[:80].strip() if action != "add_note" else ""
     if note:
         clean["note"] = note
     labels = {
@@ -1445,13 +1452,17 @@ def validate_ui_action(args: dict):
         "new_chat": "Started a new chat",
         "reset_display": "Display reset to default",
         "undo": "Undid the last screen change",
+        "panel_view": f"Panel → {clean.get('view', 'details')}",
+        "add_note": "Saved a note",
     }
     return clean, labels[action]
 
 UI_SYSTEM_NOTE = (
     "\n\nSCREEN CONTROLS: You can change this app's display with the ui_action tool, but only when the user asks "
     "for it: bigger or smaller text, open or close the Behind-this-answer panel, focus mode, show how you got an "
-    "answer, start a new chat, adjust the look, undo, or reset. For requests like 'cozier' or 'easier on the eyes' "
+    "answer, start a new chat, adjust the look, undo, or reset, switch the side panel between Details and Notes, and "
+    "save something to the user's notes (add_note with the text) when they ask you to note or remember it for them. "
+    "For requests like 'cozier' or 'easier on the eyes' "
     "you may combine style options creatively within their allowed values. Never change the screen unless the user "
     "asked. After a change, confirm it in one short sentence and mention they can say 'undo'. If the user asks what "
     "you can change or how to control the screen, list these abilities briefly in plain words."
@@ -1665,7 +1676,7 @@ def chat():
             'model': 'gpt-oss-120b (via Groq)',
             'quota': _quota,
         }
-        if any(t in _clean_lower for t in BIG_QUESTION_TRIGGERS):
+        if _has_word(_clean_lower, BIG_QUESTION_TRIGGERS):
             trace['rules'].append('Big-question rule: answer from the anchor and name naturalism as a position, not a default')
         if _has_word(_clean_lower, ['song', 'songs', 'music', 'album', 'albums', 'chart', 'charts', 'playlist', 'artist',
                                     'artists', 'rapper', 'singer', 'band', 'movie', 'movies', 'film', 'films', 'series',
