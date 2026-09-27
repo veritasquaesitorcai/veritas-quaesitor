@@ -699,7 +699,11 @@
             actions.appendChild(copyBtn);
 
             body.appendChild(actions);
-            if (meta && typeof meta === 'object') appendAnswerChips(body, messageDiv, meta);
+            if (meta && typeof meta === 'object') {
+                if (Array.isArray(meta.sources) && meta.sources.length) linkCitations(contentDiv, meta.sources);
+                if (Array.isArray(meta.images) && meta.images.length) body.appendChild(buildGallery(meta.images));
+                appendAnswerChips(body, messageDiv, meta);
+            }
         }
 
         messageDiv.appendChild(avatar);
@@ -872,6 +876,107 @@
         return null;
     }
 
+
+    // Numbered source markers like 【3】 or 【3†L4-L9】 become small links to that source
+    function linkCitations(root, sources) {
+        const re = /【(\d+)[^】]*】/g;
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        const nodes = [];
+        while (walker.nextNode()) if (re.test(walker.currentNode.nodeValue)) nodes.push(walker.currentNode);
+        nodes.forEach(node => {
+            const frag = document.createDocumentFragment();
+            let last = 0;
+            node.nodeValue.replace(re, (m, num, idx) => {
+                frag.appendChild(document.createTextNode(node.nodeValue.slice(last, idx)));
+                const src = sources[parseInt(num, 10) - 1];
+                let url = null;
+                try { url = src && new URL(src.url); } catch (e) { url = null; }
+                if (url && (url.protocol === 'https:' || url.protocol === 'http:')) {
+                    const a = document.createElement('a');
+                    a.className = 'cite';
+                    a.href = url.href; a.target = '_blank'; a.rel = 'noopener noreferrer';
+                    a.title = src.title || url.hostname;
+                    a.textContent = num;
+                    frag.appendChild(a);
+                } else {
+                    const sup = document.createElement('sup');
+                    sup.className = 'cite';
+                    sup.textContent = num;
+                    frag.appendChild(sup);
+                }
+                last = idx + m.length;
+                return m;
+            });
+            frag.appendChild(document.createTextNode(node.nodeValue.slice(last)));
+            node.parentNode.replaceChild(frag, node);
+        });
+    }
+
+    // Pictures found by VQ's search, shown as a tidy strip under the answer
+    function buildGallery(images) {
+        const wrap = document.createElement('div');
+        wrap.className = 'img-gallery';
+        images.slice(0, 6).forEach((im, i) => {
+            let url;
+            try { url = new URL(im.url); } catch (e) { return; }
+            if (url.protocol !== 'https:') return;
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'img-thumb';
+            btn.setAttribute('aria-label', im.description ? `View image: ${im.description}` : 'View image');
+            const img = document.createElement('img');
+            img.src = url.href; img.alt = im.description || ''; img.loading = 'lazy'; img.referrerPolicy = 'no-referrer';
+            img.onerror = () => btn.remove();
+            btn.appendChild(img);
+            btn.addEventListener('click', () => openImageView(images, i));
+            wrap.appendChild(btn);
+        });
+        return wrap;
+    }
+
+    function openImageView(images, start) {
+        closeTableView();
+        let i = start;
+        const overlay = document.createElement('div');
+        overlay.className = 'table-overlay img-overlay';
+        overlay.id = 'table-overlay';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('aria-label', 'Image');
+        const box = document.createElement('figure');
+        box.className = 'img-view';
+        const img = document.createElement('img');
+        img.referrerPolicy = 'no-referrer';
+        const cap = document.createElement('figcaption');
+        const close = document.createElement('button');
+        close.type = 'button'; close.className = 'table-overlay-close'; close.setAttribute('aria-label', 'Close'); close.textContent = '×';
+        close.addEventListener('click', closeTableView);
+        const prev = document.createElement('button');
+        prev.type = 'button'; prev.className = 'img-nav prev'; prev.setAttribute('aria-label', 'Previous image'); prev.textContent = '‹';
+        const next = document.createElement('button');
+        next.type = 'button'; next.className = 'img-nav next'; next.setAttribute('aria-label', 'Next image'); next.textContent = '›';
+        const show = () => {
+            const im = images[i];
+            img.src = im.url; img.alt = im.description || '';
+            let host = '';
+            try { host = new URL(im.url).hostname.replace(/^www\./, ''); } catch (e) {}
+            cap.textContent = (im.description ? im.description + ' · ' : '') + host;
+            prev.hidden = next.hidden = images.length < 2;
+        };
+        prev.addEventListener('click', () => { i = (i - 1 + images.length) % images.length; show(); });
+        next.addEventListener('click', () => { i = (i + 1) % images.length; show(); });
+        overlay.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prev.click();
+            if (e.key === 'ArrowRight') next.click();
+        });
+        box.append(close, img, cap, prev, next);
+        overlay.appendChild(box);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) closeTableView(); });
+        document.body.appendChild(overlay);
+        show();
+        close.focus();
+    }
+
     function appendAnswerChips(body, messageDiv, meta) {
         const sources = Array.isArray(meta.sources) ? meta.sources : [];
         if (sources.length) {
@@ -962,7 +1067,8 @@
             const [v, r] = splitVerb(st.label);
             const k = typeof st.found === 'number' ? st.found : (meta.sources || []).length;
             const q = st.query ? `"${st.query}" · ` : '';
-            ol.appendChild(codeLine(++n, v, r, `${q}${k ? `${k} sources found` : 'no usable results'}`, st.ms));
+            const pics = st.images ? ` · ${st.images} images` : '';
+            ol.appendChild(codeLine(++n, v, r, `${q}${k ? `${k} sources found` : 'no usable results'}${pics}`, st.ms));
         });
         (meta.live || []).filter(x => /weather|time|image/i.test(x)).forEach(x => ol.appendChild(codeLine(++n, 'Fetched', x.toLowerCase())));
         (meta.ui || []).forEach(u => ol.appendChild(codeLine(++n, 'Changed', 'your screen', u, null, { detailClass: 'tk-fn' })));
