@@ -129,20 +129,33 @@ if owm_available:
 else:
     print("⚠ OPENWEATHER_API_KEY not set — weather via DDG fallback", flush=True)
 
+_IMAGE_REQUEST = re.compile(r"\b(image|images|photo|photos|picture|pictures|pic|pics|wallpaper|video|videos|drawing|illustration)\b", re.I)
+
+def _has_word(text: str, words) -> bool:
+    """Whole-word match, so 'hot' doesn't fire on 'photo' or 'sun' on 'sunset'."""
+    return any(re.search(r'(?<![a-z])' + re.escape(w) + r'(?![a-z])', text) for w in words)
+
+def is_image_request(message: str) -> bool:
+    return bool(_IMAGE_REQUEST.search(message or ''))
+
 def is_weather_query(message: str) -> bool:
-    """Detect if message is asking about weather."""
+    """Detect if message is asking about weather (not a request for pictures of, say, a sunny beach)."""
     weather_words = ['weather', 'temperature', 'temp', 'forecast', 'rain', 'raining',
-                     'sunny', 'cloudy', 'wind', 'humidity', 'hot', 'cold', 'degrees',
+                     'sunny', 'cloudy', 'wind', 'windy', 'humidity', 'hot', 'cold', 'degrees',
                      'climate today', 'outside like', 'umbrella']
-    msg_lower = message.lower()
-    return any(w in msg_lower for w in weather_words)
+    msg_lower = (message or '').lower()
+    if is_image_request(msg_lower) and not _has_word(msg_lower, ['weather', 'forecast', 'temperature']):
+        return False
+    return _has_word(msg_lower, weather_words)
 
 def is_time_query(message: str) -> bool:
     """Detect if message is asking about current time or date."""
     time_words = ['what time', 'current time', "what's the time", 'whats the time',
                   'time is it', 'time in ', 'time at ', 'what date', 'current date',
                   "today's date", 'todays date', 'day is it', 'what day']
-    msg_lower = message.lower()
+    msg_lower = (message or '').lower()
+    if is_image_request(msg_lower):
+        return False
     return any(w in msg_lower for w in time_words)
 
 def is_devotional_query(message: str) -> bool:
@@ -1148,11 +1161,19 @@ def _is_mode_followup(message: str, mode: str) -> bool:
     words = m.split()
     if not words or len(words) > 18:
         return False
-    if mode in ('[TIME AND WEATHER]', '[WEATHER]', '[TIME]') and len(words) <= 3 and m.replace(' ', '').replace('?', '').isalpha():
+    if mode in ('[TIME AND WEATHER]', '[WEATHER]', '[TIME]') and is_image_request(m) and not _has_word(m, ['weather', 'forecast']):
+        return False   # "an image of the sunset" is a picture request, not more weather
+    _common = {'i', 'you', 'me', 'we', 'it', 'is', 'am', 'are', 'was', 'what', 'why', 'how', 'who', 'thanks', 'thank',
+               'no', 'cool', 'nice', 'great', 'hi', 'hello', 'hey', 'sometimes', 'wonder', 'maybe',
+               'good', 'bad', 'lol', 'wow'}
+    if m.strip('?.! ') in ('yes', 'ok', 'okay', 'sure', 'please', 'yes please', 'go ahead'):
+        return True   # agreeing to an offer VQ just made in this mode
+    if mode in ('[TIME AND WEATHER]', '[WEATHER]', '[TIME]') and len(words) <= 3 \
+            and m.replace(' ', '').replace('?', '').isalpha() and not (set(w.strip('?') for w in words) & _common):
         return True   # short replies like "durban" or "and cape town?"
     if m.startswith(_FOLLOWUP_OPENERS):
         return True
-    return any(w in m for w in _MODE_TOPIC_WORDS.get(mode, []))
+    return _has_word(m, [w.strip() for w in _MODE_TOPIC_WORDS.get(mode, [])])
 
 _NOT_PLACES = {'yes', 'no', 'ok', 'okay', 'thanks', 'thank you', 'hi', 'hey', 'hello', 'sure', 'please', 'cool', 'nice'}
 
@@ -1416,6 +1437,80 @@ UI_SYSTEM_NOTE = (
     "you can change or how to control the screen, list these abilities briefly in plain words."
 )
 
+
+# ---------- Live data tools: weather and local time (VQ decides when to use them) ----------
+WEATHER_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "get_weather",
+        "description": "Current weather and today's high/low for a place. Use whenever the user asks about weather, rain, temperature or what to wear outside.",
+        "parameters": {"type": "object", "properties": {
+            "place": {"type": "string", "description": "City or town, e.g. 'Durban' or 'Cape Town, South Africa'"}},
+            "required": ["place"]}
+    }
+}
+TIME_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "get_time",
+        "description": "The exact current local time and date for a place. Use whenever the user asks what time or date it is somewhere.",
+        "parameters": {"type": "object", "properties": {
+            "place": {"type": "string", "description": "City or town, e.g. 'London'"}},
+            "required": ["place"]}
+    }
+}
+LIVE_TOOL_NAMES = ("get_weather", "get_time")
+LIVE_SYSTEM_NOTE = (
+    "\n\nLIVE DATA TOOLS: For current weather use get_weather; for the local time or date somewhere use get_time. "
+    "Never state a place's weather, local time or local date unless it came from these tools in this conversation. "
+    "If the user doesn't name a place, use the place already being discussed; if there is none, ask which place they mean. "
+    "Requests for pictures (of a sunset, a sunny beach, a storm) are picture requests, not weather questions."
+)
+
+def _time_for_place(place: str):
+    """Exact local time from the place's time zone (Open-Meteo geocoding, no key). Returns (text, resolved_name)."""
+    try:
+        import urllib.request, urllib.parse
+        from datetime import datetime
+        from zoneinfo import ZoneInfo
+        q = urllib.parse.quote(place.split('(')[0].split(',')[0].strip())
+        with urllib.request.urlopen(f"https://geocoding-api.open-meteo.com/v1/search?name={q}&count=1", timeout=8) as r:
+            geo = json.loads(r.read().decode())
+        if not geo.get('results'):
+            return "", ""
+        g = geo['results'][0]
+        name = f"{g['name']}, {g.get('country', '')}".strip(', ')
+        tz = g.get('timezone', 'UTC')
+        now = datetime.now(ZoneInfo(tz))
+        return (f"LOCAL TIME for {name} ({tz}):\nTime: {now.strftime('%I:%M %p')}\nDate: {now.strftime('%A, %B %d, %Y')}"), name
+    except Exception as e:
+        print(f"[TIME TOOL] error: {e}", flush=True)
+        return "", ""
+
+def run_live_tool(name: str, args: dict):
+    """Returns (content_for_model, step_for_panel, live_label)."""
+    place = str((args or {}).get("place") or "").strip()[:80]
+    t0 = _time.time()
+    if not place:
+        return ("No place was given. Ask the user which place they mean.",
+                {"label": "Checked the weather" if name == "get_weather" else "Checked the time", "detail": "no place given", "kind": "live"},
+                None)
+    if name == "get_weather":
+        weather_str, _time_str, _loc = get_weather_and_time(place)
+        ms = int((_time.time() - t0) * 1000)
+        if weather_str:
+            m = re.search(r"for (.+?)(?: \(|:)", weather_str)
+            resolved = m.group(1) if m else place
+            return (weather_str, {"label": "Fetched live weather", "detail": resolved, "ms": ms, "kind": "live"}, "Live weather")
+        return (f"Live weather for '{place}' could not be fetched. Say so briefly; do not guess.",
+                {"label": "Fetched live weather", "detail": f"{place} (lookup failed)", "ms": ms, "kind": "live"}, "Live weather (lookup failed)")
+    text, resolved = _time_for_place(place)
+    ms = int((_time.time() - t0) * 1000)
+    if text:
+        return (text, {"label": "Fetched live time", "detail": resolved, "ms": ms, "kind": "live"}, "Live time")
+    return (f"The local time for '{place}' could not be found. Say so briefly; do not estimate.",
+            {"label": "Fetched live time", "detail": f"{place} (lookup failed)", "ms": ms, "kind": "live"}, "Live time (lookup failed)")
+
 # ---------- "Behind this answer" trace (shown to the user; built only from what the backend actually did) ----------
 CONTEXT_LABELS = {
     'core.txt': 'VQ core identity',
@@ -1540,8 +1635,7 @@ def chat():
         trace = {
             'mode': _mode,
             'continued': continued_mode,
-            'mode_prefix': next((p for p in _MODE_PREFIXES if user_message.startswith(p)), None)
-                           or ('[TIME AND WEATHER]' if (is_weather_query(clean_message) or is_time_query(clean_message)) else None),
+            'mode_prefix': next((p for p in _MODE_PREFIXES if user_message.startswith(p)), None),
             'knowledge': [_context_label(n) for n in getattr(g, 'vq_loaded', [])],
             'rules': [],
             'live': [],
@@ -1571,7 +1665,7 @@ def chat():
         from datetime import datetime as _dt, timezone as _tz
         groq_messages[0]["content"] += (
             f"\n\nCURRENT UTC DATE AND TIME: {_dt.now(_tz.utc).strftime('%A %d %B %Y, %H:%M')} UTC. "
-            "Never state a local time or date for a place unless it is given in LIVE TIME data below. "
+            "Never state a local time or date for a place unless it came from the get_time tool or LIVE TIME data. "
             "If it is needed and missing, say you couldn't fetch it rather than estimating."
         )
         
@@ -1627,8 +1721,9 @@ def chat():
         pending_intent = get_pending_location_intent(history)
 
         # Weather + Time: both served from a single OWM call
-        weather_needed = is_weather_query(user_message) or pending_intent == 'weather' or force_weather
-        time_needed = is_time_query(user_message) or pending_intent == 'time' or force_time
+        # Weather/time are tools VQ calls itself; the old detection only runs for the legacy button prefix
+        weather_needed = bool(force_weather)
+        time_needed = bool(force_time)
 
         weather_str, time_str = "", ""
         if weather_needed or time_needed:
@@ -1751,6 +1846,9 @@ def chat():
         caps = data.get('clientCaps') if isinstance(data.get('clientCaps'), list) else []
         # Screen controls only for apps that can apply them, and never when web results are already in context
         offer_ui = bool('ui' in caps and data.get('stream') and not do_search)
+        offer_live = not already_handled
+        if offer_live:
+            groq_messages[0]["content"] += LIVE_SYSTEM_NOTE
         if offer_ui:
             groq_messages[0]["content"] += UI_SYSTEM_NOTE
             trace['ui'] = []
@@ -1856,15 +1954,14 @@ def chat():
                     rounds = 0
                     while True:
                         kwargs = dict(model="openai/gpt-oss-120b", messages=msgs, temperature=0.7, max_tokens=1200, stream=True)
-                        _tools = []
-                        if offer_tool and rounds < 2:
-                            _tools.append(WEB_TOOL)
+                        _all = ([WEB_TOOL] if offer_tool else []) + ([WEATHER_TOOL, TIME_TOOL] if offer_live else [])
+                        _tools = list(_all) if rounds < 2 else []
                         if offer_ui and rounds == 0:
                             _tools.append(UI_TOOL)   # screen changes only before any web results are read
                         if _tools:
                             kwargs.update(tools=_tools, tool_choice="auto")
-                        elif rounds > 0 and offer_tool:
-                            kwargs.update(tools=[WEB_TOOL], tool_choice="none")   # searches used up: answer now
+                        elif rounds > 0 and _all:
+                            kwargs.update(tools=_all, tool_choice="none")   # tool rounds used up: answer now
                         try:
                             stream = groq_client.chat.completions.create(**kwargs)
                         except Exception as _ce:
@@ -1906,6 +2003,15 @@ def chat():
                                 args = json.loads(c["args"] or "{}")
                             except Exception:
                                 args = {}
+                            if c["name"] in LIVE_TOOL_NAMES:
+                                _place = str(args.get("place") or "")[:80]
+                                yield _sse({"status": "Checking the weather" if c["name"] == "get_weather" else "Checking the time", "detail": _place})
+                                _content, _step, _live = run_live_tool(c["name"], args)
+                                trace.setdefault('steps', []).append(_step)
+                                if _live:
+                                    trace['live'].append(_live)
+                                msgs.append({"role": "tool", "tool_call_id": c["id"] or f"call_{i}", "content": _content})
+                                continue
                             if c["name"] == "ui_action":
                                 clean_ui, summary = validate_ui_action(args) if (offer_ui and rounds == 1) else (None, "not allowed now")
                                 if clean_ui:
@@ -1958,10 +2064,11 @@ def chat():
         msgs = list(groq_messages)
         for _round in range(3):
             kwargs = dict(model="openai/gpt-oss-120b", messages=msgs, temperature=0.7, max_tokens=1200)
-            if offer_tool and _round < 2:
-                kwargs.update(tools=[WEB_TOOL], tool_choice="auto")
-            elif offer_tool:
-                kwargs.update(tools=[WEB_TOOL], tool_choice="none")
+            _all = ([WEB_TOOL] if offer_tool else []) + ([WEATHER_TOOL, TIME_TOOL] if offer_live else [])
+            if _all and _round < 2:
+                kwargs.update(tools=_all, tool_choice="auto")
+            elif _all:
+                kwargs.update(tools=_all, tool_choice="none")
             completion = groq_client.chat.completions.create(**kwargs)
             tcs = getattr(completion.choices[0].message, "tool_calls", None) or []
             if not tcs:
@@ -1974,6 +2081,13 @@ def chat():
                     args = json.loads(tc.function.arguments or "{}")
                 except Exception:
                     args = {}
+                if tc.function.name in LIVE_TOOL_NAMES:
+                    _content, _step, _live = run_live_tool(tc.function.name, args)
+                    trace.setdefault('steps', []).append(_step)
+                    if _live:
+                        trace['live'].append(_live)
+                    msgs.append({"role": "tool", "tool_call_id": tc.id, "content": _content})
+                    continue
                 q = (args.get("query") or clean_message)[:200]
                 topic = args.get("topic") or "general"
                 res = tavily_search(q, topic, images=bool(args.get("images")))
