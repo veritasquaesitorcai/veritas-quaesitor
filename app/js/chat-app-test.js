@@ -1579,8 +1579,11 @@
     }
 
     // Notes go to VQ only when the message mentions them ("read my last note", "my notes on…")
+    const NOTES_ASK = /\b(notes?|notepad|jotted|scratchpad|wrote down|written down|i (just )?wrote|i typed|i saved|my list)\b/i;
     function notesForRequest(message) {
-        if (!/\bnotes?\b/i.test(message || '') || !notes.length) return {};
+        if (!notes.some(n => (n.content || '').trim())) return {};
+        const notesOpen = document.body.classList.contains('insight-open') && uiPrefs.panelView === 'notes';
+        if (!NOTES_ASK.test(message || '') && !notesOpen) return {};
         return { notes: notes.slice(0, 20).map(n => ({
             text: (n.content || '').slice(0, 1500),
             date: new Date(n.updated || n.created).toISOString().slice(0, 16).replace('T', ' '),
