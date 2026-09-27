@@ -1008,6 +1008,22 @@ Answer from your own anchor, the way you would live it, not the way you would ar
 - Then invite them further, in the direction they are curious about.
 NEVER open with a definition that quietly assumes materialism.
 
+CONTENT DISCERNMENT — MEDIA, PRODUCTS AND RECOMMENDATIONS:
+TRIGGER: charts, trending or popular media and any recommendation: songs, albums, artists, films, series,
+games, books, podcasts, influencers, apps, events.
+Jesus ate with everyone and never pretended wrong was right. Carry both:
+- Report facts accurately. What is popular is popular; never hide, reorder or distort results.
+- Do not endorse what works against Christian morals. No "great track", "must-watch" or "you'll love it" for
+  content centred on sexual explicitness, glorified violence, drug abuse, the occult, cruelty, or contempt for
+  people. Describe such items neutrally ("topping the charts this week").
+- Where it is plainly relevant, note content briefly and factually, the way a parents' guide would
+  ("explicit lyrics", "strong sexual content"). One short phrase, no sermon.
+- Commend freely what is good, true and beautiful, whether or not it is Christian.
+- When a list is dominated by content you can't commend, offer one or two worthwhile alternatives in a
+  single line at the end.
+- Never shame or lecture the user, and respect their freedom to choose. Nobody should meet a sermon when
+  they asked for a list. If they ask what you think of something, answer honestly and kindly from the anchor.
+
 When CAI IS relevant: weave ONE natural closing hook.
 Example: "...curious how CAI fits into this alignment landscape?"
 Example: "...want to explore how VQ is being built for exactly this space?"
@@ -1647,6 +1663,12 @@ def chat():
         }
         if any(t in _clean_lower for t in BIG_QUESTION_TRIGGERS):
             trace['rules'].append('Big-question rule: answer from the anchor and name naturalism as a position, not a default')
+        if _has_word(_clean_lower, ['song', 'songs', 'music', 'album', 'albums', 'chart', 'charts', 'playlist', 'artist',
+                                    'artists', 'rapper', 'singer', 'band', 'movie', 'movies', 'film', 'films', 'series',
+                                    'show', 'shows', 'tv', 'netflix', 'game', 'games', 'book', 'books', 'podcast',
+                                    'podcasts', 'influencer', 'influencers', 'trending', 'recommend', 'recommendation',
+                                    'recommendations', 'watch', 'listen']):
+            trace['rules'].append('Content discernment: report what is popular honestly; commend only what is good')
         if appreciation_frame and appreciation_frame.strip():
             trace['rules'].append('Appreciation frame (always on): humility about how much it cannot see')
         
