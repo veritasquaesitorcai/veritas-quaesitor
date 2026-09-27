@@ -51,6 +51,7 @@
         applyUIPrefs();
         renderActiveChat();
         setupPanel();
+        setupAuth();
         if (window.innerWidth > 768) elements.messageInput.focus();
     }
 
@@ -178,7 +179,11 @@
     // ---------- Chat storage ----------
 
     function newId() {
-        return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+            const r = Math.random() * 16 | 0;
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
     }
 
     function loadStore() {
@@ -208,7 +213,8 @@
         conversationHistory = store.activeId ? store.chats[store.activeId].messages : [];
     }
 
-    function saveStore() {
+    function saveStore(quiet) {
+        if (!quiet) scheduleSync();
         const ids = Object.keys(store.chats).sort((a, b) => store.chats[b].updated - store.chats[a].updated);
         ids.slice(CONFIG.maxChats).forEach(id => { if (id !== store.activeId) delete store.chats[id]; });
         try {
@@ -278,6 +284,9 @@
         if (isTyping || !store.chats[id]) return;
         if (!confirm('Delete this chat? This cannot be undone.')) return;
         delete store.chats[id];
+        if (currentUser && sb) {
+            sb.from('conversations').delete().eq('id', id).then(({ error }) => { if (error) console.error('Cloud delete failed:', error); });
+        }
         if (store.activeId === id) {
             store.activeId = null;
             conversationHistory = [];
@@ -1176,6 +1185,13 @@
 
     function saveUIPrefs() {
         try { localStorage.setItem(UI_KEY, JSON.stringify(uiPrefs)); } catch (e) {}
+        if (currentUser && sb) {
+            clearTimeout(saveUIPrefs._t);
+            saveUIPrefs._t = setTimeout(() => {
+                sb.from('user_settings').upsert({ user_id: currentUser.id, ui_prefs: uiPrefs, updated_at: new Date().toISOString() })
+                    .then(({ error }) => { if (error) console.error('Settings sync failed:', error); });
+            }, 600);
+        }
     }
 
     function applyUIAction(act) {
@@ -1235,6 +1251,355 @@
         }
         saveUIPrefs();
         applyUIPrefs();
+    }
+
+
+
+    // ---------- Accounts: sign-in, synced history, limits ----------
+
+    const SB_URL = 'https://luilxyqmsomulxkgjzti.supabase.co';
+    const SB_KEY = 'sb_publishable_T0CuRMOj0nTphHauilOq8g_emb9RSNs';   // public key, safe in the page
+    const GUEST_CHATS_KEY = CONFIG.chatsKey;
+    let sb = null;
+    let currentUser = null;
+    let accessToken = null;
+
+    function deviceId() {
+        let id = localStorage.getItem('vq-device-id');
+        if (!id) { id = newId(); try { localStorage.setItem('vq-device-id', id); } catch (e) {} }
+        return id;
+    }
+
+    function requestHeaders() {
+        const h = { 'Content-Type': 'application/json', 'X-VQ-Device': deviceId() };
+        if (accessToken) h['Authorization'] = `Bearer ${accessToken}`;
+        return h;
+    }
+
+    function setupAuth() {
+        wireAuthModal();
+        if (!window.supabase || !window.supabase.createClient) { renderAccount(); return; }
+        sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
+        sb.auth.onAuthStateChange((event, session) => { setTimeout(() => handleSession(session), 0); });
+        renderAccount();
+    }
+
+    async function handleSession(session) {
+        accessToken = session ? session.access_token : null;
+        const u = session && session.user;
+        if (u && currentUser && u.id === currentUser.id) return;       // token refresh only
+        if (u) {
+            const md = u.user_metadata || {};
+            currentUser = { id: u.id, email: u.email, name: md.full_name || md.name || '', avatar: md.avatar_url || md.picture || '' };
+            closeAuthModal();
+            CONFIG.chatsKey = `vq-app-chats:u:${u.id}`;
+            store = { activeId: null, chats: {} };
+            loadStore();
+            renderSidebar();
+            renderActiveChat();
+            renderAccount();
+            await loadCloudStore();
+            await offerGuestImport();
+            await loadCloudSettings();
+            hideQuota();
+        } else if (currentUser) {
+            const oldKey = CONFIG.chatsKey;
+            currentUser = null;
+            try { localStorage.removeItem(oldKey); } catch (e) {}   // don't leave a signed-out account's chats on this device
+            CONFIG.chatsKey = GUEST_CHATS_KEY;
+            store = { activeId: null, chats: {} };
+            loadStore();
+            renderSidebar();
+            renderActiveChat();
+            renderAccount();
+        } else {
+            renderAccount();
+        }
+    }
+
+    async function loadCloudStore() {
+        try {
+            const convs = await sb.from('conversations').select('id,title,updated_at').order('updated_at', { ascending: false }).limit(CONFIG.maxChats);
+            if (convs.error) throw convs.error;
+            const ids = convs.data.map(c => c.id);
+            let msgs = [];
+            if (ids.length) {
+                const r = await sb.from('messages').select('id,conversation_id,role,content,meta,timing,created_at')
+                    .in('conversation_id', ids).order('created_at', { ascending: true }).limit(5000);
+                if (r.error) throw r.error;
+                msgs = r.data;
+            }
+            const chats = {};
+            convs.data.forEach(c => {
+                chats[c.id] = { id: c.id, title: c.title || 'New chat', messages: [], updated: Date.parse(c.updated_at) || Date.now(), syncedIds: [], syncedTitle: c.title || 'New chat' };
+            });
+            msgs.forEach(m => {
+                const chat = chats[m.conversation_id];
+                if (!chat) return;
+                chat.messages.push({ role: m.role, content: m.content, meta: m.meta || null, timing: m.timing || null, mid: m.id });
+                chat.syncedIds.push(m.id);
+            });
+            // Keep anything written on this device that hasn't reached the cloud yet
+            Object.values(store.chats).forEach(c => { if (!chats[c.id] && c.messages && c.messages.length) chats[c.id] = c; });
+            const active = store.activeId && chats[store.activeId] ? store.activeId : null;
+            store = { activeId: active, chats };
+            conversationHistory = active ? chats[active].messages : [];
+            saveStore(true);
+            renderSidebar();
+            renderActiveChat();
+            scheduleSync();
+        } catch (e) {
+            console.error('Could not load chats from your account:', e);
+        }
+    }
+
+    async function offerGuestImport() {
+        const flag = `vq-imported:${currentUser.id}`;
+        if (localStorage.getItem(flag)) return;
+        let guest;
+        try { guest = JSON.parse(localStorage.getItem(GUEST_CHATS_KEY) || 'null'); } catch (e) { guest = null; }
+        const list = guest && guest.chats ? Object.values(guest.chats).filter(c => c.messages && c.messages.length) : [];
+        try { localStorage.setItem(flag, '1'); } catch (e) {}
+        if (!list.length) return;
+        if (!confirm(`Bring the ${list.length} chat${list.length === 1 ? '' : 's'} from this browser into your account?`)) return;
+        list.forEach(c => {
+            const id = newId();
+            store.chats[id] = { id, title: c.title || titleFrom(c.messages), updated: c.updated || Date.now(),
+                messages: c.messages.map(m => ({ role: m.role, content: m.content, meta: m.meta || null, timing: m.timing || null })) };
+        });
+        try { localStorage.removeItem(GUEST_CHATS_KEY); } catch (e) {}
+        saveStore();
+        renderSidebar();
+    }
+
+    async function loadCloudSettings() {
+        try {
+            const r = await sb.from('user_settings').select('ui_prefs').eq('user_id', currentUser.id).maybeSingle();
+            if (r.error) throw r.error;
+            if (r.data && r.data.ui_prefs && Object.keys(r.data.ui_prefs).length) {
+                uiPrefs = Object.assign({}, UI_DEFAULTS, r.data.ui_prefs);
+                try { localStorage.setItem(UI_KEY, JSON.stringify(uiPrefs)); } catch (e) {}
+                applyUIPrefs();
+            } else {
+                saveUIPrefs();   // first sign-in: keep the look chosen as a guest
+            }
+        } catch (e) {
+            console.error('Could not load your settings:', e);
+        }
+    }
+
+    // Push new, changed or removed messages to the account (debounced)
+    let syncTimer = null, syncing = false, syncAgain = false;
+    function scheduleSync() {
+        if (!currentUser || !sb) return;
+        clearTimeout(syncTimer);
+        syncTimer = setTimeout(syncNow, 500);
+    }
+
+    async function syncNow() {
+        if (!currentUser || !sb) return;
+        if (syncing) { syncAgain = true; return; }
+        syncing = true;
+        try {
+            for (const chat of Object.values(store.chats)) {
+                if (!chat.messages || !chat.messages.length) continue;
+                chat.syncedIds = chat.syncedIds || [];
+                chat.messages.forEach(m => { if (!m.mid) m.mid = newId(); });
+                const current = chat.messages.map(m => m.mid);
+                const toDelete = chat.syncedIds.filter(id => !current.includes(id));
+                const toInsert = chat.messages.filter(m => !chat.syncedIds.includes(m.mid));
+                if (!toDelete.length && !toInsert.length && chat.syncedTitle === chat.title) continue;
+                const up = await sb.from('conversations').upsert({ id: chat.id, title: chat.title, updated_at: new Date(chat.updated || Date.now()).toISOString() });
+                if (up.error) throw up.error;
+                if (toDelete.length) {
+                    const d = await sb.from('messages').delete().in('id', toDelete);
+                    if (d.error) throw d.error;
+                }
+                if (toInsert.length) {
+                    const base = Date.now();
+                    const rows = toInsert.map((m, i) => ({ id: m.mid, conversation_id: chat.id, role: m.role, content: m.content,
+                        meta: m.meta || null, timing: m.timing || null, created_at: new Date(base + i).toISOString() }));
+                    const ins = await sb.from('messages').insert(rows);
+                    if (ins.error) throw ins.error;
+                }
+                chat.syncedIds = current.slice();
+                chat.syncedTitle = chat.title;
+            }
+            saveStore(true);
+        } catch (e) {
+            console.error('Saving to your account failed; will retry:', e);
+            setTimeout(scheduleSync, 8000);
+        } finally {
+            syncing = false;
+            if (syncAgain) { syncAgain = false; scheduleSync(); }
+        }
+    }
+
+    // ---- Account box, sign-in dialog and menu
+    function renderAccount() {
+        const box = document.getElementById('account-box');
+        if (!box) return;
+        box.textContent = '';
+        if (!sb) return;
+        if (!currentUser) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'sidebar-btn account-signin';
+            btn.innerHTML = '<span class="acct-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></span>';
+            const t = document.createElement('span');
+            t.className = 'acct-text';
+            t.textContent = 'Sign in to save your chats';
+            btn.appendChild(t);
+            btn.addEventListener('click', openAuthModal);
+            box.appendChild(btn);
+            return;
+        }
+        const row = document.createElement('div');
+        row.className = 'account-row';
+        const av = document.createElement('span');
+        av.className = 'acct-avatar';
+        av.setAttribute('aria-hidden', 'true');
+        if (currentUser.avatar && /^https:\/\//.test(currentUser.avatar)) {
+            const img = document.createElement('img');
+            img.src = currentUser.avatar; img.alt = ''; img.referrerPolicy = 'no-referrer';
+            img.onerror = () => { img.remove(); av.textContent = (currentUser.email || '?')[0].toUpperCase(); };
+            av.appendChild(img);
+        } else {
+            av.textContent = (currentUser.name || currentUser.email || '?')[0].toUpperCase();
+        }
+        const who = document.createElement('span');
+        who.className = 'acct-text acct-who';
+        who.textContent = currentUser.name || currentUser.email;
+        who.title = currentUser.email || '';
+        const menuBtn = document.createElement('button');
+        menuBtn.type = 'button';
+        menuBtn.className = 'acct-menu-btn';
+        menuBtn.setAttribute('aria-label', 'Account menu');
+        menuBtn.setAttribute('aria-expanded', 'false');
+        menuBtn.textContent = '⋯';
+        const menu = document.createElement('div');
+        menu.className = 'acct-menu';
+        menu.hidden = true;
+        [['Export my chats', exportChats], ['Sign out', () => sb.auth.signOut()], ['Delete my account…', deleteAccount]].forEach(([label, fn]) => {
+            const it = document.createElement('button');
+            it.type = 'button';
+            it.textContent = label;
+            if (label.startsWith('Delete')) it.className = 'danger';
+            it.addEventListener('click', () => { menu.hidden = true; menuBtn.setAttribute('aria-expanded', 'false'); fn(); });
+            menu.appendChild(it);
+        });
+        menuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            menu.hidden = !menu.hidden;
+            menuBtn.setAttribute('aria-expanded', String(!menu.hidden));
+        });
+        document.addEventListener('click', () => { menu.hidden = true; menuBtn.setAttribute('aria-expanded', 'false'); });
+        row.append(av, who, menuBtn, menu);
+        box.appendChild(row);
+    }
+
+    function wireAuthModal() {
+        const modal = document.getElementById('auth-modal');
+        if (!modal || modal._wired) return;
+        modal._wired = true;
+        modal.querySelector('.auth-close').addEventListener('click', closeAuthModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeAuthModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.hidden) closeAuthModal(); });
+        const here = () => location.origin + location.pathname;
+        document.getElementById('auth-google').addEventListener('click', async () => {
+            if (!sb) return;
+            setAuthStatus('Opening Google…');
+            const { error } = await sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: here() } });
+            if (error) setAuthStatus('Google sign-in did not start: ' + error.message, true);
+        });
+        document.getElementById('auth-email-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!sb) return;
+            const email = document.getElementById('auth-email').value.trim();
+            if (!email) return;
+            setAuthStatus('Sending your sign-in link…');
+            const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: here() } });
+            if (error) setAuthStatus('That did not work: ' + error.message, true);
+            else setAuthStatus(`Check your inbox: we sent a sign-in link to ${email}. Open it on this device.`);
+        });
+    }
+
+    function setAuthStatus(text, isError) {
+        const el = document.getElementById('auth-status');
+        if (!el) return;
+        el.textContent = text;
+        el.classList.toggle('error', !!isError);
+    }
+
+    function openAuthModal() {
+        const modal = document.getElementById('auth-modal');
+        if (!modal) return;
+        setAuthStatus('');
+        modal.hidden = false;
+        setTimeout(() => document.getElementById('auth-google').focus(), 30);
+    }
+
+    function closeAuthModal() {
+        const modal = document.getElementById('auth-modal');
+        if (modal) modal.hidden = true;
+    }
+
+    function exportChats() {
+        const chats = Object.values(store.chats).filter(c => c.messages && c.messages.length)
+            .sort((a, b) => b.updated - a.updated)
+            .map(c => ({ title: c.title, updated: new Date(c.updated).toISOString(),
+                         messages: c.messages.map(m => ({ role: m.role, content: m.content })) }));
+        const blob = new Blob([JSON.stringify({ exported: new Date().toISOString(), account: currentUser ? currentUser.email : null, chats }, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `vq-chats-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    }
+
+    async function deleteAccount() {
+        if (!currentUser) return;
+        const typed = prompt('This permanently deletes your account, all your chats and your settings. It cannot be undone.\n\nType DELETE to confirm.');
+        if (typed !== 'DELETE') return;
+        try {
+            const res = await fetch(CONFIG.apiEndpoint.replace(/\/chat$/, '/account/delete'), { method: 'POST', headers: requestHeaders() });
+            if (!res.ok) throw new Error('status ' + res.status);
+            const key = CONFIG.chatsKey;
+            try { localStorage.removeItem(key); localStorage.removeItem(`vq-imported:${currentUser.id}`); } catch (e) {}
+            await sb.auth.signOut();
+            alert('Your account and all its chats have been deleted.');
+        } catch (e) {
+            alert('Deleting your account did not work. Please try again, or contact us.');
+            console.error(e);
+        }
+    }
+
+    // ---- Remaining messages note (only shown when it matters)
+    function updateQuota(q) {
+        const el = document.getElementById('quota-note');
+        if (!el || !q || typeof q.limit !== 'number' || typeof q.used !== 'number') return;
+        const left = Math.max(0, q.limit - q.used);
+        if (left > 3) { hideQuota(); return; }
+        el.textContent = '';
+        const text = document.createElement('span');
+        text.textContent = left === 0
+            ? (q.tier === 'guest' ? "You've used today's guest messages." : "You've used today's messages. They reset at midnight UTC.")
+            : `${left} ${q.tier === 'guest' ? 'guest ' : ''}message${left === 1 ? '' : 's'} left today.`;
+        el.appendChild(text);
+        if (q.tier === 'guest' && sb) {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.textContent = 'Sign in for 30 a day';
+            b.addEventListener('click', openAuthModal);
+            el.appendChild(b);
+        }
+        el.hidden = false;
+    }
+
+    function hideQuota() {
+        const el = document.getElementById('quota-note');
+        if (el) el.hidden = true;
     }
 
     // ---------- Sending ----------
@@ -1319,7 +1684,7 @@
                     if (!line) continue;
                     let msg;
                     try { msg = JSON.parse(line.slice(5).trim()); } catch (e) { continue; }
-                    if (msg.meta && typeof msg.meta === 'object') meta = msg.meta;
+                    if (msg.meta && typeof msg.meta === 'object') { meta = msg.meta; if (meta.quota) updateQuota(meta.quota); }
                     if (msg.ui && typeof msg.ui === 'object') applyUIAction(msg.ui);
                     if (typeof msg.status === 'string') {
                         if (!bubble) showPending(msg.status, msg.detail || '');
@@ -1359,7 +1724,7 @@
         try {
             const response = await fetch(CONFIG.apiEndpoint, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: requestHeaders(),
                 body: JSON.stringify({ message: message, history: history, stream: true, lastMode: lastMode, clientCaps: ['ui'] })
             });
 
@@ -1376,6 +1741,7 @@
 
             if (!response.ok) {
                 // Friendly messages from the server (rate limit, too long) are shown but not saved
+                if (data && data.quota) updateQuota(data.quota);
                 if (data && data.response) {
                     dropLiveEntry();
                     addMessageToUI('assistant', data.response);
