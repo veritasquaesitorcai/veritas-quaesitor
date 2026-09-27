@@ -1278,20 +1278,22 @@ WEB_TOOL = {
             "type": "object",
             "properties": {
                 "query": {"type": "string", "description": "A short, specific search query"},
-                "topic": {"type": "string", "enum": ["general", "news"], "description": "Use news for recent events"}
+                "topic": {"type": "string", "enum": ["general", "news"], "description": "Use news for recent events"},
+                "images": {"type": "boolean", "description": "True when the user wants to see pictures; images are then shown to them automatically"}
             },
             "required": ["query"]
         }
     }
 }
 
-def tavily_search(query: str, topic: str = "general", max_results: int = 5) -> dict:
+def tavily_search(query: str, topic: str = "general", max_results: int = 5, images: bool = False) -> dict:
     """One fast Tavily search. Returns {'results': [...], 'ms': int, 'error': str|None}."""
     import urllib.request
     t0 = _time.time()
     try:
         body = json.dumps({"query": query[:400], "topic": topic if topic in ("general", "news") else "general",
-                           "max_results": max_results, "search_depth": "basic"}).encode()
+                           "max_results": max_results, "search_depth": "basic",
+                           "include_images": bool(images), "include_image_descriptions": bool(images)}).encode()
         req = urllib.request.Request("https://api.tavily.com/search", data=body, headers={
             "Content-Type": "application/json", "Authorization": f"Bearer {TAVILY_API_KEY}"})
         with urllib.request.urlopen(req, timeout=15) as r:
@@ -1299,11 +1301,16 @@ def tavily_search(query: str, topic: str = "general", max_results: int = 5) -> d
         results = [{"title": (x.get("title") or "")[:160], "url": x.get("url") or "",
                     "content": (x.get("content") or "")[:900], "date": x.get("published_date")}
                    for x in data.get("results", []) if x.get("url")]
-        print(f"[TAVILY] '{query[:60]}' ({topic}) -> {len(results)} results", flush=True)
-        return {"results": results, "ms": int((_time.time() - t0) * 1000), "error": None}
+        pics = []
+        for im in (data.get("images") or [])[:6]:
+            url = im.get("url") if isinstance(im, dict) else im
+            if isinstance(url, str) and url.startswith("https://"):
+                pics.append({"url": url[:500], "description": ((im.get("description") if isinstance(im, dict) else "") or "")[:200]})
+        print(f"[TAVILY] '{query[:60]}' ({topic}) -> {len(results)} results, {len(pics)} images", flush=True)
+        return {"results": results, "images": pics, "ms": int((_time.time() - t0) * 1000), "error": None}
     except Exception as e:
         print(f"[TAVILY] error: {e}", flush=True)
-        return {"results": [], "ms": int((_time.time() - t0) * 1000), "error": str(e)}
+        return {"results": [], "images": [], "ms": int((_time.time() - t0) * 1000), "error": str(e)}
 
 def format_search_results(query: str, results: list) -> str:
     if not results:
@@ -1698,7 +1705,7 @@ def chat():
                     )
 
         # Image search
-        if is_image_query(user_message) and ddg_available:
+        if is_image_query(user_message) and ddg_available and not tavily_available:
             images = execute_image_search(user_message, num_results=5)
             if images:
                 img_tags = ''.join([
@@ -1762,7 +1769,13 @@ def chat():
                     trace['sources'].append({'title': r['title'] or r['url'], 'url': r['url']})
             trace.setdefault('steps', []).append({
                 'label': 'Searched the news' if topic == 'news' else 'Searched the web',
-                'ms': res['ms'], 'query': query, 'found': len(trace['sources']) - start})
+                'ms': res['ms'], 'query': query, 'found': len(trace['sources']) - start,
+                'images': len(res.get('images') or [])})
+            if res.get('images'):
+                seen = {im['url'] for im in trace.setdefault('images', [])}
+                for im in res['images']:
+                    if im['url'] not in seen and len(trace['images']) < 8:
+                        trace['images'].append(im)
 
         def _run_search():
             if tavily_available:
@@ -1850,7 +1863,20 @@ def chat():
                             _tools.append(UI_TOOL)   # screen changes only before any web results are read
                         if _tools:
                             kwargs.update(tools=_tools, tool_choice="auto")
-                        stream = groq_client.chat.completions.create(**kwargs)
+                        elif rounds > 0 and offer_tool:
+                            kwargs.update(tools=[WEB_TOOL], tool_choice="none")   # searches used up: answer now
+                        try:
+                            stream = groq_client.chat.completions.create(**kwargs)
+                        except Exception as _ce:
+                            if rounds == 0:
+                                raise
+                            # Fall back to a plain answer from what was already found
+                            print(f"[STREAM] final call failed ({_ce}); answering without tools", flush=True)
+                            _found = "\n\n".join(m["content"] for m in msgs if m.get("role") == "tool")
+                            _plain = [dict(groq_messages[0], content=groq_messages[0]["content"] + "\n\n=== WEB SEARCH ===\n" + _found)] \
+                                     + [m for m in msgs[1:] if m.get("role") in ("user",) or (m.get("role") == "assistant" and not m.get("tool_calls"))]
+                            stream = groq_client.chat.completions.create(model="openai/gpt-oss-120b", messages=_plain,
+                                                                         temperature=0.7, max_tokens=1200, stream=True)
                         calls = {}
                         for chunk in stream:
                             if not chunk.choices:
@@ -1895,12 +1921,17 @@ def chat():
                             q = (args.get("query") or clean_message)[:200]
                             topic = args.get("topic") or "general"
                             yield _sse({"status": "Searching the news" if topic == "news" else "Searching the web", "detail": q})
-                            res = tavily_search(q, topic)
+                            res = tavily_search(q, topic, images=bool(args.get("images")))
                             _record_search(q, topic, res)
                             if res['results']:
                                 yield _sse({"status": f"Reading {len(res['results'])} sources"})
-                            msgs.append({"role": "tool", "tool_call_id": c["id"] or f"call_{i}",
-                                         "content": format_search_results(q, res['results'])})
+                            _content = format_search_results(q, res['results'])
+                            if res.get('images'):
+                                _content += (f"\n\n{len(res['images'])} images from this search will be shown to the user under your answer "
+                                             "automatically. Do not insert image tags, image links or markdown images yourself; you may refer to them.")
+                            msgs.append({"role": "tool", "tool_call_id": c["id"] or f"call_{i}", "content": _content})
+                        if trace.get('images'):
+                            yield _sse({"images": trace['images']})
                         yield _sse({"meta": trace})
                         yield _sse({"status": "Writing the answer"})
                     if not "".join(parts).strip():
@@ -1929,6 +1960,8 @@ def chat():
             kwargs = dict(model="openai/gpt-oss-120b", messages=msgs, temperature=0.7, max_tokens=1200)
             if offer_tool and _round < 2:
                 kwargs.update(tools=[WEB_TOOL], tool_choice="auto")
+            elif offer_tool:
+                kwargs.update(tools=[WEB_TOOL], tool_choice="none")
             completion = groq_client.chat.completions.create(**kwargs)
             tcs = getattr(completion.choices[0].message, "tool_calls", None) or []
             if not tcs:
@@ -1943,9 +1976,13 @@ def chat():
                     args = {}
                 q = (args.get("query") or clean_message)[:200]
                 topic = args.get("topic") or "general"
-                res = tavily_search(q, topic)
+                res = tavily_search(q, topic, images=bool(args.get("images")))
                 _record_search(q, topic, res)
-                msgs.append({"role": "tool", "tool_call_id": tc.id, "content": format_search_results(q, res['results'])})
+                _content = format_search_results(q, res['results'])
+                if res.get('images'):
+                    _content += (f"\n\n{len(res['images'])} images from this search will be shown to the user under your answer "
+                                 "automatically. Do not insert image tags, image links or markdown images yourself; you may refer to them.")
+                msgs.append({"role": "tool", "tool_call_id": tc.id, "content": _content})
         
         assistant_message = completion.choices[0].message.content or ""
 
