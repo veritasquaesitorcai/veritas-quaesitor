@@ -1584,11 +1584,15 @@
         if (!notes.some(n => (n.content || '').trim())) return {};
         const notesOpen = document.body.classList.contains('insight-open') && uiPrefs.panelView === 'notes';
         if (!NOTES_ASK.test(message || '') && !notesOpen) return {};
-        return { notes: notes.slice(0, 20).map(n => ({
-            text: (n.content || '').slice(0, 1500),
-            date: new Date(n.updated || n.created).toISOString().slice(0, 16).replace('T', ' '),
-            source: n.source && n.source.title ? n.source.title : null
-        })).filter(n => n.text.trim()) };
+        const tz = (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch (e) { return ''; } })();
+        const local = (t) => new Date(t).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        return { notes: notes.filter(n => (n.content || '').trim())
+            .slice().sort((a, b) => (b.updated || b.created) - (a.updated || a.created))
+            .slice(0, 20).map(n => ({
+                text: (n.content || '').slice(0, 1500),
+                date: `${local(n.updated || n.created)}${tz ? ' (' + tz + ')' : ''}`,
+                source: n.source && n.source.title ? n.source.title : null
+            })) };
     }
 
     function autoGrow(ta) { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight + 2, 600) + 'px'; }
@@ -1604,6 +1608,7 @@
             nb.appendChild(box);
             return;
         }
+        notes.sort((a, b) => (b.updated || b.created) - (a.updated || a.created));   // same order VQ uses: last changed first
         notes.forEach(note => {
             const card = el('div', 'note-card');
             card.dataset.id = note.id;
