@@ -47,7 +47,7 @@ def _rate_limited_locked(ip):
 
 @app.before_request
 def _guard_chat():
-    if request.path != "/chat" or request.method != "POST":
+    if request.path not in ("/chat", "/account/delete") or request.method != "POST":
         return None
     origin = request.headers.get("Origin", "")
     if origin not in ALLOWED_ORIGINS:
@@ -1176,6 +1176,92 @@ def _location_from_history(history: list) -> str:
     return ""
 
 
+
+# ---------- Accounts and daily limits (Supabase) ----------
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
+SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
+accounts_available = bool(SUPABASE_URL and SUPABASE_SERVICE_KEY)
+GUEST_DAILY_LIMIT = int(os.environ.get("GUEST_DAILY_LIMIT", "10"))
+FREE_DAILY_LIMIT = int(os.environ.get("FREE_DAILY_LIMIT", "30"))
+GUEST_IP_DAILY_CAP = int(os.environ.get("GUEST_IP_DAILY_CAP", "40"))   # stops device-id rotation abuse
+print(f"{'✓' if accounts_available else '⚠'} Accounts {'ready' if accounts_available else 'not configured (everyone treated as guest)'}", flush=True)
+
+_token_cache = {}          # sha256(token) -> (user_dict, expires_at)
+_guest_counts = defaultdict(int)   # (day, key) -> count
+_guest_lock = _threading.Lock()
+
+def _supabase_request(method, path, body=None, token=None, timeout=8):
+    import urllib.request, urllib.error
+    headers = {"apikey": SUPABASE_SERVICE_KEY, "Content-Type": "application/json",
+               "Authorization": f"Bearer {token or SUPABASE_SERVICE_KEY}"}
+    data = json.dumps(body).encode() if body is not None else None
+    req = urllib.request.Request(SUPABASE_URL + path, data=data, headers=headers, method=method)
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            raw = r.read().decode()
+            return r.status, (json.loads(raw) if raw else None)
+    except urllib.error.HTTPError as e:
+        return e.code, None
+    except Exception as e:
+        print(f"[ACCOUNTS] request error: {e}", flush=True)
+        return 0, None
+
+def current_user():
+    """The signed-in user for this request (verified with Supabase), or None for guests."""
+    if not accounts_available:
+        return None
+    auth = request.headers.get("Authorization", "")
+    if not auth.startswith("Bearer "):
+        return None
+    token = auth[7:].strip()
+    if not token or len(token) > 4096:
+        return None
+    import hashlib
+    key = hashlib.sha256(token.encode()).hexdigest()
+    now = _time.time()
+    hit = _token_cache.get(key)
+    if hit and hit[1] > now:
+        return hit[0]
+    status, data = _supabase_request("GET", "/auth/v1/user", token=token)
+    user = {"id": data["id"], "email": data.get("email")} if status == 200 and data and data.get("id") else None
+    _token_cache[key] = (user, now + (300 if user else 30))
+    if len(_token_cache) > 20000:
+        for k in [k for k, v in _token_cache.items() if v[1] < now]:
+            _token_cache.pop(k, None)
+    return user
+
+def use_quota(user):
+    """Count one message. Returns (allowed, quota_dict)."""
+    day = _time.strftime("%Y-%m-%d", _time.gmtime())
+    if user:
+        status, count = _supabase_request("POST", "/rest/v1/rpc/use_message",
+                                          {"p_user": user["id"], "p_limit": FREE_DAILY_LIMIT})
+        if status != 200 or not isinstance(count, int):
+            print(f"[QUOTA] check failed (status {status}); allowing this message", flush=True)
+            return True, {"tier": "free", "used": None, "limit": FREE_DAILY_LIMIT}
+        if count < 0:
+            return False, {"tier": "free", "used": FREE_DAILY_LIMIT, "limit": FREE_DAILY_LIMIT}
+        return True, {"tier": "free", "used": count, "limit": FREE_DAILY_LIMIT}
+    ip = _client_ip()
+    device = (request.headers.get("X-VQ-Device") or "")[:64]
+    with _guest_lock:
+        if len(_guest_counts) > 100000:
+            for k in [k for k in _guest_counts if k[0] != day]:
+                _guest_counts.pop(k, None)
+        dev_key, ip_key = (day, f"dev:{ip}:{device}"), (day, f"ip:{ip}")
+        if _guest_counts[dev_key] >= GUEST_DAILY_LIMIT or _guest_counts[ip_key] >= GUEST_IP_DAILY_CAP:
+            return False, {"tier": "guest", "used": GUEST_DAILY_LIMIT, "limit": GUEST_DAILY_LIMIT}
+        _guest_counts[dev_key] += 1
+        _guest_counts[ip_key] += 1
+        return True, {"tier": "guest", "used": _guest_counts[dev_key], "limit": GUEST_DAILY_LIMIT}
+
+def limit_message(quota):
+    if quota["tier"] == "guest":
+        return (f"You've used today's {quota['limit']} guest messages. Sign in (it's free) for "
+                f"{FREE_DAILY_LIMIT} a day and your chats saved across devices, or come back tomorrow.")
+    return (f"You've reached today's {quota['limit']} messages. They reset at midnight UTC. "
+            "Thank you for spending the day with VQ.")
+
 # ---------- Tavily web search (VQ decides when to search) ----------
 TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY", "")
 tavily_available = bool(TAVILY_API_KEY)
@@ -1365,6 +1451,22 @@ def _parse_sources(search_result):
             break
     return sources
 
+
+@app.route('/account/delete', methods=['POST'])
+def delete_account():
+    """Permanently delete the signed-in user's account; their chats, settings and usage go with it (cascade)."""
+    user = current_user()
+    if not user:
+        return jsonify({"error": "not_signed_in"}), 401
+    status, _ = _supabase_request("DELETE", f"/auth/v1/admin/users/{user['id']}")
+    if status not in (200, 204):
+        print(f"[ACCOUNTS] delete failed for {user['id']}: {status}", flush=True)
+        return jsonify({"error": "delete_failed"}), 502
+    for k in [k for k, v in _token_cache.items() if v[0] and v[0].get("id") == user["id"]]:
+        _token_cache.pop(k, None)
+    print(f"[ACCOUNTS] deleted account {user['id']}", flush=True)
+    return jsonify({"deleted": True})
+
 @app.route('/chat', methods=['POST'])
 def chat():
     try:
@@ -1383,6 +1485,12 @@ def chat():
             return jsonify({'error': 'message_too_long',
                             'response': f'That message is a bit long for me. Please keep it under {MAX_MESSAGE_CHARS} characters.'}), 400
         history = _clean_history(data.get('history', []), user_message)
+
+        # Daily limit per account (or per guest device)
+        _user = current_user()
+        _allowed, _quota = use_quota(_user)
+        if not _allowed:
+            return jsonify({'error': 'daily_limit', 'response': limit_message(_quota), 'quota': _quota}), 429
         page_context = data.get('pageContext', None)
         if not isinstance(page_context, dict):
             page_context = None
@@ -1434,6 +1542,7 @@ def chat():
             'page': (page_context or {}).get('pageType') if page_context else None,
             'history_used': len(history),
             'model': 'gpt-oss-120b (via Groq)',
+            'quota': _quota,
         }
         if any(t in _clean_lower for t in BIG_QUESTION_TRIGGERS):
             trace['rules'].append('Big-question rule: answer from the anchor and name naturalism as a position, not a default')
