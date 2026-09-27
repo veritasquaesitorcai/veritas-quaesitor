@@ -1390,11 +1390,11 @@ UI_TOOL = {
                     "properties": {
                         "text_scale": {"type": "number", "description": "0.8 to 1.6 (1 = normal)"},
                         "line_spacing": {"type": "number", "description": "1.3 to 2.0"},
-                        "accent": {"type": "string", "enum": ["orange", "gold", "teal", "rose", "violet", "green", "blue"]},
-                        "contrast": {"type": "string", "enum": ["normal", "high"]},
-                        "font": {"type": "string", "enum": ["default", "readable", "serif", "mono"]},
-                        "motion": {"type": "string", "enum": ["normal", "reduced"]},
-                        "width": {"type": "string", "enum": ["narrow", "normal", "wide"]}
+                        "accent": {"type": "string", "description": "orange, gold, teal, rose, violet, green or blue (red/pink map to rose, yellow to gold, purple to violet)"},
+                        "contrast": {"type": "string", "description": "normal or high"},
+                        "font": {"type": "string", "description": "default, readable, serif or mono"},
+                        "motion": {"type": "string", "description": "normal or reduced"},
+                        "width": {"type": "string", "description": "narrow, normal or wide"}
                     }
                 },
                 "note": {"type": "string", "description": "A few words describing the change, e.g. 'warmer, easier to read'"}
@@ -1405,7 +1405,16 @@ UI_TOOL = {
 }
 
 _UI_ENUMS = UI_TOOL["function"]["parameters"]["properties"]
-_STYLE_ENUMS = _UI_ENUMS["style"]["properties"]
+_STYLE_CHOICES = {
+    "accent": ["orange", "gold", "teal", "rose", "violet", "green", "blue"],
+    "contrast": ["normal", "high"], "font": ["default", "readable", "serif", "mono"],
+    "motion": ["normal", "reduced"], "width": ["narrow", "normal", "wide"],
+}
+_ACCENT_SYNONYMS = {"red": "rose", "pink": "rose", "crimson": "rose", "scarlet": "rose", "magenta": "rose",
+                    "purple": "violet", "lilac": "violet", "lavender": "violet", "indigo": "violet",
+                    "yellow": "gold", "amber": "gold", "golden": "gold", "cyan": "teal", "turquoise": "teal",
+                    "aqua": "teal", "mint": "teal", "navy": "blue", "sky": "blue", "azure": "blue",
+                    "lime": "green", "emerald": "green", "olive": "green", "peach": "orange", "coral": "orange"}
 
 def validate_ui_action(args: dict):
     """Keep only allowed actions and values; clamp numbers. Returns (clean_dict, summary) or (None, reason)."""
@@ -1429,12 +1438,19 @@ def validate_ui_action(args: dict):
             except (TypeError, ValueError):
                 pass
         for key in ("accent", "contrast", "font", "motion", "width"):
-            if st.get(key) in _STYLE_ENUMS[key]["enum"]:
-                style[key] = st[key]
+            val = str(st.get(key) or "").strip().lower()
+            if key == "accent":
+                val = _ACCENT_SYNONYMS.get(val, val)
+            if val in _STYLE_CHOICES[key]:
+                style[key] = val
         if not style:
-            return None, "style with no valid options"
+            return None, ("that option isn't available. Accent colours: orange, gold, teal, rose, violet, green, blue; "
+                          "fonts: default, readable, serif, mono")
         clean["style"] = style
         parts = [f"{k.replace('_', ' ')} {v}" for k, v in style.items()]
+        asked = str(st.get("accent") or "").strip().lower()
+        if "accent" in style and asked and asked != style["accent"]:
+            parts = [p + f" (the closest to {asked})" if p.startswith("accent") else p for p in parts]
     if action == "add_note":
         text = re.sub(r"[<>]", "", str(args.get("text") or "")).strip()[:2000]
         if not text:
@@ -1468,6 +1484,15 @@ UI_SYSTEM_NOTE = (
     "you can change or how to control the screen, list these abilities briefly in plain words."
 )
 
+
+
+def _looks_degenerate(text: str) -> bool:
+    """True when recent output is mostly lines with no real words (runs of dashes, dots or ellipses)."""
+    lines = [l for l in text[-1500:].split("\n") if l.strip()]
+    if len(lines) < 10:
+        return False
+    junk = sum(1 for l in lines[-15:] if not re.search(r"[A-Za-z0-9]{3,}", l))
+    return junk >= 10
 
 # ---------- Live data tools: weather and local time (VQ decides when to use them) ----------
 WEATHER_TOOL = {
@@ -1989,11 +2014,12 @@ def chat():
                 try:
                     msgs = list(groq_messages)
                     rounds = 0
+                    tools_disabled = False
                     while True:
                         kwargs = dict(model="openai/gpt-oss-120b", messages=msgs, temperature=0.7, max_tokens=1200, stream=True)
-                        _all = ([WEB_TOOL] if offer_tool else []) + ([WEATHER_TOOL, TIME_TOOL] if offer_live else [])
+                        _all = [] if tools_disabled else ([WEB_TOOL] if offer_tool else []) + ([WEATHER_TOOL, TIME_TOOL] if offer_live else [])
                         _tools = list(_all) if rounds < 2 else []
-                        if offer_ui and rounds == 0:
+                        if offer_ui and rounds == 0 and not tools_disabled:
                             _tools.append(UI_TOOL)   # screen changes only before any web results are read
                         if _tools:
                             kwargs.update(tools=_tools, tool_choice="auto")
@@ -2003,15 +2029,23 @@ def chat():
                             stream = groq_client.chat.completions.create(**kwargs)
                         except Exception as _ce:
                             if rounds == 0:
-                                raise
-                            # Fall back to a plain answer from what was already found
-                            print(f"[STREAM] final call failed ({_ce}); answering without tools", flush=True)
-                            _found = "\n\n".join(m["content"] for m in msgs if m.get("role") == "tool")
-                            _plain = [dict(groq_messages[0], content=groq_messages[0]["content"] + "\n\n=== WEB SEARCH ===\n" + _found)] \
-                                     + [m for m in msgs[1:] if m.get("role") in ("user",) or (m.get("role") == "assistant" and not m.get("tool_calls"))]
-                            stream = groq_client.chat.completions.create(model="openai/gpt-oss-120b", messages=_plain,
-                                                                         temperature=0.7, max_tokens=1200, stream=True)
+                                if "tools" not in kwargs:
+                                    raise
+                                # A malformed tool call shouldn't break the reply: answer without tools
+                                print(f"[STREAM] first call with tools failed ({_ce}); answering without tools", flush=True)
+                                tools_disabled = True
+                                kwargs.pop("tools", None); kwargs.pop("tool_choice", None)
+                                stream = groq_client.chat.completions.create(**kwargs)
+                            else:
+                                # Fall back to a plain answer from what was already found
+                                print(f"[STREAM] final call failed ({_ce}); answering without tools", flush=True)
+                                _found = "\n\n".join(m["content"] for m in msgs if m.get("role") == "tool")
+                                _plain = [dict(groq_messages[0], content=groq_messages[0]["content"] + "\n\n=== WEB SEARCH ===\n" + _found)] \
+                                         + [m for m in msgs[1:] if m.get("role") in ("user",) or (m.get("role") == "assistant" and not m.get("tool_calls"))]
+                                stream = groq_client.chat.completions.create(model="openai/gpt-oss-120b", messages=_plain,
+                                                                             temperature=0.7, max_tokens=1200, stream=True)
                         calls = {}
+                        degenerate = False
                         for chunk in stream:
                             if not chunk.choices:
                                 continue
@@ -2020,6 +2054,9 @@ def chat():
                             if delta:
                                 parts.append(delta)
                                 yield _sse({"delta": delta})
+                                if "\n" in delta and _looks_degenerate("".join(parts)):
+                                    degenerate = True
+                                    break
                             for tc in (getattr(d, "tool_calls", None) or []):
                                 c = calls.setdefault(getattr(tc, "index", 0) or 0, {"id": None, "name": "", "args": ""})
                                 if getattr(tc, "id", None):
@@ -2028,6 +2065,15 @@ def chat():
                                 if fn is not None:
                                     c["name"] += getattr(fn, "name", None) or ""
                                     c["args"] += getattr(fn, "arguments", None) or ""
+                        if degenerate:
+                            # The model slipped into filler (lines of dashes/dots): replace it with a clean answer
+                            print("[STREAM] degenerate output detected; regenerating", flush=True)
+                            retry = groq_client.chat.completions.create(model="openai/gpt-oss-120b", messages=msgs,
+                                                                        temperature=0.4, max_tokens=1200, reasoning_effort="low")
+                            text = (retry.choices[0].message.content or "").strip() or "Sorry, that answer came out garbled. Could you ask again?"
+                            parts[:] = [text]
+                            yield _sse({"replace": text})
+                            break
                         if not calls:
                             break
                         rounds += 1
@@ -2075,6 +2121,18 @@ def chat():
                             msgs.append({"role": "tool", "tool_call_id": c["id"] or f"call_{i}", "content": _content})
                         if trace.get('images'):
                             yield _sse({"images": trace['images']})
+                        if all(c["name"] == "ui_action" for c in calls.values()):
+                            done = [m["content"] for m in msgs[-len(calls):]]
+                            ok = [d.replace("Applied on the user's screen: ", "").rstrip(".") for d in done if d.startswith("Applied")]
+                            bad = [d for d in done if not d.startswith("Applied")]
+                            if ok:
+                                text = "Done: " + "; ".join(ok) + ". Say \"undo\" if you'd like it back."
+                            else:
+                                text = "I couldn't make that change: " + bad[0].split("(", 1)[-1].split(")")[0] + "."
+                            parts.append(text)
+                            yield _sse({"meta": trace})
+                            yield _sse({"delta": text})
+                            break
                         yield _sse({"meta": trace})
                         yield _sse({"status": "Writing the answer"})
                     if not "".join(parts).strip():
