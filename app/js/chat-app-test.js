@@ -1078,7 +1078,7 @@
         ol.appendChild(codeLine(++n, 'Gathered', "what's relevant", extra.length ? extra.join(', ') : 'core knowledge only', null, { detailClass: extra.length ? 'tk-fn' : 'tk-str' }));
         (meta.steps || []).forEach(st => {
             const [v, r] = splitVerb(st.label);
-            if (st.kind === 'live') { ol.appendChild(codeLine(++n, v, r, st.detail || null, st.ms, { detailClass: 'tk-fn' })); return; }
+            if (st.kind === 'live' || st.kind === 'notes') { ol.appendChild(codeLine(++n, v, r, st.detail || null, st.ms, { detailClass: 'tk-fn' })); return; }
             const k = typeof st.found === 'number' ? st.found : (meta.sources || []).length;
             const q = st.query ? `"${st.query}" · ` : '';
             const pics = st.images ? ` · ${st.images} images` : '';
@@ -1503,6 +1503,7 @@
         if (extra.length) add(`Used background knowledge: ${extra.join(', ')}.`);
         (meta.steps || []).forEach(st => {
             const secs = typeof st.ms === 'number' ? ` (${(st.ms / 1000).toFixed(1)} s)` : '';
+            if (st.kind === 'notes') { add(`Read your notes (${st.detail}), because you asked about them.`); return; }
             if (st.kind === 'live') {
                 const what = /weather/i.test(st.label) ? 'the current weather' : 'the local time';
                 add(/failed/.test(st.detail || '') ? `Tried to check ${what} for ${String(st.detail).replace(' (lookup failed)', '')}, but the lookup failed.`
@@ -1575,6 +1576,16 @@
         setPanelView('notes', true);
         if (focus) setTimeout(() => { const ta = document.querySelector(`.note-card[data-id="${note.id}"] textarea`); if (ta) ta.focus(); }, 50);
         return note;
+    }
+
+    // Notes go to VQ only when the message mentions them ("read my last note", "my notes on…")
+    function notesForRequest(message) {
+        if (!/\bnotes?\b/i.test(message || '') || !notes.length) return {};
+        return { notes: notes.slice(0, 20).map(n => ({
+            text: (n.content || '').slice(0, 1500),
+            date: new Date(n.updated || n.created).toISOString().slice(0, 16).replace('T', ' '),
+            source: n.source && n.source.title ? n.source.title : null
+        })).filter(n => n.text.trim()) };
     }
 
     function autoGrow(ta) { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight + 2, 600) + 'px'; }
@@ -2227,7 +2238,8 @@
             const response = await fetch(CONFIG.apiEndpoint, {
                 method: 'POST',
                 headers: requestHeaders(),
-                body: JSON.stringify({ message: message, history: history, stream: true, lastMode: lastMode, clientCaps: ['ui'] })
+                body: JSON.stringify(Object.assign({ message: message, history: history, stream: true, lastMode: lastMode, clientCaps: ['ui'] },
+                                                   notesForRequest(message)))
             });
 
             const contentType = response.headers.get('content-type') || '';
