@@ -1065,12 +1065,15 @@
         ol.appendChild(codeLine(++n, 'Gathered', "what's relevant", extra.length ? extra.join(', ') : 'core knowledge only', null, { detailClass: extra.length ? 'tk-fn' : 'tk-str' }));
         (meta.steps || []).forEach(st => {
             const [v, r] = splitVerb(st.label);
+            if (st.kind === 'live') { ol.appendChild(codeLine(++n, v, r, st.detail || null, st.ms, { detailClass: 'tk-fn' })); return; }
             const k = typeof st.found === 'number' ? st.found : (meta.sources || []).length;
             const q = st.query ? `"${st.query}" · ` : '';
             const pics = st.images ? ` · ${st.images} images` : '';
             ol.appendChild(codeLine(++n, v, r, `${q}${k ? `${k} sources found` : 'no usable results'}${pics}`, st.ms));
         });
-        (meta.live || []).filter(x => /weather|time|image/i.test(x)).forEach(x => ol.appendChild(codeLine(++n, 'Fetched', x.toLowerCase())));
+        if (!(meta.steps || []).some(st => st.kind === 'live')) {
+            (meta.live || []).filter(x => /weather|time|image/i.test(x)).forEach(x => ol.appendChild(codeLine(++n, 'Fetched', x.toLowerCase())));
+        }
         (meta.ui || []).forEach(u => ol.appendChild(codeLine(++n, 'Changed', 'your screen', u, null, { detailClass: 'tk-fn' })));
         if (isBigQuestion(meta)) ol.appendChild(codeLine(++n, 'Answered', 'from a Christian starting point', 'naturalism named as another view', null, { restClass: 'tk-fn' }));
         const tm = rec.timing || {};
