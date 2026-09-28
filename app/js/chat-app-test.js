@@ -2229,7 +2229,7 @@
             btn.appendChild(t);
             btn.addEventListener('click', openAuthModal);
             wrap.appendChild(btn);
-            addAccountMenu(wrap, [['Export my chats', exportChats], ['Delete all chats…', deleteAllChats]]);
+            addAccountMenu(wrap, [['Reset display', resetDisplayFromMenu], ['Export my chats', exportChats], ['Delete all chats…', deleteAllChats]]);
             box.appendChild(wrap);
             return;
         }
@@ -2251,7 +2251,7 @@
         who.textContent = currentUser.name || currentUser.email;
         who.title = currentUser.email || '';
         row.append(av, who);
-        addAccountMenu(row, [['Export my chats', exportChats], ['Delete all chats…', deleteAllChats],
+        addAccountMenu(row, [['Reset display', resetDisplayFromMenu], ['Export my chats', exportChats], ['Delete all chats…', deleteAllChats],
                              ['Sign out', () => sb.auth.signOut()], ['Delete my account…', deleteAccount]]);
         box.appendChild(row);
     }
@@ -2281,6 +2281,11 @@
         });
         document.addEventListener('click', () => { menu.hidden = true; menuBtn.setAttribute('aria-expanded', 'false'); });
         row.append(menuBtn, menu);
+    }
+
+    function resetDisplayFromMenu() {
+        applyUIAction({ action: 'reset_display' });
+        showLocalNote('Display reset to default');
     }
 
     async function deleteAllChats() {
@@ -2406,9 +2411,51 @@
 
     // ---------- Sending ----------
 
+
+    // Short display commands handled without the AI (the whole message has to be the command)
+    const LOCAL_COMMANDS = [
+        [/^(reset|reset (the )?(display|screen|look|style|font|fonts|colou?rs?|theme|everything)|(back to )?(normal|default)( (look|display|font|style))?|default (look|display|font|style))[.!]?$/i,
+            { action: 'reset_display' }, 'Display reset to default'],
+        [/^(undo|undo (that|it|the last change))[.!]?$/i, { action: 'undo' }, 'Undid the last screen change'],
+        [/^((make )?(the )?(text|font) )?(bigger|larger)( (text|font))?( please)?[.!]?$/i, { action: 'text_size', size: 'larger' }, 'Text size → larger'],
+        [/^((make )?(the )?(text|font) )?smaller( (text|font))?( please)?[.!]?$/i, { action: 'text_size', size: 'smaller' }, 'Text size → smaller'],
+        [/^(focus( mode)?( on)?)[.!]?$/i, { action: 'focus_mode', state: 'on' }, 'Focus mode → on'],
+        [/^(unfocus|exit focus( mode)?|focus( mode)? off|leave focus( mode)?)[.!]?$/i, { action: 'focus_mode', state: 'off' }, 'Focus mode → off']
+    ];
+
+    function localCommand(text) {
+        const t = (text || '').trim();
+        if (t.length > 40) return null;
+        for (const [re, act, label] of LOCAL_COMMANDS) if (re.test(t)) return { act, label };
+        return null;
+    }
+
+    function showLocalNote(label) {
+        hideWelcomeScreen();
+        const note = el('div', 'local-note');
+        note.setAttribute('role', 'status');
+        note.appendChild(el('span', 'local-note-icon', '↺'));
+        note.appendChild(el('span', null, `${label} · done on your device, no message used`));
+        elements.messagesArea.appendChild(note);
+        note.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        setTimeout(() => { note.classList.add('fade'); setTimeout(() => note.remove(), 600); }, 6000);
+    }
+
     async function sendMessage() {
         const rawMessage = elements.messageInput.value.trim();
         if (!rawMessage || isTyping) return;
+
+        // Simple display commands run on this device: instant, free, and they work even after the daily limit
+        const local = localCommand(rawMessage);
+        if (local) {
+            applyUIAction(local.act);
+            showLocalNote(local.label);
+            elements.messageInput.value = '';
+            elements.messageInput.style.height = 'auto';
+            elements.charCount.textContent = `0 / ${CONFIG.maxMessageLength}`;
+            elements.sendBtn.disabled = true;
+            return;
+        }
 
         // Prepend active pill prefix for backend routing; show clean message in UI
         const message = activePill ? `${activePill} ${rawMessage}` : rawMessage;
