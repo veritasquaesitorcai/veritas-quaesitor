@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -345,6 +345,10 @@
         .friend-reply:hover { border-color: rgba(245,163,199,0.7); color: #fff; }
         .message.user.from-oria .message-content { background: linear-gradient(135deg, rgba(127,224,210,0.22), rgba(245,163,199,0.22)) !important; border: 1px solid rgba(245,163,199,0.4) !important; color: var(--text-primary) !important; }
         .message.user.from-oria .message-avatar { background: linear-gradient(135deg, #7fe0d2, #f5a3c7) !important; color: #1b1030; font-weight: 700; }
+        /* ---- Local display commands ---- */
+        .local-note { align-self: center; display: inline-flex; align-items: center; gap: 0.45rem; margin: 0.6rem auto; padding: 0.35rem 0.85rem; border-radius: 999px; border: 1px dashed rgba(var(--ui-accent-rgb),0.5); color: var(--text-secondary); font-size: 0.8rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: opacity .5s; width: fit-content; }
+        .local-note.fade { opacity: 0; }
+        .local-note-icon { color: var(--ui-accent); font-weight: 700; }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -588,6 +592,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-09-28-fonts"></script>
+    <script src="js/chat-app-test.js?v=2026-09-28-localcmd"></script>
 </body>
 </html>
