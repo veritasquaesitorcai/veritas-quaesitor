@@ -1,6 +1,8 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="description" content="VQ Chat - Christ-Anchored Intelligence chat interface for exploring evidence-based faith and AI alignment">
@@ -181,9 +183,12 @@
         .message-content { max-width: 100%; }
         body.ui-hc { --text-primary: #ffffff; --text-secondary: rgba(255,255,255,0.92); --text-tertiary: rgba(255,255,255,0.78); --border-subtle: rgba(255,255,255,0.28); }
         body.ui-hc .message-content { color: #fff; border-color: rgba(255,255,255,0.35); }
-        body.ui-font-readable, body.ui-font-readable button, body.ui-font-readable textarea { font-family: Verdana, Tahoma, "Segoe UI", sans-serif; letter-spacing: 0.01em; word-spacing: 0.06em; }
-        body.ui-font-serif, body.ui-font-serif button, body.ui-font-serif textarea { font-family: Georgia, "Times New Roman", serif; }
-        body.ui-font-mono, body.ui-font-mono button, body.ui-font-mono textarea { font-family: var(--mono); }
+        body.ui-font-all, body.ui-font-all button, body.ui-font-all textarea, body.ui-font-all input { font-family: var(--ui-font); }
+        body.ui-font-all .message-content, body.ui-font-all .friend-bubble { font-size: calc(1em * var(--ui-font-boost, 1)); }
+        body.ui-font-msg .message-content, body.ui-font-msg .friend-bubble, body.ui-font-msg #message-input { font-family: var(--ui-font); }
+        body.ui-font-msg .message-content, body.ui-font-msg .friend-bubble { font-size: calc(1em * var(--ui-font-boost, 1)); letter-spacing: 0.005em; }
+        body.ui-font-msg .message-content code, body.ui-font-msg .message-content pre, body.ui-font-msg .message-content table { font-family: inherit; }
+        body.ui-font-msg .md table, body.ui-font-msg .table-card { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 0.9rem; }
         body.ui-reduce-motion *, body.ui-reduce-motion *::before, body.ui-reduce-motion *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
         body.ui-focus #sidebar, body.ui-focus #insight-panel, body.ui-focus #insight-toggle, body.ui-focus .cap-pills-row, body.ui-focus .input-footer, body.ui-focus .input-disclaimer, body.ui-focus .insight-chip, body.ui-focus .src-row { display: none !important; }
         body.ui-focus #app-header { margin-left: 0 !important; padding-left: 1.5rem !important; }
@@ -583,6 +588,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-09-28-vqreply"></script>
+    <script src="js/chat-app-test.js?v=2026-09-28-fonts"></script>
 </body>
 </html>
