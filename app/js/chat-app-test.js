@@ -1280,7 +1280,7 @@
     const SIZE_SCALES = { compact: 0.9, comfortable: 1, large: 1.15, extra_large: 1.3 };
     const ACCENTS = {
         orange: ['#ff8c42', '#ffb27a'], gold: ['#e8b04a', '#ffd98a'], teal: ['#2fb5a3', '#7fe0d2'], rose: ['#e2627e', '#f5a3b5'],
-        violet: ['#8b6cf0', '#c2b1ff'], green: ['#4caf6a', '#9be0ad'], blue: ['#4a8fe8', '#9cc4ff']
+        violet: ['#8b6cf0', '#c2b1ff'], green: ['#4caf6a', '#9be0ad'], blue: ['#4a8fe8', '#9cc4ff'], grey: ['#9aa3b5', '#d3d8e3']
     };
     const WIDTHS = { narrow: '44rem', normal: '56rem', wide: '72rem' };
     let uiPrefs = loadUIPrefs();
