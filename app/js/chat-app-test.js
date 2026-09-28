@@ -129,7 +129,7 @@
         const list = elements.chatHistoryList;
         list.textContent = '';
         const chats = Object.values(store.chats)
-            .filter(c => c.messages && c.messages.length)
+            .filter(c => (c.messages && c.messages.length) || (c.oria && c.oria.length))
             .sort((a, b) => b.updated - a.updated);
         if (chats.length === 0) {
             const empty = document.createElement('div');
@@ -299,6 +299,7 @@
 
     function renderActiveChat() {
         elements.messagesArea.textContent = '';
+        if (uiPrefs.panelView === 'enquirer' && typeof renderEnquirer === 'function') setTimeout(renderEnquirer, 0);
         if (conversationHistory.length === 0) {
             if (elements.panel) rebuildPanelLog();
             showWelcomeScreen();
@@ -1415,6 +1416,7 @@
         });
         setupPanelResize();
         setupSelectionNotes();
+        setupOriaComposer();
         loadNotes();
         setPanelView(PANEL_VIEWS.includes(uiPrefs.panelView) ? uiPrefs.panelView : 'details', false);
     }
@@ -1427,6 +1429,8 @@
         if (nb) nb.hidden = view !== 'notes';
         const eb = document.getElementById('enquirer-body');
         if (eb) eb.hidden = view !== 'enquirer';
+        const of = document.getElementById('oria-form');
+        if (of) of.hidden = view !== 'enquirer';
         if (view === 'notes') renderNotes();
         if (view === 'enquirer') renderEnquirer();
         if (remember && uiPrefs.panelView !== view) { uiPrefs.panelView = view; saveUIPrefs(); }
@@ -1568,8 +1572,9 @@
     }
 
 
-    // ---------- The Honest Enquirer (second opinion) ----------
+    // ---------- O.R.I.A. ("Airo"): the third companion, with her own side chat ----------
 
+    const FRIEND_NAME = 'O.R.I.A.';
     let enquirerTarget = null;
     let enquirerBusy = false;
 
@@ -1578,54 +1583,93 @@
         return answers[answers.length - 1 - (offset || 0)] || null;
     }
 
-    function askEnquirer(messageDiv) {
+    function oriaThread(create) {
+        if (create) ensureActiveChat();
+        const chat = store.activeId ? store.chats[store.activeId] : null;
+        if (!chat) return [];
+        if (!Array.isArray(chat.oria)) chat.oria = [];
+        return chat.oria;
+    }
+
+    // What VQ gets to see of the side chat (so it knows what she and the user said)
+    function oriaForRequest() {
+        const t = oriaThread(false);
+        return t.length ? { oria: t.slice(-8).map(m => ({ role: m.role, content: (m.content || '').slice(0, 500) })) } : {};
+    }
+
+    function askEnquirer(messageDiv, mode) {
         if (!messageDiv || !messageDiv._record) return;
         enquirerTarget = messageDiv;
         openPanel(isWide());
         setPanelView('enquirer', true);
-        runEnquirer(messageDiv);
+        runEnquirer(messageDiv, mode || 'react');
     }
 
-    async function runEnquirer(messageDiv, mode) {
-        mode = mode === 'deep' ? 'deep' : 'react';
-        if (enquirerBusy || !messageDiv || !messageDiv._record) return;
-        const rec = messageDiv._record;
+    function sendToOria(text) {
+        text = (text || '').trim();
+        if (!text || enquirerBusy) return;
+        openPanel(isWide());
+        setPanelView('enquirer', true);
+        runEnquirer(null, 'chat', text);
+    }
+
+    async function runEnquirer(messageDiv, mode, message) {
+        mode = ['react', 'deep', 'chat'].includes(mode) ? mode : 'react';
+        if (enquirerBusy) return;
+        if (mode !== 'chat' && (!messageDiv || !messageDiv._record)) return;
+        const thread = oriaThread(true);
+        const rec = messageDiv ? messageDiv._record : null;
+        const about = rec ? (findQuestionFor(rec) || '') : '';
+        if (mode === 'chat') thread.push({ role: 'user', content: message, at: Date.now() });
+        else if (mode === 'deep') thread.push({ role: 'user', content: 'What’s your honest take on that answer?', about, at: Date.now() });
         enquirerBusy = true;
-        enquirerTarget = messageDiv;
         renderEnquirer(true);
         try {
+            const history = conversationHistory.slice(-10).map(m => ({ role: m.role, content: (m.content || '').replace(/<img[^>]*>/gi, '').slice(0, 1500) }));
             const res = await fetch(CONFIG.apiEndpoint.replace(/\/chat$/, '/enquirer'), {
                 method: 'POST', headers: requestHeaders(),
-                body: JSON.stringify({ question: findQuestionFor(rec) || '', answer: (rec.content || '').replace(/<img[^>]*>/gi, ''),
-                                       sources: (rec.meta && rec.meta.sources) || [], mode })
+                body: JSON.stringify({
+                    mode, message: message || '',
+                    question: about, answer: rec ? (rec.content || '').replace(/<img[^>]*>/gi, '') : '',
+                    sources: (rec && rec.meta && rec.meta.sources) || [],
+                    history, thread: thread.slice(-10).map(m => ({ role: m.role, content: m.content }))
+                })
             });
             const data = await res.json().catch(() => ({}));
             if (data.quota) updateQuota(data.quota);
             if (!res.ok || !data.text) {
-                rec._enquirerError = data.response || 'The Honest Enquirer could not respond just now.';
+                thread.push({ role: 'oria', content: data.response || 'My circuits hiccupped. Try me again in a moment?', error: true, at: Date.now() });
             } else {
-                rec._enquirerError = null;
-                const entry = { text: data.text, model: data.model, ms: data.ms, at: Date.now(), deeper: !!data.deeper };
-                rec.meta = Object.assign({}, rec.meta || {}, mode === 'deep' ? { enquirerDeep: entry } : { enquirer: entry });
-                rec.metaDirty = true;
-                saveStore();
+                thread.push({ role: 'oria', content: data.text, mode, about: mode === 'chat' ? null : about,
+                              deeper: !!data.deeper, model: data.model, ms: data.ms, at: Date.now() });
             }
         } catch (e) {
-            rec._enquirerError = 'The Honest Enquirer could not be reached. Please try again.';
+            thread.push({ role: 'oria', content: 'I couldn’t reach my studio just now. Try again?', error: true, at: Date.now() });
         } finally {
             enquirerBusy = false;
-            if (enquirerTarget === messageDiv) renderEnquirer();
+            const chat = store.chats[store.activeId];
+            if (chat) { chat.oriaDirty = true; if (!chat.messages.length) { chat.title = 'Chat with O.R.I.A.'; } chat.updated = Date.now(); }
+            saveStore();
+            renderSidebar();
+            renderEnquirer();
         }
     }
 
-    const FRIEND_NAME = 'Aria';
-
-    function friendBubble(text, cls) {
-        const row = el('div', 'friend-row' + (cls ? ' ' + cls : ''));
-        row.appendChild(el('span', 'friend-avatar', FRIEND_NAME[0]));
+    function friendBubble(entry) {
+        if (entry.role === 'user') {
+            const row = el('div', 'friend-row mine');
+            const b = el('div', 'friend-bubble mine', entry.content);
+            row.appendChild(b);
+            return row;
+        }
+        const row = el('div', 'friend-row' + (entry.mode === 'deep' ? ' deep' : '') + (entry.error ? ' err' : ''));
+        row.appendChild(el('span', 'friend-avatar', 'O'));
+        const col = el('div', 'friend-col');
+        if (entry.about && entry.mode === 'react') col.appendChild(el('span', 'friend-about', `on “${entry.about.length > 60 ? entry.about.slice(0, 58) + '…' : entry.about}”`));
         const bubble = el('div', 'friend-bubble message-content');
-        fillRich(bubble, text);
-        row.appendChild(bubble);
+        fillRich(bubble, entry.content);
+        col.appendChild(bubble);
+        row.appendChild(col);
         return row;
     }
 
@@ -1633,64 +1677,65 @@
         const eb = document.getElementById('enquirer-body');
         if (!eb) return;
         eb.textContent = '';
-        let target = enquirerTarget && document.body.contains(enquirerTarget) ? enquirerTarget : null;
-        if (!target) {
-            const answers = [...elements.messagesArea.querySelectorAll('.message:not(.user):not(.pending):not(.streaming)')].filter(m => m._record);
-            target = answers.slice().reverse().find(m => m._record.meta && (m._record.meta.enquirer || m._record.meta.enquirerDeep)) || answers[answers.length - 1] || null;
-        }
-        enquirerTarget = target;
         const intro = el('div', 'enq-intro');
-        intro.appendChild(el('span', 'enq-name', FRIEND_NAME));
-        intro.appendChild(el('p', null, "The third friend in the chat: a separate AI voice with her own personality. She sees your question and VQ's answer, not VQ's instructions."));
+        const nm = el('span', 'enq-name', FRIEND_NAME);
+        nm.appendChild(el('span', 'enq-say', ' · say “Airo”'));
+        intro.appendChild(nm);
+        intro.appendChild(el('p', null, 'The Artfully Intelligent R.O. (not “Artificial”, she insists). The third companion in your duo with VQ: a separate AI voice who sees both conversations.'));
         eb.appendChild(intro);
-        if (!target) {
-            eb.appendChild(el('p', 'enq-empty', `Chat with VQ, then tap “Ask ${FRIEND_NAME}” under an answer.`));
-            return;
-        }
-        const rec = target._record;
-        const q = findQuestionFor(rec) || '';
-        const head = el('div', 'entry-head');
-        head.appendChild(el('span', 'tk-com', '// about'));
-        head.appendChild(el('span', 'tk-str entry-q', `"${q.length > 110 ? q.slice(0, 108) + '…' : q}"`));
-        head.addEventListener('click', () => target.scrollIntoView({ behavior: 'smooth', block: 'center' }));
-        eb.appendChild(head);
-        const react = rec.meta && rec.meta.enquirer;
-        const deep = rec.meta && rec.meta.enquirerDeep;
-        if (react && react.text) eb.appendChild(friendBubble(react.text));
-        if (deep && deep.text) eb.appendChild(friendBubble(deep.text, 'deep'));
+
+        const thread = oriaThread(false);
+        const list = el('div', 'friend-thread');
+        thread.forEach(entry => list.appendChild(friendBubble(entry)));
         if (loading) {
             const l = el('div', 'friend-row');
-            l.appendChild(el('span', 'friend-avatar', FRIEND_NAME[0]));
+            l.appendChild(el('span', 'friend-avatar', 'O'));
             const typing = el('div', 'friend-bubble friend-typing');
             typing.append(el('span'), el('span'), el('span'));
             l.appendChild(typing);
-            eb.appendChild(l);
+            list.appendChild(l);
         }
-        if (rec._enquirerError) eb.appendChild(el('p', 'enq-error', rec._enquirerError));
-        const last = deep || react;
-        if (last && typeof last.ms === 'number') {
-            const foot = el('p', 'enq-foot');
-            foot.appendChild(el('span', 'tk-fn', last.model || ''));
-            foot.appendChild(el('span', 'tk-num', ` · ${(last.ms / 1000).toFixed(1)}s`));
-            eb.appendChild(foot);
-        }
-        if (loading) return;
-        const actions = el('div', 'enq-actions');
-        const ask = el('button', 'enq-ask', react ? 'Ask again' : `Ask ${FRIEND_NAME}`);
-        ask.type = 'button';
-        ask.disabled = enquirerBusy;
-        ask.addEventListener('click', () => runEnquirer(target, 'react'));
-        actions.appendChild(ask);
-        if (!deep) {
-            const honest = el('button', 'enq-ask secondary' + (react && react.deeper ? ' suggested' : ''), 'Her honest take');
+        if (!thread.length && !loading) list.appendChild(el('p', 'enq-empty', 'Say hello below, or tap “Ask O.R.I.A.” under one of VQ’s answers.'));
+        eb.appendChild(list);
+
+        const lastOria = [...thread].reverse().find(m => m.role === 'oria' && !m.error);
+        const target = latestAnswerDiv(0);
+        if (!loading && target) {
+            const actions = el('div', 'enq-actions');
+            const react = el('button', 'enq-ask', 'React to VQ’s last answer');
+            react.type = 'button';
+            react.disabled = enquirerBusy;
+            react.addEventListener('click', () => runEnquirer(target, 'react'));
+            actions.appendChild(react);
+            const honest = el('button', 'enq-ask secondary' + (lastOria && lastOria.deeper ? ' suggested' : ''), 'Her honest take');
             honest.type = 'button';
-            honest.title = 'A short, balanced look at what holds up and what to question';
             honest.disabled = enquirerBusy;
             honest.addEventListener('click', () => runEnquirer(target, 'deep'));
             actions.appendChild(honest);
+            eb.appendChild(actions);
+            if (lastOria && lastOria.deeper) eb.appendChild(el('p', 'enq-hint', `${FRIEND_NAME} thinks that one is worth a closer look.`));
         }
-        eb.appendChild(actions);
-        if (react && react.deeper && !deep) eb.appendChild(el('p', 'enq-hint', `${FRIEND_NAME} thinks this one is worth a closer look.`));
+        requestAnimationFrame(() => { eb.scrollTop = eb.scrollHeight; });
+        const input = document.getElementById('oria-input');
+        if (input) input.disabled = !!loading;
+    }
+
+    function setupOriaComposer() {
+        const form = document.getElementById('oria-form');
+        const input = document.getElementById('oria-input');
+        if (!form || !input) return;
+        const grow = () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 140) + 'px'; };
+        input.addEventListener('input', grow);
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
+        });
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const t = input.value;
+            input.value = '';
+            grow();
+            sendToOria(t);
+        });
     }
 
     // ---------- Notes ----------
@@ -1956,7 +2001,11 @@
 
     async function loadCloudStore() {
         try {
-            const convs = await sb.from('conversations').select('id,title,updated_at').order('updated_at', { ascending: false }).limit(CONFIG.maxChats);
+            let convs = await sb.from('conversations').select('id,title,updated_at,oria').order('updated_at', { ascending: false }).limit(CONFIG.maxChats);
+            if (convs.error && /oria/i.test(convs.error.message || '')) {
+                oriaCloud = false;
+                convs = await sb.from('conversations').select('id,title,updated_at').order('updated_at', { ascending: false }).limit(CONFIG.maxChats);
+            }
             if (convs.error) throw convs.error;
             const ids = convs.data.map(c => c.id);
             let msgs = [];
@@ -1968,7 +2017,8 @@
             }
             const chats = {};
             convs.data.forEach(c => {
-                chats[c.id] = { id: c.id, title: c.title || 'New chat', messages: [], updated: Date.parse(c.updated_at) || Date.now(), syncedIds: [], syncedTitle: c.title || 'New chat' };
+                chats[c.id] = { id: c.id, title: c.title || 'New chat', messages: [], updated: Date.parse(c.updated_at) || Date.now(), syncedIds: [], syncedTitle: c.title || 'New chat',
+                                oria: Array.isArray(c.oria) ? c.oria : [] };
             });
             msgs.forEach(m => {
                 const chat = chats[m.conversation_id];
@@ -1995,14 +2045,15 @@
         if (localStorage.getItem(flag)) return;
         let guest;
         try { guest = JSON.parse(localStorage.getItem(GUEST_CHATS_KEY) || 'null'); } catch (e) { guest = null; }
-        const list = guest && guest.chats ? Object.values(guest.chats).filter(c => c.messages && c.messages.length) : [];
+        const list = guest && guest.chats ? Object.values(guest.chats).filter(c => (c.messages && c.messages.length) || (c.oria && c.oria.length)) : [];
         try { localStorage.setItem(flag, '1'); } catch (e) {}
         if (!list.length) return;
         if (!confirm(`Bring the ${list.length} chat${list.length === 1 ? '' : 's'} from this browser into your account?`)) return;
         list.forEach(c => {
             const id = newId();
             store.chats[id] = { id, title: c.title || titleFrom(c.messages), updated: c.updated || Date.now(),
-                messages: c.messages.map(m => ({ role: m.role, content: m.content, meta: m.meta || null, timing: m.timing || null })) };
+                messages: c.messages.map(m => ({ role: m.role, content: m.content, meta: m.meta || null, timing: m.timing || null })),
+                oria: Array.isArray(c.oria) ? c.oria : [] };
         });
         try { localStorage.removeItem(GUEST_CHATS_KEY); } catch (e) {}
         saveStore();
@@ -2027,6 +2078,7 @@
 
     // Push new, changed or removed messages to the account (debounced)
     let syncTimer = null, syncing = false, syncAgain = false;
+    let oriaCloud = true;
     function scheduleSync() {
         if (!currentUser || !sb) return;
         clearTimeout(syncTimer);
@@ -2039,15 +2091,24 @@
         syncing = true;
         try {
             for (const chat of Object.values(store.chats)) {
-                if (!chat.messages || !chat.messages.length) continue;
+                if ((!chat.messages || !chat.messages.length) && !(chat.oria && chat.oria.length)) continue;
                 chat.syncedIds = chat.syncedIds || [];
                 chat.messages.forEach(m => { if (!m.mid) m.mid = newId(); });
                 const current = chat.messages.map(m => m.mid);
                 const toDelete = chat.syncedIds.filter(id => !current.includes(id));
                 const toInsert = chat.messages.filter(m => !chat.syncedIds.includes(m.mid));
                 const metaDirty = chat.messages.filter(m => m.metaDirty && chat.syncedIds.includes(m.mid));
-                if (!toDelete.length && !toInsert.length && !metaDirty.length && chat.syncedTitle === chat.title) continue;
-                const up = await sb.from('conversations').upsert({ id: chat.id, title: chat.title, updated_at: new Date(chat.updated || Date.now()).toISOString() });
+                if (!toDelete.length && !toInsert.length && !metaDirty.length && !chat.oriaDirty && chat.syncedTitle === chat.title) continue;
+                const row = { id: chat.id, title: chat.title, updated_at: new Date(chat.updated || Date.now()).toISOString() };
+                if (oriaCloud) row.oria = (chat.oria || []).slice(-60).map(m => ({ role: m.role, content: m.content, mode: m.mode || null,
+                                                                                    about: m.about || null, at: m.at }));
+                let up = await sb.from('conversations').upsert(row);
+                if (up.error && oriaCloud && /oria/i.test(up.error.message || '')) {
+                    oriaCloud = false;                       // column not added yet: keep the side chat on this device only
+                    delete row.oria;
+                    up = await sb.from('conversations').upsert(row);
+                }
+                chat.oriaDirty = false;
                 if (up.error) throw up.error;
                 if (toDelete.length) {
                     const d = await sb.from('messages').delete().in('id', toDelete);
@@ -2396,8 +2457,8 @@
             const response = await fetch(CONFIG.apiEndpoint, {
                 method: 'POST',
                 headers: requestHeaders(),
-                body: JSON.stringify(Object.assign({ message: message, history: history, stream: true, lastMode: lastMode, clientCaps: ['ui'] },
-                                                   notesForRequest(message)))
+                body: JSON.stringify(Object.assign({ message: message, history: history, stream: true, lastMode: lastMode, clientCaps: ['ui', 'oria'] },
+                                                   notesForRequest(message), oriaForRequest()))
             });
 
             const contentType = response.headers.get('content-type') || '';
@@ -2437,11 +2498,7 @@
                 div._record = rec;
                 conversationHistory.push(rec);
                 addPanelEntry(div);
-                if (uiPrefs.panelView === 'enquirer' && !enquirerBusy) {
-                    // Move to the new answer only if the one on screen has nothing to show yet
-                    const cur = enquirerTarget && enquirerTarget._record;
-                    if (!(cur && cur.meta && cur.meta.enquirer)) { enquirerTarget = div; renderEnquirer(); }
-                }
+                if (uiPrefs.panelView === 'enquirer' && !enquirerBusy) renderEnquirer();
                 if (pendingNewChat) { pendingNewChat = false; setTimeout(() => { if (!isTyping) startNewChat(); }, 1200); }
                 touchActiveChat();
                 refreshRetryButton();
