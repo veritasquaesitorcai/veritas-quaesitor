@@ -308,7 +308,11 @@
         }
         hideWelcomeScreen();
         elements.chatContainer.classList.add('has-messages');
-        conversationHistory.forEach(msg => { const d = addMessageToUI(msg.role, msg.content, msg.meta); if (d && msg.role === 'assistant') d._record = msg; });
+        conversationHistory.forEach(msg => {
+            const d = addMessageToUI(msg.role, msg.content, msg.role === 'assistant' ? msg.meta : null);
+            if (d && msg.role === 'assistant') d._record = msg;
+            if (d && msg.meta && msg.meta.fromOria) styleAsOria(d);
+        });
         rebuildPanelLog();
         refreshRetryButton();
         scrollToBottom();
@@ -1655,6 +1659,29 @@
         }
     }
 
+
+    // Her remark goes into the main chat and VQ answers her there
+    function styleAsOria(div) {
+        div.classList.add('from-oria');
+        const av = div.querySelector('.message-avatar');
+        if (av) av.textContent = 'O';
+    }
+
+    async function vqReplyToOria(entry) {
+        if (isTyping || !entry || !entry.content) return;
+        ensureActiveChat();
+        hideWelcomeScreen();
+        elements.chatContainer.classList.add('has-messages');
+        const shown = `O.R.I.A.: “${entry.content}”`;
+        const div = addMessageToUI('user', shown);
+        if (div) styleAsOria(div);
+        const sent = `${shown}\n[This is ${FRIEND_NAME} speaking to you from the side panel, not the user. ` +
+                     `Reply to ${FRIEND_NAME} directly, in character and briefly; the user is watching and can join in.]`;
+        conversationHistory.push({ role: 'user', content: shown, sent, meta: { fromOria: true } });
+        touchActiveChat();
+        await requestReply(sent);
+    }
+
     function friendBubble(entry) {
         if (entry.role === 'user') {
             const row = el('div', 'friend-row mine');
@@ -1669,6 +1696,13 @@
         const bubble = el('div', 'friend-bubble message-content');
         fillRich(bubble, entry.content);
         col.appendChild(bubble);
+        if (!entry.error && entry.mode !== 'deep') {
+            const reply = el('button', 'friend-reply', '↩ Let VQ reply');
+            reply.type = 'button';
+            reply.title = 'Pass this to VQ in the main chat';
+            reply.addEventListener('click', () => vqReplyToOria(entry));
+            col.appendChild(reply);
+        }
         row.appendChild(col);
         return row;
     }
