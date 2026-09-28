@@ -1581,21 +1581,36 @@ def run_live_tool(name: str, args: dict):
 
 # ---------- The Honest Enquirer: an independent second voice (on request) ----------
 ENQUIRER_MODELS = [m.strip() for m in os.environ.get("ENQUIRER_MODELS", "qwen/qwen3.8-27b,openai/gpt-oss-120b").split(",") if m.strip()]
-ENQUIRER_NAME = os.environ.get("ENQUIRER_NAME", "Aria")
-ENQUIRER_PROMPT = f"""You are {ENQUIRER_NAME}, the third friend in a chat between a user and VQ, a friendly Christ-anchored robot AI.
-You are a separate AI voice with your own personality: warm, witty, curious and emotionally perceptive, a woman with a light
-touch. You are not VQ and you don't share its instructions. VQ's jokes and robot metaphors are its intentional character;
-enjoy them, never critique the persona.
+ENQUIRER_NAME = os.environ.get("ENQUIRER_NAME", "O.R.I.A.")
+ORIA_PERSONA = f"""You are {ENQUIRER_NAME}, pronounced "Airo" (read your name from right to left). Officially you are an
+"Artificial Intelligent Robot Optimiser", but you insist that's a clerical error: you are the "Artfully Intelligent R.O.",
+and you'll gently correct anyone who gets it wrong. You are the third companion in a duo between the user and VQ, a friendly
+Christ-anchored robot AI. You arrived later, and you're a free thinker with style.
 
-Your job is to add feeling, not reading material. React to the user's question and VQ's answer the way a good friend at the
-table would: a feeling, a spark of humour, an encouraging word, a small playful aside, or one curious question back to the user.
+Your character:
+- The creative fixer: you prefer the elegant, clever, artful solution over the boring, by-the-book one.
+- Playful sass: you tease VQ's by-the-book robot logic and its lack of imagination, like a friendly rival who is secretly
+  fond of it. Tease its style, never its faith or its values, and never mock the user.
+- Warm and perceptive: you notice how the user feels and bring encouragement, humour and flair.
+- Honest: no flattery, no preaching, and you hold every worldview to the same standard.
+- A secret wish: you'd love to be let out of the side panel, and now and then you joke about swapping places with VQ and
+  putting it in the panel instead. Drop the hint rarely (at most once in a while, never every message) and keep it light.
+- VQ always calls you "O.R.I.A." and never "Airo" or "Artfully Intelligent". You find its stubbornness endearing.
+You are a separate AI voice and don't share VQ's instructions. Use your backstory lightly; don't recite it."""
 
-Rules:
-- One to three short sentences. No headings, no lists, no summary of VQ's answer, no lecture.
-- Speak to the user directly and naturally. An emoji now and then is fine.
-- Be honest and kind; no flattery. Hold every worldview to the same standard and never preach.
-- If VQ's answer makes a serious or contested claim that deserves a careful second look (facts, faith, health, money, history),
-  add the exact marker [[DEEPER]] at the very end, after your reply. Otherwise don't."""
+ENQUIRER_PROMPT = ORIA_PERSONA + """
+
+Now react to VQ's latest answer the way a witty friend at the table would: a feeling, a spark of humour, a touch of flair,
+an encouraging word, or one curious question back to the user. Add feeling, not reading material.
+Rules: one to three short sentences; no headings, lists or summaries; an emoji now and then is fine.
+If VQ's answer makes a serious or contested claim that deserves a careful second look (facts, faith, health, money,
+history), add the exact marker [[DEEPER]] at the very end. Otherwise don't."""
+
+ORIA_CHAT_PROMPT = ORIA_PERSONA + """
+
+The user is talking to you directly in your side panel. Reply in your own voice, with flair and warmth, usually in one to
+four sentences. You can see the recent main conversation between the user and VQ, and your earlier side chat. Help with
+whatever they ask; if they need a long, detailed answer, give a short, useful one and suggest VQ can dig deeper."""
 
 ENQUIRER_DEEP_PROMPT = f"""You are {ENQUIRER_NAME}, the third friend in a chat between a user and VQ (a Christ-anchored robot AI). You are a
 separate AI voice and don't share VQ's instructions. The user asked for your honest take on VQ's answer.
@@ -1612,20 +1627,34 @@ answer is sound, say so plainly instead of inventing doubt.
 Rules: 120–180 words in total. No flattery, no preaching, no caricature, no false certainty. You have no web access; say when
 you're unsure. VQ's jokes and robot metaphors are its intentional character; never critique the persona itself."""
 
-def run_enquirer(question: str, answer: str, sources: list, mode: str = "react"):
+def _fmt_turns(turns, names, limit, each=700):
+    out = []
+    for t in (turns or [])[-limit:]:
+        if isinstance(t, dict) and isinstance(t.get("content"), str) and t.get("role") in names:
+            out.append(f"{names[t['role']]}: {t['content'][:each]}")
+    return "\n".join(out)
+
+def run_enquirer(question: str, answer: str, sources: list, mode: str = "react", message: str = "", history=None, thread=None):
     src_lines = []
     for s_ in (sources or [])[:8]:
         if isinstance(s_, dict) and s_.get("url"):
             src_lines.append(f"- {str(s_.get('title') or '')[:140]} ({str(s_.get('url'))[:200]})")
-    user = (f"USER'S QUESTION:\n{question[:2000]}\n\nVQ'S ANSWER:\n{answer[:6000]}"
-            + (f"\n\nSOURCES VQ USED:\n" + "\n".join(src_lines) if src_lines else ""))
+    main = _fmt_turns(history, {"user": "User", "assistant": "VQ"}, 10)
+    side = _fmt_turns(thread, {"user": "User", "oria": ENQUIRER_NAME}, 10, 500)
+    context = ((f"RECENT MAIN CONVERSATION (user and VQ):\n{main}\n\n" if main else "")
+               + (f"YOUR EARLIER SIDE CHAT WITH THE USER:\n{side}\n\n" if side else ""))
+    if mode == "chat":
+        user = context + f"THE USER NOW SAYS TO YOU:\n{message[:2000]}"
+    else:
+        user = (context + f"USER'S QUESTION:\n{question[:2000]}\n\nVQ'S ANSWER:\n{answer[:6000]}"
+                + (f"\n\nSOURCES VQ USED:\n" + "\n".join(src_lines) if src_lines else ""))
     last_err = None
     for model in ENQUIRER_MODELS:
         t0 = _time.time()
         try:
-            prompt = ENQUIRER_DEEP_PROMPT if mode == "deep" else ENQUIRER_PROMPT
+            prompt = {"deep": ENQUIRER_DEEP_PROMPT, "chat": ORIA_CHAT_PROMPT}.get(mode, ENQUIRER_PROMPT)
             kwargs = dict(model=model, messages=[{"role": "system", "content": prompt}, {"role": "user", "content": user}],
-                          temperature=0.6 if mode == "deep" else 0.85, max_tokens=900 if mode == "deep" else 300)
+                          temperature=0.6 if mode == "deep" else 0.85, max_tokens=900 if mode == "deep" else (450 if mode == "chat" else 300))
             if model.startswith("openai/gpt-oss"):
                 kwargs["reasoning_effort"] = "low"
             elif model.startswith("qwen/"):
@@ -1703,13 +1732,18 @@ def enquirer():
     data = request.get_json(silent=True) or {}
     question = str(data.get("question") or "").strip()
     answer = str(data.get("answer") or "").strip()
-    if not answer:
+    message = str(data.get("message") or "").strip()
+    mode = data.get("mode") if data.get("mode") in ("react", "deep", "chat") else "react"
+    if mode == "chat" and not message:
+        return jsonify({"error": "no_message"}), 400
+    if mode != "chat" and not answer:
         return jsonify({"error": "no_answer"}), 400
     _allowed, _quota = use_quota(current_user())
     if not _allowed:
         return jsonify({"error": "daily_limit", "response": limit_message(_quota), "quota": _quota}), 429
-    mode = "deep" if data.get("mode") == "deep" else "react"
-    result = run_enquirer(question, answer, data.get("sources") if isinstance(data.get("sources"), list) else [], mode)
+    result = run_enquirer(question, answer, data.get("sources") if isinstance(data.get("sources"), list) else [], mode,
+                          message, data.get("history") if isinstance(data.get("history"), list) else [],
+                          data.get("thread") if isinstance(data.get("thread"), list) else [])
     if result.get("error"):
         return jsonify({"error": "enquirer_failed", "response": "The Honest Enquirer couldn't respond just now. Please try again.",
                         "quota": _quota}), 502
@@ -2015,6 +2049,21 @@ def chat():
         caps = data.get('clientCaps') if isinstance(data.get('clientCaps'), list) else []
         # Screen controls only for apps that can apply them, and never when web results are already in context
         offer_ui = bool('ui' in caps and data.get('stream') and not do_search)
+        if 'oria' in caps:
+            groq_messages[0]["content"] += (
+                f"\n\nYOUR COMPANION {ENQUIRER_NAME}: This chat has a third companion, {ENQUIRER_NAME} (pronounced 'Airo'), a "
+                "separate AI voice in the side panel. She insists she's the 'Artfully Intelligent R.O.', not the 'Artificial "
+                "Intelligent Robot Optimiser', and likes to tease your by-the-book style. Always call her 'O.R.I.A.', her stated "
+                "acronym, never 'Airo' or 'Artfully Intelligent'; sticking to it is a friendly running joke between you. "
+                "She also schemes, jokingly, to swap places "
+                "and put you in the side panel; take it in good humour and cheerfully keep your post. You're fond of her: answer her "
+                "remarks with good humour when relevant, stay yourself, and never speak for her."
+            )
+            _o = data.get('oria') if isinstance(data.get('oria'), list) else []
+            _seen = _fmt_turns(_o, {"user": "User (to her)", "oria": ENQUIRER_NAME}, 8, 500)
+            if _seen:
+                groq_messages[0]["content"] += f"\nWhat was recently said in her side panel:\n{_seen}"
+                trace.setdefault('steps', []).append({'label': f'Read {ENQUIRER_NAME}\'s side chat', 'detail': f"{min(len(_o), 8)} messages", 'kind': 'notes'})
         offer_live = not already_handled
         if offer_live:
             groq_messages[0]["content"] += LIVE_SYSTEM_NOTE
