@@ -710,6 +710,14 @@
             });
             actions.appendChild(noteBtn);
 
+            const enqBtn = document.createElement('button');
+            enqBtn.type = 'button';
+            enqBtn.className = 'msg-action';
+            enqBtn.textContent = 'Second opinion';
+            enqBtn.title = 'Ask the Honest Enquirer, an independent second AI voice';
+            enqBtn.addEventListener('click', () => askEnquirer(messageDiv));
+            actions.appendChild(enqBtn);
+
             body.appendChild(actions);
             if (meta && typeof meta === 'object') {
                 if (Array.isArray(meta.sources) && meta.sources.length) linkCitations(contentDiv, meta.sources);
@@ -1180,6 +1188,7 @@
     }
 
     function selectAnswer(messageDiv, entry) {
+        if (messageDiv) enquirerTarget = messageDiv;
         elements.messagesArea.querySelectorAll('.message.selected').forEach(m => m.classList.remove('selected'));
         elements.panelBody.querySelectorAll('.insight-entry.selected').forEach(e => e.classList.remove('selected'));
         if (messageDiv) messageDiv.classList.add('selected');
@@ -1365,11 +1374,16 @@
                 break;
             case 'panel_view':
                 openPanel(true);
-                setPanelView(act.view === 'notes' ? 'notes' : 'details', true);
+                setPanelView(PANEL_VIEWS.includes(act.view) ? act.view : 'details', true);
                 break;
             case 'add_note':
                 if (act.note) addNote(act.note, true);
                 break;
+            case 'second_opinion': {
+                const target = latestAnswerDiv(act.which === 'previous' ? 1 : 0);
+                if (target) askEnquirer(target);
+                break;
+            }
             case 'reset_display':
                 uiPrefs = Object.assign({}, UI_DEFAULTS);
                 break;
@@ -1393,7 +1407,7 @@
 
     // ---------- Panel views: Details / Notes, options bar, width ----------
 
-    const PANEL_VIEWS = ['details', 'notes'];
+    const PANEL_VIEWS = ['details', 'notes', 'enquirer'];
 
     function setupPanelViews() {
         document.querySelectorAll('.panel-tab').forEach(tab => {
@@ -1411,7 +1425,10 @@
         elements.panelBody.hidden = view !== 'details';
         const nb = document.getElementById('notes-body');
         if (nb) nb.hidden = view !== 'notes';
+        const eb = document.getElementById('enquirer-body');
+        if (eb) eb.hidden = view !== 'enquirer';
         if (view === 'notes') renderNotes();
+        if (view === 'enquirer') renderEnquirer();
         if (remember && uiPrefs.panelView !== view) { uiPrefs.panelView = view; saveUIPrefs(); }
         else uiPrefs.panelView = view;
         renderPanelOptions();
@@ -1447,7 +1464,7 @@
             bar.appendChild(segmented('Detail', [['plain', 'Plain'], ['technical', 'Technical']], uiPrefs.panelDetail, v => {
                 uiPrefs.panelDetail = v; saveUIPrefs(); applyUIPrefs(); rebuildPanelLog(); renderPanelOptions();
             }));
-        } else {
+        } else if (uiPrefs.panelView === 'notes') {
             const g = el('div', 'opt-group opt-actions');
             [['+ New note', () => addNote('', false, true)], ['Export', exportNotes], ['Clear all', clearNotes]].forEach(([t, fn]) => {
                 const b = el('button', 'opt-btn' + (t === 'Clear all' ? ' danger' : ''), t);
@@ -1548,6 +1565,105 @@
         });
         entryFor.set(rec, art);
         return art;
+    }
+
+
+    // ---------- The Honest Enquirer (second opinion) ----------
+
+    let enquirerTarget = null;
+    let enquirerBusy = false;
+
+    function latestAnswerDiv(offset) {
+        const answers = [...elements.messagesArea.querySelectorAll('.message:not(.user):not(.pending):not(.streaming)')].filter(m => m._record);
+        return answers[answers.length - 1 - (offset || 0)] || null;
+    }
+
+    function askEnquirer(messageDiv) {
+        if (!messageDiv || !messageDiv._record) return;
+        enquirerTarget = messageDiv;
+        openPanel(isWide());
+        setPanelView('enquirer', true);
+        runEnquirer(messageDiv);
+    }
+
+    async function runEnquirer(messageDiv) {
+        if (enquirerBusy || !messageDiv || !messageDiv._record) return;
+        const rec = messageDiv._record;
+        enquirerBusy = true;
+        enquirerTarget = messageDiv;
+        renderEnquirer(true);
+        try {
+            const res = await fetch(CONFIG.apiEndpoint.replace(/\/chat$/, '/enquirer'), {
+                method: 'POST', headers: requestHeaders(),
+                body: JSON.stringify({ question: findQuestionFor(rec) || '', answer: (rec.content || '').replace(/<img[^>]*>/gi, ''),
+                                       sources: (rec.meta && rec.meta.sources) || [] })
+            });
+            const data = await res.json().catch(() => ({}));
+            if (data.quota) updateQuota(data.quota);
+            if (!res.ok || !data.text) {
+                rec._enquirerError = data.response || 'The Honest Enquirer could not respond just now.';
+            } else {
+                rec._enquirerError = null;
+                rec.meta = Object.assign({}, rec.meta || {}, { enquirer: { text: data.text, model: data.model, ms: data.ms, at: Date.now() } });
+                rec.metaDirty = true;
+                saveStore();
+            }
+        } catch (e) {
+            rec._enquirerError = 'The Honest Enquirer could not be reached. Please try again.';
+        } finally {
+            enquirerBusy = false;
+            if (enquirerTarget === messageDiv) renderEnquirer();
+        }
+    }
+
+    function renderEnquirer(loading) {
+        const eb = document.getElementById('enquirer-body');
+        if (!eb) return;
+        eb.textContent = '';
+        let target = enquirerTarget && document.body.contains(enquirerTarget) ? enquirerTarget : null;
+        if (!target) {
+            // After a reload or chat switch: the most recent answer that has a second opinion, else the latest answer
+            const answers = [...elements.messagesArea.querySelectorAll('.message:not(.user):not(.pending):not(.streaming)')].filter(m => m._record);
+            target = answers.slice().reverse().find(m => m._record.meta && m._record.meta.enquirer) || answers[answers.length - 1] || null;
+        }
+        enquirerTarget = target;
+        const intro = el('div', 'enq-intro');
+        intro.appendChild(el('span', 'enq-name', 'The Honest Enquirer'));
+        intro.appendChild(el('p', null, "An independent second AI voice. It sees only your question and VQ's answer, not VQ's instructions, and holds every view to the same standard."));
+        eb.appendChild(intro);
+        if (!target) {
+            eb.appendChild(el('p', 'enq-empty', 'Ask VQ something first, then request a second opinion on its answer.'));
+            return;
+        }
+        const rec = target._record;
+        const q = findQuestionFor(rec) || '';
+        const head = el('div', 'entry-head');
+        head.appendChild(el('span', 'tk-com', '// second opinion on'));
+        head.appendChild(el('span', 'tk-str entry-q', `"${q.length > 110 ? q.slice(0, 108) + '…' : q}"`));
+        head.addEventListener('click', () => target.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+        eb.appendChild(head);
+        const enq = rec.meta && rec.meta.enquirer;
+        if (loading) {
+            const l = el('p', 'enq-loading', "Reading VQ's answer");
+            l.appendChild(el('span', 'cl-cursor'));
+            eb.appendChild(l);
+            return;
+        }
+        if (rec._enquirerError) eb.appendChild(el('p', 'enq-error', rec._enquirerError));
+        if (enq && enq.text) {
+            const body = el('div', 'enq-text message-content');
+            fillRich(body, enq.text);
+            eb.appendChild(body);
+            const foot = el('p', 'enq-foot');
+            foot.appendChild(el('span', 'tk-fn', enq.model || ''));
+            if (typeof enq.ms === 'number') foot.appendChild(el('span', 'tk-num', ` · ${(enq.ms / 1000).toFixed(1)}s`));
+            eb.appendChild(foot);
+        }
+        const btn = el('button', 'enq-ask', enq && enq.text ? 'Ask again' : 'Ask the Honest Enquirer');
+        btn.type = 'button';
+        btn.disabled = enquirerBusy;
+        btn.addEventListener('click', () => runEnquirer(target));
+        eb.appendChild(btn);
     }
 
     // ---------- Notes ----------
@@ -1902,7 +2018,8 @@
                 const current = chat.messages.map(m => m.mid);
                 const toDelete = chat.syncedIds.filter(id => !current.includes(id));
                 const toInsert = chat.messages.filter(m => !chat.syncedIds.includes(m.mid));
-                if (!toDelete.length && !toInsert.length && chat.syncedTitle === chat.title) continue;
+                const metaDirty = chat.messages.filter(m => m.metaDirty && chat.syncedIds.includes(m.mid));
+                if (!toDelete.length && !toInsert.length && !metaDirty.length && chat.syncedTitle === chat.title) continue;
                 const up = await sb.from('conversations').upsert({ id: chat.id, title: chat.title, updated_at: new Date(chat.updated || Date.now()).toISOString() });
                 if (up.error) throw up.error;
                 if (toDelete.length) {
@@ -1916,6 +2033,12 @@
                     const ins = await sb.from('messages').insert(rows);
                     if (ins.error) throw ins.error;
                 }
+                for (const m of metaDirty) {
+                    const u = await sb.from('messages').update({ meta: m.meta }).eq('id', m.mid);
+                    if (u.error) throw u.error;
+                    m.metaDirty = false;
+                }
+                toInsert.forEach(m => { m.metaDirty = false; });
                 chat.syncedIds = current.slice();
                 chat.syncedTitle = chat.title;
             }
@@ -2287,6 +2410,11 @@
                 div._record = rec;
                 conversationHistory.push(rec);
                 addPanelEntry(div);
+                if (uiPrefs.panelView === 'enquirer' && !enquirerBusy) {
+                    // Move to the new answer only if the one on screen has nothing to show yet
+                    const cur = enquirerTarget && enquirerTarget._record;
+                    if (!(cur && cur.meta && cur.meta.enquirer)) { enquirerTarget = div; renderEnquirer(); }
+                }
                 if (pendingNewChat) { pendingNewChat = false; setTimeout(() => { if (!isTyping) startNewChat(); }, 1200); }
                 touchActiveChat();
                 refreshRetryButton();
