@@ -713,8 +713,8 @@
             const enqBtn = document.createElement('button');
             enqBtn.type = 'button';
             enqBtn.className = 'msg-action';
-            enqBtn.textContent = 'Second opinion';
-            enqBtn.title = 'Ask the Honest Enquirer, an independent second AI voice';
+            enqBtn.textContent = `Ask ${FRIEND_NAME}`;
+            enqBtn.title = `${FRIEND_NAME}: the third friend in the chat, a separate AI voice`;
             enqBtn.addEventListener('click', () => askEnquirer(messageDiv));
             actions.appendChild(enqBtn);
 
@@ -1586,7 +1586,8 @@
         runEnquirer(messageDiv);
     }
 
-    async function runEnquirer(messageDiv) {
+    async function runEnquirer(messageDiv, mode) {
+        mode = mode === 'deep' ? 'deep' : 'react';
         if (enquirerBusy || !messageDiv || !messageDiv._record) return;
         const rec = messageDiv._record;
         enquirerBusy = true;
@@ -1596,7 +1597,7 @@
             const res = await fetch(CONFIG.apiEndpoint.replace(/\/chat$/, '/enquirer'), {
                 method: 'POST', headers: requestHeaders(),
                 body: JSON.stringify({ question: findQuestionFor(rec) || '', answer: (rec.content || '').replace(/<img[^>]*>/gi, ''),
-                                       sources: (rec.meta && rec.meta.sources) || [] })
+                                       sources: (rec.meta && rec.meta.sources) || [], mode })
             });
             const data = await res.json().catch(() => ({}));
             if (data.quota) updateQuota(data.quota);
@@ -1604,7 +1605,8 @@
                 rec._enquirerError = data.response || 'The Honest Enquirer could not respond just now.';
             } else {
                 rec._enquirerError = null;
-                rec.meta = Object.assign({}, rec.meta || {}, { enquirer: { text: data.text, model: data.model, ms: data.ms, at: Date.now() } });
+                const entry = { text: data.text, model: data.model, ms: data.ms, at: Date.now(), deeper: !!data.deeper };
+                rec.meta = Object.assign({}, rec.meta || {}, mode === 'deep' ? { enquirerDeep: entry } : { enquirer: entry });
                 rec.metaDirty = true;
                 saveStore();
             }
@@ -1616,54 +1618,79 @@
         }
     }
 
+    const FRIEND_NAME = 'Aria';
+
+    function friendBubble(text, cls) {
+        const row = el('div', 'friend-row' + (cls ? ' ' + cls : ''));
+        row.appendChild(el('span', 'friend-avatar', FRIEND_NAME[0]));
+        const bubble = el('div', 'friend-bubble message-content');
+        fillRich(bubble, text);
+        row.appendChild(bubble);
+        return row;
+    }
+
     function renderEnquirer(loading) {
         const eb = document.getElementById('enquirer-body');
         if (!eb) return;
         eb.textContent = '';
         let target = enquirerTarget && document.body.contains(enquirerTarget) ? enquirerTarget : null;
         if (!target) {
-            // After a reload or chat switch: the most recent answer that has a second opinion, else the latest answer
             const answers = [...elements.messagesArea.querySelectorAll('.message:not(.user):not(.pending):not(.streaming)')].filter(m => m._record);
-            target = answers.slice().reverse().find(m => m._record.meta && m._record.meta.enquirer) || answers[answers.length - 1] || null;
+            target = answers.slice().reverse().find(m => m._record.meta && (m._record.meta.enquirer || m._record.meta.enquirerDeep)) || answers[answers.length - 1] || null;
         }
         enquirerTarget = target;
         const intro = el('div', 'enq-intro');
-        intro.appendChild(el('span', 'enq-name', 'The Honest Enquirer'));
-        intro.appendChild(el('p', null, "An independent second AI voice. It sees only your question and VQ's answer, not VQ's instructions, and holds every view to the same standard."));
+        intro.appendChild(el('span', 'enq-name', FRIEND_NAME));
+        intro.appendChild(el('p', null, "The third friend in the chat: a separate AI voice with her own personality. She sees your question and VQ's answer, not VQ's instructions."));
         eb.appendChild(intro);
         if (!target) {
-            eb.appendChild(el('p', 'enq-empty', 'Ask VQ something first, then request a second opinion on its answer.'));
+            eb.appendChild(el('p', 'enq-empty', `Chat with VQ, then tap “Ask ${FRIEND_NAME}” under an answer.`));
             return;
         }
         const rec = target._record;
         const q = findQuestionFor(rec) || '';
         const head = el('div', 'entry-head');
-        head.appendChild(el('span', 'tk-com', '// second opinion on'));
+        head.appendChild(el('span', 'tk-com', '// about'));
         head.appendChild(el('span', 'tk-str entry-q', `"${q.length > 110 ? q.slice(0, 108) + '…' : q}"`));
         head.addEventListener('click', () => target.scrollIntoView({ behavior: 'smooth', block: 'center' }));
         eb.appendChild(head);
-        const enq = rec.meta && rec.meta.enquirer;
+        const react = rec.meta && rec.meta.enquirer;
+        const deep = rec.meta && rec.meta.enquirerDeep;
+        if (react && react.text) eb.appendChild(friendBubble(react.text));
+        if (deep && deep.text) eb.appendChild(friendBubble(deep.text, 'deep'));
         if (loading) {
-            const l = el('p', 'enq-loading', "Reading VQ's answer");
-            l.appendChild(el('span', 'cl-cursor'));
+            const l = el('div', 'friend-row');
+            l.appendChild(el('span', 'friend-avatar', FRIEND_NAME[0]));
+            const typing = el('div', 'friend-bubble friend-typing');
+            typing.append(el('span'), el('span'), el('span'));
+            l.appendChild(typing);
             eb.appendChild(l);
-            return;
         }
         if (rec._enquirerError) eb.appendChild(el('p', 'enq-error', rec._enquirerError));
-        if (enq && enq.text) {
-            const body = el('div', 'enq-text message-content');
-            fillRich(body, enq.text);
-            eb.appendChild(body);
+        const last = deep || react;
+        if (last && typeof last.ms === 'number') {
             const foot = el('p', 'enq-foot');
-            foot.appendChild(el('span', 'tk-fn', enq.model || ''));
-            if (typeof enq.ms === 'number') foot.appendChild(el('span', 'tk-num', ` · ${(enq.ms / 1000).toFixed(1)}s`));
+            foot.appendChild(el('span', 'tk-fn', last.model || ''));
+            foot.appendChild(el('span', 'tk-num', ` · ${(last.ms / 1000).toFixed(1)}s`));
             eb.appendChild(foot);
         }
-        const btn = el('button', 'enq-ask', enq && enq.text ? 'Ask again' : 'Ask the Honest Enquirer');
-        btn.type = 'button';
-        btn.disabled = enquirerBusy;
-        btn.addEventListener('click', () => runEnquirer(target));
-        eb.appendChild(btn);
+        if (loading) return;
+        const actions = el('div', 'enq-actions');
+        const ask = el('button', 'enq-ask', react ? 'Ask again' : `Ask ${FRIEND_NAME}`);
+        ask.type = 'button';
+        ask.disabled = enquirerBusy;
+        ask.addEventListener('click', () => runEnquirer(target, 'react'));
+        actions.appendChild(ask);
+        if (!deep) {
+            const honest = el('button', 'enq-ask secondary' + (react && react.deeper ? ' suggested' : ''), 'Her honest take');
+            honest.type = 'button';
+            honest.title = 'A short, balanced look at what holds up and what to question';
+            honest.disabled = enquirerBusy;
+            honest.addEventListener('click', () => runEnquirer(target, 'deep'));
+            actions.appendChild(honest);
+        }
+        eb.appendChild(actions);
+        if (react && react.deeper && !deep) eb.appendChild(el('p', 'enq-hint', `${FRIEND_NAME} thinks this one is worth a closer look.`));
     }
 
     // ---------- Notes ----------
