@@ -1398,7 +1398,9 @@ UI_TOOL = {
                         "line_spacing": {"type": "number", "description": "1.3 to 2.0"},
                         "accent": {"type": "string", "description": "orange, gold, teal, rose, violet, green, blue or grey (red/pink map to rose, yellow to gold, purple to violet)"},
                         "contrast": {"type": "string", "description": "normal or high"},
-                        "font": {"type": "string", "description": "default, readable, serif or mono"},
+                        "font": {"type": "string", "description": ("default, readable, serif, mono, script (cursive), handwriting, "
+                                                                   "elegant, classic, inscription, futuristic, retro (typewriter), "
+                                                                   "playful or rounded")},
                         "motion": {"type": "string", "description": "normal or reduced"},
                         "width": {"type": "string", "description": "narrow, normal or wide"}
                     }
@@ -1413,9 +1415,14 @@ UI_TOOL = {
 _UI_ENUMS = UI_TOOL["function"]["parameters"]["properties"]
 _STYLE_CHOICES = {
     "accent": ["orange", "gold", "teal", "rose", "violet", "green", "blue", "grey"],
-    "contrast": ["normal", "high"], "font": ["default", "readable", "serif", "mono"],
+    "contrast": ["normal", "high"], "font": ["default", "readable", "serif", "mono", "script", "handwriting", "elegant", "classic", "inscription", "futuristic", "retro", "playful", "rounded"],
     "motion": ["normal", "reduced"], "width": ["narrow", "normal", "wide"],
 }
+_FONT_SYNONYMS = {"cursive": "script", "calligraphy": "script", "fancy": "elegant", "handwritten": "handwriting",
+                  "hand-written": "handwriting", "typewriter": "retro", "sci-fi": "futuristic", "scifi": "futuristic",
+                  "space": "futuristic", "comic": "playful", "comic sans": "playful", "fun": "playful", "roman": "inscription",
+                  "latin": "inscription", "bubbly": "rounded", "soft": "rounded", "normal": "default", "standard": "default",
+                  "dyslexia": "readable", "easy to read": "readable", "code": "mono", "monospace": "mono"}
 _ACCENT_SYNONYMS = {"red": "rose", "pink": "rose", "crimson": "rose", "scarlet": "rose", "magenta": "rose",
                     "purple": "violet", "lilac": "violet", "lavender": "violet", "indigo": "violet",
                     "yellow": "gold", "amber": "gold", "golden": "gold", "cyan": "teal", "turquoise": "teal",
@@ -1448,11 +1455,14 @@ def validate_ui_action(args: dict):
             val = str(st.get(key) or "").strip().lower()
             if key == "accent":
                 val = _ACCENT_SYNONYMS.get(val, val)
+            if key == "font":
+                val = _FONT_SYNONYMS.get(val, val)
             if val in _STYLE_CHOICES[key]:
                 style[key] = val
         if not style:
             return None, ("that option isn't available. Accent colours: orange, gold, teal, rose, violet, green, blue, grey; "
-                          "fonts: default, readable, serif, mono")
+                          "fonts: default, readable, serif, mono, script, handwriting, elegant, classic, inscription, futuristic, "
+                          "retro, playful, rounded")
         clean["style"] = style
         parts = [f"{k.replace('_', ' ')} {v}" for k, v in style.items()]
         asked = str(st.get("accent") or "").strip().lower()
