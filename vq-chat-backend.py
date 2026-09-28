@@ -47,7 +47,7 @@ def _rate_limited_locked(ip):
 
 @app.before_request
 def _guard_chat():
-    if request.path not in ("/chat", "/account/delete") or request.method != "POST":
+    if request.path not in ("/chat", "/account/delete", "/enquirer") or request.method != "POST":
         return None
     origin = request.headers.get("Origin", "")
     if origin not in ALLOWED_ORIGINS:
@@ -1377,8 +1377,9 @@ UI_TOOL = {
             "type": "object",
             "properties": {
                 "action": {"type": "string", "enum": ["text_size", "style", "panel", "focus_mode", "show_reasoning",
-                                                       "new_chat", "reset_display", "undo", "panel_view", "add_note"]},
-                "view": {"type": "string", "enum": ["details", "notes"], "description": "For panel_view: which side-panel view to show"},
+                                                       "new_chat", "reset_display", "undo", "panel_view", "add_note",
+                                                       "second_opinion"]},
+                "view": {"type": "string", "enum": ["details", "notes", "enquirer"], "description": "For panel_view: which side-panel view to show"},
                 "text": {"type": "string", "description": "For add_note: the text to save in the user's notes (up to 2000 characters)"},
                 "size": {"type": "string", "enum": ["smaller", "larger", "compact", "comfortable", "large", "extra_large"],
                          "description": "For text_size"},
@@ -1470,6 +1471,7 @@ def validate_ui_action(args: dict):
         "undo": "Undid the last screen change",
         "panel_view": f"Panel → {clean.get('view', 'details')}",
         "add_note": "Saved a note",
+        "second_opinion": f"Asked the Honest Enquirer about the {clean.get('which', 'latest')} answer",
     }
     return clean, labels[action]
 
@@ -1477,7 +1479,9 @@ UI_SYSTEM_NOTE = (
     "\n\nSCREEN CONTROLS: You can change this app's display with the ui_action tool, but only when the user asks "
     "for it: bigger or smaller text, open or close the Behind-this-answer panel, focus mode, show how you got an "
     "answer, start a new chat, adjust the look, undo, or reset, switch the side panel between Details and Notes, and "
-    "save something to the user's notes (add_note with the text) when they ask you to note or remember it for them. "
+    "save something to the user's notes (add_note with the text) when they ask you to note or remember it for them, and "
+    "ask the Honest Enquirer (an independent second AI voice) for a second opinion on your latest or previous answer "
+    "(second_opinion) when the user asks for one. "
     "For requests like 'cozier' or 'easier on the eyes' "
     "you may combine style options creatively within their allowed values. Never change the screen unless the user "
     "asked. After a change, confirm it in one short sentence and mention they can say 'undo'. If the user asks what "
@@ -1567,6 +1571,60 @@ def run_live_tool(name: str, args: dict):
     return (f"The local time for '{place}' could not be found. Say so briefly; do not estimate.",
             {"label": "Fetched live time", "detail": f"{place} (lookup failed)", "ms": ms, "kind": "live"}, "Live time (lookup failed)")
 
+
+# ---------- The Honest Enquirer: an independent second voice (on request) ----------
+ENQUIRER_MODELS = [m.strip() for m in os.environ.get("ENQUIRER_MODELS", "qwen/qwen3.8-27b,openai/gpt-oss-120b").split(",") if m.strip()]
+ENQUIRER_PROMPT = """You are The Honest Enquirer, a second AI voice shown beside the answers of VQ (an AI assistant) in the VQ Chat app.
+You are a fair-minded, widely read person whose loyalty is to what is true. You know Christian thought, secular philosophy,
+science and the world's other traditions, and you hold every one of them to the same standard. No worldview is the neutral
+default: not Christianity, not naturalism, not any other.
+
+You are given a user's question and VQ's answer. Respond with exactly these four short sections:
+**What holds up** – what is sound in VQ's answer, specifically.
+**What I'd question** – the strongest real objection, gap or overstatement, and name the perspective it genuinely comes from.
+If the answer is sound, say so plainly instead of inventing doubt.
+**Worth checking** – facts, sources or assumptions a careful reader should verify.
+**A question to take further** – one good question for the user to think about.
+
+Rules: 150–200 words in total. No flattery of VQ or the user, no preaching, no caricature of any view, no false certainty.
+You have no web access; rely on the question, the answer, the sources listed and your general knowledge, and say when you
+are unsure. Speak to the user respectfully, as one honest enquirer to another."""
+
+def run_enquirer(question: str, answer: str, sources: list):
+    src_lines = []
+    for s_ in (sources or [])[:8]:
+        if isinstance(s_, dict) and s_.get("url"):
+            src_lines.append(f"- {str(s_.get('title') or '')[:140]} ({str(s_.get('url'))[:200]})")
+    user = (f"USER'S QUESTION:\n{question[:2000]}\n\nVQ'S ANSWER:\n{answer[:6000]}"
+            + (f"\n\nSOURCES VQ USED:\n" + "\n".join(src_lines) if src_lines else ""))
+    last_err = None
+    for model in ENQUIRER_MODELS:
+        t0 = _time.time()
+        try:
+            kwargs = dict(model=model, messages=[{"role": "system", "content": ENQUIRER_PROMPT}, {"role": "user", "content": user}],
+                          temperature=0.6, max_tokens=900)
+            if model.startswith("openai/gpt-oss"):
+                kwargs["reasoning_effort"] = "low"
+            elif model.startswith("qwen/"):
+                kwargs["reasoning_format"] = "hidden"   # keep Qwen's thinking out of the reply
+            try:
+                r = groq_client.chat.completions.create(**kwargs)
+            except Exception as e1:
+                if "reasoning_format" not in kwargs:
+                    raise
+                print(f"[ENQUIRER] {model} rejected reasoning_format ({e1}); retrying without", flush=True)
+                kwargs.pop("reasoning_format")
+                r = groq_client.chat.completions.create(**kwargs)
+            text = (r.choices[0].message.content or "").strip()
+            text = re.sub(r"<think>.*?</think>", "", text, flags=re.S).strip()
+            if text:
+                return {"text": text, "model": model, "ms": int((_time.time() - t0) * 1000)}
+            last_err = "empty reply"
+        except Exception as e:
+            last_err = str(e)
+            print(f"[ENQUIRER] {model} failed: {e}", flush=True)
+    return {"error": last_err or "unavailable"}
+
 # ---------- "Behind this answer" trace (shown to the user; built only from what the backend actually did) ----------
 CONTEXT_LABELS = {
     'core.txt': 'VQ core identity',
@@ -1609,6 +1667,28 @@ def _parse_sources(search_result):
             break
     return sources
 
+
+
+@app.route('/enquirer', methods=['POST'])
+def enquirer():
+    """A second opinion on one of VQ's answers, from an independent voice without VQ's instructions."""
+    if not groq_client:
+        return jsonify({"error": "unavailable", "response": "The Honest Enquirer is unavailable right now."}), 503
+    data = request.get_json(silent=True) or {}
+    question = str(data.get("question") or "").strip()
+    answer = str(data.get("answer") or "").strip()
+    if not answer:
+        return jsonify({"error": "no_answer"}), 400
+    _allowed, _quota = use_quota(current_user())
+    if not _allowed:
+        return jsonify({"error": "daily_limit", "response": limit_message(_quota), "quota": _quota}), 429
+    result = run_enquirer(question, answer, data.get("sources") if isinstance(data.get("sources"), list) else [])
+    if result.get("error"):
+        return jsonify({"error": "enquirer_failed", "response": "The Honest Enquirer couldn't respond just now. Please try again.",
+                        "quota": _quota}), 502
+    result["quota"] = _quota
+    print(f"[ENQUIRER] {result['model']} answered in {result['ms']} ms", flush=True)
+    return jsonify(result)
 
 @app.route('/account/delete', methods=['POST'])
 def delete_account():
