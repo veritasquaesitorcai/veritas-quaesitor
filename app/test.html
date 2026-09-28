@@ -320,6 +320,22 @@
         .enq-ask.secondary { background: transparent; }
         .enq-ask.suggested { border-color: rgba(245,163,199,0.7); box-shadow: 0 0 12px rgba(245,163,199,0.25); }
         .enq-hint { margin: 0.5rem 0 0; font-size: 0.8rem; color: #f5a3c7; }
+        /* ---- O.R.I.A. side chat ---- */
+        .enq-say { font-weight: 400; color: var(--text-tertiary); font-size: 0.8rem; }
+        .friend-thread { display: flex; flex-direction: column; }
+        .friend-row.mine { justify-content: flex-end; }
+        .friend-bubble.mine { flex: 0 1 auto; max-width: 85%; padding: 0.5rem 0.8rem !important; border-radius: 14px 4px 14px 14px !important; background: rgba(var(--ui-accent-rgb),0.16) !important; border: 1px solid rgba(var(--ui-accent-rgb),0.35) !important; color: var(--text-primary); font-size: 0.9rem; white-space: pre-wrap; }
+        .friend-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.2rem; }
+        .friend-about { font-size: 0.72rem; color: var(--text-tertiary); }
+        .friend-row.err .friend-bubble { border-color: rgba(255,138,138,0.4) !important; }
+        .friend-avatar { background: linear-gradient(135deg, #7fe0d2, #f5a3c7) !important; }
+        .oria-form { flex-shrink: 0; display: flex; gap: 0.5rem; align-items: flex-end; padding: 0.6rem 0.8rem; border-top: 1px solid var(--border-subtle); min-width: var(--insight-width); }
+        .oria-form[hidden] { display: none; }
+        #oria-input { flex: 1; resize: none; max-height: 140px; padding: 0.55rem 0.8rem; border-radius: 12px; border: 1px solid rgba(127,224,210,0.35); background: rgba(127,224,210,0.05); color: var(--text-primary); font: inherit; font-size: 0.9rem; line-height: 1.4; outline: none; }
+        #oria-input:focus { border-color: rgba(245,163,199,0.7); box-shadow: 0 0 0 3px rgba(245,163,199,0.15); }
+        .oria-send { flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; border: 0; background: linear-gradient(135deg, #7fe0d2, #f5a3c7); color: #1b1030; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+        .oria-send svg { width: 18px; height: 18px; }
+        @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
         #enquirer-body { flex: 1; overflow-y: auto; padding: 0.9rem 1.1rem 1.25rem; min-width: var(--insight-width); scrollbar-width: thin; }
@@ -481,8 +497,8 @@
                     <button type="button" role="tab" class="panel-tab" data-view="notes" aria-selected="false">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12l4 4v12H4z"/><path d="M8 11h8M8 15h5"/></svg><span class="tab-label">Notes</span>
                     </button>
-                    <button type="button" role="tab" class="panel-tab" data-view="enquirer" aria-selected="false" title="Aria: the third friend in the chat">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.4v.3M12 16.5h.01"/></svg><span class="tab-label">Aria</span>
+                    <button type="button" role="tab" class="panel-tab" data-view="enquirer" aria-selected="false" title="O.R.I.A. (say &quot;Airo&quot;): the third companion">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.4v.3M12 16.5h.01"/></svg><span class="tab-label">O.R.I.A.</span>
                     </button>
                 </div>
                 <button id="insight-close" class="insight-close" type="button" aria-label="Close panel" title="Close panel">
@@ -492,6 +508,13 @@
             <div id="insight-body" role="tabpanel"></div>
             <div id="notes-body" role="tabpanel" hidden></div>
             <div id="enquirer-body" role="tabpanel" hidden></div>
+            <form id="oria-form" class="oria-form" hidden>
+                <label for="oria-input" class="sr-only">Message O.R.I.A.</label>
+                <textarea id="oria-input" rows="1" placeholder="Talk to O.R.I.A.…" maxlength="2000"></textarea>
+                <button type="submit" class="oria-send" aria-label="Send to O.R.I.A.">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </button>
+            </form>
             <div id="panel-options" class="panel-options"></div>
         </aside>
         <div id="insight-scrim"></div>
@@ -555,6 +578,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-09-28-aria"></script>
+    <script src="js/chat-app-test.js?v=2026-09-28-oria"></script>
 </body>
 </html>
