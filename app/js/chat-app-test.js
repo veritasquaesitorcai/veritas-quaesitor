@@ -1,4 +1,4 @@
-(function() { 
+(function() {
     'use strict';
 
     const CONFIG = {
@@ -1297,6 +1297,42 @@
         catch (e) { return Object.assign({}, UI_DEFAULTS); }
     }
 
+
+    // Fonts VQ can switch to. Decorative ones style the conversation only, so buttons and menus stay easy to read;
+    // web fonts are loaded only when someone picks them.
+    const FONTS = {
+        readable:    { stack: 'Verdana, Tahoma, "Segoe UI", sans-serif', scope: 'all' },
+        serif:       { stack: 'Georgia, "Times New Roman", serif', scope: 'all' },
+        mono:        { stack: 'ui-monospace, "JetBrains Mono", Menlo, Consolas, monospace', scope: 'all' },
+        script:      { stack: '"Dancing Script", "Segoe Script", cursive', scope: 'messages', boost: 1.22, google: 'Dancing+Script:wght@400;600' },
+        handwriting: { stack: '"Caveat", "Segoe Print", cursive', scope: 'messages', boost: 1.3, google: 'Caveat:wght@400;600' },
+        elegant:     { stack: '"Cormorant Garamond", Garamond, serif', scope: 'messages', boost: 1.15, google: 'Cormorant+Garamond:ital,wght@0,500;0,700;1,500' },
+        classic:     { stack: '"Playfair Display", Georgia, serif', scope: 'messages', boost: 1.02, google: 'Playfair+Display:wght@400;700' },
+        inscription: { stack: '"Cinzel", "Trajan Pro", serif', scope: 'messages', boost: 0.95, google: 'Cinzel:wght@400;700' },
+        futuristic:  { stack: '"Exo 2", "Segoe UI", sans-serif', scope: 'all', google: 'Exo+2:wght@400;600' },
+        retro:       { stack: '"Special Elite", "Courier New", monospace', scope: 'messages', boost: 1.02, google: 'Special+Elite' },
+        playful:     { stack: '"Comic Neue", "Comic Sans MS", cursive', scope: 'all', boost: 1.05, google: 'Comic+Neue:wght@400;700' },
+        rounded:     { stack: '"Fredoka", "Nunito", sans-serif', scope: 'all', google: 'Fredoka:wght@400;600' }
+    };
+
+    function applyFont(name) {
+        const f = FONTS[name];
+        const root = document.documentElement.style;
+        const b = document.body.classList;
+        b.remove('ui-font-all', 'ui-font-msg');
+        if (!f) { root.removeProperty('--ui-font'); root.removeProperty('--ui-font-boost'); return; }
+        if (f.google && !document.getElementById(`font-${name}`)) {
+            const link = document.createElement('link');
+            link.id = `font-${name}`;
+            link.rel = 'stylesheet';
+            link.href = `https://fonts.googleapis.com/css2?family=${f.google}&display=swap`;
+            document.head.appendChild(link);
+        }
+        root.setProperty('--ui-font', f.stack);
+        root.setProperty('--ui-font-boost', String(f.boost || 1));
+        b.add(f.scope === 'all' ? 'ui-font-all' : 'ui-font-msg');
+    }
+
     function applyUIPrefs() {
         const root = document.documentElement.style;
         root.setProperty('--ui-scale', String(uiPrefs.scale));
@@ -1310,7 +1346,7 @@
         root.setProperty('--chat-max', WIDTHS[uiPrefs.width] || WIDTHS.normal);
         const b = document.body.classList;
         b.toggle('ui-hc', uiPrefs.contrast === 'high');
-        ['readable', 'serif', 'mono'].forEach(f => b.toggle(`ui-font-${f}`, uiPrefs.font === f));
+        applyFont(uiPrefs.font);
         b.toggle('ui-reduce-motion', uiPrefs.motion === 'reduced');
         b.toggle('ui-focus', !!uiPrefs.focus);
         b.toggle('ui-accent-custom', uiPrefs.accent !== 'orange');
@@ -1356,7 +1392,7 @@
                 if (typeof st.line_spacing === 'number') uiPrefs.line = clamp(st.line_spacing, 1.3, 2.0);
                 if (ACCENTS[st.accent]) uiPrefs.accent = st.accent;
                 if (['normal', 'high'].includes(st.contrast)) uiPrefs.contrast = st.contrast;
-                if (['default', 'readable', 'serif', 'mono'].includes(st.font)) uiPrefs.font = st.font;
+                if (st.font === 'default' || FONTS[st.font]) uiPrefs.font = st.font;
                 if (['normal', 'reduced'].includes(st.motion)) uiPrefs.motion = st.motion;
                 if (WIDTHS[st.width]) uiPrefs.width = st.width;
                 break;
