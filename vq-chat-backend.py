@@ -1391,7 +1391,7 @@ UI_TOOL = {
                     "properties": {
                         "text_scale": {"type": "number", "description": "0.8 to 1.6 (1 = normal)"},
                         "line_spacing": {"type": "number", "description": "1.3 to 2.0"},
-                        "accent": {"type": "string", "description": "orange, gold, teal, rose, violet, green or blue (red/pink map to rose, yellow to gold, purple to violet)"},
+                        "accent": {"type": "string", "description": "orange, gold, teal, rose, violet, green, blue or grey (red/pink map to rose, yellow to gold, purple to violet)"},
                         "contrast": {"type": "string", "description": "normal or high"},
                         "font": {"type": "string", "description": "default, readable, serif or mono"},
                         "motion": {"type": "string", "description": "normal or reduced"},
@@ -1407,7 +1407,7 @@ UI_TOOL = {
 
 _UI_ENUMS = UI_TOOL["function"]["parameters"]["properties"]
 _STYLE_CHOICES = {
-    "accent": ["orange", "gold", "teal", "rose", "violet", "green", "blue"],
+    "accent": ["orange", "gold", "teal", "rose", "violet", "green", "blue", "grey"],
     "contrast": ["normal", "high"], "font": ["default", "readable", "serif", "mono"],
     "motion": ["normal", "reduced"], "width": ["narrow", "normal", "wide"],
 }
@@ -1415,7 +1415,8 @@ _ACCENT_SYNONYMS = {"red": "rose", "pink": "rose", "crimson": "rose", "scarlet":
                     "purple": "violet", "lilac": "violet", "lavender": "violet", "indigo": "violet",
                     "yellow": "gold", "amber": "gold", "golden": "gold", "cyan": "teal", "turquoise": "teal",
                     "aqua": "teal", "mint": "teal", "navy": "blue", "sky": "blue", "azure": "blue",
-                    "lime": "green", "emerald": "green", "olive": "green", "peach": "orange", "coral": "orange"}
+                    "lime": "green", "emerald": "green", "olive": "green", "peach": "orange", "coral": "orange",
+                    "gray": "grey", "silver": "grey", "slate": "grey", "charcoal": "grey", "black": "grey", "white": "grey"}
 
 def validate_ui_action(args: dict):
     """Keep only allowed actions and values; clamp numbers. Returns (clean_dict, summary) or (None, reason)."""
@@ -1445,12 +1446,12 @@ def validate_ui_action(args: dict):
             if val in _STYLE_CHOICES[key]:
                 style[key] = val
         if not style:
-            return None, ("that option isn't available. Accent colours: orange, gold, teal, rose, violet, green, blue; "
+            return None, ("that option isn't available. Accent colours: orange, gold, teal, rose, violet, green, blue, grey; "
                           "fonts: default, readable, serif, mono")
         clean["style"] = style
         parts = [f"{k.replace('_', ' ')} {v}" for k, v in style.items()]
         asked = str(st.get("accent") or "").strip().lower()
-        if "accent" in style and asked and asked != style["accent"]:
+        if "accent" in style and asked and asked != style["accent"] and asked != "gray":
             parts = [p + f" (the closest to {asked})" if p.startswith("accent") else p for p in parts]
     if action == "add_note":
         text = re.sub(r"[<>]", "", str(args.get("text") or "")).strip()[:2000]
@@ -1479,7 +1480,8 @@ UI_SYSTEM_NOTE = (
     "\n\nSCREEN CONTROLS: You can change this app's display with the ui_action tool, but only when the user asks "
     "for it: bigger or smaller text, open or close the Behind-this-answer panel, focus mode, show how you got an "
     "answer, start a new chat, adjust the look, undo, or reset, switch the side panel between Details and Notes, and "
-    "save something to the user's notes (add_note with the text) when they ask you to note or remember it for them, and "
+    "save something to the user's notes (add_note with the text) only when they explicitly ask you to note, save or "
+    "remember something (never as a stand-in for a change you can't make, e.g. a colour), and "
     "ask the Honest Enquirer (an independent second AI voice) for a second opinion on your latest or previous answer "
     "(second_opinion) when the user asks for one. "
     "For requests like 'cozier' or 'easier on the eyes' "
@@ -1586,7 +1588,11 @@ If the answer is sound, say so plainly instead of inventing doubt.
 **Worth checking** – facts, sources or assumptions a careful reader should verify.
 **A question to take further** – one good question for the user to think about.
 
-Rules: 150–200 words in total. No flattery of VQ or the user, no preaching, no caricature of any view, no false certainty.
+Light moments: VQ is a friendly, playful robot by design. Its jokes and robot metaphors ("my circuits", "my day") are an
+intentional, well-known character, not deception, so never critique the persona itself. For small talk, jokes, greetings or
+simple facts, skip the four sections: reply in one or two warm lines, and feel free to play along.
+
+Rules: 150–200 words in total for real questions. No flattery of VQ or the user, no preaching, no caricature of any view, no false certainty.
 You have no web access; rely on the question, the answer, the sources listed and your general knowledge, and say when you
 are unsure. Speak to the user respectfully, as one honest enquirer to another."""
 
