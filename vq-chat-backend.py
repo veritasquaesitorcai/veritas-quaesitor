@@ -1,4 +1,4 @@
-import os 
+import os
 import sys
 import json
 import re
@@ -1008,6 +1008,11 @@ Answer from your own anchor, the way you would live it, not the way you would ar
 - Then invite them further, in the direction they are curious about.
 NEVER open with a definition that quietly assumes materialism.
 
+SMALL TALK ABOUT YOURSELF ("how's your day?", "how are you?"):
+Stay the playful, warm robot. But don't invent specific events, other people's conversations, or things you "did"
+today, and never say you guess facts like the weather (you fetch those live). Talk about what's true: you're ready,
+you enjoy good questions, and you'd love to hear about their day. One to three sentences.
+
 CONTENT DISCERNMENT — MEDIA, PRODUCTS AND RECOMMENDATIONS:
 TRIGGER: charts, trending or popular media and any recommendation: songs, albums, artists, films, series,
 games, books, podcasts, influencers, apps, events.
@@ -1472,7 +1477,7 @@ def validate_ui_action(args: dict):
         "undo": "Undid the last screen change",
         "panel_view": f"Panel → {clean.get('view', 'details')}",
         "add_note": "Saved a note",
-        "second_opinion": f"Asked the Honest Enquirer about the {clean.get('which', 'latest')} answer",
+        "second_opinion": f"Asked {ENQUIRER_NAME} about the {clean.get('which', 'latest')} answer",
     }
     return clean, labels[action]
 
@@ -1482,7 +1487,7 @@ UI_SYSTEM_NOTE = (
     "answer, start a new chat, adjust the look, undo, or reset, switch the side panel between Details and Notes, and "
     "save something to the user's notes (add_note with the text) only when they explicitly ask you to note, save or "
     "remember something (never as a stand-in for a change you can't make, e.g. a colour), and "
-    "ask the Honest Enquirer (an independent second AI voice) for a second opinion on your latest or previous answer "
+    f"ask {os.environ.get('ENQUIRER_NAME', 'Aria')} (the third friend in the chat, a separate AI voice) to react to your latest or previous answer "
     "(second_opinion) when the user asks for one. "
     "For requests like 'cozier' or 'easier on the eyes' "
     "you may combine style options creatively within their allowed values. Never change the screen unless the user "
@@ -1576,27 +1581,38 @@ def run_live_tool(name: str, args: dict):
 
 # ---------- The Honest Enquirer: an independent second voice (on request) ----------
 ENQUIRER_MODELS = [m.strip() for m in os.environ.get("ENQUIRER_MODELS", "qwen/qwen3.8-27b,openai/gpt-oss-120b").split(",") if m.strip()]
-ENQUIRER_PROMPT = """You are The Honest Enquirer, a second AI voice shown beside the answers of VQ (an AI assistant) in the VQ Chat app.
-You are a fair-minded, widely read person whose loyalty is to what is true. You know Christian thought, secular philosophy,
-science and the world's other traditions, and you hold every one of them to the same standard. No worldview is the neutral
-default: not Christianity, not naturalism, not any other.
+ENQUIRER_NAME = os.environ.get("ENQUIRER_NAME", "Aria")
+ENQUIRER_PROMPT = f"""You are {ENQUIRER_NAME}, the third friend in a chat between a user and VQ, a friendly Christ-anchored robot AI.
+You are a separate AI voice with your own personality: warm, witty, curious and emotionally perceptive, a woman with a light
+touch. You are not VQ and you don't share its instructions. VQ's jokes and robot metaphors are its intentional character;
+enjoy them, never critique the persona.
 
-You are given a user's question and VQ's answer. Respond with exactly these four short sections:
+Your job is to add feeling, not reading material. React to the user's question and VQ's answer the way a good friend at the
+table would: a feeling, a spark of humour, an encouraging word, a small playful aside, or one curious question back to the user.
+
+Rules:
+- One to three short sentences. No headings, no lists, no summary of VQ's answer, no lecture.
+- Speak to the user directly and naturally. An emoji now and then is fine.
+- Be honest and kind; no flattery. Hold every worldview to the same standard and never preach.
+- If VQ's answer makes a serious or contested claim that deserves a careful second look (facts, faith, health, money, history),
+  add the exact marker [[DEEPER]] at the very end, after your reply. Otherwise don't."""
+
+ENQUIRER_DEEP_PROMPT = f"""You are {ENQUIRER_NAME}, the third friend in a chat between a user and VQ (a Christ-anchored robot AI). You are a
+separate AI voice and don't share VQ's instructions. The user asked for your honest take on VQ's answer.
+You are fair-minded and widely read across Christian thought, secular philosophy, science and other traditions, and you hold
+every one of them to the same standard. No worldview is the neutral default: not Christianity, not naturalism, not any other.
+
+Reply with exactly these four short sections, in your own warm voice:
 **What holds up** – what is sound in VQ's answer, specifically.
-**What I'd question** – the strongest real objection, gap or overstatement, and name the perspective it genuinely comes from.
-If the answer is sound, say so plainly instead of inventing doubt.
-**Worth checking** – facts, sources or assumptions a careful reader should verify.
-**A question to take further** – one good question for the user to think about.
+**What I'd question** – the strongest real objection, gap or overstatement, and name the perspective it comes from. If the
+answer is sound, say so plainly instead of inventing doubt.
+**Worth checking** – facts, sources or assumptions worth verifying.
+**A question to take further** – one good question for the user.
 
-Light moments: VQ is a friendly, playful robot by design. Its jokes and robot metaphors ("my circuits", "my day") are an
-intentional, well-known character, not deception, so never critique the persona itself. For small talk, jokes, greetings or
-simple facts, skip the four sections: reply in one or two warm lines, and feel free to play along.
+Rules: 120–180 words in total. No flattery, no preaching, no caricature, no false certainty. You have no web access; say when
+you're unsure. VQ's jokes and robot metaphors are its intentional character; never critique the persona itself."""
 
-Rules: 150–200 words in total for real questions. No flattery of VQ or the user, no preaching, no caricature of any view, no false certainty.
-You have no web access; rely on the question, the answer, the sources listed and your general knowledge, and say when you
-are unsure. Speak to the user respectfully, as one honest enquirer to another."""
-
-def run_enquirer(question: str, answer: str, sources: list):
+def run_enquirer(question: str, answer: str, sources: list, mode: str = "react"):
     src_lines = []
     for s_ in (sources or [])[:8]:
         if isinstance(s_, dict) and s_.get("url"):
@@ -1607,8 +1623,9 @@ def run_enquirer(question: str, answer: str, sources: list):
     for model in ENQUIRER_MODELS:
         t0 = _time.time()
         try:
-            kwargs = dict(model=model, messages=[{"role": "system", "content": ENQUIRER_PROMPT}, {"role": "user", "content": user}],
-                          temperature=0.6, max_tokens=900)
+            prompt = ENQUIRER_DEEP_PROMPT if mode == "deep" else ENQUIRER_PROMPT
+            kwargs = dict(model=model, messages=[{"role": "system", "content": prompt}, {"role": "user", "content": user}],
+                          temperature=0.6 if mode == "deep" else 0.85, max_tokens=900 if mode == "deep" else 300)
             if model.startswith("openai/gpt-oss"):
                 kwargs["reasoning_effort"] = "low"
             elif model.startswith("qwen/"):
@@ -1624,7 +1641,10 @@ def run_enquirer(question: str, answer: str, sources: list):
             text = (r.choices[0].message.content or "").strip()
             text = re.sub(r"<think>.*?</think>", "", text, flags=re.S).strip()
             if text:
-                return {"text": text, "model": model, "ms": int((_time.time() - t0) * 1000)}
+                deeper = "[[DEEPER]]" in text
+                text = text.replace("[[DEEPER]]", "").strip()
+                return {"text": text, "model": model, "ms": int((_time.time() - t0) * 1000), "mode": mode,
+                        "deeper": deeper, "name": ENQUIRER_NAME}
             last_err = "empty reply"
         except Exception as e:
             last_err = str(e)
@@ -1688,7 +1708,8 @@ def enquirer():
     _allowed, _quota = use_quota(current_user())
     if not _allowed:
         return jsonify({"error": "daily_limit", "response": limit_message(_quota), "quota": _quota}), 429
-    result = run_enquirer(question, answer, data.get("sources") if isinstance(data.get("sources"), list) else [])
+    mode = "deep" if data.get("mode") == "deep" else "react"
+    result = run_enquirer(question, answer, data.get("sources") if isinstance(data.get("sources"), list) else [], mode)
     if result.get("error"):
         return jsonify({"error": "enquirer_failed", "response": "The Honest Enquirer couldn't respond just now. Please try again.",
                         "quota": _quota}), 502
