@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -364,6 +364,32 @@
         .message.user.from-vq-panel .message-content { background: rgba(102,126,234,0.14) !important; border: 1px solid rgba(102,126,234,0.45) !important; color: var(--text-primary) !important; }
         .message.user.from-vq-panel .message-avatar { background: linear-gradient(135deg, #667eea, #764ba2) !important; }
         .friend-reply.vq { border-color: rgba(102,126,234,0.5); color: #c9d2ff; }
+        /* ---- Phones: the chat list opens as a drawer from a menu button ---- */
+        .mobile-menu-btn { display: none; }
+        #sidebar-scrim { display: none; }
+        @media (max-width: 768px) {
+            .mobile-menu-btn { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 38px; height: 38px; margin-right: 0.4rem; border-radius: 10px; border: 1px solid var(--border-subtle); background: transparent; color: var(--text-primary); cursor: pointer; }
+            .mobile-menu-btn svg { width: 20px; height: 20px; }
+            .sidebar, .sidebar.minimized { width: min(86vw, 300px) !important; }
+            .sidebar.minimized { transform: translateX(-105%) !important; box-shadow: none; }
+            .sidebar:not(.minimized) { transform: translateX(0) !important; z-index: 300; }
+            body.sidebar-open #sidebar-scrim { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 250; }
+            .sidebar.minimized .acct-text, .sidebar.minimized .acct-menu-btn { display: revert; }
+            #app-header { gap: 0.3rem; }
+            .header-center { min-width: 0; flex: 1; display: flex; align-items: center; gap: 0.5rem; }
+            .app-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        }
+        @media (max-width: 400px) {
+            .status-indicator #status-text { display: none; }
+            .app-avatar-small { display: none; }
+            .cap-pill { padding: 0.3rem 0.6rem; font-size: 0.78rem; }
+            .suggestion-card { padding: 0.8rem 1rem; }
+            .welcome-title { font-size: 1.7rem; }
+            .panel-tab { padding: 0.35rem 0.45rem; }
+            .swap-banner { font-size: 0.75rem; flex-wrap: wrap; }
+            .message-actions { flex-wrap: wrap; gap: 0.3rem; }
+            .msg-action { white-space: nowrap; padding: 0.15rem 0.55rem; font-size: 0.72rem; border-radius: 999px; }
+        }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -431,6 +457,9 @@
 
         <div id="main-content" class="main-content">
             <header id="app-header">
+                <button type="button" id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Open chats menu" aria-controls="sidebar" aria-expanded="false">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+                </button>
                 <div class="header-center">
                     <div class="app-avatar-small">🤖</div>
                     <h1 class="app-title">Veritas Quaesitor</h1>
@@ -552,6 +581,7 @@
             <div id="panel-options" class="panel-options"></div>
         </aside>
         <div id="insight-scrim"></div>
+        <div id="sidebar-scrim"></div>
     <div id="auth-modal" class="auth-modal" hidden role="dialog" aria-modal="true" aria-labelledby="auth-title">
         <div class="auth-card">
             <button type="button" class="auth-close" aria-label="Close">×</button>
@@ -612,6 +642,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-09-28-reset"></script>
+    <script src="js/chat-app-test.js?v=2026-09-29-mobile"></script>
 </body>
 </html>
