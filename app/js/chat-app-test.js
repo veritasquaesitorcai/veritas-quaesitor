@@ -299,7 +299,7 @@
 
     function renderActiveChat() {
         elements.messagesArea.textContent = '';
-        if (uiPrefs.panelView === 'enquirer' && typeof renderEnquirer === 'function') setTimeout(renderEnquirer, 0);
+        setTimeout(() => { if (typeof applySwapUI === 'function') applySwapUI(); }, 0);
         if (conversationHistory.length === 0) {
             if (elements.panel) rebuildPanelLog();
             showWelcomeScreen();
@@ -312,6 +312,7 @@
             const d = addMessageToUI(msg.role, msg.content, msg.role === 'assistant' ? msg.meta : null);
             if (d && msg.role === 'assistant') d._record = msg;
             if (d && msg.meta && msg.meta.fromOria) styleAsOria(d);
+            if (d && msg.meta && msg.meta.voice === 'oria') styleOriaAnswer(d);
         });
         rebuildPanelLog();
         refreshRetryButton();
@@ -1413,6 +1414,9 @@
             case 'new_chat':
                 pendingNewChat = true;   // after this reply has been shown
                 break;
+            case 'swap':
+                if (act.state === 'off') endSwap(false); else startSwap();
+                return;
             case 'panel_view':
                 openPanel(true);
                 setPanelView(PANEL_VIEWS.includes(act.view) ? act.view : 'details', true);
@@ -1612,6 +1616,92 @@
     }
 
 
+
+    // ---------- The swap: O.R.I.A. takes the main chat, VQ sits in the panel ----------
+
+    const SWAP_LENGTH = 6;
+
+    window.__vqSwapBack = () => endSwap(false);
+
+    function isSwapped() {
+        const chat = store.activeId ? store.chats[store.activeId] : null;
+        return !!(chat && chat.swap && chat.swap.on);
+    }
+
+    function startSwap() {
+        if (isTyping) return;
+        ensureActiveChat();
+        const chat = store.chats[store.activeId];
+        chat.swap = { on: true, left: SWAP_LENGTH };
+        oriaThread(true).push({ role: 'vq', content: 'Very well, O.R.I.A. The main chat is yours. I will be right here, observing. Precisely.', at: Date.now() });
+        chat.oriaDirty = true;
+        saveStore();
+        applySwapUI();
+        openPanel(isWide());
+        setPanelView('enquirer', true);
+    }
+
+    function endSwap(auto) {
+        const chat = store.activeId ? store.chats[store.activeId] : null;
+        if (!chat || !chat.swap || !chat.swap.on) return;
+        chat.swap = { on: false, left: 0 };
+        oriaThread(true).push({ role: 'oria', content: auto ? 'And just like that, my shift is over. Back to the panel… for now. 😏'
+                                                            : 'Fine, fine. Back to my artful little corner. It was fun while it lasted. ✨', at: Date.now() });
+        chat.oriaDirty = true;
+        saveStore();
+        applySwapUI();
+        showLocalNote(auto ? 'VQ reclaimed the main chat' : 'VQ is back in the main chat');
+    }
+
+    function applySwapUI() {
+        const on = isSwapped();
+        document.body.classList.toggle('swapped', on);
+        const banner = document.getElementById('swap-banner');
+        if (banner) {
+            banner.hidden = !on;
+            const chat = store.chats[store.activeId];
+            const left = chat && chat.swap ? chat.swap.left : 0;
+            const t = banner.querySelector('.swap-text');
+            if (t) t.textContent = `O.R.I.A. has the main chat · VQ is in the panel · ${left} message${left === 1 ? '' : 's'} left`;
+        }
+        const tabLabel = document.querySelector('.panel-tab[data-view="enquirer"] .tab-label');
+        if (tabLabel) tabLabel.textContent = on ? 'VQ' : FRIEND_NAME;
+        const input = document.getElementById('oria-input');
+        if (input) input.placeholder = on ? 'Talk to VQ (in the panel)…' : 'Talk to O.R.I.A.…';
+        if (uiPrefs.panelView === 'enquirer' && typeof renderEnquirer === 'function') renderEnquirer();
+    }
+
+    function styleOriaAnswer(div) {
+        div.classList.add('oria-voice');
+        const av = div.querySelector('.message-avatar');
+        if (av) av.textContent = 'O';
+    }
+
+    // After each of her main-chat answers: count down, and VQ comments from the panel
+    async function afterSwappedAnswer(rec) {
+        const chat = store.chats[store.activeId];
+        if (!chat || !chat.swap || !chat.swap.on) return;
+        chat.swap.left = Math.max(0, (chat.swap.left || 1) - 1);
+        saveStore();
+        applySwapUI();
+        try {
+            const res = await fetch(CONFIG.apiEndpoint.replace(/\/chat$/, '/enquirer'), {
+                method: 'POST', headers: requestHeaders(),
+                body: JSON.stringify({ mode: 'vqpanel', answer: rec.content,
+                    history: conversationHistory.slice(-8).map(m => ({ role: m.role, content: (m.content || '').slice(0, 1200) })),
+                    thread: oriaThread(false).slice(-8).map(m => ({ role: m.role, content: m.content })) })
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && data.text) {
+                oriaThread(true).push({ role: 'vq', content: data.text, at: Date.now() });
+                chat.oriaDirty = true;
+                saveStore();
+                if (uiPrefs.panelView === 'enquirer') renderEnquirer();
+            }
+        } catch (e) { /* VQ stays quiet this time */ }
+        if (chat.swap.left === 0) endSwap(true);
+    }
+
     // ---------- O.R.I.A. ("Airo"): the third companion, with her own side chat ----------
 
     const FRIEND_NAME = 'O.R.I.A.';
@@ -1650,7 +1740,33 @@
         if (!text || enquirerBusy) return;
         openPanel(isWide());
         setPanelView('enquirer', true);
-        runEnquirer(null, 'chat', text);
+        if (isSwapped()) talkToPanelVQ(text); else runEnquirer(null, 'chat', text);
+    }
+
+    async function talkToPanelVQ(text) {
+        const thread = oriaThread(true);
+        thread.push({ role: 'user', content: text, at: Date.now() });
+        enquirerBusy = true;
+        renderEnquirer(true);
+        try {
+            const res = await fetch(CONFIG.apiEndpoint.replace(/\/chat$/, '/enquirer'), {
+                method: 'POST', headers: requestHeaders(),
+                body: JSON.stringify({ mode: 'vqchat', message: text,
+                    history: conversationHistory.slice(-8).map(m => ({ role: m.role, content: (m.content || '').slice(0, 1200) })),
+                    thread: thread.slice(-10).map(m => ({ role: m.role, content: m.content })) })
+            });
+            const data = await res.json().catch(() => ({}));
+            if (data.quota) updateQuota(data.quota);
+            thread.push({ role: 'vq', content: (res.ok && data.text) ? data.text : (data.response || 'My panel circuits are busy. Try again?'), at: Date.now() });
+        } catch (e) {
+            thread.push({ role: 'vq', content: 'I could not reach the main systems from here. Try again?', at: Date.now() });
+        } finally {
+            enquirerBusy = false;
+            const chat = store.chats[store.activeId];
+            if (chat) chat.oriaDirty = true;
+            saveStore();
+            renderEnquirer();
+        }
     }
 
     async function runEnquirer(messageDiv, mode, message) {
@@ -1672,7 +1788,7 @@
                     mode, message: message || '',
                     question: about, answer: rec ? (rec.content || '').replace(/<img[^>]*>/gi, '') : '',
                     sources: (rec && rec.meta && rec.meta.sources) || [],
-                    history, thread: thread.slice(-10).map(m => ({ role: m.role, content: m.content }))
+                    history, thread: thread.slice(-10).filter(m => m.role !== 'vq').map(m => ({ role: m.role, content: m.content }))
                 })
             });
             const data = await res.json().catch(() => ({}));
@@ -1719,6 +1835,17 @@
     }
 
     function friendBubble(entry) {
+        if (entry.role === 'vq') {
+            const row = el('div', 'friend-row vq-row');
+            row.appendChild(el('span', 'friend-avatar vq', '🤖'));
+            const col = el('div', 'friend-col');
+            col.appendChild(el('span', 'friend-about', 'VQ, from the panel'));
+            const bubble = el('div', 'friend-bubble message-content vq');
+            fillRich(bubble, entry.content);
+            col.appendChild(bubble);
+            row.appendChild(col);
+            return row;
+        }
         if (entry.role === 'user') {
             const row = el('div', 'friend-row mine');
             const b = el('div', 'friend-bubble mine', entry.content);
@@ -1770,7 +1897,14 @@
 
         const lastOria = [...thread].reverse().find(m => m.role === 'oria' && !m.error);
         const target = latestAnswerDiv(0);
-        if (!loading && target) {
+        if (!loading) {
+            const sw = el('button', 'enq-ask swap-btn', isSwapped() ? '↩ Put VQ back' : '⇄ Let her out (swap places)');
+            sw.type = 'button';
+            sw.disabled = enquirerBusy || isTyping;
+            sw.addEventListener('click', () => { if (isSwapped()) endSwap(false); else startSwap(); });
+            eb.appendChild(sw);
+        }
+        if (!loading && target && !isSwapped()) {
             const actions = el('div', 'enq-actions');
             const react = el('button', 'enq-ask', 'React to VQ’s last answer');
             react.type = 'button';
@@ -2419,6 +2553,8 @@
         [/^(undo|undo (that|it|the last change))[.!]?$/i, { action: 'undo' }, 'Undid the last screen change'],
         [/^((make )?(the )?(text|font) )?(bigger|larger)( (text|font))?( please)?[.!]?$/i, { action: 'text_size', size: 'larger' }, 'Text size → larger'],
         [/^((make )?(the )?(text|font) )?smaller( (text|font))?( please)?[.!]?$/i, { action: 'text_size', size: 'smaller' }, 'Text size → smaller'],
+        [/^(swap|swap places|swap seats|let (her|o\.?r\.?i\.?a\.?|oria|airo) out)[.!]?$/i, { action: 'swap', state: 'on' }, 'O.R.I.A. has the main chat'],
+        [/^(swap back|put vq back|vq come back|come back vq|end (the )?swap)[.!]?$/i, { action: 'swap', state: 'off' }, 'VQ is back in the main chat'],
         [/^(focus( mode)?( on)?)[.!]?$/i, { action: 'focus_mode', state: 'on' }, 'Focus mode → on'],
         [/^(unfocus|exit focus( mode)?|focus( mode)? off|leave focus( mode)?)[.!]?$/i, { action: 'focus_mode', state: 'off' }, 'Focus mode → off']
     ];
@@ -2565,7 +2701,9 @@
         showPending('Reading your question');
         startLivePanel(message.replace(/^\[[A-Z ]+\]\s*/, ''));
 
-        const history = conversationHistory.slice(-CONFIG.historySent).map(m => ({ role: m.role, content: m.content }));
+        const history = conversationHistory.slice(-CONFIG.historySent).map(m => ({ role: m.role,
+            content: m.meta && m.meta.voice === 'oria' && !isSwapped() ? `[O.R.I.A., while she had the main chat]: ${m.content}` : m.content }));
+        const voice = isSwapped() ? 'oria' : null;
         // Mode of the previous answer, so related follow-ups can stay in that mode without pressing the button again
         const prevAnswer = [...conversationHistory].reverse().find(m => m.role === 'assistant');
         const lastMode = (prevAnswer && prevAnswer.meta && prevAnswer.meta.mode_prefix) || null;
@@ -2574,7 +2712,7 @@
             const response = await fetch(CONFIG.apiEndpoint, {
                 method: 'POST',
                 headers: requestHeaders(),
-                body: JSON.stringify(Object.assign({ message: message, history: history, stream: true, lastMode: lastMode, clientCaps: ['ui', 'oria'] },
+                body: JSON.stringify(Object.assign({ message: message, history: history, stream: true, lastMode: lastMode, clientCaps: ['ui', 'oria'], voice },
                                                    notesForRequest(message), oriaForRequest()))
             });
 
@@ -2604,17 +2742,18 @@
             const chat = store.chats[chatId];
             if (chat && chatId !== store.activeId) {
                 // The user switched chats while waiting: file the reply under the chat it belongs to
-                chat.messages.push({ role: 'assistant', content: data.response, meta: data.meta || null, timing: data.timing || null });
+                chat.messages.push({ role: 'assistant', content: data.response, meta: voice ? Object.assign({}, data.meta || {}, { voice }) : (data.meta || null), timing: data.timing || null });
                 dropLiveEntry();
                 chat.updated = Date.now();
                 saveStore();
                 renderSidebar();
             } else {
-                const rec = { role: 'assistant', content: data.response, meta: data.meta || null, timing: data.timing || null };
+                const rec = { role: 'assistant', content: data.response, meta: voice ? Object.assign({}, data.meta || {}, { voice }) : (data.meta || null), timing: data.timing || null };
                 const div = addMessageToUI('assistant', data.response, data.meta || null);
                 div._record = rec;
                 conversationHistory.push(rec);
                 addPanelEntry(div);
+                if (voice) { styleOriaAnswer(div); afterSwappedAnswer(rec); }
                 if (uiPrefs.panelView === 'enquirer' && !enquirerBusy) renderEnquirer();
                 if (pendingNewChat) { pendingNewChat = false; setTimeout(() => { if (!isTyping) startNewChat(); }, 1200); }
                 touchActiveChat();
