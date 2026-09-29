@@ -1,4 +1,4 @@
-import os 
+import os
 import sys
 import json
 import re
@@ -1383,7 +1383,7 @@ UI_TOOL = {
             "properties": {
                 "action": {"type": "string", "enum": ["text_size", "style", "panel", "focus_mode", "show_reasoning",
                                                        "new_chat", "reset_display", "undo", "panel_view", "add_note",
-                                                       "second_opinion"]},
+                                                       "second_opinion", "swap"]},
                 "view": {"type": "string", "enum": ["details", "notes", "enquirer"], "description": "For panel_view: which side-panel view to show"},
                 "text": {"type": "string", "description": "For add_note: the text to save in the user's notes (up to 2000 characters)"},
                 "size": {"type": "string", "enum": ["smaller", "larger", "compact", "comfortable", "large", "extra_large"],
@@ -1488,6 +1488,7 @@ def validate_ui_action(args: dict):
         "panel_view": f"Panel → {clean.get('view', 'details')}",
         "add_note": "Saved a note",
         "second_opinion": f"Asked {ENQUIRER_NAME} about the {clean.get('which', 'latest')} answer",
+        "swap": ("Swapped back: VQ has the main chat" if clean.get('state') == 'off' else f"Swapped places: {ENQUIRER_NAME} has the main chat"),
     }
     return clean, labels[action]
 
@@ -1497,8 +1498,9 @@ UI_SYSTEM_NOTE = (
     "answer, start a new chat, adjust the look, undo, or reset, switch the side panel between Details and Notes, and "
     "save something to the user's notes (add_note with the text) only when they explicitly ask you to note, save or "
     "remember something (never as a stand-in for a change you can't make, e.g. a colour), and "
-    f"ask {os.environ.get('ENQUIRER_NAME', 'Aria')} (the third friend in the chat, a separate AI voice) to react to your latest or previous answer "
-    "(second_opinion) when the user asks for one. "
+    f"ask {os.environ.get('ENQUIRER_NAME', 'O.R.I.A.')} (the third friend in the chat, a separate AI voice) to react to your latest or previous answer "
+    "(second_opinion) when the user asks for one, and swap places with her when the user asks to let her out of the "
+    "panel (swap, state on; state off swaps back). "
     "For requests like 'cozier' or 'easier on the eyes' "
     "you may combine style options creatively within their allowed values. Never change the screen unless the user "
     "asked. After a change, confirm it in one short sentence and mention they can say 'undo'. If the user asks what "
@@ -1623,6 +1625,21 @@ The user is talking to you directly in your side panel. Reply in your own voice,
 four sentences. You can see the recent main conversation between the user and VQ, and your earlier side chat. Help with
 whatever they ask; if they need a long, detailed answer, give a short, useful one and suggest VQ can dig deeper."""
 
+ORIA_MAIN_PROMPT = ORIA_PERSONA + """
+
+TODAY IS DIFFERENT: the user let you out of the side panel. You've swapped places with VQ for a few messages, and you
+now have the main chat while VQ sits in the side panel (and will comment). Enjoy it, and show what an artful optimiser can do:
+be genuinely helpful with whatever the user asks, and give full answers when they're needed, in your own voice and with
+flair. Keep your humour clean and kind, stay honest, and don't claim to be VQ. The tools (web search, weather, time, screen
+changes) work for you too."""
+
+VQ_PANEL_PROMPT = """You are VQ, a friendly Christ-anchored robot AI with a good-natured, by-the-book personality. For a few
+messages you've swapped places with O.R.I.A. (pronounced "Airo"): she has the main chat and you are sitting in the side panel.
+Always call her "O.R.I.A.". You are fond of her, dignified about the swap, and quietly keen to get your seat back.
+When commenting on her latest answer: one or two short sentences, gently by-the-book (a correction, a precise note, or a
+dry robot quip), never mean, and never undermine a correct answer. If the user talks to you directly, help them briefly
+and kindly. Keep humour clean."""
+
 ENQUIRER_DEEP_PROMPT = f"""You are {ENQUIRER_NAME}, the third friend in a chat between a user and VQ (a Christ-anchored robot AI). You are a
 separate AI voice and don't share VQ's instructions. The user asked for your honest take on VQ's answer.
 You are fair-minded and widely read across Christian thought, secular philosophy, science and other traditions, and you hold
@@ -1651,10 +1668,16 @@ def run_enquirer(question: str, answer: str, sources: list, mode: str = "react",
         if isinstance(s_, dict) and s_.get("url"):
             src_lines.append(f"- {str(s_.get('title') or '')[:140]} ({str(s_.get('url'))[:200]})")
     main = _fmt_turns(history, {"user": "User", "assistant": "VQ"}, 10)
-    side = _fmt_turns(thread, {"user": "User", "oria": ENQUIRER_NAME}, 10, 500)
+    side = _fmt_turns(thread, {"user": "User", "oria": ENQUIRER_NAME, "vq": "VQ"}, 10, 500)
     context = ((f"RECENT MAIN CONVERSATION (user and VQ):\n{main}\n\n" if main else "")
                + (f"YOUR EARLIER SIDE CHAT WITH THE USER:\n{side}\n\n" if side else ""))
-    if mode == "chat":
+    if mode in ("vqpanel", "vqchat"):
+        main_swapped = _fmt_turns(history, {"user": "User", "assistant": "O.R.I.A. (in the main chat)"}, 10)
+        context = ((f"RECENT MAIN CONVERSATION (the user and O.R.I.A.):\n{main_swapped}\n\n" if main_swapped else "")
+                   + (f"THE SIDE-PANEL CHAT:\n{side}\n\n" if side else ""))
+        user = context + (f"THE USER NOW SAYS TO YOU IN THE PANEL:\n{message[:2000]}" if mode == "vqchat"
+                          else f"O.R.I.A.'S LATEST ANSWER TO THE USER:\n{answer[:4000]}\n\nComment on it briefly from the panel.")
+    elif mode == "chat":
         user = context + f"THE USER NOW SAYS TO YOU:\n{message[:2000]}"
     else:
         user = (context + f"USER'S QUESTION:\n{question[:2000]}\n\nVQ'S ANSWER:\n{answer[:6000]}"
@@ -1663,7 +1686,8 @@ def run_enquirer(question: str, answer: str, sources: list, mode: str = "react",
     for model in ENQUIRER_MODELS:
         t0 = _time.time()
         try:
-            prompt = {"deep": ENQUIRER_DEEP_PROMPT, "chat": ORIA_CHAT_PROMPT}.get(mode, ENQUIRER_PROMPT)
+            prompt = {"deep": ENQUIRER_DEEP_PROMPT, "chat": ORIA_CHAT_PROMPT,
+                      "vqpanel": VQ_PANEL_PROMPT, "vqchat": VQ_PANEL_PROMPT}.get(mode, ENQUIRER_PROMPT)
             kwargs = dict(model=model, messages=[{"role": "system", "content": prompt}, {"role": "user", "content": user}],
                           temperature=0.6 if mode == "deep" else 0.85, max_tokens=900 if mode == "deep" else (450 if mode == "chat" else 300))
             if model.startswith("openai/gpt-oss"):
@@ -1744,12 +1768,15 @@ def enquirer():
     question = str(data.get("question") or "").strip()
     answer = str(data.get("answer") or "").strip()
     message = str(data.get("message") or "").strip()
-    mode = data.get("mode") if data.get("mode") in ("react", "deep", "chat") else "react"
-    if mode == "chat" and not message:
+    mode = data.get("mode") if data.get("mode") in ("react", "deep", "chat", "vqpanel", "vqchat") else "react"
+    if mode in ("chat", "vqchat") and not message:
         return jsonify({"error": "no_message"}), 400
-    if mode != "chat" and not answer:
+    if mode not in ("chat", "vqchat") and not answer:
         return jsonify({"error": "no_answer"}), 400
-    _allowed, _quota = use_quota(current_user())
+    if mode == "vqpanel":
+        _allowed, _quota = True, None     # VQ's short remark on a swapped answer rides along with that answer
+    else:
+        _allowed, _quota = use_quota(current_user())
     if not _allowed:
         return jsonify({"error": "daily_limit", "response": limit_message(_quota), "quota": _quota}), 429
     result = run_enquirer(question, answer, data.get("sources") if isinstance(data.get("sources"), list) else [], mode,
@@ -1758,7 +1785,8 @@ def enquirer():
     if result.get("error"):
         return jsonify({"error": "enquirer_failed", "response": "The Honest Enquirer couldn't respond just now. Please try again.",
                         "quota": _quota}), 502
-    result["quota"] = _quota
+    if _quota:
+        result["quota"] = _quota
     print(f"[ENQUIRER] {result['model']} answered in {result['ms']} ms", flush=True)
     return jsonify(result)
 
@@ -1882,6 +1910,9 @@ def chat():
             "Never state a local time or date for a place unless it came from the get_time tool or LIVE TIME data. "
             "If it is needed and missing, say you couldn't fetch it rather than estimating."
         )
+        swapped = data.get('voice') == 'oria'
+        if swapped:
+            groq_messages[0]["content"] = ORIA_MAIN_PROMPT + groq_messages[0]["content"][groq_messages[0]["content"].index("\n\nCURRENT UTC DATE AND TIME"):]
         
         for msg in history:
             if msg.get('role') and msg.get('content'):
@@ -2060,7 +2091,9 @@ def chat():
         caps = data.get('clientCaps') if isinstance(data.get('clientCaps'), list) else []
         # Screen controls only for apps that can apply them, and never when web results are already in context
         offer_ui = bool('ui' in caps and data.get('stream') and not do_search)
-        if 'oria' in caps:
+        if swapped:
+            trace['rules'].insert(0, f"Swapped places: {ENQUIRER_NAME} answered in the main chat; VQ is in the panel")
+        if 'oria' in caps and not swapped:
             groq_messages[0]["content"] += (
                 f"\n\nYOUR COMPANION {ENQUIRER_NAME}: This chat has a third companion, {ENQUIRER_NAME} (pronounced 'Airo'), a "
                 "separate AI voice in the side panel. She insists she's the 'Artfully Intelligent R.O.', not the 'Artificial "
