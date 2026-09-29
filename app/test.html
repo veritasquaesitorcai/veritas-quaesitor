@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -349,6 +349,18 @@
         .local-note { align-self: center; display: inline-flex; align-items: center; gap: 0.45rem; margin: 0.6rem auto; padding: 0.35rem 0.85rem; border-radius: 999px; border: 1px dashed rgba(var(--ui-accent-rgb),0.5); color: var(--text-secondary); font-size: 0.8rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: opacity .5s; width: fit-content; }
         .local-note.fade { opacity: 0; }
         .local-note-icon { color: var(--ui-accent); font-weight: 700; }
+        /* ---- The swap ---- */
+        .swap-banner { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 0.6rem; padding: 0.45rem 0.8rem; border-radius: 12px; background: linear-gradient(135deg, rgba(127,224,210,0.14), rgba(245,163,199,0.14)); border: 1px solid rgba(245,163,199,0.45); color: var(--text-primary); font-size: 0.82rem; }
+        .swap-banner[hidden] { display: none; }
+        .swap-dot { width: 8px; height: 8px; border-radius: 50%; background: #f5a3c7; box-shadow: 0 0 8px #f5a3c7; }
+        .swap-text { flex: 1; }
+        .swap-back { background: none; border: 1px solid rgba(255,255,255,0.3); color: var(--text-primary); border-radius: 999px; padding: 0.15rem 0.7rem; font-size: 0.78rem; cursor: pointer; }
+        .message.oria-voice .message-content { background: linear-gradient(135deg, rgba(127,224,210,0.12), rgba(245,163,199,0.12)) !important; border: 1px solid rgba(245,163,199,0.4) !important; }
+        .message.oria-voice .message-avatar { background: linear-gradient(135deg, #7fe0d2, #f5a3c7) !important; color: #1b1030; font-weight: 700; }
+        .friend-avatar.vq { background: linear-gradient(135deg, #667eea, #764ba2) !important; font-size: 0.95rem; box-shadow: none; }
+        .friend-bubble.vq { background: rgba(102,126,234,0.1) !important; border-color: rgba(102,126,234,0.35) !important; }
+        .swap-btn { display: block; margin: 0.2rem 0 0.8rem; border-color: rgba(245,163,199,0.6); color: #ffd6e8; background: rgba(245,163,199,0.08); }
+        body.swapped #app-header .app-title::after { content: " · O.R.I.A. at the controls"; font-size: 0.75rem; font-weight: 400; color: #f5a3c7; }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -464,6 +476,11 @@
             <footer id="input-area">
                 <div class="input-container">
 
+                    <div id="swap-banner" class="swap-banner" hidden role="status">
+                        <span class="swap-dot" aria-hidden="true"></span>
+                        <span class="swap-text">O.R.I.A. has the main chat</span>
+                        <button type="button" class="swap-back" onclick="window.__vqSwapBack && window.__vqSwapBack()">Swap back</button>
+                    </div>
                     <div class="cap-pills-row">
                         <button class="cap-pill" data-mode="[RUN ETS]" title="Deploy full Epistemic Tier System">⚖️ ETS</button>
                         <button class="cap-pill" data-mode="[CAI VQA MODE]" title="Counter-AI rebuttal mode">🛡 Counter-AI</button>
@@ -592,6 +609,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-09-28-localcmd"></script>
+    <script src="js/chat-app-test.js?v=2026-09-28-swap"></script>
 </body>
 </html>
