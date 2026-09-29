@@ -2422,10 +2422,8 @@ def chat():
         
         assistant_message = completion.choices[0].message.content or ""
 
-        # gpt-oss sometimes routes the whole answer to the reasoning channel,
-        # leaving content empty — which renders as VQ saying nothing.
-        if not assistant_message.strip():
-            assistant_message = getattr(completion.choices[0].message, "reasoning", "") or ""
+        # gpt-oss sometimes routes the whole answer to its internal reasoning channel, leaving content empty.
+        # Never show that internal reasoning to the user: ask again briefly instead.
         if not assistant_message.strip():
             try:
                 retry = groq_client.chat.completions.create(
