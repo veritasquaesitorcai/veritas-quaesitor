@@ -313,6 +313,7 @@
             if (d && msg.role === 'assistant') d._record = msg;
             if (d && msg.meta && msg.meta.fromOria) styleAsOria(d);
             if (d && msg.meta && msg.meta.voice === 'oria') styleOriaAnswer(d);
+            if (d && msg.meta && msg.meta.fromVQPanel) styleAsVQPanel(d);
         });
         rebuildPanelLog();
         refreshRetryButton();
@@ -718,10 +719,14 @@
 
             const enqBtn = document.createElement('button');
             enqBtn.type = 'button';
-            enqBtn.className = 'msg-action';
+            enqBtn.className = 'msg-action ask-friend';
             enqBtn.textContent = `Ask ${FRIEND_NAME}`;
             enqBtn.title = `${FRIEND_NAME}: the third friend in the chat, a separate AI voice`;
-            enqBtn.addEventListener('click', () => askEnquirer(messageDiv));
+            // On O.R.I.A.'s own answers (during a swap) this asks VQ in the panel instead
+            enqBtn.addEventListener('click', () => {
+                if (messageDiv.classList.contains('oria-voice')) askPanelVQ(messageDiv);
+                else askEnquirer(messageDiv);
+            });
             actions.appendChild(enqBtn);
 
             body.appendChild(actions);
@@ -1664,6 +1669,7 @@
             const t = banner.querySelector('.swap-text');
             if (t) t.textContent = `O.R.I.A. has the main chat · VQ is in the panel · ${left} message${left === 1 ? '' : 's'} left`;
         }
+        elements.messagesArea.querySelectorAll('.message.oria-voice .ask-friend').forEach(b => { b.textContent = 'Ask VQ'; });
         const tabLabel = document.querySelector('.panel-tab[data-view="enquirer"] .tab-label');
         if (tabLabel) tabLabel.textContent = on ? 'VQ' : FRIEND_NAME;
         const input = document.getElementById('oria-input');
@@ -1675,6 +1681,56 @@
         div.classList.add('oria-voice');
         const av = div.querySelector('.message-avatar');
         if (av) av.textContent = 'O';
+        const b = div.querySelector('.ask-friend');
+        if (b) { b.textContent = 'Ask VQ'; b.title = 'VQ comments from the side panel'; }
+    }
+
+    function styleAsVQPanel(div) {
+        div.classList.add('from-vq-panel');
+        const av = div.querySelector('.message-avatar');
+        if (av) av.textContent = '🤖';
+    }
+
+    // VQ, from the panel, comments on one of O.R.I.A.'s main-chat answers
+    async function askPanelVQ(messageDiv) {
+        if (enquirerBusy || !messageDiv || !messageDiv._record) return;
+        openPanel(isWide());
+        setPanelView('enquirer', true);
+        enquirerBusy = true;
+        renderEnquirer(true);
+        try {
+            const res = await fetch(CONFIG.apiEndpoint.replace(/\/chat$/, '/enquirer'), {
+                method: 'POST', headers: requestHeaders(),
+                body: JSON.stringify({ mode: 'vqpanel', answer: messageDiv._record.content,
+                    history: conversationHistory.slice(-8).map(m => ({ role: m.role, content: (m.content || '').slice(0, 1200) })),
+                    thread: oriaThread(false).slice(-8).map(m => ({ role: m.role, content: m.content })) })
+            });
+            const data = await res.json().catch(() => ({}));
+            oriaThread(true).push({ role: 'vq', content: (res.ok && data.text) ? data.text : 'My panel circuits are busy. Try again?', at: Date.now() });
+        } catch (e) {
+            oriaThread(true).push({ role: 'vq', content: 'I could not reach the main systems from here. Try again?', at: Date.now() });
+        } finally {
+            enquirerBusy = false;
+            const chat = store.chats[store.activeId];
+            if (chat) chat.oriaDirty = true;
+            saveStore();
+            renderEnquirer();
+        }
+    }
+
+    // VQ's panel remark goes into the main chat and O.R.I.A. (who has the main chat) answers him there
+    async function vqRemarkToMain(entry) {
+        if (isTyping || !entry || !entry.content || !isSwapped()) return;
+        hideWelcomeScreen();
+        elements.chatContainer.classList.add('has-messages');
+        const shown = `VQ (from the panel): “${entry.content}”`;
+        const div = addMessageToUI('user', shown);
+        if (div) styleAsVQPanel(div);
+        const sent = `${shown}\n[This is VQ speaking to you from the side panel, not the user. ` +
+                     `Reply to VQ directly, in character and briefly; the user is watching and can join in.]`;
+        conversationHistory.push({ role: 'user', content: shown, meta: { fromVQPanel: true } });
+        touchActiveChat();
+        await requestReply(sent);
     }
 
     // After each of her main-chat answers: count down, and VQ comments from the panel
@@ -1843,6 +1899,13 @@
             const bubble = el('div', 'friend-bubble message-content vq');
             fillRich(bubble, entry.content);
             col.appendChild(bubble);
+            if (isSwapped()) {
+                const reply = el('button', 'friend-reply vq', '↩ Let O.R.I.A. reply');
+                reply.type = 'button';
+                reply.title = 'Pass this to O.R.I.A. in the main chat';
+                reply.addEventListener('click', () => vqRemarkToMain(entry));
+                col.appendChild(reply);
+            }
             row.appendChild(col);
             return row;
         }
@@ -1859,7 +1922,7 @@
         const bubble = el('div', 'friend-bubble message-content');
         fillRich(bubble, entry.content);
         col.appendChild(bubble);
-        if (!entry.error && entry.mode !== 'deep') {
+        if (!entry.error && entry.mode !== 'deep' && !isSwapped()) {
             const reply = el('button', 'friend-reply', '↩ Let VQ reply');
             reply.type = 'button';
             reply.title = 'Pass this to VQ in the main chat';
