@@ -1435,8 +1435,15 @@
                 break;
             }
             case 'reset_display':
+                // Everything back to the standard setup: look, panel (Details, Technical, standard width) and VQ in the main chat
                 uiPrefs = Object.assign({}, UI_DEFAULTS);
-                break;
+                if (isSwapped()) endSwap(false);
+                saveUIPrefs();
+                applyUIPrefs();
+                setPanelView('details', false);
+                rebuildPanelLog();
+                if (isWide()) openPanel(true);
+                return;
             case 'undo': {
                 const prev = uiUndo.pop();
                 if (prev) {
