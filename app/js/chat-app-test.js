@@ -1,4 +1,4 @@
-(function() { 
+(function() {
     'use strict';
 
     const CONFIG = {
@@ -58,6 +58,15 @@
 
     function attachEventListeners() {
         elements.sidebarToggle.addEventListener('click', toggleSidebar);
+        // Phones: a menu button in the header opens the chat list as a drawer
+        const mm = document.getElementById('mobile-menu-btn');
+        if (mm) mm.addEventListener('click', () => { elements.sidebar.classList.remove('minimized'); syncSidebarDrawer(); });
+        const ss = document.getElementById('sidebar-scrim');
+        if (ss) ss.addEventListener('click', () => { elements.sidebar.classList.add('minimized'); syncSidebarDrawer(); });
+        new MutationObserver(syncSidebarDrawer).observe(elements.sidebar, { attributes: true, attributeFilter: ['class'] });
+        const shortPlaceholder = () => { elements.messageInput.placeholder = window.innerWidth <= 480 ? 'Ask VQ anything…' : 'Ask about CAI, resurrection evidence, or anything...'; };
+        shortPlaceholder();
+        window.addEventListener('resize', shortPlaceholder);
         elements.newChatBtn.addEventListener('click', startNewChat);
         elements.mobileNewChatBtn.addEventListener('click', startNewChat);
         elements.sendBtn.addEventListener('click', () => sendMessage());
@@ -109,6 +118,13 @@
     }
 
     // ---------- Sidebar ----------
+
+    function syncSidebarDrawer() {
+        const open = window.innerWidth <= 768 && !elements.sidebar.classList.contains('minimized');
+        document.body.classList.toggle('sidebar-open', open);
+        const mm = document.getElementById('mobile-menu-btn');
+        if (mm) mm.setAttribute('aria-expanded', String(open));
+    }
 
     function toggleSidebar() {
         elements.sidebar.classList.toggle('minimized');
