@@ -1,6 +1,9 @@
 (function() {
     'use strict';
 
+    // Drawn icons (replace emoji, which look different on every device)
+    const ICONS = {"vq": "<svg class=\"vq-mark\" viewBox=\"0 0 32 32\" aria-hidden=\"true\"><line x1=\"16\" y1=\"3.5\" x2=\"16\" y2=\"7.5\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\"/><circle cx=\"16\" cy=\"3.2\" r=\"1.7\" fill=\"#ff8c42\"/><rect x=\"6\" y=\"8\" width=\"20\" height=\"16\" rx=\"6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"/><rect x=\"9.5\" y=\"12\" width=\"13\" height=\"6.5\" rx=\"3.25\" fill=\"currentColor\" opacity=\"0.22\"/><circle cx=\"12.8\" cy=\"15.2\" r=\"1.7\" fill=\"#7fe0ff\"/><circle cx=\"19.2\" cy=\"15.2\" r=\"1.7\" fill=\"#7fe0ff\"/><path d=\"M12.5 21.2h7\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\"/><path d=\"M4 14.5v3M28 14.5v3\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"/></svg>", "user": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"8.5\" r=\"3.6\"/><path d=\"M5 20a7 7 0 0 1 14 0\"/></svg>", "chat": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.2A8 8 0 1 1 20 12z\"/></svg>"};
+
     const CONFIG = {
         apiEndpoint: 'https://veritas-quaesitor-production.up.railway.app/chat',
         maxMessageLength: 2000,
@@ -164,7 +167,8 @@
 
             const icon = document.createElement('span');
             icon.className = 'chat-history-icon';
-            icon.textContent = '💬';
+            icon.innerHTML = ICONS.chat;
+            icon.classList.add('chat-item-icon');
 
             const text = document.createElement('span');
             text.className = 'chat-history-text';
@@ -609,7 +613,7 @@
         messageDiv.className = 'message streaming';
         const avatar = document.createElement('div');
         avatar.className = 'message-avatar';
-        avatar.textContent = '🤖';
+        avatar.innerHTML = ICONS.vq;
         const body = document.createElement('div');
         body.className = 'message-body';
         const contentDiv = document.createElement('div');
@@ -695,7 +699,7 @@
 
         const avatar = document.createElement('div');
         avatar.className = 'message-avatar';
-        avatar.textContent = role === 'user' ? '👤' : '🤖';
+        avatar.innerHTML = role === 'user' ? ICONS.user : ICONS.vq;
 
         const body = document.createElement('div');
         body.className = 'message-body';
@@ -809,7 +813,7 @@
 
         const avatar = document.createElement('div');
         avatar.className = 'message-avatar';
-        avatar.textContent = '🤖';
+        avatar.innerHTML = ICONS.vq;
 
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
@@ -1281,7 +1285,7 @@
         if (!div) {
             div = el('div', 'message pending');
             div.id = 'pending-status';
-            div.appendChild(el('div', 'message-avatar', '🤖'));
+            { const av = el('div', 'message-avatar'); av.innerHTML = ICONS.vq; div.appendChild(av); }
             const line = el('div', 'status-line');
             line.appendChild(el('span', 'status-pulse'));
             line.appendChild(el('span', 'status-text'));
@@ -1304,7 +1308,7 @@
 
     const UI_KEY = 'vq-ui-prefs';
     const UI_DEFAULTS = { scale: 1, line: 1.6, accent: 'orange', contrast: 'normal', font: 'default', motion: 'normal', width: 'normal', focus: false,
-                          panelView: 'details', panelWidth: 'standard', panelDetail: 'technical', title: 'inscription', bubbles: false };
+                          panelView: 'details', panelWidth: 'standard', panelDetail: 'technical', title: 'inscription', bubbles: false, theme: 'vq' };
     const SIZE_SCALES = { compact: 0.9, comfortable: 1, large: 1.15, extra_large: 1.3 };
     const ACCENTS = {
         orange: ['#ff8c42', '#ffb27a'], gold: ['#e8b04a', '#ffd98a'], teal: ['#2fb5a3', '#7fe0d2'], rose: ['#e2627e', '#f5a3b5'],
@@ -1365,6 +1369,28 @@
         document.body.classList.add('title-shimmer');
     }
 
+
+    // Background themes. 'vq' is the default: warm charcoal on desktop, deep navy on phones (set in the stylesheet).
+    const THEME_VARS = ['--bg-dark', '--bg-darker', '--bg-panel', '--surface-raised', '--border-subtle', '--message-bg', '--text-primary'];
+    const THEMES = {
+        vq: null,
+        navy:     ['#0f0f23', '#0d0d20', 'rgba(26, 26, 62, 0.75)', '#141230', 'rgba(255,255,255,0.10)', 'rgba(255,255,255,0.07)', '#e8e8f0'],
+        charcoal: ['#262624', '#232321', 'rgba(48, 47, 44, 0.8)', '#2c2b29', 'rgba(255,255,255,0.09)', 'rgba(255,255,255,0.05)', '#ecebe7'],
+        midnight: ['#0e0e0e', '#121212', 'rgba(28, 28, 28, 0.85)', '#1b1b1b', 'rgba(255,255,255,0.09)', 'rgba(255,255,255,0.05)', '#ececec'],
+        ocean:    ['#0c1d27', '#0a1922', 'rgba(16, 40, 56, 0.8)', '#12293a', 'rgba(140,200,230,0.12)', 'rgba(140,200,230,0.06)', '#e4f1f6'],
+        forest:   ['#121a15', '#101813', 'rgba(24, 38, 30, 0.8)', '#19251e', 'rgba(150,210,170,0.11)', 'rgba(150,210,170,0.05)', '#e6efe8'],
+        ember:    ['#1e1513', '#1a1210', 'rgba(46, 30, 25, 0.8)', '#2a1d18', 'rgba(255,190,150,0.11)', 'rgba(255,190,150,0.05)', '#f2e9e4'],
+        slate:    ['#1d2026', '#1a1d22', 'rgba(40, 44, 52, 0.8)', '#252930', 'rgba(255,255,255,0.10)', 'rgba(255,255,255,0.05)', '#e9ecf1'],
+        plum:     ['#1b1322', '#18101e', 'rgba(42, 28, 52, 0.8)', '#24182d', 'rgba(220,180,255,0.11)', 'rgba(220,180,255,0.05)', '#efe8f5']
+    };
+
+    function applyTheme(name) {
+        const root = document.documentElement.style;
+        const vals = THEMES[name];
+        THEME_VARS.forEach((v, i) => { if (vals) root.setProperty(v, vals[i]); else root.removeProperty(v); });
+        document.body.dataset.theme = vals ? name : 'vq';
+    }
+
     function applyUIPrefs() {
         const root = document.documentElement.style;
         root.setProperty('--ui-scale', String(uiPrefs.scale));
@@ -1388,6 +1414,7 @@
         else root.removeProperty('--insight-width');
         b.toggle('panel-plain', uiPrefs.panelDetail === 'plain');
         b.toggle('ui-bubbles', !!uiPrefs.bubbles);
+        applyTheme(THEMES.hasOwnProperty(uiPrefs.theme) ? uiPrefs.theme : 'vq');
         const tv = TITLE_STYLES[uiPrefs.title] || 1;
         [1, 2, 3].forEach(n => b.toggle(`title-v${n}`, n === tv));
     }
@@ -1432,6 +1459,7 @@
                 if (WIDTHS[st.width]) uiPrefs.width = st.width;
                 if (TITLE_STYLES[st.title]) uiPrefs.title = st.title;
                 if (st.bubbles === 'on' || st.bubbles === 'off') uiPrefs.bubbles = st.bubbles === 'on';
+                if (THEMES.hasOwnProperty(st.theme)) uiPrefs.theme = st.theme;
                 break;
             }
             case 'panel':
@@ -1726,7 +1754,7 @@
     function styleAsVQPanel(div) {
         div.classList.add('from-vq-panel');
         const av = div.querySelector('.message-avatar');
-        if (av) av.textContent = '🤖';
+        if (av) av.innerHTML = ICONS.vq;
     }
 
     // VQ, from the panel, comments on one of O.R.I.A.'s main-chat answers
@@ -1931,7 +1959,7 @@
     function friendBubble(entry) {
         if (entry.role === 'vq') {
             const row = el('div', 'friend-row vq-row');
-            row.appendChild(el('span', 'friend-avatar vq', '🤖'));
+            { const fa = el('span', 'friend-avatar vq'); fa.innerHTML = ICONS.vq; row.appendChild(fa); }
             const col = el('div', 'friend-col');
             col.appendChild(el('span', 'friend-about', 'VQ, from the panel'));
             const bubble = el('div', 'friend-bubble message-content vq');
