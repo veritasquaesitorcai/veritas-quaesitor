@@ -116,7 +116,7 @@ WHAT THE ENTRY DOCUMENTS:
 
 - Philosophical Foundations:
   * Christian epistemological roots (Aquinas, imago Dei)
-  * Contrast with secular AGI
+  * Contrast with secular AGI and ASI
   * Character over constraints approach
 
 - Mission Principles:
