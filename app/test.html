@@ -410,13 +410,18 @@
         @media (prefers-reduced-motion: reduce) { body.title-shimmer .title-name::after { display: none; } }
         @media (max-width: 400px) { body.title-v1 .title-name { font-size: 0.95rem; letter-spacing: 0.03em; } body.title-v2 .title-name { font-size: 1.2rem; } body.title-v3 .title-name { font-size: 0.85rem; letter-spacing: 0.1em; } .cai-badge { font-size: 0.6rem; } }
         /* ---- Open layout: VQ's answers read like a page (no bubble); bubbles optional ---- */
-        :root { --surface-raised: #141230; }
+        :root { --surface-raised: #141230; --bg-darker: #0d0d20; }
         body:not(.ui-bubbles) .message:not(.user) .message-content { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0.15rem 0 0.25rem !important; }
         body:not(.ui-bubbles) .message:not(.user) .message-body { max-width: 100%; }
+        body:not(.ui-bubbles) .message.user { flex-direction: row; }
+        body:not(.ui-bubbles) .message.user .message-body { align-items: stretch; max-width: 100%; flex: 1; min-width: 0; }
+        body:not(.ui-bubbles) .message.user .message-content { background: linear-gradient(90deg, rgba(var(--ui-accent-rgb), 0.10), rgba(var(--ui-accent-rgb), 0.025) 70%, transparent) !important; color: var(--text-primary) !important; border: none !important; border-radius: 10px !important; box-shadow: none !important; padding: 0.6rem 0.9rem !important; width: 100%; }
+        body:not(.ui-bubbles) .message.user.from-oria .message-content { background: linear-gradient(90deg, rgba(245,163,199,0.13), transparent 70%) !important; }
+        body:not(.ui-bubbles) .message.user.from-vq-panel .message-content { background: linear-gradient(90deg, rgba(102,126,234,0.15), transparent 70%) !important; }
         body:not(.ui-bubbles) .message.oria-voice .message-content { border-left: 3px solid #f5a3c7 !important; padding-left: 0.9rem !important; background: linear-gradient(90deg, rgba(245,163,199,0.06), transparent 60%) !important; }
         /* ---- Desktop: warmer charcoal background (phones keep the deep navy) ---- */
         @media (min-width: 769px) {
-            :root { --bg-dark: #262624; --bg-darker: #1f1e1d; --bg-panel: rgba(48, 47, 44, 0.8); --surface-raised: #2c2b29;
+            :root { --bg-dark: #262624; --bg-darker: #232321; --bg-panel: rgba(48, 47, 44, 0.8); --surface-raised: #2c2b29;
                     --border-subtle: rgba(255, 255, 255, 0.09); --message-bg: rgba(255, 255, 255, 0.05); --text-primary: #ecebe7; }
         }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
@@ -667,6 +672,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-01-layout"></script>
+    <script src="js/chat-app-test.js?v=2026-10-01-layout2"></script>
 </body>
 </html>
