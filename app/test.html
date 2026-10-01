@@ -437,6 +437,49 @@
         .sidebar-btn .icon svg, .new-chat-btn .icon svg, button .icon svg, span.icon svg { width: 1.15rem; height: 1.15rem; display: block; }
         span.icon { display: inline-flex; align-items: center; justify-content: center; }
         .chat-item-icon svg { width: 1rem; height: 1rem; opacity: 0.75; }
+        /* ---- Layered icons: each theme colours the fill, line, accent and the VQ robot ---- */
+        :root { --ic-line: #f1ecff; --ic-fill: rgba(var(--ui-accent-rgb), 0.24); --ic-accent: var(--ui-accent, #ff8c42);
+                --ic-stroke: 1.8; --ic-glow: none;
+                --vq-head: rgba(255,255,255,0.16); --vq-line: #ffffff; --vq-visor: #1b1340; --vq-eye: #7fe0ff; --vq-light: #ff8c42; --vq-ear: #ffb27a;
+                --vq-avatar-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        svg.ic { overflow: visible; }
+        svg.ic .f { fill: var(--ic-fill); stroke: none; }
+        svg.ic .l, svg.ic .a-l { fill: none; stroke: var(--ic-line); stroke-width: var(--ic-stroke); stroke-linecap: round; stroke-linejoin: round; }
+        svg.ic .a-l { stroke: var(--ic-accent); }
+        svg.ic .a { fill: var(--ic-accent); stroke: none; }
+        svg.ic { filter: var(--ic-glow); }
+        svg.vq-mark .vq-head { fill: var(--vq-head); }
+        svg.vq-mark .l { stroke: var(--vq-line); stroke-width: 2; }
+        svg.vq-mark .vq-visor { fill: var(--vq-visor); }
+        svg.vq-mark .vq-eye { fill: var(--vq-eye); filter: drop-shadow(0 0 1.6px var(--vq-eye)); }
+        svg.vq-mark .vq-glint { fill: #ffffff; opacity: 0.85; }
+        svg.vq-mark .vq-light { fill: var(--vq-light); filter: drop-shadow(0 0 2.5px var(--vq-light)); }
+        svg.vq-mark .vq-ear { fill: var(--vq-ear); }
+        .message:not(.user):not(.oria-voice) .message-avatar, .app-avatar-small, .welcome-avatar, .modal-avatar, .friend-avatar.vq { background: var(--vq-avatar-bg) !important; }
+        .suggestion-icon { color: var(--ic-line); background: var(--ic-tile, rgba(var(--ui-accent-rgb), 0.12)) !important; }
+        /* per-theme personalities */
+        body[data-theme="navy"]     { --ic-tile: rgba(140,150,255,0.14); --ic-line: #e9ebff; --ic-fill: rgba(140,150,255,0.26); --vq-eye: #8fe8ff; }
+        body[data-theme="charcoal"] { --ic-tile: rgba(255,190,120,0.12); --ic-line: #f6eadc; --ic-fill: rgba(255,190,120,0.22); --ic-accent: #ffb86b; --vq-eye: #ffd9a0; --vq-light: #ffb86b; --vq-visor: #2a2420;
+                                      --vq-avatar-bg: linear-gradient(135deg, #5a4a3c, #3a302a); }
+        body[data-theme="midnight"] { --ic-tile: rgba(127,243,255,0.07); --ic-line: #7ff3ff; --ic-fill: transparent; --ic-accent: #ff5fd2; --ic-glow: drop-shadow(0 0 3px rgba(127,243,255,0.75));
+                                      --vq-head: transparent; --vq-line: #7ff3ff; --vq-visor: #05060a; --vq-eye: #7ff3ff; --vq-light: #ff5fd2; --vq-ear: #ff5fd2;
+                                      --vq-avatar-bg: radial-gradient(circle at 50% 40%, #16161c, #050507); }
+        body[data-theme="midnight"] .message-avatar, body[data-theme="midnight"] .welcome-avatar, body[data-theme="midnight"] .app-avatar-small { box-shadow: 0 0 0 1px rgba(127,243,255,0.45), 0 0 14px rgba(127,243,255,0.25); }
+        body[data-theme="ocean"]    { --ic-tile: rgba(80,200,230,0.14); --ic-line: #bdeeff; --ic-fill: rgba(80,200,230,0.25); --ic-accent: #5eead4; --ic-stroke: 2;
+                                      --vq-eye: #5eead4; --vq-light: #7dd3fc; --vq-ear: #5eead4; --vq-visor: #062433;
+                                      --vq-avatar-bg: linear-gradient(135deg, #0e7490, #1e3a8a); }
+        body[data-theme="forest"]   { --ic-tile: rgba(110,200,130,0.14); --ic-line: #d6f5dc; --ic-fill: rgba(110,200,130,0.24); --ic-accent: #a3e635; --ic-stroke: 2;
+                                      --vq-eye: #bef264; --vq-light: #a3e635; --vq-ear: #86efac; --vq-visor: #0d1f13;
+                                      --vq-avatar-bg: linear-gradient(135deg, #2f6f3e, #1d3b2a); }
+        body[data-theme="ember"]    { --ic-tile: rgba(255,120,60,0.16); --ic-line: #ffe2cc; --ic-fill: rgba(255,120,60,0.26); --ic-accent: #ffb020; --ic-glow: drop-shadow(0 0 2px rgba(255,140,60,0.45));
+                                      --vq-eye: #ffd166; --vq-light: #ff6a2a; --vq-ear: #ffb020; --vq-visor: #2a120a;
+                                      --vq-avatar-bg: linear-gradient(135deg, #c2410c, #7c2d12); }
+        body[data-theme="slate"]    { --ic-tile: rgba(148,163,184,0.14); --ic-line: #e2e8f0; --ic-fill: transparent; --ic-accent: #93c5fd; --ic-stroke: 1.6;
+                                      --vq-head: rgba(255,255,255,0.08); --vq-eye: #bfdbfe; --vq-light: #93c5fd; --vq-ear: #94a3b8; --vq-visor: #0f172a;
+                                      --vq-avatar-bg: linear-gradient(135deg, #475569, #1e293b); }
+        body[data-theme="plum"]     { --ic-tile: rgba(216,140,255,0.14); --ic-line: #f3e8ff; --ic-fill: rgba(216,140,255,0.24); --ic-accent: #f0abfc;
+                                      --vq-eye: #f0abfc; --vq-light: #f472b6; --vq-ear: #d8b4fe; --vq-visor: #1e0b2a;
+                                      --vq-avatar-bg: linear-gradient(135deg, #9333ea, #6b21a8); }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -466,7 +509,7 @@
         @media (max-width: 768px) { :root { --sidebar-width: 280px; } .insight-toggle { right: 0.6rem; } #app-header .header-right { padding-right: 2.9rem; } }
         @media (prefers-reduced-motion: reduce) { #insight-panel, .cl-cursor, .status-pulse, .insight-entry.fresh { transition: none; animation: none; } }
     </style>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23667eea%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23764ba2%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2216%22%20fill%3D%22url%28%23g%29%22/%3E%3Cg%20transform%3D%22translate%284.8%204.8%29%20scale%280.7%29%22%20color%3D%22%23ffffff%22%3E%3Cline%20x1%3D%2216%22%20y1%3D%223.5%22%20x2%3D%2216%22%20y2%3D%227.5%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.8%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%223.2%22%20r%3D%221.7%22%20fill%3D%22%23ff8c42%22/%3E%3Crect%20x%3D%226%22%20y%3D%228%22%20width%3D%2220%22%20height%3D%2216%22%20rx%3D%226%22%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22/%3E%3Crect%20x%3D%229.5%22%20y%3D%2212%22%20width%3D%2213%22%20height%3D%226.5%22%20rx%3D%223.25%22%20fill%3D%22currentColor%22%20opacity%3D%220.22%22/%3E%3Ccircle%20cx%3D%2212.8%22%20cy%3D%2215.2%22%20r%3D%221.7%22%20fill%3D%22%237fe0ff%22/%3E%3Ccircle%20cx%3D%2219.2%22%20cy%3D%2215.2%22%20r%3D%221.7%22%20fill%3D%22%237fe0ff%22/%3E%3Cpath%20d%3D%22M12.5%2021.2h7%22%20stroke%3D%22currentColor%22%20stroke-width%3D%221.6%22%20stroke-linecap%3D%22round%22/%3E%3Cpath%20d%3D%22M4%2014.5v3M28%2014.5v3%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3C/g%3E%3C/svg%3E">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23667eea%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23764ba2%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2216%22%20fill%3D%22url%28%23g%29%22/%3E%3Cg%20transform%3D%22translate%284.8%205.2%29%20scale%280.7%29%22%3E%3Cline%20x1%3D%2216%22%20y1%3D%224.2%22%20x2%3D%2216%22%20y2%3D%228%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%223.4%22%20r%3D%222.1%22%20fill%3D%22%23ff8c42%22/%3E%3Crect%20x%3D%225.5%22%20y%3D%228%22%20width%3D%2221%22%20height%3D%2216.5%22%20rx%3D%226.5%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.18%29%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Crect%20x%3D%228.6%22%20y%3D%2211.6%22%20width%3D%2214.8%22%20height%3D%227.6%22%20rx%3D%223.8%22%20fill%3D%22%231b1340%22/%3E%3Ccircle%20cx%3D%2212.6%22%20cy%3D%2215.4%22%20r%3D%222%22%20fill%3D%22%237fe0ff%22/%3E%3Ccircle%20cx%3D%2219.4%22%20cy%3D%2215.4%22%20r%3D%222%22%20fill%3D%22%237fe0ff%22/%3E%3Cpath%20d%3D%22M13%2021.6c1.9%201%204.1%201%206%200%22%20stroke%3D%22%23fff%22%20stroke-width%3D%221.8%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3C/g%3E%3C/svg%3E">
 </head>
 <body>
     <div id="app-container">
@@ -479,7 +522,7 @@
             
             <div class="sidebar-header">
                 <button id="new-chat-btn" class="new-chat-btn">
-                    <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h8"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z"/></svg></span>
+                    <span class="icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M16.4 3.6a2.2 2.2 0 0 1 3.1 3.1L8 18.2l-4.1 1 1-4.1z"/><path class="l" d="M16.4 3.6a2.2 2.2 0 0 1 3.1 3.1L8 18.2l-4.1 1 1-4.1z"/><path class="l" d="M14.6 5.4l3.1 3.1"/><path class="a-l" d="M12.5 20h7.5"/></svg></span>
                     <span class="text">New Chat</span>
                 </button>
             </div>
@@ -496,7 +539,7 @@
             <div class="sidebar-footer">
                 <div id="account-box" class="account-box"></div>
                 <button class="sidebar-btn" id="help-btn">
-                    <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 7.6h.01"/></svg></span>
+                    <span class="icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle class="f" cx="12" cy="12" r="9"/><circle class="l" cx="12" cy="12" r="9"/><path class="l" d="M12 11v5.2"/><circle class="a" cx="12" cy="7.7" r="1.15"/></svg></span>
                     <span>About VQ</span>
                 </button>
             </div>
@@ -508,7 +551,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
                 </button>
                 <div class="header-center">
-                    <div class="app-avatar-small"><svg class="vq-mark" viewBox="0 0 32 32" aria-hidden="true"><line x1="16" y1="3.5" x2="16" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="16" cy="3.2" r="1.7" fill="#ff8c42"/><rect x="6" y="8" width="20" height="16" rx="6" fill="none" stroke="currentColor" stroke-width="2"/><rect x="9.5" y="12" width="13" height="6.5" rx="3.25" fill="currentColor" opacity="0.22"/><circle cx="12.8" cy="15.2" r="1.7" fill="#7fe0ff"/><circle cx="19.2" cy="15.2" r="1.7" fill="#7fe0ff"/><path d="M12.5 21.2h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M4 14.5v3M28 14.5v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                    <div class="app-avatar-small"><svg class="ic vq-mark" viewBox="0 0 32 32" aria-hidden="true"><line class="l vq-antenna" x1="16" y1="4.2" x2="16" y2="8"/><circle class="vq-light" cx="16" cy="3.4" r="2.1"/><rect class="f vq-head" x="5.5" y="8" width="21" height="16.5" rx="6.5"/><rect class="l" x="5.5" y="8" width="21" height="16.5" rx="6.5"/><rect class="vq-visor" x="8.6" y="11.6" width="14.8" height="7.6" rx="3.8"/><circle class="vq-eye" cx="12.6" cy="15.4" r="2"/><circle class="vq-eye" cx="19.4" cy="15.4" r="2"/><circle class="vq-glint" cx="13.2" cy="14.8" r="0.6"/><circle class="vq-glint" cx="20" cy="14.8" r="0.6"/><path class="l vq-mouth" d="M13 21.6c1.9 1 4.1 1 6 0"/><rect class="a vq-ear" x="2.6" y="13.6" width="2.6" height="5.2" rx="1.3"/><rect class="a vq-ear" x="26.8" y="13.6" width="2.6" height="5.2" rx="1.3"/></svg></div>
                     <h1 class="app-title"><span class="title-name">Veritas Quaesitor</span><span class="cai-badge">CAI</span></h1>
                 </div>
 
@@ -527,25 +570,25 @@
                 <div id="messages-area"></div>
                 
                 <div id="welcome-screen" class="welcome-screen">
-                    <div class="welcome-avatar"><svg class="vq-mark" viewBox="0 0 32 32" aria-hidden="true"><line x1="16" y1="3.5" x2="16" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="16" cy="3.2" r="1.7" fill="#ff8c42"/><rect x="6" y="8" width="20" height="16" rx="6" fill="none" stroke="currentColor" stroke-width="2"/><rect x="9.5" y="12" width="13" height="6.5" rx="3.25" fill="currentColor" opacity="0.22"/><circle cx="12.8" cy="15.2" r="1.7" fill="#7fe0ff"/><circle cx="19.2" cy="15.2" r="1.7" fill="#7fe0ff"/><path d="M12.5 21.2h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M4 14.5v3M28 14.5v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                    <div class="welcome-avatar"><svg class="ic vq-mark" viewBox="0 0 32 32" aria-hidden="true"><line class="l vq-antenna" x1="16" y1="4.2" x2="16" y2="8"/><circle class="vq-light" cx="16" cy="3.4" r="2.1"/><rect class="f vq-head" x="5.5" y="8" width="21" height="16.5" rx="6.5"/><rect class="l" x="5.5" y="8" width="21" height="16.5" rx="6.5"/><rect class="vq-visor" x="8.6" y="11.6" width="14.8" height="7.6" rx="3.8"/><circle class="vq-eye" cx="12.6" cy="15.4" r="2"/><circle class="vq-eye" cx="19.4" cy="15.4" r="2"/><circle class="vq-glint" cx="13.2" cy="14.8" r="0.6"/><circle class="vq-glint" cx="20" cy="14.8" r="0.6"/><path class="l vq-mouth" d="M13 21.6c1.9 1 4.1 1 6 0"/><rect class="a vq-ear" x="2.6" y="13.6" width="2.6" height="5.2" rx="1.3"/><rect class="a vq-ear" x="26.8" y="13.6" width="2.6" height="5.2" rx="1.3"/></svg></div>
                     <h2 class="welcome-title">Hey! I'm VQ</h2>
                     <p class="welcome-subtitle">Your guide to Christ-Anchored Intelligence</p>
                     
                     <div class="suggestion-grid">
                         <button class="suggestion-card cai-card-rotate-1" data-prompt-a="Explain CAI methodology" data-prompt-b="What evidence supports the resurrection?" data-prompt-c="How does Bayesian reasoning apply to faith?">
-                            <span class="suggestion-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19h16"/><path d="M6 16l4-5 3 3 5-7"/><circle cx="18" cy="7" r="1.4"/></svg></span>
+                            <span class="suggestion-icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M4 19.5V16l4.5-5.2 3.4 3.3 6.1-7.6V19.5z"/><path class="l" d="M4 19.5h16.5"/><path class="l" d="M4 16l4.5-5.2 3.4 3.3 6.1-7.6"/><circle class="a" cx="18" cy="6.5" r="1.7"/></svg></span>
                             <span class="suggestion-text cai-text-rotate-1"></span>
                         </button>
                         <button class="suggestion-card cai-card-rotate-2" data-prompt-a="Tell me about the Beta Tools" data-prompt-b="How does CAI handle mechanism challenges?" data-prompt-c="What is Epistemic Truth Symmetry?">
-                            <span class="suggestion-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v16M7 20h10"/><path d="M5 8h14"/><path d="M5 8l-3 6a3 3 0 0 0 6 0z"/><path d="M19 8l-3 6a3 3 0 0 0 6 0z"/></svg></span>
+                            <span class="suggestion-icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path class="l" d="M12 4v16M7.5 20h9M5 7.6h14"/><circle class="a" cx="12" cy="4" r="1.3"/><path class="f" d="M2.2 13.6h5.6a2.8 2.8 0 0 1-5.6 0z"/><path class="f" d="M16.2 13.6h5.6a2.8 2.8 0 0 1-5.6 0z"/><path class="l" d="M5 7.6l-2.8 6a2.8 2.8 0 0 0 5.6 0zM19 7.6l-2.8 6a2.8 2.8 0 0 0 5.6 0z"/></svg></span>
                             <span class="suggestion-text cai-text-rotate-2"></span>
                         </button>
                         <button class="suggestion-card" data-prompt="What can you change on my screen?">
-                            <span class="suggestion-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></span>
+                            <span class="suggestion-icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path class="l" d="M4 6.5h9.2M18.8 6.5H20M4 12h3.2M12.8 12H20M4 17.5h11.2M20.8 17.5H20"/><circle class="f" cx="16" cy="6.5" r="2.6"/><circle class="l" cx="16" cy="6.5" r="2.6"/><circle class="a" cx="10" cy="12" r="2.6"/><circle class="f" cx="18" cy="17.5" r="2.6"/><circle class="l" cx="18" cy="17.5" r="2.6"/></svg></span>
                             <span class="suggestion-text">What can you change on screen?</span>
                         </button>
                         <button class="suggestion-card" data-prompt="tell me new fun stories">
-                            <span class="suggestion-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 5.5v16"/><path d="M12 7l.9 1.9 2.1.3-1.5 1.5.4 2.1-1.9-1-1.9 1 .4-2.1-1.5-1.5 2.1-.3z"/></svg></span>
+                            <span class="suggestion-icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M5 4.6A2 2 0 0 1 7 3h13v15.5H7a2 2 0 0 0-2 2z"/><path class="l" d="M5 4.6A2 2 0 0 1 7 3h13v15.5H7a2 2 0 0 0-2 2z"/><path class="l" d="M5 20.5A1.6 1.6 0 0 0 6.6 22H20v-3.5"/><path class="a" d="M12.5 6.3l1 2 2.2.3-1.6 1.6.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.6 2.2-.3z"/></svg></span>
                             <span class="suggestion-text">Fictional Robot stories</span>
                         </button>
                     </div>
@@ -564,7 +607,7 @@
 
                     <div class="input-wrapper">
                         <button class="input-btn mobile-new-chat-btn" id="mobile-new-chat-btn" title="New Chat">
-                            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h8"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z"/></svg></span>
+                            <span class="icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M16.4 3.6a2.2 2.2 0 0 1 3.1 3.1L8 18.2l-4.1 1 1-4.1z"/><path class="l" d="M16.4 3.6a2.2 2.2 0 0 1 3.1 3.1L8 18.2l-4.1 1 1-4.1z"/><path class="l" d="M14.6 5.4l3.1 3.1"/><path class="a-l" d="M12.5 20h7.5"/></svg></span>
                         </button>
                         
                         <textarea 
@@ -652,7 +695,7 @@
         <div class="modal-content">
             <button class="modal-close" id="close-modal">×</button>
             <div class="modal-header">
-                <div class="modal-avatar"><svg class="vq-mark" viewBox="0 0 32 32" aria-hidden="true"><line x1="16" y1="3.5" x2="16" y2="7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="16" cy="3.2" r="1.7" fill="#ff8c42"/><rect x="6" y="8" width="20" height="16" rx="6" fill="none" stroke="currentColor" stroke-width="2"/><rect x="9.5" y="12" width="13" height="6.5" rx="3.25" fill="currentColor" opacity="0.22"/><circle cx="12.8" cy="15.2" r="1.7" fill="#7fe0ff"/><circle cx="19.2" cy="15.2" r="1.7" fill="#7fe0ff"/><path d="M12.5 21.2h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M4 14.5v3M28 14.5v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+                <div class="modal-avatar"><svg class="ic vq-mark" viewBox="0 0 32 32" aria-hidden="true"><line class="l vq-antenna" x1="16" y1="4.2" x2="16" y2="8"/><circle class="vq-light" cx="16" cy="3.4" r="2.1"/><rect class="f vq-head" x="5.5" y="8" width="21" height="16.5" rx="6.5"/><rect class="l" x="5.5" y="8" width="21" height="16.5" rx="6.5"/><rect class="vq-visor" x="8.6" y="11.6" width="14.8" height="7.6" rx="3.8"/><circle class="vq-eye" cx="12.6" cy="15.4" r="2"/><circle class="vq-eye" cx="19.4" cy="15.4" r="2"/><circle class="vq-glint" cx="13.2" cy="14.8" r="0.6"/><circle class="vq-glint" cx="20" cy="14.8" r="0.6"/><path class="l vq-mouth" d="M13 21.6c1.9 1 4.1 1 6 0"/><rect class="a vq-ear" x="2.6" y="13.6" width="2.6" height="5.2" rx="1.3"/><rect class="a vq-ear" x="26.8" y="13.6" width="2.6" height="5.2" rx="1.3"/></svg></div>
                 <h2>About VQ</h2>
             </div>
             <div class="modal-body">
@@ -685,6 +728,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-02-themes"></script>
+    <script src="js/chat-app-test.js?v=2026-10-02-icons"></script>
 </body>
 </html>
