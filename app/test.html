@@ -3,11 +3,12 @@
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Exo+2:wght@500;700&display=swap">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="description" content="VQ Chat - Christ-Anchored Intelligence chat interface for exploring evidence-based faith and AI alignment">
     <meta name="theme-color" content="#667eea">
-    <title>VQ Chat (panel test) - Veritas Quaesitor</title>
+    <title>VQ Chat (panel test) · Veritas Quaesitor CAI</title>
     <meta name="robots" content="noindex, nofollow">
     <link rel="stylesheet" href="css/app.css">
     <link rel="manifest" href="manifest.json">
@@ -390,6 +391,24 @@
             .message-actions { flex-wrap: wrap; gap: 0.3rem; }
             .msg-action { white-space: nowrap; padding: 0.15rem 0.55rem; font-size: 0.72rem; border-radius: 999px; }
         }
+        /* ---- Title: three treatments to choose from (body.title-v1 / v2 / v3) ---- */
+        .app-title { display: inline-flex; align-items: center; gap: 0.5rem; margin: 0; line-height: 1; }
+        .cai-badge { display: inline-flex; align-items: center; padding: 0.18rem 0.45rem 0.14rem; border-radius: 6px; font-family: "Exo 2", "Segoe UI", sans-serif; font-weight: 700; font-size: 0.68rem; letter-spacing: 0.14em; color: #1a1030; background: linear-gradient(135deg, var(--ui-accent, #ff8c42), var(--ui-accent-2, #ffb27a)); box-shadow: 0 0 12px rgba(var(--ui-accent-rgb, 255,140,66), 0.45); }
+        /* v1: Roman inscription + glowing CAI badge */
+        body.title-v1 .title-name { font-family: "Cinzel", "Trajan Pro", Georgia, serif; font-weight: 700; font-size: 1.12rem; letter-spacing: 0.06em; color: #f4ecff; }
+        /* v2: elegant serif, small-caps badge with a gradient line */
+        body.title-v2 .title-name { font-family: "Cormorant Garamond", Garamond, serif; font-weight: 600; font-size: 1.4rem; letter-spacing: 0.01em; color: #fff; }
+        body.title-v2 .cai-badge { background: none; box-shadow: none; color: var(--ui-accent-2, #ffb27a); font-size: 0.72rem; letter-spacing: 0.22em; padding: 0.1rem 0 0.1rem 0.55rem; border-radius: 0; border-left: 2px solid var(--ui-accent, #ff8c42); }
+        /* v3: futuristic wide caps, outlined glowing badge */
+        body.title-v3 .title-name { font-family: "Exo 2", "Segoe UI", sans-serif; font-weight: 700; font-size: 1.02rem; letter-spacing: 0.18em; text-transform: uppercase; background: linear-gradient(90deg, #ffffff, #c9c2ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        body.title-v3 .cai-badge { background: transparent; color: var(--ui-accent-2, #ffb27a); border: 1px solid var(--ui-accent, #ff8c42); box-shadow: 0 0 10px rgba(var(--ui-accent-rgb, 255,140,66), 0.5), inset 0 0 8px rgba(var(--ui-accent-rgb, 255,140,66), 0.25); }
+        /* one gentle shimmer across the name on load (never loops; off with reduced motion) */
+        .title-name { position: relative; }
+        body.title-shimmer .title-name::after { content: ""; position: absolute; inset: -2px -6px; background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%); background-size: 250% 100%; background-position: 120% 0; mix-blend-mode: overlay; animation: titleShimmer 1.6s ease-out 0.4s 1 forwards; pointer-events: none; }
+        @keyframes titleShimmer { 0% { background-position: 120% 0; opacity: 1; } 80% { opacity: 1; } 100% { background-position: -120% 0; opacity: 0; } }
+        body.ui-reduce-motion .title-name::after { display: none; }
+        @media (prefers-reduced-motion: reduce) { body.title-shimmer .title-name::after { display: none; } }
+        @media (max-width: 400px) { body.title-v1 .title-name { font-size: 0.95rem; letter-spacing: 0.03em; } body.title-v2 .title-name { font-size: 1.2rem; } body.title-v3 .title-name { font-size: 0.85rem; letter-spacing: 0.1em; } .cai-badge { font-size: 0.6rem; } }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -462,7 +481,7 @@
                 </button>
                 <div class="header-center">
                     <div class="app-avatar-small">🤖</div>
-                    <h1 class="app-title">Veritas Quaesitor</h1>
+                    <h1 class="app-title"><span class="title-name">Veritas Quaesitor</span><span class="cai-badge">CAI</span></h1>
                 </div>
 
                 <div class="header-right">
@@ -642,6 +661,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-09-29-mobile"></script>
+    <script src="js/chat-app-test.js?v=2026-10-01-title"></script>
 </body>
 </html>
