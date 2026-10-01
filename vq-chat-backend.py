@@ -692,7 +692,8 @@ def load_context(user_message, conversation_history=None):
     keywords = {
         'ai_index.txt': ['cai', 'framework', 'methodology', 'bayesian', 'bayes', 'evidence', 'symmetric',
                          'resurrection', 'probability', 'posterior', 'prior', 'mechanism', 'epistemic',
-                         'singularity', 'abiogenesis', 'naturalism', 'empty tomb', 'risen', 'rose from the dead'],
+                         'singularity', 'abiogenesis', 'naturalism', 'empty tomb', 'risen', 'rose from the dead',
+                         'rise from the dead', 'raised from the dead', 'rose again', 'did jesus rise'],
         'beta_tools.txt': ['tool', 'tools', 'engine', 'crucible', 'calculator', 'beta', 'huggingface',
                           'hugging face', 'comparison engine'],
         'mission_vision.txt': ['mission', 'vision', 'safe harbor', 'agi', 'asi', 'superintelligence', 'superintelligent', 'cagi', 'alignment', 'mandate',
@@ -703,6 +704,11 @@ def load_context(user_message, conversation_history=None):
         'contact_social.txt': ['contact', 'email', 'twitter', 'linkedin', 'github', 'huggingface',
                               'get in touch', 'collaborate', 'collaboration', 'follow you', 'social media',
                               'grokipedia', 'indexed', 'knowledge base'],
+        'evidence_support.txt': ['resurrection', 'resurrected', 'risen', 'rose from the dead', 'rise from the dead',
+                                 'raised from the dead', 'rose again', 'jesus', 'empty tomb', 'evidence',
+                                 'creed', 'corinthians', 'galatians', 'paul', 'apostle', 'apostles', 'james', 'peter',
+                                 'tacitus', 'josephus', 'pilate', 'crucifixion', 'crucified', 'appearances',
+                                 'eyewitness', 'eyewitnesses', 'christology', 'maranatha', 'n.t. wright', 'historical jesus'],
         'ets_full.txt': ['ets', 'epistemic tier', 'tier system', 'tier -1', 'gospel pattern', 'creedal core',
                          'convergent testimony', 'image-bearer preservation'],
         'developments.txt': ['reachy', 'assembly', 'vq-1', 'vq1', 'robot body', 'what have you been',
@@ -1718,6 +1724,7 @@ CONTEXT_LABELS = {
     'developments.txt': 'Recent developments',
     'appreciation_full.txt': 'Appreciation framework (full)',
     'eschatology.txt': 'End-times framework',
+    'evidence_support.txt': 'Evidence support (sources and objections)',
 }
 MODE_LABELS = {
     '[DDG SEARCH]': 'Web search', '[DDG NEWS]': 'News search', '[WEATHER]': 'Weather',
