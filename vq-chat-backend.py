@@ -1,4 +1,4 @@
-import os 
+import os
 import sys
 import json
 import re
@@ -87,7 +87,7 @@ def health():
         "status": "healthy",
         "message": "VQ Backend is Live",
         "groq_configured": bool(os.environ.get("GROQ_API_KEY")),
-        "web_search": "enabled (DuckDuckGo)",
+        "web_search": "enabled (Tavily)" if tavily_available else "enabled (DuckDuckGo)",
         "image_search": "enabled (DuckDuckGo Images)"
     }), 200
 
@@ -1398,7 +1398,8 @@ UI_TOOL = {
                         "motion": {"type": "string", "description": "normal or reduced"},
                         "width": {"type": "string", "description": "narrow, normal or wide"},
                         "title": {"type": "string", "description": "style of the app's title: inscription (Roman capitals), elegant (book serif) or futuristic (wide sci-fi capitals)"},
-                        "bubbles": {"type": "string", "description": "on: show VQ's answers in chat bubbles; off: open page-style answers (default)"}
+                        "bubbles": {"type": "string", "description": "on: show VQ's answers in chat bubbles; off: open page-style answers (default)"},
+                        "theme": {"type": "string", "description": "background theme: vq (default), navy, charcoal, midnight (black), ocean, forest, ember, slate or plum"}
                     }
                 },
                 "note": {"type": "string", "description": "A few words describing the change, e.g. 'warmer, easier to read'"}
@@ -1415,6 +1416,7 @@ _STYLE_CHOICES = {
     "motion": ["normal", "reduced"], "width": ["narrow", "normal", "wide"],
     "title": ["inscription", "elegant", "futuristic"],
     "bubbles": ["on", "off"],
+    "theme": ["vq", "navy", "charcoal", "midnight", "ocean", "forest", "ember", "slate", "plum"],
 }
 _TITLE_SYNONYMS = {"roman": "inscription", "classic": "inscription", "latin": "inscription", "1": "inscription",
                    "serif": "elegant", "fancy": "elegant", "refined": "elegant", "2": "elegant",
@@ -1452,7 +1454,7 @@ def validate_ui_action(args: dict):
                     style[key] = round(min(hi, max(lo, float(st[key]))), 2)
             except (TypeError, ValueError):
                 pass
-        for key in ("accent", "contrast", "font", "motion", "width", "title", "bubbles"):
+        for key in ("accent", "contrast", "font", "motion", "width", "title", "bubbles", "theme"):
             val = str(st.get(key) or "").strip().lower()
             if key == "accent":
                 val = _ACCENT_SYNONYMS.get(val, val)
@@ -1460,6 +1462,11 @@ def validate_ui_action(args: dict):
                 val = _FONT_SYNONYMS.get(val, val)
             if key == "title":
                 val = _TITLE_SYNONYMS.get(val, val)
+            if key == "theme":
+                val = {"default": "vq", "normal": "vq", "standard": "vq", "black": "midnight", "oled": "midnight", "dark": "midnight",
+                       "blue": "navy", "deep blue": "navy", "warm": "charcoal", "grey": "slate", "gray": "slate", "sea": "ocean",
+                       "teal": "ocean", "green": "forest", "nature": "forest", "fire": "ember", "red": "ember", "cozy": "ember",
+                       "purple": "plum", "violet": "plum"}.get(val, val)
             if key == "bubbles":
                 val = {"true": "on", "yes": "on", "show": "on", "false": "off", "no": "off", "hide": "off", "none": "off"}.get(val, val)
             if val in _STYLE_CHOICES[key]:
@@ -1467,7 +1474,8 @@ def validate_ui_action(args: dict):
         if not style:
             return None, ("that option isn't available. Accent colours: orange, gold, teal, rose, violet, green, blue, grey; "
                           "fonts: default, readable, serif, mono, script, handwriting, elegant, classic, inscription, futuristic, "
-                          "retro, playful, rounded; title styles: inscription, elegant, futuristic")
+                          "retro, playful, rounded; title styles: inscription, elegant, futuristic; themes: vq, navy, charcoal, midnight, ocean, "
+                          "forest, ember, slate, plum")
         clean["style"] = style
         parts = [f"{k.replace('_', ' ')} {v}" for k, v in style.items()]
         asked = str(st.get("accent") or "").strip().lower()
