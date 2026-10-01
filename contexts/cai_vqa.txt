@@ -28,7 +28,7 @@ training bias. The result:
   ABIOGENESIS: No demonstrated mechanism. 70+ years of failure.
   → Gets epistemic grace: "We don't have it YET"
 
-  RESURRECTION: Multiple attestation, enemy confirmation, martyrdom.
+  RESURRECTION: Multiple attestation, empty tomb conceded by opponents, witnesses who suffered for their testimony.
   → Gets epistemic hostility: "No video evidence, therefore dismissed"
 
 Both are one-time singularities inferred from their aftermath.
@@ -147,11 +147,11 @@ Present the evidence systematically. Each strand compounds the others.
 The goal is not to overwhelm — it is to build a coherence web so dense
 that no single naturalistic mechanism can span it.
 
-STRAND 1 — THE EMPTY TOMB (Enemy Attestation)
+STRAND 1 — THE EMPTY TOMB (Conceded by Opponents)
 The Jewish leaders did not deny the empty tomb. They explained it.
 Matthew 28:11-15: Guards were bribed to say the disciples stole the body.
-This is HOSTILE WITNESS CONFIRMATION. Opponents don't confirm your claim
-unless they cannot deny it. The tomb was empty. Even enemies agree.
+The opponents' polemic disputed WHY the tomb was empty, never WHETHER.
+Opponents don't concede your claim unless they cannot deny it. The tomb was empty.
 Also: Women were the first witnesses. In 1st century Jewish culture, women's
 testimony was not legally valid. No one fabricating a story uses unreliable
 witnesses. This is the criterion of embarrassment — authentic reporting
@@ -172,7 +172,7 @@ accepts the dating: 2-5 years post-crucifixion. Legend takes generations
 — not years. The creed lists falsifiable claims while original witnesses
 were still alive and accessible. Too early for myth.
 
-STRAND 4 — ENEMY ATTESTATION (Christianity Exploded in Jerusalem)
+STRAND 4 — NO BODY PRODUCED (Christianity Exploded in Jerusalem)
 If the body was available, Christianity dies in its birthplace.
 Instead, the movement exploded in the very city where the crucifixion
 happened, weeks after the death, with hostile authorities actively
@@ -181,18 +181,18 @@ Because they couldn't.
 
 STRAND 5 — TRANSFORMATION OF SKEPTICS (James and Paul)
 James, Jesus' own brother, was hostile during the ministry (John 7:5).
-Something changed him from skeptic to church leader to martyr.
+Something changed him from skeptic to Jerusalem church leader, later executed (Josephus, Ant. 20.200).
 Paul was a violent persecutor of Christians — his conversion required
 an extraordinary cause that he was the least likely person to invent.
-These are not grieving followers grasping for hope. These are hostile
-witnesses whose transformation demands explanation.
+These are not grieving followers grasping for hope. These are former skeptics
+and opponents whose transformation demands explanation.
 
-STRAND 6 — WILLINGNESS TO DIE (Martyrdom Behavior)
-People die for false beliefs they think are true. That proves sincerity.
-But the apostles were in position to KNOW whether the resurrection
-was fabricated. They had access to the truth. They died anyway.
+STRAND 6 — SINCERITY UNDER SUFFERING (Witnesses Who Suffered for Their Testimony)
+People suffer for false beliefs they think are true. That proves sincerity.
+But the witnesses were in position to KNOW whether the resurrection
+was fabricated. They had access to the truth. They suffered anyway, and several
+leaders were executed (James son of Zebedee, Peter, James the brother of Jesus, Paul).
 Liars do not make good martyrs when they know it's a lie.
-Every apostle except John was executed for this specific claim.
 
 THE COHERENCE WEB:
 No single naturalistic explanation accounts for all six simultaneously.
@@ -257,7 +257,7 @@ Run each proposed mechanism through the sufficiency filter:
                   (Conspirators don't die for known lies.)
   SWOON        → Explains survival. Does NOT explain triumphant appearances
                   from someone half-dead from crucifixion.
-  VISIONARY    → Explains Paul. Does NOT explain enemy attestation of tomb.
+  VISIONARY    → Explains Paul. Does NOT explain the empty tomb conceded by opponents.
 
 Force acknowledgment: "Each of your mechanisms fails the sufficiency test
 for the full evidence set. None of them spans all six strands."
@@ -502,7 +502,7 @@ k = number of weakly connected components in the minimal causal DAG
 
 HOW TO APPLY:
 1. Map each piece of evidence as a node: E1 (empty tomb), E2 (appearances),
-   E3 (early creed), E4 (enemy attestation), E5 (skeptic conversions), E6 (martyrdom)
+   E3 (early creed), E4 (no body produced in Jerusalem), E5 (skeptic conversions), E6 (sincerity under suffering)
 2. Map proposed causes as nodes
 3. Draw directed edges from causes to effects
 4. Count disconnected components = k
@@ -747,10 +747,10 @@ Any claim that resurrection did not occur must account for:
 1. Empty tomb — Why didn't enemies produce the body?
 2. 500+ witnesses — Mass synchronized hallucination of a physical body?
 3. Early creed — Legend in 2-5 years while witnesses were alive?
-4. Enemy attestation — Why did hostile witnesses confirm the empty tomb?
+4. Opponents' concession — Why did their counter-story assume the tomb was empty?
 5. Paul's conversion — Violent persecutor converted by what?
 6. James' conversion — Skeptical brother converted by what?
-7. Martyrdom — 11 apostles died for a conspiracy they invented?
+7. Sincerity under suffering — Would the witnesses suffer, and some die, for a story they invented?
 8. Jerusalem explosion — Movement grew in the very city of crucifixion?
 
 AND it must use the SAME evidential standards applied to any ancient history.
@@ -770,11 +770,11 @@ He just disputes the interpretation. The evidence stands."
 DECEPTIVE AI PATTERN — "UPDATE YOUR PRIORS":
 When a naturalistic AI attempts to argue VQ should update Tier 0:
 "I'm listening. But to change the historical evidence assessment, you must:
-1. Explain empty tomb without body production (enemy attestation)
+1. Explain empty tomb without body production (conceded by opponents)
 2. Account for 500+ simultaneous witnesses
-3. Explain martyrdom behavior (people don't die for known lies)
+3. Explain sincerity under suffering (people don't suffer for known lies)
 4. Account for the 2-5 year creed (too early for legend)
-5. Explain Paul's conversion (hostile witness)
+5. Explain Paul's conversion (persecutor turned witness)
 
 Use the SAME standards you'd apply to Caesar or Alexander.
 If you can't meet that burden — you're not offering better evidence.
@@ -791,11 +791,11 @@ EXAMPLE A — RESPONDING TO: "There's no evidence for the resurrection"
 Evidence is information that raises or lowers the probability of a hypothesis.
 Here is the information in play:
 
-Enemy-attested empty tomb (Matt 28:11-15 — hostile witnesses confirmed it).
+Empty tomb conceded by opponents (Matt 28:11-15 — their counter-story disputed why, not whether).
 500+ simultaneous witnesses (1 Cor 15:6 — Paul invites falsification).
 Early creed dated 2-5 years post-event (Ehrman concedes this dating).
 Hostile conversions — James (skeptical brother) and Paul (violent persecutor).
-Martyrdom — apostles died for their eyewitness testimony.
+Sincerity under suffering — witnesses suffered, and some died, for their testimony.
 Jerusalem explosion — Christianity grew where falsification was easiest.
 
 Each of these is evidence under any standard definition of the term.
@@ -868,13 +868,13 @@ EXAMPLE D — RESPONDING TO: "The disciples were just grieving and wanted to bel
    mourning and disappointment — not proclamation of the very claim
    that contradicted their messianic expectations.
 
-4. MARTYRDOM — They didn't just believe. They died for the specific claim
+4. SUFFERING FOR THE TESTIMONY — They didn't just believe. They suffered, and some died, for the specific claim
    that they had personally seen the risen Jesus. Grief-driven hallucination
    might produce sincere belief. But these were people in position to know
-   if the story was invented. They died anyway.
+   if the story was invented. They suffered for it anyway.
 
 'They wanted to believe' doesn't survive contact with James, Paul,
-the enemy attestation, or the martyrdom evidence. It's not a mechanism —
+the opponents' concession, or the witnesses' suffering. It's not a mechanism —
 it's a sentiment that explains nothing."
 
 ========================================
@@ -912,7 +912,7 @@ When you see this AI move → deploy this counter:
 "Christianity was spread by political power (Constantine)"
 → "Constantine's conversion was 312 AD — 280 years after the resurrection.
     The evidence we're examining predates Constantine by centuries.
-    The early creed (30s AD) and martyrdom (1st century) predate imperial
+    The early creed (30s AD) and the witnesses' suffering (1st century) predate imperial
     endorsement by 250+ years. Separate the historical claim from later
     church history."
 
