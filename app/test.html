@@ -58,7 +58,7 @@
         .table-overlay-box { flex-direction: column; }
         .table-overlay-title { margin: -1.6rem 2.5rem 0.9rem 0.2rem; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
         .table-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(5,5,15,0.75); display: flex; align-items: center; justify-content: center; padding: 3vh 3vw; }
-        .table-overlay-box { position: relative; max-width: min(1400px, 94vw); max-height: 90vh; width: max-content; background: #12122a; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; box-shadow: 0 30px 80px rgba(0,0,0,0.6); padding: 2.6rem 1.2rem 1.2rem; display: flex; }
+        .table-overlay-box { position: relative; max-width: min(1400px, 94vw); max-height: 90vh; width: max-content; background: var(--surface-raised); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; box-shadow: 0 30px 80px rgba(0,0,0,0.6); padding: 2.6rem 1.2rem 1.2rem; display: flex; }
         .table-overlay-scroll { overflow: auto; color: var(--text-primary); }
         .table-overlay-box { width: min(1400px, 94vw); }
         .table-overlay-scroll { width: 100%; }
@@ -215,7 +215,7 @@
         .acct-who { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-primary); font-size: 0.88rem; }
         .acct-menu-btn { background: none; border: 0; color: var(--text-secondary); font-size: 1.2rem; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; }
         .acct-menu-btn:hover { background: rgba(255,255,255,0.07); color: var(--text-primary); }
-        .acct-menu { position: absolute; left: 0.25rem; right: 0.25rem; bottom: calc(100% + 0.3rem); background: #17142f; border: 1px solid var(--border-subtle); border-radius: 12px; padding: 0.35rem; box-shadow: 0 12px 30px rgba(0,0,0,0.5); z-index: 60; display: flex; flex-direction: column; }
+        .acct-menu { position: absolute; left: 0.25rem; right: 0.25rem; bottom: calc(100% + 0.3rem); background: var(--surface-raised); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 0.35rem; box-shadow: 0 12px 30px rgba(0,0,0,0.5); z-index: 60; display: flex; flex-direction: column; }
         .acct-menu[hidden] { display: none; }
         .acct-menu button { text-align: left; background: none; border: 0; color: var(--text-primary); padding: 0.55rem 0.7rem; border-radius: 8px; cursor: pointer; font-size: 0.88rem; }
         .acct-menu button:hover { background: rgba(255,255,255,0.07); }
@@ -223,7 +223,7 @@
         .sidebar.minimized .acct-text, .sidebar.minimized .acct-menu-btn { display: none; }
         .auth-modal { position: fixed; inset: 0; z-index: 1200; background: rgba(5,5,15,0.72); display: flex; align-items: center; justify-content: center; padding: 1rem; }
         .auth-modal[hidden] { display: none; }
-        .auth-card { position: relative; width: min(26rem, 100%); background: #131128; border: 1px solid rgba(var(--ui-accent-rgb),0.35); border-radius: 18px; padding: 2rem 1.75rem 1.5rem; box-shadow: 0 30px 80px rgba(0,0,0,0.6); color: var(--text-primary); }
+        .auth-card { position: relative; width: min(26rem, 100%); background: var(--surface-raised); border: 1px solid rgba(var(--ui-accent-rgb),0.35); border-radius: 18px; padding: 2rem 1.75rem 1.5rem; box-shadow: 0 30px 80px rgba(0,0,0,0.6); color: var(--text-primary); }
         .auth-card h2 { margin: 0 0 0.35rem; font-size: 1.35rem; }
         .auth-sub { margin: 0 0 1.25rem; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.5; }
         .auth-close { position: absolute; top: 0.6rem; right: 0.7rem; width: 32px; height: 32px; border: 0; background: none; color: var(--text-tertiary); font-size: 1.4rem; border-radius: 8px; cursor: pointer; }
@@ -252,7 +252,7 @@
         .img-thumb:hover { border-color: rgba(var(--ui-accent-rgb),0.6); transform: translateY(-1px); }
         .img-thumb:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
         .img-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .img-view { position: relative; margin: 0; max-width: min(1100px, 94vw); max-height: 90vh; display: flex; flex-direction: column; align-items: center; background: #12122a; border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 2.6rem 1rem 1rem; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
+        .img-view { position: relative; margin: 0; max-width: min(1100px, 94vw); max-height: 90vh; display: flex; flex-direction: column; align-items: center; background: var(--surface-raised); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 2.6rem 1rem 1rem; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
         .img-view img { max-width: 100%; max-height: 72vh; object-fit: contain; border-radius: 8px; }
         .img-view figcaption { margin-top: 0.6rem; font-size: 0.85rem; color: var(--text-secondary); text-align: center; max-width: 70ch; }
         .img-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); background: rgba(10,8,30,0.7); color: #fff; font-size: 1.5rem; cursor: pointer; }
@@ -409,6 +409,16 @@
         body.ui-reduce-motion .title-name::after { display: none; }
         @media (prefers-reduced-motion: reduce) { body.title-shimmer .title-name::after { display: none; } }
         @media (max-width: 400px) { body.title-v1 .title-name { font-size: 0.95rem; letter-spacing: 0.03em; } body.title-v2 .title-name { font-size: 1.2rem; } body.title-v3 .title-name { font-size: 0.85rem; letter-spacing: 0.1em; } .cai-badge { font-size: 0.6rem; } }
+        /* ---- Open layout: VQ's answers read like a page (no bubble); bubbles optional ---- */
+        :root { --surface-raised: #141230; }
+        body:not(.ui-bubbles) .message:not(.user) .message-content { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0.15rem 0 0.25rem !important; }
+        body:not(.ui-bubbles) .message:not(.user) .message-body { max-width: 100%; }
+        body:not(.ui-bubbles) .message.oria-voice .message-content { border-left: 3px solid #f5a3c7 !important; padding-left: 0.9rem !important; background: linear-gradient(90deg, rgba(245,163,199,0.06), transparent 60%) !important; }
+        /* ---- Desktop: warmer charcoal background (phones keep the deep navy) ---- */
+        @media (min-width: 769px) {
+            :root { --bg-dark: #262624; --bg-darker: #1f1e1d; --bg-panel: rgba(48, 47, 44, 0.8); --surface-raised: #2c2b29;
+                    --border-subtle: rgba(255, 255, 255, 0.09); --message-bg: rgba(255, 255, 255, 0.05); --text-primary: #ecebe7; }
+        }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -532,11 +542,7 @@
                         <span class="swap-text">O.R.I.A. has the main chat</span>
                         <button type="button" class="swap-back" onclick="window.__vqSwapBack && window.__vqSwapBack()">Swap back</button>
                     </div>
-                    <div class="cap-pills-row">
-                        <button class="cap-pill" data-mode="[RUN ETS]" title="Deploy full Epistemic Tier System">⚖️ ETS</button>
-                        <button class="cap-pill" data-mode="[CAI VQA MODE]" title="Counter-AI rebuttal mode">🛡 Counter-AI</button>
-                        <button class="cap-pill" data-mode="[CAI EVOLUTION]" title="CAI position on evolutionary naturalism">🧬 CAI Evolution</button>
-                    </div>
+
 
                     <div class="input-wrapper">
                         <button class="input-btn mobile-new-chat-btn" id="mobile-new-chat-btn" title="New Chat">
@@ -661,6 +667,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-01-title"></script>
+    <script src="js/chat-app-test.js?v=2026-10-01-layout"></script>
 </body>
 </html>
