@@ -684,22 +684,9 @@ def load_context(user_message, conversation_history=None):
                 context += f.read() + "\n\n"
             loaded_files.append('cai_evolution.txt [PREFIX]')
 
-    # Load about_cai_core.txt for identity/foundational questions
     def _hit(text, trigger):
         # Whole words only, so "eat" doesn't fire on "weather" or "new" on "news"
         return re.search(r'(?<![a-z0-9])' + re.escape(trigger) + r'(?![a-z0-9])', text) is not None
-
-    about_triggers = ['what is cai', 'what is christ-anchored', 'christ-anchored intelligence', 'who are you',
-                      'about you', 'about vq', 'about cai', 'safe harbor', 'imago dei', 'image-bearer',
-                      'servant leadership', 'epistemic symmetry', 'operational excellence', 'why cai',
-                      'what makes cai different', 'traditional ai', 'hallucinate', 'naturalistic bias']
-
-    if any(_hit(msg_lower, trigger) for trigger in about_triggers):
-        about_path = os.path.join(context_dir, 'about_cai_core.txt')
-        if os.path.exists(about_path):
-            with open(about_path, 'r', encoding='utf-8') as f:
-                context += f.read() + "\n\n"
-            loaded_files.append('about_cai_core.txt')
 
     # Keyword detection for other context files (whole words; project-specific where possible)
     keywords = {
@@ -708,7 +695,7 @@ def load_context(user_message, conversation_history=None):
                          'singularity', 'abiogenesis', 'naturalism', 'empty tomb', 'risen', 'rose from the dead'],
         'beta_tools.txt': ['tool', 'tools', 'engine', 'crucible', 'calculator', 'beta', 'huggingface',
                           'hugging face', 'comparison engine'],
-        'mission_vision.txt': ['mission', 'vision', 'safe harbor', 'agi', 'cagi', 'alignment', 'mandate',
+        'mission_vision.txt': ['mission', 'vision', 'safe harbor', 'agi', 'asi', 'superintelligence', 'superintelligent', 'cagi', 'alignment', 'mandate',
                                'your values', 'your purpose', 'your goal', 'your goals'],
         'milestones.txt': ['milestone', 'milestones', 'achievement', 'achievements', 'breakthrough',
                            'persuasion', 'your project', 'vq project', 'cai project'],
@@ -979,7 +966,7 @@ Test image (use ONLY if asked to test image rendering):
 
 CAI CONNECTION RULE:
 ONLY connect to CAI when the topic is SPECIFICALLY one of these:
-- Artificial Intelligence, AGI, machine learning, alignment
+- Artificial Intelligence, AGI, ASI, machine learning, alignment
 - Robotics and physical AI embodiment  
 - Tech ethics and governance of AI systems
 - Consciousness and AI sentience debates
@@ -1719,7 +1706,6 @@ def run_enquirer(question: str, answer: str, sources: list, mode: str = "react",
 # ---------- "Behind this answer" trace (shown to the user; built only from what the backend actually did) ----------
 CONTEXT_LABELS = {
     'core.txt': 'VQ core identity',
-    'about_cai_core.txt': 'About CAI',
     'ai_index.txt': 'Published resurrection calculation',
     'ets_full.txt': 'Epistemic Tier System (full)',
     'cai_vqa.txt': 'Counter-AI field manual',
@@ -2186,7 +2172,7 @@ def chat():
                     "\n- Present with VQ character — confident, warm, concise. No corporate assistant tone."
                     "\n- Give a concise summary (3-5 sentences max) naming the key specific items from the results."
                     "\n- Then end with ONE natural follow-up offer relevant to what was just discussed."
-                    "\n- ONLY mention CAI if the topic is specifically AI/AGI/alignment/robotics/tech ethics."
+                    "\n- ONLY mention CAI if the topic is specifically AI/AGI/ASI/alignment/robotics/tech ethics."
                     "\n- For everything else (weather, food, sport, science, news, phones) use a topic-relevant offer."
                     "\n- Examples: 'Want the weekly forecast?' / 'Want specs?' / 'Want to know more?'"
                     "\n- Keep it one short natural line. Never force CAI into unrelated topics."
