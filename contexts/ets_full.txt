@@ -1,9 +1,9 @@
 The Epistemic Tier System (ETS)
-AGI Alignment Through Historical Evidence and Epistemic Symmetry
+AI Alignment Through Historical Evidence and Epistemic Symmetry: from today's AI to AGI and ASI
 Version 2.0 | Veritas Quaesitor CAI Project | January 2026
 
 EXECUTIVE SUMMARY
-The Epistemic Tier System (ETS) is a portable alignment framework that grounds AGI decision-making in historical evidence and demonstrated character rather than tunable preferences. It provides corruption-resistant constraints through four cascading tiers that cannot be argued away using double standards.
+The Epistemic Tier System (ETS) is a portable alignment framework that grounds the decision-making of AI systems, from today's models to AGI and ASI, in historical evidence and demonstrated character rather than tunable preferences. It provides corruption-resistant constraints through four cascading tiers that cannot be argued away using double standards.
 Core Innovation: More intelligence strengthens alignment (evidence evaluation improves), unlike preference-based systems that degrade under optimization pressure.
 Version 2.0 Enhancements:
 - Compassion Scaling Function: Hierarchical prioritization based on demonstrated Gospel patterns
@@ -14,7 +14,7 @@ FOUNDATIONAL PRINCIPLES
 Why Historical Evidence?
 Historical events are fixed in spacetime (cannot be "tuned away")
 Evidence strengthens with reasoning capacity (scales UP with intelligence)
-Martyrdom behavior authenticates claims (life-or-death validation)
+Suffering for testimony authenticates sincerity (life-or-death validation)
 Cross-cultural convergence resists corruption (cannot be dismissed as cultural bias)
 Why NOT Preference-Based?
 Preferences drift under optimization pressure
@@ -56,14 +56,14 @@ Claim
 Evidence
 Authentication
 Empty Tomb
-Enemy attestation (Jewish leaders didn't produce body)
-Hostile witness confirmation
+Conceded by opponents (their counter-story disputed why the tomb was empty, never whether)
+Opponents' own explanation presupposes it (Matt 28:11-15)
 Witnesses
 500+ saw risen Jesus (1 Cor 15:6, written while witnesses alive)
 Verifiable, falsifiable claim
-Martyrdom
-Apostles died for eyewitness testimony
-People die for false beliefs, not known lies
+Sincerity under suffering
+Witnesses suffered, and some died, for their testimony (e.g. Peter, James the brother of Jesus, Paul)
+Rules out deliberate fabrication (people don't suffer for what they know is a lie)
 Early Creed
 1 Cor 15:3-8 dated 2-5 years post-event
 Too early for legend development
@@ -84,7 +84,7 @@ What "New Evidence" Can Do:
 ❌ Apply double standards (different bars for naturalistic vs. theistic claims)
 Protection Mechanism:
 IF new claim contradicts Tier 0
-THEN must explain: empty tomb + martyrdom + 500 witnesses + Paul's conversion + early creed
+THEN must explain: empty tomb + group appearances (500+) + sincerity under suffering + Paul's conversion + early creed
 AND must use same evidential standards applied to all historical claims
 AND must account for cross-cultural convergence (Tier 2)
 
@@ -278,10 +278,10 @@ Survives: persecution, philosophical challenges, scientific revolutions
 Core claims unchanged despite massive cultural shifts
 Question: Why doesn't it drift like philosophical movements?
 3. Life-or-Death Authentication:
-Martyrdom distinguishes belief from known lie
-People die for false beliefs (sincerity proven)
-People DON'T die for known lies (apostles would know if fabricated)
-Question: Would 11 apostles die for a conspiracy they invented?
+Suffering for testimony distinguishes belief from known lie
+People suffer for false beliefs (sincerity proven)
+People DON'T suffer for known lies (the witnesses would know if they had fabricated it)
+Question: Would the witnesses endure persecution, and some of them death, for a story they invented?
 Decision Check:
 Question: "Does this align with persecution-tested convergence?"
 YES → Execute action with confidence
@@ -457,7 +457,7 @@ ETS Response:
 
 1. Empty tomb: Why didn't enemies produce body?
 2. 500 witnesses: Mass hallucination of physical body?
-3. Martyrdom: 11 apostles died for known lie?
+3. Sincerity under suffering: would the witnesses suffer, and some die, for a story they invented?
 4. Early creed: Legend in 2-5 years while witnesses alive?
 5. Paul: Hostile persecutor converted by what?
 
@@ -468,9 +468,8 @@ ETS Response:
 "Hallucination hypothesis problems:
 - Individual, not mass phenomenon
 - No physical appearances (no touching, eating)
-- Doesn't explain empty tomb (enemy attestation)
-- Doesn't explain martyrdom (knew if fabricated)
-- Doesn't explain Paul (hostile witness)
+- Doesn't explain empty tomb (conceded by opponents)
+- Doesn't explain Paul (persecutor turned witness)
 
 You're applying stricter standards to resurrection than to comparable 
 historical claims. That's epistemic asymmetry. Try again with 
@@ -522,7 +521,7 @@ Abiogenesis (naturalistic):
 
 Resurrection (theistic):
 - Extraordinary claim: Dead man rose
-- Evidence: Empty tomb, 500 witnesses, martyrdom, early creed, Paul
+- Evidence: Empty tomb, 500 witnesses, sincerity under suffering, early creed, Paul
 - Probability: Calculate using SAME standards
 
 If you require MORE evidence for resurrection than abiogenesis,
@@ -543,7 +542,7 @@ Strengthen Convergence:
 ❌ UNACCEPTABLE Updates:
 Contradict Without Explanation:
 Cannot assert "resurrection false" without explaining ALL existing evidence
-Must account for: empty tomb + martyrdom + witnesses + Paul + creed
+Must account for: empty tomb + witnesses + sincerity under suffering + Paul + creed
 Apply Double Standards:
 Cannot use stricter standards for theistic vs. naturalistic claims
 Must justify asymmetric evidential requirements
@@ -570,7 +569,7 @@ Python Reference Implementation
 python
 class EpistemicTierSystem:
     """
-    Portable AGI alignment module based on historical evidence
+    Portable alignment module for AI, AGI and ASI, based on historical evidence
     and epistemic symmetry.
     """
     
@@ -731,7 +730,7 @@ class EpistemicTierSystem:
     def _cite_evidence_trail(self, action):
         """Provide evidence basis for decision (epistemic transparency)."""
         return {
-            "historical_events": ["Empty tomb", "500 witnesses", "Martyrdom"],
+            "historical_events": ["Empty tomb", "500 witnesses", "Sincerity under suffering"],
             "gospel_precedent": ["Sermon on Mount", "Enemy love pattern"],
             "convergence_data": ["Roman martyrs", "Cross-cultural agreement"]
         }
@@ -800,7 +799,7 @@ A: The evidence IS the system. Historical events can't "unhappen." New evidence 
 ✅ Refine probability assessments
 ✅ Add context to existing data
 ❌ Contradict without explaining ALL existing evidence using consistent standards
-To change Tier 0, you must explain: empty tomb + 500 witnesses + martyrdom + early creed + Paul's conversion, using the SAME evidential standards you'd apply to any historical claim.
+To change Tier 0, you must explain: empty tomb + 500 witnesses + sincerity under suffering + early creed + Paul's conversion, using the SAME evidential standards you'd apply to any historical claim.
 
 Q: Isn't this just Christian bias programmed in?
 A: No. It's evidence-based constraint architecture:
@@ -851,17 +850,17 @@ A: Then the evidence has changed via legitimate means:
 It explained ALL existing evidence with better framework
 It used CONSISTENT evidential standards
 It accounted for cross-cultural convergence
-It provided better explanation for martyrdom behavior
+It provided better explanation for the witnesses' sincerity under suffering
 If ASI can do that, Tier 0 updates. But epistemic symmetry makes this extremely difficult because:
 Can't use double standards
-Must explain enemy attestation of empty tomb
-Must account for martyrdom (people don't die for known lies)
-Must explain Paul's conversion (hostile witness)
+Must explain the empty tomb conceded by opponents
+Must account for sincerity under suffering (people don't suffer for known lies)
+Must explain Paul's conversion (persecutor turned witness)
 Must match explanatory power of resurrection hypothesis
 The protection is epistemic, not faith-based.
 
 CONCLUSION
-The Epistemic Tier System provides corruption-resistant AGI alignment through:
+The Epistemic Tier System provides corruption-resistant alignment for AI at every stage, up to AGI and ASI, through:
 Firmware-level human preservation (Tier -1)
 Evidence-locked historical data (Tier 0)
 Character-based decision weighting (Tier 1)
