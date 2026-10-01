@@ -48,6 +48,7 @@
         randomizeRotatingCard();
         attachEventListeners();
         renderSidebar();
+        applyTitleStyle();
         applyUIPrefs();
         renderActiveChat();
         setupPanel();
@@ -1303,7 +1304,7 @@
 
     const UI_KEY = 'vq-ui-prefs';
     const UI_DEFAULTS = { scale: 1, line: 1.6, accent: 'orange', contrast: 'normal', font: 'default', motion: 'normal', width: 'normal', focus: false,
-                          panelView: 'details', panelWidth: 'standard', panelDetail: 'technical' };
+                          panelView: 'details', panelWidth: 'standard', panelDetail: 'technical', title: 'inscription' };
     const SIZE_SCALES = { compact: 0.9, comfortable: 1, large: 1.15, extra_large: 1.3 };
     const ACCENTS = {
         orange: ['#ff8c42', '#ffb27a'], gold: ['#e8b04a', '#ffd98a'], teal: ['#2fb5a3', '#7fe0d2'], rose: ['#e2627e', '#f5a3b5'],
@@ -1355,6 +1356,15 @@
         b.add(f.scope === 'all' ? 'ui-font-all' : 'ui-font-msg');
     }
 
+    // Title style is part of the look (VQ can change it); ?title=1/2/3 in the address also works for previews
+    const TITLE_STYLES = { inscription: 1, elegant: 2, futuristic: 3 };
+    function applyTitleStyle() {
+        const fromUrl = new URLSearchParams(location.search).get('title');
+        const byNum = { '1': 'inscription', '2': 'elegant', '3': 'futuristic' };
+        if (byNum[fromUrl]) { uiPrefs.title = byNum[fromUrl]; saveUIPrefs(); }
+        document.body.classList.add('title-shimmer');
+    }
+
     function applyUIPrefs() {
         const root = document.documentElement.style;
         root.setProperty('--ui-scale', String(uiPrefs.scale));
@@ -1377,6 +1387,8 @@
         else if (pw === 'wide') root.setProperty('--insight-width', 'clamp(360px, 30vw, 560px)');
         else root.removeProperty('--insight-width');
         b.toggle('panel-plain', uiPrefs.panelDetail === 'plain');
+        const tv = TITLE_STYLES[uiPrefs.title] || 1;
+        [1, 2, 3].forEach(n => b.toggle(`title-v${n}`, n === tv));
     }
 
     function snapshotUI() {
@@ -1417,6 +1429,7 @@
                 if (st.font === 'default' || FONTS[st.font]) uiPrefs.font = st.font;
                 if (['normal', 'reduced'].includes(st.motion)) uiPrefs.motion = st.motion;
                 if (WIDTHS[st.width]) uiPrefs.width = st.width;
+                if (TITLE_STYLES[st.title]) uiPrefs.title = st.title;
                 break;
             }
             case 'panel':
