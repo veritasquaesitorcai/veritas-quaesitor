@@ -1395,7 +1395,8 @@ UI_TOOL = {
                                                                    "elegant, classic, inscription, futuristic, retro (typewriter), "
                                                                    "playful or rounded")},
                         "motion": {"type": "string", "description": "normal or reduced"},
-                        "width": {"type": "string", "description": "narrow, normal or wide"}
+                        "width": {"type": "string", "description": "narrow, normal or wide"},
+                        "title": {"type": "string", "description": "style of the app's title: inscription (Roman capitals), elegant (book serif) or futuristic (wide sci-fi capitals)"}
                     }
                 },
                 "note": {"type": "string", "description": "A few words describing the change, e.g. 'warmer, easier to read'"}
@@ -1410,7 +1411,11 @@ _STYLE_CHOICES = {
     "accent": ["orange", "gold", "teal", "rose", "violet", "green", "blue", "grey"],
     "contrast": ["normal", "high"], "font": ["default", "readable", "serif", "mono", "script", "handwriting", "elegant", "classic", "inscription", "futuristic", "retro", "playful", "rounded"],
     "motion": ["normal", "reduced"], "width": ["narrow", "normal", "wide"],
+    "title": ["inscription", "elegant", "futuristic"],
 }
+_TITLE_SYNONYMS = {"roman": "inscription", "classic": "inscription", "latin": "inscription", "1": "inscription",
+                   "serif": "elegant", "fancy": "elegant", "refined": "elegant", "2": "elegant",
+                   "sci-fi": "futuristic", "scifi": "futuristic", "modern": "futuristic", "tech": "futuristic", "3": "futuristic"}
 _FONT_SYNONYMS = {"cursive": "script", "calligraphy": "script", "fancy": "elegant", "handwritten": "handwriting",
                   "hand-written": "handwriting", "typewriter": "retro", "sci-fi": "futuristic", "scifi": "futuristic",
                   "space": "futuristic", "comic": "playful", "comic sans": "playful", "fun": "playful", "roman": "inscription",
@@ -1444,18 +1449,20 @@ def validate_ui_action(args: dict):
                     style[key] = round(min(hi, max(lo, float(st[key]))), 2)
             except (TypeError, ValueError):
                 pass
-        for key in ("accent", "contrast", "font", "motion", "width"):
+        for key in ("accent", "contrast", "font", "motion", "width", "title"):
             val = str(st.get(key) or "").strip().lower()
             if key == "accent":
                 val = _ACCENT_SYNONYMS.get(val, val)
             if key == "font":
                 val = _FONT_SYNONYMS.get(val, val)
+            if key == "title":
+                val = _TITLE_SYNONYMS.get(val, val)
             if val in _STYLE_CHOICES[key]:
                 style[key] = val
         if not style:
             return None, ("that option isn't available. Accent colours: orange, gold, teal, rose, violet, green, blue, grey; "
                           "fonts: default, readable, serif, mono, script, handwriting, elegant, classic, inscription, futuristic, "
-                          "retro, playful, rounded")
+                          "retro, playful, rounded; title styles: inscription, elegant, futuristic")
         clean["style"] = style
         parts = [f"{k.replace('_', ' ')} {v}" for k, v in style.items()]
         asked = str(st.get("accent") or "").strip().lower()
