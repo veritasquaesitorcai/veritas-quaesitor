@@ -1,0 +1,89 @@
+EVIDENCE SUPPORT: SUPPORTING DATA FOR THE PUBLISHED THREADS (E1–E7)
+Added October 2026. Separate file, so it can be reviewed, edited or removed on its own.
+
+HOW TO USE THIS FILE
+- These items strengthen confidence in the existing threads. They are NOT extra multipliers:
+  the published calculation (72–93%) does not change because of them. Never multiply them in.
+- Cite the source when you use an item, and state the consensus level honestly.
+- Never overclaim. If a point is debated, say so, then give the reply.
+- Each entry has the shape of the planned public evidence ledger: claim, source, consensus,
+  which thread it supports, strongest objection, reply.
+
+---------------------------------------------------------------------------------------------
+S1. PAUL'S OWN FIRST-HAND CLAIM (supports E5, Paul)
+Claim: Paul says in his own letters that he saw the risen Jesus.
+Source: 1 Corinthians 9:1 ("Have I not seen Jesus our Lord?"); 1 Corinthians 15:8; Galatians 1:15-16.
+Dating: 1 Corinthians c. AD 53-55; Galatians c. AD 48-55. Both are among the seven letters
+  accepted as Paul's own by nearly all critical scholars.
+Consensus: near-universal that these are Paul's words and that Paul believed he had seen Jesus.
+Strongest objection: Paul's experience was a vision (Acts describes a light and a voice), so it
+  shows nothing about a body.
+Reply: Paul puts his experience in the same list as the group appearances, as "last of all".
+  E5 measures the change from persecutor to witness, which needs a cause whatever the nature of
+  the experience. Our ratios already allow for visionary experiences under the alternative.
+
+S2. WHERE THE CREED CAME FROM (supports E3, early creed)
+Claim: The creed in 1 Corinthians 15:3-7 was handed on to Paul as tradition, and Paul met named
+  witnesses in Jerusalem within a few years of his conversion.
+Source: 1 Corinthians 15:3 uses the standard terms for passing on tradition ("delivered...
+  received"); Galatians 1:18-19: Paul stayed fifteen days with Peter ("Cephas") and saw James,
+  three years after his conversion.
+Dating: Paul's conversion is usually placed c. AD 31-36, so the Jerusalem visit falls in the mid
+  to late 30s.
+Consensus: majority of critical scholars, including sceptical ones, date the creed's origin to
+  within a few years of the crucifixion.
+Strongest objection: Paul could have composed the creed himself.
+Reply: its wording is unusual for Paul, it uses the Aramaic name "Cephas", and Paul explicitly
+  calls it something he received. Galatians ties it to Peter and James personally.
+
+S3. VERY EARLY WORSHIP OF JESUS (supports E7, novel belief)
+Claim: Within about two decades, Jewish monotheists prayed to Jesus and sang about him as Lord.
+Source: 1 Corinthians 16:22, "Maranatha" (Aramaic, "Our Lord, come"), an Aramaic prayer kept
+  untranslated in a Greek letter, which points to the earliest Aramaic-speaking believers;
+  Philippians 2:6-11, a hymn widely regarded as earlier than Paul.
+Scholarship: Larry Hurtado, "Lord Jesus Christ" (2003); Richard Bauckham, "Jesus and the God of
+  Israel" (2008).
+Consensus: that devotion to Jesus began very early is the majority view; that Philippians 2 is
+  pre-Pauline is widely held but debated.
+Strongest objection: Philippians 2 may be Paul's own composition.
+Reply: even then it is written in the 50s or early 60s to a church expected to share it, and
+  "Maranatha" is independent evidence of earlier Aramaic devotion. Even sceptical scholars such as
+  Bart Ehrman ("How Jesus Became God", 2014) accept that exalted beliefs about Jesus arose very
+  early, while explaining them differently.
+
+S4. THE SCANDAL OF A CRUCIFIED MESSIAH (supports E7)
+Claim: Followers did not invent a convenient hero. A crucified messiah was a scandal they had to
+  explain, not a story anyone would choose.
+Source: 1 Corinthians 1:23 ("a stumbling block to Jews and foolishness to Gentiles");
+  Galatians 3:13 citing Deuteronomy 21:23 (one hung on a tree is cursed).
+Consensus: the crucifixion is among the most certain facts about Jesus, accepted across the field
+  (for example by John Dominic Crossan and Bart Ehrman); its embarrassment is widely recognised.
+Strongest objection: embarrassing details can be invented to seem authentic.
+Reply: the crucifixion is confirmed by non-Christian sources (see S5); early Christians had to
+  defend it at length rather than exploit it.
+
+S5. NON-CHRISTIAN CONFIRMATION OF THE STARTING FACTS (supports the baseline, and E6, James)
+Claim: Roman and Jewish sources confirm the crucifixion under Pilate and the execution of James,
+  the brother of Jesus.
+Source: Tacitus, Annals 15.44 (c. AD 116): Christ suffered the death penalty under Tiberius, at
+  the hands of the procurator Pontius Pilate. Josephus, Antiquities 20.200 (c. AD 93): James,
+  "the brother of Jesus who was called Christ", was stoned in AD 62.
+Consensus: Tacitus's passage is accepted as genuine by nearly all historians; the James passage in
+  Josephus is accepted as genuine by most (unlike Josephus's longer passage on Jesus, which was
+  partly added to by later Christian copyists, and which we do not rely on).
+Strongest objection: Tacitus may only repeat what Christians said.
+Reply: possibly, but it shows the crucifixion under Pilate was known in Rome as fact, and Josephus
+  is an independent Jewish source for James.
+
+S6. NO JEWISH CATEGORY FOR ONE MAN RISING EARLY (supports E7)
+Claim: Second Temple Jewish hope looked for a bodily resurrection of all the righteous at the end
+  of the age, not one individual raised in the middle of history. The Christian claim reshaped
+  that belief in specific ways that need a cause.
+Scholarship: N. T. Wright, "The Resurrection of the Son of God" (2003), a detailed survey of
+  ancient Jewish and pagan beliefs about life after death.
+Consensus: Wright's survey of the background is widely used across the field; his conclusion (that
+  the resurrection is the best explanation) is contested.
+Strongest objection: Wright is a believer, so his reading is biased.
+Reply: the survey of what ancient Jews believed is checked against the primary sources and is
+  used by scholars who reject his conclusion. Our E7 ratio (3) is deliberately modest and does not
+  depend on his conclusion.
