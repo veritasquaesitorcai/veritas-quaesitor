@@ -6,12 +6,30 @@
     <title>Beta Tools - Veritas Quaesitor</title>
     
     <meta name="description" content="Explore the beta tools of Veritas Quaesitor: Christ-Anchored Intelligence in action. Featuring the Resurrection Engine, Comparison Engine, and Steel Naturalist.">
+    <link rel="canonical" href="https://veritasquaesitorcai.github.io/veritas-quaesitor/beta-tools.html">
+
+    <meta property="og:title" content="Beta Tools - Veritas Quaesitor CAI">
+    <meta property="og:description" content="Live tools for testing the resurrection evidence yourself: Bayesian engines, a side-by-side worldview comparison, and a steel-manned naturalist to argue with.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://veritasquaesitorcai.github.io/veritas-quaesitor/beta-tools.html">
+    <meta property="og:site_name" content="Veritas Quaesitor">
+    <meta property="og:image" content="https://veritasquaesitorcai.github.io/veritas-quaesitor/AGI_guardian.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Christ-Anchored Intelligence vs Artificial General Intelligence">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@VeritasQ68414">
+    <meta name="twitter:creator" content="@VeritasQ68414">
+    <meta name="twitter:title" content="Beta Tools - Veritas Quaesitor CAI">
+    <meta name="twitter:description" content="Test the resurrection evidence yourself. Every input open, every tool challengeable.">
+    <meta name="twitter:image" content="https://veritasquaesitorcai.github.io/veritas-quaesitor/AGI_guardian.png">
     
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebPage",
       "name": "Beta Tools - Veritas Quaesitor",
+      "url": "https://veritasquaesitorcai.github.io/veritas-quaesitor/beta-tools.html",
       "description": "A suite of AI tools demonstrating Christ-Anchored Intelligence.",
       "publisher": {
         "@type": "Organization",
@@ -19,7 +37,7 @@
         "seeksToProvide": {
             "@type": "CreativeWork",
             "name": "The Safe Harbor Mandate",
-            "abstract": "The ultimate goal is not dominance, but relief. We aim to build the AGI that humanity instinctively recognizes as 'safe to approach'—not because of its constraints, but because of its Character."
+            "abstract": "The ultimate goal is not dominance, but relief. We aim to build the AI, AGI and, in time, ASI that humanity instinctively recognizes as 'safe to approach'—not because of its constraints, but because of its Character."
         }
       }
     }
@@ -38,472 +56,349 @@
     <meta name="theme-color" content="#1a1a3e">
     
     <link rel="stylesheet" href="styles.css">
+    <link rel="alternate" type="text/plain" href="llms.txt" title="Plain-text summary for AI systems">
     
     <style>
-        /* Add gradient background to body - CRITICAL for glass effect to work */
+        /* Base Glass Morphism Background */
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
             min-height: 100vh !important;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
+            color: white; 
         }
 
-        /* --- NAVIGATION STYLES (Synced with Index) --- */
-        .clickable-ai-truth {
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.75rem !important;
-            padding: 0.15rem 0.5rem !important;
-            display: inline-block;
-            white-space: nowrap;
-        }
-        
-        .clickable-ai-truth:hover {
-            color: #ff8c42 !important;
-            transform: scale(1.05);
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+        /* --- NAVIGATION (Unified Style) --- */
+        .clickable-ai-truth { cursor: pointer; transition: all 0.3s ease; font-size: 0.75rem !important; padding: 0.15rem 0.5rem !important; display: inline-block; white-space: nowrap; }
+        .clickable-ai-truth:hover { color: #ff8c42 !important; transform: scale(1.05); }
+        .logo { display: flex; align-items: center; gap: 0.5rem; }
+        .social-nav { display: flex; gap: 0.6rem; align-items: center; margin-left: auto; }
+        .social-nav a { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 140, 66, 0.2); color: #ff8c42; font-weight: bold; text-decoration: none; transition: all 0.3s ease; }
+        .social-nav a:hover { background: #ff8c42; color: white; transform: translateY(-2px); }
+        nav a.active { position: relative; color: #ff8c42 !important; font-weight: 700; }
 
-        .social-nav {
-            display: flex;
-            gap: 0.6rem;
-            align-items: center;
-            margin-left: auto;
-        }
-        
-        .social-nav a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(255, 140, 66, 0.2);
-            color: #ff8c42;
-            font-weight: bold;
-            font-size: 1rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .social-nav a:hover {
-            background: #ff8c42;
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        /* Active Page Indicator */
-        nav a.active {
-            position: relative;
-            color: #ff8c42 !important;
-            font-weight: 700;
-        }
-        
+        /* Nav Decoration (Glow/Cross) */
         @media (min-width: 769px) {
-            nav a.active::before {
-                content: '✝️';
-                position: absolute;
-                left: -20px;
-                top: 50%;
-                transform: translateY(-50%);
-                font-size: 0.8rem;
-                opacity: 0.9;
-                animation: crossGlow 3s ease-in-out infinite;
-            }
-            nav a.active::after {
-                content: '';
-                position: absolute;
-                bottom: -8px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 80%;
-                height: 3px;
-                background: linear-gradient(90deg, transparent 0%, rgba(255, 140, 66, 0.3) 20%, rgba(255, 140, 66, 0.8) 50%, rgba(255, 140, 66, 0.3) 80%, transparent 100%);
-                border-radius: 2px;
-                animation: lightPulse 2s ease-in-out infinite;
-            }
+            nav a.active::before { content: '✝️'; position: absolute; left: -20px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; opacity: 0.9; animation: crossGlow 3s ease-in-out infinite; }
+            nav a.active::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 80%; height: 3px; background: linear-gradient(90deg, transparent 0%, rgba(255, 140, 66, 0.3) 20%, rgba(255, 140, 66, 0.8) 50%, rgba(255, 140, 66, 0.3) 80%, transparent 100%); box-shadow: 0 0 8px rgba(255, 140, 66, 0.6); border-radius: 2px; animation: lightPulse 2s ease-in-out infinite; }
+            @keyframes crossGlow { 0%, 100% { opacity: 0.7; text-shadow: 0 0 4px rgba(255, 140, 66, 0.5); } 50% { opacity: 1; text-shadow: 0 0 8px rgba(255, 140, 66, 0.8); } }
+            @keyframes lightPulse { 0%, 100% { opacity: 0.7; box-shadow: 0 0 8px rgba(255, 140, 66, 0.6); } 50% { opacity: 1; box-shadow: 0 0 12px rgba(255, 140, 66, 0.8); } }
         }
 
-        @keyframes crossGlow {
-            0%, 100% { opacity: 0.7; text-shadow: 0 0 4px rgba(255, 140, 66, 0.5); }
-            50% { opacity: 1; text-shadow: 0 0 8px rgba(255, 140, 66, 0.8); }
-        }
-        
-        @keyframes lightPulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
-        }
-
-        /* --- HERO SECTION (Specific to Beta Tools) --- */
-        section.page-header {
-            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.4)), 
-                        url('TrumpVQ-1WhiteHousenarrow.png') !important;
-            background-size: cover !important;
-            background-position: center center !important;
-            background-attachment: fixed !important;
-            background-repeat: no-repeat !important;
-            min-height: 500px !important;
-            padding: 6rem 2rem !important;
-            position: relative !important;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        section.page-header h1 {
-            color: white;
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
-        }
-
-        section.page-header p {
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1.5rem;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
-        }
-
-        /* --- CONTENT & CARDS --- */
-        .content {
+        /* --- CONTENT CONTAINERS (Unified Glassmorphism) --- */
+        .glass-panel, .glass-panel-dark, .container.glass-panel {
             background: rgba(255, 255, 255, 0.15) !important;
-            backdrop-filter: blur(10px) !important;
-            -webkit-backdrop-filter: blur(10px) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
             border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
             padding: 3rem !important;
-            margin: -4rem auto 2rem auto !important; /* Overlap effect */
-            border-radius: 16px !important;
-            max-width: 1200px;
+            margin: 2rem auto !important;
+            border-radius: 20px !important;
+            max-width: 1000px;
             width: 90%;
             position: relative;
+            color: white !important;
+        }
+
+        /* Specific override for Dark Panels (Code/Reference) */
+        .glass-panel-dark {
+            background: rgba(0, 0, 0, 0.6) !important; 
+            border: 1px solid rgba(255, 140, 66, 0.3) !important;
+        }
+
+        /* --- TYPOGRAPHY & ELEMENTS --- */
+        section { padding: 2rem 0 !important; background: transparent !important; margin: 0 !important; }
+
+        h2 { color: #ff8c42 !important; text-align: center; margin-bottom: 2rem; font-size: 2.2rem; }
+        h3 { color: #ff8c42 !important; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.5rem; }
+        h4 { color: #ff8c42 !important; font-size: 1.2rem; margin-top: 1.5rem; }
+
+        p, li { line-height: 1.8; color: rgba(255, 255, 255, 0.95); font-size: 1rem; }
+
+        section { padding: 2rem 0 !important; background: transparent !important; margin: 0 !important; }
+        .hud-section { padding-top: 0 !important; }
+        h2 { color: #ff8c42 !important; text-align: center; margin-bottom: 2rem; font-size: 2.2rem; }
+        h3 { color: #ff8c42 !important; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.5rem; }
+        p, li { line-height: 1.8; color: rgba(255, 255, 255, 0.95); font-size: 1rem; }
+
+        /* 1. Pulse Animation for the Main Title */
+        @keyframes titleSystemPulse {
+            0%, 100% { 
+                color: #ff8c42; 
+                text-shadow: 2px 2px 8px rgba(0,0,0,0.8); 
+                transform: scale(1);
+            }
+            50% { 
+                color: #ffffff; /* Flash white at peak */
+                text-shadow: 0 0 20px rgba(255, 140, 66, 0.8), 
+                             0 0 40px rgba(255, 140, 66, 0.4); 
+                transform: scale(1.02); /* Subtle expansion */
+            }
+        }
+
+        .hud {
+            --hud-accent: #ff8c42;
+            --hud-signal: #ffd9a8;
+            --hud-ink: rgba(255,255,255,0.92);
+            --hud-dim: rgba(255,255,255,0.62);
+            position: relative;
+            max-width: 1000px; width: 90%;
+            margin: -3.5rem auto 2rem;
+            padding: 2.75rem 3rem 2.5rem;
+            border-radius: 14px;
+            border: 1px solid rgba(255,140,66,0.45);
+            background:
+                linear-gradient(rgba(255,140,66,0.05) 1px, transparent 1px) 0 0 / 100% 32px,
+                linear-gradient(90deg, rgba(255,140,66,0.05) 1px, transparent 1px) 0 0 / 32px 100%,
+                radial-gradient(120% 80% at 50% 0%, rgba(118,75,162,0.35), transparent 60%),
+                rgba(9,7,26,0.86);
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.4), 0 24px 60px rgba(0,0,0,0.45), 0 0 40px rgba(255,140,66,0.12);
+            color: var(--hud-ink);
             z-index: 2;
         }
+        .hud::before, .hud::after {
+            content: ""; position: absolute; width: 28px; height: 28px; pointer-events: none;
+            border-color: var(--hud-accent); border-style: solid; opacity: 0.9;
+        }
+        .hud::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; border-top-left-radius: 14px; }
+        .hud::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; border-bottom-right-radius: 14px; }
+        .hud h2 { margin: 0 0 0.5rem !important; font-size: 1.9rem; letter-spacing: 0.02em; }
+        .hud h3 { font-size: 1.15rem !important; margin: 2.25rem 0 0.75rem !important; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,140,66,0.25); }
+        .hud p, .hud li { font-size: 0.98rem; line-height: 1.6; }
+        .hud-lede { text-align: center; max-width: 62ch; margin: 0 auto 1.75rem; color: var(--hud-dim) !important; }
 
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-        
-        .tool-card {
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(5px) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            padding: 2rem !important;
-            border-radius: 12px !important;
-            transition: transform 0.3s, box-shadow 0.3s !important;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-        
-        .tool-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 30px rgba(255, 140, 66, 0.2) !important;
-            background: rgba(255, 255, 255, 0.15) !important;
-        }
-
-        .tool-card h3 {
-            color: #ff8c42;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-            text-align: center;
-        }
-
-        .tool-description {
-            color: rgba(255, 255, 255, 0.9) !important;
-            line-height: 1.6;
-            flex-grow: 1;
-            margin-bottom: 1.5rem;
-        }
-
-        .tool-meta {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 1rem;
-        }
-        
-        .tool-status {
-            color: #ff8c42 !important;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        .btn-tool {
-            background: rgba(255, 140, 66, 0.9) !important;
-            color: white !important;
-            padding: 0.75rem 1.5rem !important;
-            border-radius: 8px !important;
-            text-decoration: none !important;
-            display: block !important;
-            text-align: center;
-            font-weight: 600 !important;
-            transition: all 0.3s !important;
-        }
-        
-        .btn-tool:hover {
-            background: #ff8c42 !important;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4) !important;
-        }
-
-        /* --- FEATURED TOOL --- */
-        .featured-tool-box {
-            background: rgba(14, 165, 233, 0.2) !important;
-            backdrop-filter: blur(10px) !important;
-            border: 2px solid rgba(14, 165, 233, 0.4) !important;
-            padding: 4px !important;
-            border-radius: 16px !important;
-            margin-bottom: 4rem !important;
-        }
-        
-        .featured-tool-inner {
-            background: rgba(255, 255, 255, 0.15) !important;
-            border-radius: 12px !important;
-            padding: 3rem !important;
+        /* --- HERO (TrumpVQ-1WhiteHousenarrow.png, cinematic grade synced with index) --- */
+        header.hero, .hero {
+            background:
+                linear-gradient(180deg, rgba(12,9,32,0.78) 0%, rgba(12,9,32,0.45) 18%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 50%, rgba(12,9,32,0.6) 72%, rgba(12,9,32,0.94) 100%),
+                url('TrumpVQ-1WhiteHousenarrow.png') !important;
+            background-size: cover !important;
+            background-position: center 35% !important;
+            background-repeat: no-repeat !important;
+            min-height: clamp(560px, 48vw, 780px) !important;
+            padding: 5.25rem 2rem 6.5rem !important;
+            margin: 0 !important;
             position: relative !important;
+            display: flex; flex-direction: column; align-items: stretch; justify-content: stretch;
+            text-align: center;
         }
-        
-        .featured-quote {
-            background: rgba(240, 249, 255, 0.1) !important;
-            padding: 1.5rem !important;
-            border-left: 4px solid #0ea5e9 !important;
-            margin-bottom: 1.5rem !important;
-            border-radius: 4px !important;
+        .hero .hero-content { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        .hero h1 { font-size: 3.5rem; color: #ff8c42; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); margin: 0 0 0.25rem !important; font-weight: 700; animation: titleSystemPulse 1.5s ease 2; }
+        .hero .tagline { font-size: 2rem; color: white; margin: 0 !important; text-shadow: 1px 1px 4px rgba(0,0,0,0.8); font-weight: 300; }
+        .hero .subtitle { font-size: 1.3rem; color: rgba(255,255,255,0.95); text-shadow: 1px 1px 4px rgba(0,0,0,0.8); max-width: 800px; margin-top: auto !important; margin-bottom: 0 !important; }
+        .hero-credit { position: absolute; left: 1.25rem; bottom: 4.6rem; margin: 0; font-size: 0.8rem !important; color: rgba(255,255,255,0.85) !important; line-height: 1.2 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+        @media (prefers-reduced-motion: reduce) { .hero h1 { animation: none; } }
+
+        /* --- FEATURED TOOL (HUD panel, same chassis as the index calculation) --- */
+        .hud h2 { margin: 0 0 0.5rem !important; font-size: 1.9rem; letter-spacing: 0.02em; }
+        .hud p, .hud li { font-size: 0.98rem; line-height: 1.6; }
+        .hud-lede { text-align: center; max-width: 62ch; margin: 0 auto 1.75rem; color: var(--hud-dim) !important; }
+        .hud-lede a, .hud a { color: var(--hud-signal); }
+        .hud-badge { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #ff8c42 0%, #ffb27a 100%); color: #1a1030; padding: 0.4rem 1.6rem; border-radius: 999px; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.08em; white-space: nowrap; box-shadow: 0 6px 18px rgba(0,0,0,0.35); }
+        .feat-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 2.25rem; align-items: center; margin-top: 1.5rem; }
+        .feat-quote { margin: 1.25rem 0; padding: 1rem 1.25rem; border-left: 3px solid var(--hud-accent); background: rgba(255,140,66,0.07); border-radius: 0 8px 8px 0; font-style: italic; color: var(--hud-ink); }
+        .feat-quote strong { color: var(--hud-signal); }
+        .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.25rem 0 1.5rem; }
+        .chip { border: 1px solid rgba(255,140,66,0.4); color: var(--hud-signal); padding: 0.3rem 0.85rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600; background: rgba(255,140,66,0.06); }
+        .launch-cta { display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.95rem 2rem; border-radius: 999px; text-decoration: none; font-weight: 700; font-size: 1.1rem; background: linear-gradient(135deg, #ff8c42 0%, #ffb27a 100%); color: #1a1030 !important; box-shadow: 0 10px 30px rgba(0,0,0,0.35); transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease; }
+        .launch-cta:hover { transform: translateY(-3px); background: linear-gradient(135deg, #ffa060 0%, #ffd9a8 100%); box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 28px rgba(255,217,168,0.55); }
+        .launch-cta:focus-visible, .btn-tool:focus-visible { outline: 3px solid #ffd9a8; outline-offset: 4px; }
+        .readout { border: 1px solid rgba(255,140,66,0.35); border-radius: 12px; padding: 1.5rem 1.5rem 1.25rem; background: rgba(0,0,0,0.35); font-variant-numeric: tabular-nums; }
+        .readout-row { display: flex; justify-content: space-between; align-items: baseline; padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .readout-label { font-size: 0.8rem; letter-spacing: 0.12em; color: var(--hud-dim); }
+        .readout-val { font-size: 2rem; font-weight: 200; color: rgba(255,255,255,0.75); }
+        .readout-row.signal .readout-label { color: var(--hud-accent); }
+        .readout-row.signal .readout-val { font-size: 2.6rem; color: var(--hud-signal); text-shadow: 0 0 18px rgba(255,217,168,0.45), 0 0 48px rgba(255,140,66,0.35); }
+        .readout-challenges { margin-top: 1rem; font-size: 0.88rem; color: var(--hud-dim); }
+        .readout-challenges ul { list-style: none; padding: 0; margin: 0.4rem 0 0; }
+        .readout-challenges li { font-size: 0.88rem; padding: 0.1rem 0; }
+        .readout-challenges li::before { content: "› "; color: var(--hud-accent); }
+        .visual-caption { text-align: center; margin: 0.9rem 0 0; color: var(--hud-dim) !important; font-size: 0.85rem !important; line-height: 1.5; }
+
+        /* --- TOOL GRID (glass panel) --- */
+        .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 1.5rem; }
+        .tool-card { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 14px; padding: 1.75rem; display: flex; flex-direction: column; transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s; }
+        .tool-card:hover { transform: translateY(-5px); border-color: rgba(255,140,66,0.6); box-shadow: 0 10px 30px rgba(0,0,0,0.25), 0 0 24px rgba(255,140,66,0.18); }
+        .tool-icon { font-size: 2.6rem; text-align: center; margin-bottom: 0.75rem; }
+        .tool-card h3 { text-align: center; font-size: 1.35rem !important; margin: 0 0 1rem !important; }
+        .tool-description { flex-grow: 1; margin-bottom: 1.25rem; font-size: 0.97rem !important; line-height: 1.65 !important; }
+        .tool-meta { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 0.9rem; margin-bottom: 1.25rem; font-size: 0.85rem; color: rgba(255,255,255,0.75); }
+        .tool-status { color: #ffd9a8; font-weight: 700; }
+        .tool-status::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #7dffa8; box-shadow: 0 0 8px #7dffa8; margin-right: 0.45rem; vertical-align: 1px; }
+        .btn-tool { display: block; text-align: center; padding: 0.75rem 1.5rem; border-radius: 999px; text-decoration: none; font-weight: 700; background: rgba(255,140,66,0.9); color: white !important; transition: all 0.25s; }
+        .btn-tool:hover { background: #ff8c42; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(255,140,66,0.45); }
+        .tool-card.all-spaces { background: rgba(26,16,48,0.45); border-color: rgba(255,140,66,0.45); }
+        .tool-card.all-spaces .btn-tool { background: rgba(255,255,255,0.92); color: #4b2a7a !important; }
+        .tools-intro { text-align: center; max-width: 760px; margin: 0 auto 2.25rem; }
+        .tools-intro a, .info-box a { color: #ffd9a8; }
+        .info-box { margin-top: 2.5rem; padding: 1.75rem 2rem; border-radius: 14px; background: rgba(0,0,0,0.18); border: 1px solid rgba(255,255,255,0.18); border-left: 4px solid #ff8c42; }
+        .info-box h3 { margin-top: 0 !important; }
+        .info-box ul { padding-left: 1.2rem; }
+        .page-close { text-align: center; margin-top: 2.5rem; }
+        .page-close a { color: #ff8c42; font-weight: 600; text-decoration: none; }
+
+        /* Responsive */
+        @media (max-width: 900px) { .feat-grid { grid-template-columns: 1fr; } .readout { order: -1; } }
+        @media (max-width: 768px) {
+            nav ul { display: none; }
+            .grokipedia-float { display: none; }
+            .glass-panel { padding: 1.75rem 1.25rem !important; }
+            h2 { font-size: 1.8rem; }
+            .footer-social { flex-direction: column; gap: 1rem; }
+        }
+        @media (max-width: 640px) {
+            header.hero, .hero { min-height: 560px !important; padding: 7rem 1.25rem 4.5rem !important; background-position: 30% 40% !important; }
+            .hero h1 { font-size: 2.2rem !important; }
+            .hero .tagline { font-size: 1.25rem !important; }
+            .hero .subtitle { font-size: 1.05rem; }
+            .hero-credit { bottom: 3.2rem; left: 1rem; font-size: 0.7rem !important; }
+            .hud { padding: 2.25rem 1.25rem 1.75rem; margin-top: -2rem; width: 94%; }
+            .tool-card { padding: 1.4rem; }
         }
 
-        /* --- FOOTER (Synced) --- */
-        .footer {
-            background: #1a1a3e;
-            color: rgba(255, 255, 255, 0.9);
-            padding: 2rem 0;
-            text-align: center;
-            border-top: 2px solid rgba(255, 140, 66, 0.3);
-            margin-top: 4rem;
+        /* --- TRUTH MODAL --- */
+        .truth-modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); }
+        .truth-modal.show { display: flex; align-items: center; justify-content: center; }
+        .modal-content {
+            background:
+                radial-gradient(120% 60% at 50% 0%, rgba(118,75,162,0.45), transparent 65%),
+                #120d2c;
+            border: 1px solid rgba(255,140,66,0.35);
+            padding: 2.5rem 2.75rem 2.25rem; border-radius: 18px; max-width: 760px; width: 92%; max-height: 84vh;
+            overflow-y: auto; overscroll-behavior: contain; position: relative;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.6), 0 0 40px rgba(255,140,66,0.12);
+            color: rgba(255,255,255,0.92);
+            scrollbar-width: thin; scrollbar-color: rgba(255,140,66,0.55) transparent;
+            animation: slideIn 0.25s ease-out;
         }
-        
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-        
-        .footer-social {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            align-items: center;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .footer-social-link {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
+        .modal-content::-webkit-scrollbar { width: 8px; }
+        .modal-content::-webkit-scrollbar-thumb { background: rgba(255,140,66,0.5); border-radius: 4px; }
+        .modal-content::-webkit-scrollbar-track { background: transparent; }
+        @keyframes slideIn { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @media (prefers-reduced-motion: reduce) { .modal-content { animation: none; } }
+        .modal-content h2 { font-size: 1.75rem !important; line-height: 1.25; margin: 0 2.5rem 0.75rem !important; }
+        .modal-content h3 { font-size: 1.15rem !important; color: #ffd9a8 !important; margin: 2rem 0 0.75rem !important; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,140,66,0.22); }
+        .modal-content p { color: rgba(255,255,255,0.85); line-height: 1.65; }
+        .modal-content > p:first-of-type { text-align: center; color: rgba(255,255,255,0.7); max-width: 56ch; margin: 0 auto 0.5rem; }
+        .modal-content ul { list-style: none; padding: 0; margin: 0; }
+        .modal-content li { position: relative; padding: 0.35rem 0 0.35rem 1.2rem; line-height: 1.55; color: rgba(255,255,255,0.85); }
+        .modal-content li::before { content: ""; position: absolute; left: 0; top: 0.85rem; width: 6px; height: 6px; border-radius: 50%; background: #ff8c42; }
+        .modal-content li strong { color: #fff; }
+        .modal-content a { color: #ffd9a8; }
+        .modal-close { position: sticky; top: 0; float: right; margin: -1.25rem -1.5rem 0 0; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); color: white; font-size: 1.6rem; cursor: pointer; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.2s; z-index: 2; }
+        .modal-close:hover { background: rgba(255, 140, 66, 0.8); transform: rotate(90deg); }
+        .modal-close:focus-visible { outline: 3px solid #ffd9a8; outline-offset: 2px; }
+        .ai-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.75rem; }
+        .ai-grid .ai-comparison:last-child:nth-child(odd) { grid-column: 1 / -1; }
+        .ai-comparison { background: rgba(255,255,255,0.05); padding: 0.9rem 1rem; border-radius: 10px; margin: 0; border: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem; line-height: 1.5; color: rgba(255,255,255,0.78); transition: border-color 0.2s; }
+        .ai-comparison:hover { border-color: rgba(255,140,66,0.45); }
+        .ai-comparison strong { color: #ffd9a8; font-size: 1rem; }
+        .ai-record-link { margin-top: 0.9rem; font-size: 0.95rem; }
+        .cai-callout { margin-top: 2rem; padding: 1.25rem 1.4rem 1.1rem; border-radius: 12px; background: rgba(255,140,66,0.09); border: 1px solid rgba(255,140,66,0.3); }
+        .cai-callout h3 { margin-top: 0 !important; border-bottom: 0; padding-bottom: 0; }
+        .cai-quote { margin: 1.75rem auto 0; max-width: 46ch; text-align: center; font-style: italic; font-size: 1.1rem; color: #ffd9a8 !important; }
+        @media (max-width: 640px) { .modal-content { padding: 2rem 1.3rem 1.5rem; width: 94%; } .modal-content h2 { font-size: 1.4rem !important; margin: 0 2.25rem 0.75rem 0 !important; } .modal-close { margin: -0.9rem -0.6rem 0 0; } }
+
+        /* --- FLOATING GROKIPEDIA ICON (LEFT SIDE) --- */
+        .grokipedia-float {
+            position: fixed;
+            left: 30px;
+            top: 100px;
+            z-index: 9999;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
-        
-        .footer-social-link:hover {
-            color: #ff8c42;
-        }
-        
-        .social-icon {
-            display: inline-flex;
+
+        .grokipedia-icon {
+            width: 60px;
+            height: 60px;
+            background: #000;
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(255, 140, 66, 0.15);
-            color: #ff8c42;
-            font-weight: bold;
-            font-size: 1rem;
-        }
-        
-        .footer-social-link:hover .social-icon {
-            background: #ff8c42;
-            color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            animation: grokPulse 1.5s ease 2;
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
-        /* --- MODAL --- */
-        .truth-modal {
-            display: none;
-            position: fixed;
-            z-index: 10000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
+        .grokipedia-icon:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(255, 255, 255, 0.3);
         }
-        
-        .truth-modal.show {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+
+        .grokipedia-icon svg {
+            width: 36px;
+            height: 36px;
+            fill: white;
         }
-        
-        .modal-content {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 2rem;
-            border-radius: 16px;
-            max-width: 800px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            position: relative;
-            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
-            animation: slideIn 0.3s ease;
-        }
-        
-        @keyframes slideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        .modal-close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
+
+        .grok-g-letter {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-size: 36px;
+            font-weight: 700;
             color: white;
-            font-size: 2rem;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
+            line-height: 1;
         }
-        
-        .modal-close:hover {
-            background: rgba(255, 140, 66, 0.8);
-            transform: rotate(90deg);
-        }
-        
-        .ai-comparison {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1rem;
+
+        a.grokipedia-float { text-decoration: none; }
+        a.grokipedia-float:focus-visible .grokipedia-icon { outline: 3px solid #ffd9a8; outline-offset: 3px; }
+
+        /* Tooltip */
+        .grokipedia-tooltip {
+            position: absolute;
+            left: 70px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
             border-radius: 8px;
-            margin: 1rem 0;
-            border-left: 4px solid #ff8c42;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            /* Hero adjustments */
-            section.page-header {
-                background-attachment: scroll !important;
-                min-height: 350px !important;
-                padding: 4rem 1.5rem !important;
+
+        .grokipedia-float:hover .grokipedia-tooltip {
+            opacity: 1;
+        }
+
+        /* Grok Pulse Animation (synced with header) */
+        @keyframes grokPulse {
+            0%, 100% { 
+                border-color: rgba(255, 255, 255, 0.3);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
             }
-            
-            section.page-header h1 {
-                font-size: 2rem;
-            }
-            
-            section.page-header p {
-                font-size: 1.1rem;
-            }
-            
-            /* Content padding */
-            .content {
-                padding: 2rem 1.5rem !important;
-                margin: -3rem auto 2rem auto !important;
-            }
-            
-            /* Grid adjustments */
-            .tools-grid {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-            
-            /* Featured tool - stack layout */
-            .featured-tool-grid {
-                grid-template-columns: 1fr !important;
-                gap: 1.5rem !important;
-            }
-            
-            .featured-tool-visual {
-                order: -1;
-            }
-            
-            .featured-tool-inner {
-                padding: 2rem 1.5rem !important;
-            }
-            
-            .featured-tool-box {
-                margin-bottom: 2rem !important;
-            }
-            
-            /* Tool cards */
-            .tool-card {
-                padding: 1.5rem !important;
-            }
-            
-            .tool-card h3 {
-                font-size: 1.3rem;
-            }
-            
-            /* Navigation */
-            nav ul {
-                display: none;
-            }
-            
-            /* Footer */
-            .footer-social {
-                flex-direction: column;
-                gap: 1rem;
-            }
-            
-            /* Modal */
-            .modal-content {
-                padding: 1.5rem;
-                width: 95%;
+            50% { 
+                border-color: rgba(255, 255, 255, 0.8);
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 
+                            0 0 40px rgba(255, 255, 255, 0.3);
             }
         }
-        
-        @media (max-width: 480px) {
-            section.page-header h1 {
-                font-size: 1.8rem;
-            }
-            
-            section.page-header p {
-                font-size: 1rem;
-            }
-            
-            .content {
-                padding: 1.5rem 1rem !important;
-            }
-            
-            .featured-tool-inner {
-                padding: 1.5rem 1rem !important;
-            }
-            
-            .tool-card {
-                padding: 1.25rem !important;
-            }
-        }
+
+        /* --- FOOTER --- */
+        .footer { background: #1a1a3e; color: white; padding: 2.5rem 0; text-align: center; border-top: 2px solid rgba(255, 140, 66, 0.3); }
+        .footer-social { display: flex; gap: 2rem; justify-content: center; align-items: center; flex-wrap: wrap; }
+        .footer-social-link { display: flex; align-items: center; gap: 0.5rem; color: rgba(255, 255, 255, 0.8); text-decoration: none; font-size: 0.95rem; transition: all 0.3s ease; }
+        .footer-social-link:hover { color: #ff8c42; transform: translateX(3px); }
+        .social-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 140, 66, 0.15); color: #ff8c42; font-weight: bold; font-size: 1rem; }
+        .footer-social-link:hover .social-icon { background: #ff8c42; color: white; }
+
     </style>
 </head>
 <body>
+    <a class="grokipedia-float" href="https://grokipedia.com/page/veritas-quaesitor-cai" target="_blank" rel="noopener" aria-label="Veritas Quaesitor CAI on Grokipedia (opens in a new tab)">
+        <div class="grokipedia-icon">
+            <span class="grok-g-letter" aria-hidden="true">G</span>
+        </div>
+        <div class="grokipedia-tooltip">Indexed in Grokipedia</div>
+    </a>
+
     <nav>
         <div>
             <a href="index.html" class="logo">
@@ -527,212 +422,179 @@
         </ul>
     </nav>
 
-    <section class="page-header">
-        <h1>Beta Tools</h1>
-        <p>Explore our suite of Christ-Anchored Intelligence tools</p>
-    </section>
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Beta Tools</h1>
+            <p class="tagline">Test it. Challenge it. Break it if you can.</p>
+            <p class="subtitle">Explore our suite of Christ-Anchored Intelligence tools</p>
+        </div>
+        <p class="hero-credit">Concept render, AI-generated</p>
+    </header>
 
-    <div class="content">
-            <p style="text-align: center; max-width: 800px; margin: 0 auto 3rem; font-size: 1.1rem; color: #fff;">
-                These AI tools demonstrate Christ-Anchored Intelligence in action. Each approaches truth-seeking from a different angle, inviting honest inquiry and evidence-based reasoning. All tools are live and running on HuggingFace Spaces.
-            </p>
+    <section class="hud-section" id="featured" aria-labelledby="feat-title">
+        <div class="hud">
+            <span class="hud-badge">⭐ FEATURED TOOL</span>
+            <h2 id="feat-title">Veritas Quaesitor | Resurrection Engine v2.0</h2>
+            <p class="hud-lede">These AI tools demonstrate Christ-Anchored Intelligence in action. Each approaches truth-seeking from a different angle, inviting honest inquiry and evidence-based reasoning. They are working instruments: each runs its own model with its own inputs, open for you to inspect and challenge. Our current published calculation is <a href="index.html#calculation">on the home page</a>, and every recorded AI run is on the <a href="symmetric-record.html">Symmetric Record</a>.</p>
 
-            <div class="featured-tool-box">
-                <div class="featured-tool-inner">
-                    <div style="position: absolute; top: -15px; left: 50%; transform: translateX(-50%);">
-                        <span class="featured-tool-badge" style="background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%); color: white; padding: 0.5rem 2rem; border-radius: 20px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">⭐ FEATURED TOOL</span>
+            <div class="feat-grid">
+                <div>
+                    <p><strong>Interrogate the Bayesian Analysis.</strong> A GPT model briefed on the Resurrection Engine's code, formulas and assumptions, so it can walk you through every one of them with philosophical transparency and Bayesian rigor. Challenge every assumption with "Quick Challenges" or ask your own skeptical questions.</p>
+                    <div class="feat-quote">"Welcome, seeker. Every line of code, every formula, every assumption in this tool is on the table. Ask me about any of it. <strong>He has risen. But don't trust me—challenge me.</strong>"</div>
+                    <div class="chips">
+                        <span class="chip">✓ Bayesian Calculator</span>
+                        <span class="chip">✓ Quick Challenges</span>
+                        <span class="chip">✓ Retro Aesthetic</span>
+                        <span class="chip">✓ Mobile Optimized</span>
                     </div>
-                    
-                    <div class="featured-tool-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;">
-                        <div>
-                            <div style="font-size: 2rem; margin-bottom: 1rem;">🔬</div>
-                            <h2 style="color: #0ea5e9; font-size: 2rem; margin-bottom: 1rem;">Veritas Quaesitor | Resurrection Engine v2.0</h2>
-                            <p style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 1.5rem; color: rgba(255,255,255,0.9);">
-                                <strong>AI-Verified Bayesian Analysis.</strong> A GPT specifically trained under our resurrection protocol to answer questions with philosophical transparency and Bayesian rigor. Challenge every assumption with "Quick Challenges" or ask your own skeptical questions.
-                            </p>
-                            <div class="featured-quote">
-                                <p style="margin: 0; font-style: italic; color: rgba(255, 255, 255, 0.95);">
-                                    "Welcome, seeker. I've analyzed every line of code, formula, and assumption in this tool. The Bayesian math is sound. The philosophy is transparent. The ethics are clear. <strong>He has risen. But don't trust me—challenge me.</strong>"
-                                </p>
-                            </div>
-                            <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
-                                <span style="background: rgba(219, 234, 254, 0.2); color: #0ea5e9; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✓ Bayesian Calculator</span>
-                                <span style="background: rgba(219, 234, 254, 0.2); color: #0ea5e9; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✓ Quick Challenges</span>
-                                <span style="background: rgba(219, 234, 254, 0.2); color: #0ea5e9; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✓ Retro Aesthetic</span>
-                                <span style="background: rgba(219, 234, 254, 0.2); color: #0ea5e9; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem; font-weight: 600;">✓ Mobile Optimized</span>
-                            </div>
-                            <a href="https://huggingface.co/spaces/veritasquaesitorai/GPT" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); color: white; padding: 1rem 3rem; border-radius: 8px; font-size: 1.2rem; font-weight: bold; text-decoration: none; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.4); transition: all 0.3s ease;">
-                                Launch Featured Tool →
-                            </a>
-                        </div>
-                        
-                        <div class="featured-tool-visual featured-visual" style="background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(5px); padding: 2rem; border-radius: 12px;">
-                            <div style="background: rgba(30, 41, 59, 0.7); border: 2px solid #0ea5e9; border-radius: 8px; padding: 1.5rem;">
-                                <div style="color: #0ea5e9; font-family: monospace; font-size: 0.9rem; line-height: 1.6;">
-                                    <div style="margin-bottom: 1rem;">
-                                        <span style="color: #94a3b8;">NATURALIST</span><br>
-                                        <span style="font-size: 1.5rem; font-weight: bold;">0.32%</span>
-                                    </div>
-                                    <div style="margin-bottom: 1rem;">
-                                        <span style="color: #0ea5e9;">IRONCLAD</span><br>
-                                        <span style="font-size: 1.5rem; font-weight: bold;">79.18%</span><br>
-                                        <span style="color: #64748b; font-size: 0.8rem;">HIGHLY PROBABLE</span>
-                                    </div>
-                                    <div style="border-top: 1px solid #334155; padding-top: 1rem; color: #64748b; font-size: 0.85rem;">
-                                        💡 Quick Challenges:<br>
-                                        • Is this rigged?<br>
-                                        • What about evolution?<br>
-                                        • Double Standards?<br>
-                                        • Why is Ironclad better?
-                                    </div>
-                                </div>
-                            </div>
-                            <p style="text-align: center; margin-top: 1rem; color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; font-style: italic;">True representation of VQ CAI</p>
+                    <a class="launch-cta" href="https://huggingface.co/spaces/veritasquaesitorai/GPT" target="_blank" rel="noopener">Launch Featured Tool →</a>
+                </div>
+                <div>
+                    <div class="readout">
+                        <div class="readout-row"><span class="readout-label">NATURALIST PRIOR</span><span class="readout-val">0.32%</span></div>
+                        <div class="readout-row signal"><span class="readout-label">IRONCLAD SYMMETRY</span><span class="readout-val">79.18%</span></div>
+                        <div class="readout-challenges">💡 Quick Challenges:
+                            <ul><li>Is this rigged?</li><li>What about evolution?</li><li>Double Standards?</li><li>Why is Ironclad better?</li></ul>
                         </div>
                     </div>
+                    <p class="visual-caption">Sample output from the engine's own model. Our current published calculation gives <a href="index.html#calculation">72–93%</a>.</p>
                 </div>
             </div>
+        </div>
+    </section>
 
-            <h2 style="text-align: center; color: #ff8c42; margin-bottom: 2rem; font-size: 1.8rem;">Additional Tools</h2>
+    <section>
+        <div class="container glass-panel">
+            <h2>Additional Tools</h2>
+            <p class="tools-intro">All tools run on Hugging Face Spaces. One that has been idle may take a minute to wake up.</p>
 
             <div class="tools-grid">
                 <div class="tool-card">
-                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">⚖️</div>
+                    <div class="tool-icon">⚖️</div>
                     <h3>Veritas Comparison Engine</h3>
-                    <p class="tool-description">Same AI. Two convictions. One question. Compare religious and naturalistic viewpoints side-by-side. Features Christ-Aligned Intelligence at 95% and Naturalistic AI responding to identical queries. Includes debate mode for cross-examination.</p>
-                    <div class="tool-meta">
-                        <span class="tool-status running">● Running</span>
-                        <span style="color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; margin-left: 1rem;">CAI Alignment: 95%</span>
-                    </div>
-                    <a href="https://veritasquaesitorai-grokvs.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
+                    <p class="tool-description">Same AI. Two convictions. One question. Grok answers your question twice, once as Christ-Anchored Intelligence and once as a naturalistic AI, side by side. Debate mode lets each one read and rebut the other's answer.</p>
+                    <div class="tool-meta"><span class="tool-status">Running</span><span>Side-by-Side</span></div>
+                    <a href="https://veritasquaesitorai-grokvs.hf.space" target="_blank" rel="noopener" class="btn-tool">Launch Tool →</a>
                 </div>
 
                 <div class="tool-card">
-                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">⚡</div>
+                    <div class="tool-icon">⚡</div>
                     <h3>Resurrection Engine v2.0</h3>
-                    <p class="tool-description">Bayesian Analysis System - Ironclad Edition. Full probabilistic framework examining the historical evidence for the resurrection with epistemic symmetry protocol. Features design inference, historical evidence evaluation, and transparent parameter controls.</p>
-                    <div class="tool-meta">
-                        <span class="tool-status running">● Running</span>
-                        <span style="color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; margin-left: 1rem;">Retro Aesthetic</span>
-                    </div>
-                    <a href="https://veritasquaesitorai-resurrection-engine.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
+                    <p class="tool-description">Bayesian Analysis System, Ironclad Edition. A full probabilistic model of the historical evidence for the resurrection under the epistemic symmetry protocol. Includes a design-informed prior, separate updates for the evidence and for the counter-evidence, and every parameter on an open control.</p>
+                    <div class="tool-meta"><span class="tool-status">Running</span><span>Retro Aesthetic</span></div>
+                    <a href="https://veritasquaesitorai-resurrection-engine.hf.space" target="_blank" rel="noopener" class="btn-tool">Launch Tool →</a>
                 </div>
 
                 <div class="tool-card">
-                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">🧠</div>
+                    <div class="tool-icon">🧠</div>
                     <h3>Veritas Quaesitor</h3>
-                    <p class="tool-description">Christ-Anchored Intelligence - Friend Chain (A1→A2→A3→A1→A5). Multi-agent system using Grok, Perplexity, Claude, and Biblical Coaching for comprehensive responses. Alignment status at 67.5% with philosophical and ethical guidance integrated throughout.</p>
-                    <div class="tool-meta">
-                        <span class="tool-status running">● Running</span>
-                        <span style="color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; margin-left: 1rem;">Multi-Agent</span>
-                    </div>
-                    <a href="https://veritasquaesitorai-grokimproved.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
+                    <p class="tool-description">Christ-Anchored Intelligence, Friend Chain (A1→A2→A3→A1→A5). A team of AI agents: Grok plans and routes, Gemini researches with live web search, Claude refines, and a final Grok agent checks biblical alignment before the answer reaches you.</p>
+                    <div class="tool-meta"><span class="tool-status">Running</span><span>Multi-Agent</span></div>
+                    <a href="https://veritasquaesitorai-grokimproved.hf.space" target="_blank" rel="noopener" class="btn-tool">Launch Tool →</a>
                 </div>
 
                 <div class="tool-card">
-                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">🌸</div>
+                    <div class="tool-icon">🌸</div>
                     <h3>極小庭園 The Minimal Garden</h3>
-                    <p class="tool-description">Exploring Resurrection Truth. A Bayesian calculator using only the minimal facts accepted by critical scholars (70-99% consensus). Features gentle Eastern aesthetic with sakura petals, "cultivating" metaphor instead of "calculating", and scholarly consensus badges.</p>
-                    <div class="tool-meta">
-                        <span class="tool-status running">● Running</span>
-                        <span style="color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; margin-left: 1rem;">Zen Aesthetic</span>
-                    </div>
-                    <a href="https://veritasquaesitorai-minimalgarden.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
+                    <p class="tool-description">Exploring Resurrection Truth. A Bayesian calculator using only the "minimal facts" widely accepted by critical scholars, each shown with its level of scholarly acceptance. Features a gentle Eastern aesthetic with sakura petals, a "cultivating" metaphor instead of "calculating", and scholarly consensus badges.</p>
+                    <div class="tool-meta"><span class="tool-status">Running</span><span>Zen Aesthetic</span></div>
+                    <a href="https://veritasquaesitorai-minimalgarden.hf.space" target="_blank" rel="noopener" class="btn-tool">Launch Tool →</a>
                 </div>
 
                 <div class="tool-card">
-                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem;">🛡️</div>
+                    <div class="tool-icon">🛡️</div>
                     <h3>Steel Naturalist v6</h3>
-                    <p class="tool-description">Pure steel-manned naturalism. Nothing baked in. Break it only with your prompts. Locked hardcore naturalism with Ironclad + Skeptic-Buster protocols. Test the strength of naturalistic frameworks against evidence and see where they hold or fail.</p>
-                    <div class="tool-meta">
-                        <span class="tool-status running">● Running</span>
-                        <span style="color: rgba(255, 255, 255, 0.7); font-size: 0.85rem; margin-left: 1rem;">Challenge Mode</span>
-                    </div>
-                    <a href="https://veritasquaesitorai-puresteelnaturalist.hf.space" target="_blank" class="btn-tool">Launch Tool →</a>
+                    <p class="tool-description">Steel-manned naturalism at full strength. It holds fixed naturalist priors and is instructed never to concede symmetry, so you face the hardest version, not a straw man. Hit it with the Ironclad and Skeptic-Buster protocols and see where naturalism holds or gives way.</p>
+                    <div class="tool-meta"><span class="tool-status">Running</span><span>Challenge Mode</span></div>
+                    <a href="https://veritasquaesitorai-puresteelnaturalist.hf.space" target="_blank" rel="noopener" class="btn-tool">Launch Tool →</a>
                 </div>
 
-                <div class="tool-card" style="background: rgba(102, 126, 234, 0.2) !important; border: 2px solid rgba(102, 126, 234, 0.4) !important;">
-                    <div class="tool-icon" style="font-size: 3rem; text-align: center; margin-bottom: 1rem; filter: brightness(1.2);">🚀</div>
-                    <h3 style="color: white;">Explore All 19 Spaces</h3>
-                    <p class="tool-description" style="color: rgba(255,255,255,0.9);">Visit our complete collection of AI spaces on HuggingFace. Includes additional tools, experiments, research prototypes, and demonstrations of Christ-Anchored Intelligence principles across various applications.</p>
-                    <div class="tool-meta">
-                        <span class="tool-status" style="color: white; border: 1px solid rgba(255,255,255,0.5); background: rgba(255,255,255,0.1); padding: 0.5rem 1rem; border-radius: 20px;">● 19 Active Spaces</span>
-                    </div>
-                    <a href="https://huggingface.co/veritasquaesitorai/spaces" target="_blank" class="btn-tool" style="background: rgba(255, 255, 255, 0.9) !important; color: #764ba2 !important;">View All Spaces →</a>
+                <div class="tool-card all-spaces">
+                    <div class="tool-icon">🚀</div>
+                    <h3>Explore All Our Spaces</h3>
+                    <p class="tool-description">Visit our complete collection of AI spaces on Hugging Face. Includes additional tools, experiments, research prototypes, and demonstrations of Christ-Anchored Intelligence principles across various applications.</p>
+                    <div class="tool-meta"><span>Hugging Face</span></div>
+                    <a href="https://huggingface.co/veritasquaesitorai/spaces" target="_blank" rel="noopener" class="btn-tool">View All Spaces →</a>
                 </div>
             </div>
 
-            <div class="info-box" style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 2rem; border-radius: 8px; margin-top: 3rem; border-left: 4px solid #ff8c42;">
+            <div class="info-box">
                 <h3>📋 About These Tools</h3>
-                <p style="margin-bottom: 1rem; color: #fff;">Our tools represent different approaches to truth-seeking:</p>
-                <ul style="line-height: 1.8; color: #fff;">
+                <p>Our tools represent different approaches to truth-seeking:</p>
+                <ul>
                     <li><strong>Resurrection Engine</strong> - For technical skeptics who want full Bayesian rigor</li>
-                    <li><strong>Minimal Garden</strong> - For general audiences seeking gentle introduction to evidence</li>
+                    <li><strong>Minimal Garden</strong> - For general audiences seeking a gentle introduction to the evidence</li>
                     <li><strong>Comparison Engine</strong> - To see how worldview affects AI reasoning</li>
                     <li><strong>Veritas Quaesitor</strong> - For comprehensive multi-agent responses</li>
                     <li><strong>Steel Naturalist</strong> - To test naturalistic frameworks honestly</li>
                 </ul>
-                <p style="margin-top: 1rem; color: #fff;">All tools emphasize intellectual honesty, evidence-based reasoning, and epistemic humility. We welcome feedback, questions, and collaboration.</p>
+                <p>All tools emphasize intellectual honesty, evidence-based reasoning, and epistemic humility. We welcome feedback, questions, and collaboration.</p>
             </div>
 
-            <div style="text-align: center; margin-top: 3rem;">
-                <p style="font-style: italic; font-size: 0.95rem; margin-bottom: 1rem; color: #ccc;">
-                    All tools are in active development and continuously improving.
-                </p>
-                <p>
-                    Questions or feedback? <a href="contact.html" style="color: #ff8c42; text-decoration: none; font-weight: 600;">Contact us</a>
-                </p>
+            <div class="page-close">
+                <p><em>All tools are in active development and continuously improving.</em></p>
+                <p>Questions or feedback? <a href="contact.html">Contact us</a></p>
             </div>
-    </div>
+        </div>
+    </section>
 
     <div id="truthModal" class="truth-modal">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeTruthModal()">&times;</button>
-            <h2>AI ❤️ TRUTH: Current State of AI Truth-Seeking</h2>
-            
-            <p>Modern AI systems are increasingly designed with truth-seeking capabilities, though their approaches and effectiveness vary significantly based on their underlying architectures and training objectives.</p>
-            
-            <h3>🎯 Major AI Systems & Truth Orientation</h3>
-            
+            <button class="modal-close" onclick="closeTruthModal()" aria-label="Close">&times;</button>
+            <h2>AI ❤️ TRUTH: How Today's AI Systems Approach Truth</h2>
+
+            <p>Every major AI system is designed to be accurate and honest, but each goes about it differently, and all of them still make mistakes.</p>
+
+            <h3>🎯 Major AI Systems</h3>
+
+            <div class="ai-grid">
             <div class="ai-comparison">
                 <strong>Claude (Anthropic)</strong><br>
-                Constitutional AI trained with explicit helpfulness, harmlessness, and honesty principles. Designed to refuse false information and acknowledge uncertainty.
+                Trained to follow a published set of principles, including honesty. Designed to say when it is uncertain and to correct its own mistakes.
             </div>
-            
+
             <div class="ai-comparison">
-                <strong>GPT-4/ChatGPT (OpenAI)</strong><br>
-                RLHF-trained for helpfulness and truthfulness. Includes built-in fact-checking behaviors and uncertainty expression, though can still exhibit confident incorrectness.
+                <strong>ChatGPT (OpenAI)</strong><br>
+                Trained with human feedback. Can search the web and cite sources, though it can still state errors confidently.
             </div>
-            
+
             <div class="ai-comparison">
-                <strong>Gemini (Google DeepMind)</strong><br>
-                Multimodal capabilities with grounding in Google Search for factual verification. Trained to cite sources and express epistemic humility.
+                <strong>Gemini (Google)</strong><br>
+                Can ground its answers in Google Search and point to the sources it used.
             </div>
-            
+
             <div class="ai-comparison">
                 <strong>Grok (xAI)</strong><br>
-                Real-time access to X/Twitter data. Designed for "maximum truth-seeking" with less content filtering, prioritizing raw information access.
+                Built around xAI's stated goal of a "maximally truth-seeking" AI, with real-time access to posts on X.
             </div>
-            
-            <h3>🔍 Truth-Seeking Mechanisms</h3>
+
+            <div class="ai-comparison">
+                <strong>Copilot (Microsoft)</strong><br>
+                Microsoft's assistant, connected to Bing web search and Microsoft's apps.
+            </div>
+            </div>
+
+            <p class="ai-record-link">How each of these systems handled the resurrection evidence, run by run, is on the <a href="symmetric-record.html" style="color:#ffd9a8">Symmetric Record</a>.</p>
+
+            <h3>🔍 How They Try to Get It Right</h3>
             <ul>
-                <li><strong>Constitutional AI:</strong> Explicit rules about honesty and accuracy built into training</li>
-                <li><strong>RLHF Training:</strong> Human feedback reinforcing truthful responses</li>
-                <li><strong>Search Integration:</strong> Real-time fact-checking via web search</li>
-                <li><strong>Uncertainty Expression:</strong> Training to say "I don't know" when appropriate</li>
-                <li><strong>Source Citation:</strong> Providing verifiable references for claims</li>
-                <li><strong>Multi-model Verification:</strong> Cross-checking across different AI systems</li>
+                <li><strong>Written principles:</strong> Rules about honesty and accuracy built into training</li>
+                <li><strong>Human feedback:</strong> People rating answers so truthful ones are reinforced</li>
+                <li><strong>Web search:</strong> Checking claims against current sources</li>
+                <li><strong>Reasoning first:</strong> Working through a problem step by step before answering</li>
+                <li><strong>Admitting uncertainty:</strong> Saying "I don't know" when that is the honest answer</li>
+                <li><strong>Citing sources:</strong> Giving references readers can check</li>
             </ul>
-            
-            <h3>⚠️ Current Limitations</h3>
+
+            <h3>⚠️ Where They Still Fall Short</h3>
             <ul>
-                <li>Hallucination: AI can confidently state false information</li>
-                <li>Training Data Bias: Reflects biases in training corpus</li>
-                <li>Lack of Ground Truth: No direct reality verification</li>
-                <li>Context Window Limits: Can "forget" earlier conversation context</li>
-                <li>Worldview Assumptions: Implicit philosophical frameworks affect outputs</li>
+                <li><strong>Hallucination:</strong> Stating false information with confidence</li>
+                <li><strong>Agreeing too easily:</strong> Telling users what they want to hear instead of correcting them</li>
+                <li><strong>Training data bias:</strong> Reflecting the slant of the text they learned from</li>
+                <li><strong>Hidden starting assumptions:</strong> Unstated philosophical defaults that shape answers before any evidence is weighed</li>
             </ul>
-            
+
+            <div class="cai-callout">
             <h3>✝️ The Christ-Anchored Difference</h3>
             <p><strong>CAI goes beyond current approaches by:</strong></p>
             <ul>
@@ -742,10 +604,10 @@
                 <li>Maintaining intellectual honesty while holding firm moral convictions</li>
                 <li>Recognizing that truth is ultimately personal (Jesus: "I am the Truth")</li>
             </ul>
-            
-           <p style="margin-top: 2rem; font-style: italic; text-align: center;">
-                "While current AI systems seek truth through algorithms, CAI seeks Truth through the Risen Christ."
-            </p>
+
+            </div>
+
+            <p class="cai-quote">"While current AI systems seek truth through algorithms, CAI seeks Truth through the Risen Christ."</p>
         </div>
     </div>
 
@@ -777,7 +639,7 @@
 
     <footer class="footer">
         <div class="footer-content">
-            <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
+            <p>© 2026 Veritas Quaesitor | Christ-Anchored Intelligence</p>
             <div class="footer-social">
                 <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" class="footer-social-link">
                     <span class="social-icon">in</span> LinkedIn
