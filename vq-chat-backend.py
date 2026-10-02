@@ -1668,9 +1668,10 @@ PRESENT_NOTE = """
 
 PRESENTATION LAYOUTS: When content is clearer as a layout than as paragraphs, add ONE block in your answer like this:
 ```vq-present
-{"type": "cards", "title": "...", "items": [{"title": "...", "subtitle": "...", "text": "...", "image": "https://...", "url": "https://...", "tag": "..."}]}
+{"type": "cards", "title": "...", "items": [{"title": "...", "subtitle": "...", "text": "...", "more": "...", "image": "https://...", "url": "https://...", "tag": "..."}]}
 ```
-Types: "cards" (places, products, people, options; 2-6 items), "compare" ({"columns": ["A","B"], "rows": [{"label": "...", "values": ["...","..."]}]}),
+Types: "cards" (places, products, people, options; 2-6 items; "text" is one short line, "more" is 2-4 sentences of
+useful detail shown when the user taps the card open), "compare" ({"columns": ["A","B"], "rows": [{"label": "...", "values": ["...","..."]}]}),
 "timeline" ({"events": [{"date": "...", "title": "...", "text": "..."}]}), "steps" ({"steps": [{"title": "...", "text": "..."}]}),
 "facts" ({"facts": [{"label": "...", "value": "..."}]}).
 Rules: always open the block with three backticks and vq-present, and close it with three backticks; valid JSON only; keep texts short; only use image and url values that came from search results or a page you read
