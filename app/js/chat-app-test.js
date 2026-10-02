@@ -1515,7 +1515,7 @@
 
     const UI_KEY = 'vq-ui-prefs';
     const UI_DEFAULTS = { scale: 1, line: 1.6, accent: 'orange', contrast: 'normal', font: 'default', motion: 'normal', width: 'normal', focus: false,
-                          panelView: 'details', panelWidth: 'standard', panelDetail: 'technical', title: 'inscription', bubbles: false, theme: 'vq' };
+                          panelView: 'details', panelWidth: 'standard', panelDetail: 'technical', title: 'inscription', bubbles: false, theme: 'vq', glow: true };
     const SIZE_SCALES = { compact: 0.9, comfortable: 1, large: 1.15, extra_large: 1.3 };
     const ACCENTS = {
         orange: ['#ff8c42', '#ffb27a'], gold: ['#e8b04a', '#ffd98a'], teal: ['#2fb5a3', '#7fe0d2'], rose: ['#e2627e', '#f5a3b5'],
@@ -1621,6 +1621,7 @@
         else root.removeProperty('--insight-width');
         b.toggle('panel-plain', uiPrefs.panelDetail === 'plain');
         b.toggle('ui-bubbles', !!uiPrefs.bubbles);
+        b.toggle('no-glow', uiPrefs.glow === false);
         applyTheme(THEMES.hasOwnProperty(uiPrefs.theme) ? uiPrefs.theme : 'vq');
         const tv = TITLE_STYLES[uiPrefs.title] || 1;
         [1, 2, 3].forEach(n => b.toggle(`title-v${n}`, n === tv));
@@ -1667,6 +1668,7 @@
                 if (TITLE_STYLES[st.title]) uiPrefs.title = st.title;
                 if (st.bubbles === 'on' || st.bubbles === 'off') uiPrefs.bubbles = st.bubbles === 'on';
                 if (THEMES.hasOwnProperty(st.theme)) uiPrefs.theme = st.theme;
+                if (st.glow === 'on' || st.glow === 'off') uiPrefs.glow = st.glow === 'on';
                 break;
             }
             case 'panel':
@@ -2954,6 +2956,7 @@
                     if (st.accent) { used.add('accent'); lines.push(`Accent colour set to **${cap(st.accent)}**. Other colours: ${others(CHOICES.accent, st.accent)}.`); }
                     if (st.title) { used.add('title'); lines.push(`Title style set to **${cap(st.title)}**. The others are ${others(CHOICES.title, st.title).replace(/, ([^,]*)$/, ' and $1')}.`); }
                     if (st.bubbles) { used.add('bubbles'); lines.push(st.bubbles === 'on' ? 'Answers now show **in chat bubbles**. Say “bubbles off” for the open page layout.' : 'Answers now use the **open page layout**. Say “bubbles on” to bring the bubbles back.'); }
+                    if (st.glow) lines.push(st.glow === 'on' ? 'Icon glow is **on**. Each theme glows in its own colour.' : 'Icon glow is **off**: clean, flat icons. Say “glow on” to bring it back.');
                     if (typeof st.text_scale === 'number') { used.add('size'); lines.push(`Text size set to **${Math.round(st.text_scale * 100)}%**.`); }
                     if (typeof st.line_spacing === 'number') lines.push(`Line spacing set to **${st.line_spacing}**.`);
                     if (st.contrast) lines.push(`Contrast set to **${st.contrast}**.`);
