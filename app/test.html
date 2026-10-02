@@ -552,6 +552,22 @@
         .page-card-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
         .page-card-open { margin-top: auto; font-size: 0.78rem; color: var(--ui-accent-2, #ffb27a); font-weight: 600; }
         @media (max-width: 520px) { .page-card { flex-direction: column; } .page-card img { width: 100%; height: 9rem; } .page-card-body { padding: 0.7rem 0.9rem; } }
+        /* ---- Icon glow: a soft light behind every icon, in each theme's own colour ("glow off" removes it) ---- */
+        :root { --ic-glow-color: rgba(var(--ui-accent-rgb), 0.55); }
+        body:not(.no-glow) svg.ic { filter: drop-shadow(0 0 3px var(--ic-glow-color)) drop-shadow(0 0 1px var(--ic-glow-color)); }
+        body:not(.no-glow) .suggestion-icon { box-shadow: 0 0 16px -2px var(--ic-glow-color), inset 0 0 10px -4px var(--ic-glow-color); }
+        body:not(.no-glow) .message-avatar, body:not(.no-glow) .app-avatar-small, body:not(.no-glow) .friend-avatar { box-shadow: 0 0 14px -2px var(--ic-glow-color); }
+        body:not(.no-glow) .welcome-avatar { box-shadow: 0 0 34px 2px var(--ic-glow-color); }
+        body:not(.no-glow) .chat-item-icon svg, body:not(.no-glow) span.icon svg { filter: drop-shadow(0 0 3px var(--ic-glow-color)); }
+        body.no-glow svg.ic { filter: none; }
+        body[data-theme="navy"]     { --ic-glow-color: rgba(140,150,255,0.6); }
+        body[data-theme="charcoal"] { --ic-glow-color: rgba(255,184,107,0.5); }
+        body[data-theme="midnight"] { --ic-glow-color: rgba(127,243,255,0.75); }
+        body[data-theme="ocean"]    { --ic-glow-color: rgba(94,234,212,0.6); }
+        body[data-theme="forest"]   { --ic-glow-color: rgba(163,230,53,0.5); }
+        body[data-theme="ember"]    { --ic-glow-color: rgba(255,120,50,0.65); }
+        body[data-theme="slate"]    { --ic-glow-color: rgba(147,197,253,0.5); }
+        body[data-theme="plum"]     { --ic-glow-color: rgba(240,171,252,0.6); }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -800,6 +816,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-02-cards2"></script>
+    <script src="js/chat-app-test.js?v=2026-10-02-glow"></script>
 </body>
 </html>
