@@ -504,12 +504,22 @@
 
         .pcard-sub { font-size: 0.86rem; font-weight: 600; color: var(--ui-accent-2, #ffb27a); opacity: 0.9; }
         .pcard-text { margin: 0.25rem 0 0; font-size: 0.95rem; color: var(--text-primary); opacity: 0.88; line-height: 1.55; }
-        .pcard-foot { margin-top: auto; padding-top: 0.6rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 0.82rem; font-weight: 600; }
-        .pcard-more { color: var(--text-tertiary); transition: color .2s; }
-        .pcard-visit { color: var(--ui-accent-2, #ffb27a); text-decoration: none; padding: 0.15rem 0.55rem; border-radius: 999px; border: 1px solid rgba(var(--ui-accent-rgb),0.45); }
-        .pcard-visit:hover { background: rgba(var(--ui-accent-rgb),0.15); }
+        .pcard-text { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .pcard.expanded .pcard-text { display: block; -webkit-line-clamp: unset; }
+        .pcard.expanded { grid-column: 1 / -1; border-color: rgba(var(--ui-accent-rgb),0.55); }
+        .pcard.expanded img { aspect-ratio: 21 / 9; }
+        .pcard-extra { display: none; }
+        .pcard.expanded .pcard-extra { display: block; animation: pcardOpen .25s ease; }
+        @keyframes pcardOpen { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+        .pcard-more-text { margin: 0.5rem 0 0; font-size: 0.95rem; line-height: 1.6; color: var(--text-primary); opacity: 0.9; }
+        .pcard-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+        .pcard-visit, .pcard-ask { font-size: 0.82rem; font-weight: 600; padding: 0.3rem 0.75rem; border-radius: 999px; cursor: pointer; text-decoration: none; }
+        .pcard-visit { color: #1a1030; background: var(--accent-gradient); border: 0; }
+        .pcard-ask { color: var(--text-primary); background: transparent; border: 1px solid var(--border-subtle); }
+        .pcard-ask:hover { border-color: rgba(var(--ui-accent-rgb),0.6); }
+        .pcard-toggle { margin-top: auto; padding-top: 0.55rem; font-size: 0.8rem; font-weight: 600; color: var(--text-tertiary); transition: color .2s; }
         .pcard.clickable { cursor: pointer; }
-        .pcard.clickable:hover .pcard-more, .pcard.clickable:focus-visible .pcard-more { color: var(--ui-accent-2, #ffb27a); }
+        .pcard.clickable:hover .pcard-toggle, .pcard.expanded .pcard-toggle { color: var(--ui-accent-2, #ffb27a); }
         .pcard.clickable:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
         .present-scroll { overflow-x: auto; border: 1px solid var(--border-subtle); border-radius: 12px; }
         .present-type-compare table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
@@ -790,6 +800,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-02-cards"></script>
+    <script src="js/chat-app-test.js?v=2026-10-02-cards2"></script>
 </body>
 </html>
