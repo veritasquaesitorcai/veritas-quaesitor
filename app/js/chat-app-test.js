@@ -544,13 +544,32 @@
                 }
                 const bodyEl = el('div', 'pcard-body');
                 if (it.tag) bodyEl.appendChild(el('span', 'pcard-tag', str(it.tag, 30)));
-                const url = safeHttps(it.url);
-                const t = url ? el('a', 'pcard-title', str(it.title, 100)) : el('div', 'pcard-title', str(it.title, 100));
-                if (url) { t.href = url; t.target = '_blank'; t.rel = 'noopener noreferrer'; }
-                bodyEl.appendChild(t);
+                const title = str(it.title, 100);
+                bodyEl.appendChild(el('div', 'pcard-title', title));
                 if (it.subtitle) bodyEl.appendChild(el('div', 'pcard-sub', str(it.subtitle, 120)));
                 if (it.text) bodyEl.appendChild(el('p', 'pcard-text', str(it.text, 400)));
+                // Footer: "Tell me more" (asks VQ) and, when there is a real link, "Visit ↗"
+                const foot = el('div', 'pcard-foot');
+                foot.appendChild(el('span', 'pcard-more', 'Tell me more →'));
+                const url = safeHttps(it.url);
+                if (url) {
+                    const a = el('a', 'pcard-visit', 'Visit ↗');
+                    a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+                    a.title = hostOf(url);
+                    a.addEventListener('click', (e) => e.stopPropagation());
+                    foot.appendChild(a);
+                }
+                bodyEl.appendChild(foot);
                 card.appendChild(bodyEl);
+                if (title) {
+                    card.classList.add('clickable');
+                    card.tabIndex = 0;
+                    card.setAttribute('role', 'button');
+                    card.setAttribute('aria-label', `Tell me more about ${title}`);
+                    const ask = () => askAbout(title, str(it.subtitle, 120));
+                    card.addEventListener('click', ask);
+                    card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ask(); } });
+                }
                 grid.appendChild(card);
             });
             wrap.appendChild(grid);
@@ -607,6 +626,14 @@
             return null;
         }
         return wrap.childElementCount > (d.title ? 1 : 0) ? wrap : null;
+    }
+
+    // Clicking a card asks VQ for more about it, like following a link in a browser
+    function askAbout(title, subtitle) {
+        if (isTyping) return;
+        elements.messageInput.value = `Tell me more about ${title}${subtitle ? ` (${subtitle})` : ''}.`;
+        elements.messageInput.dispatchEvent(new Event('input'));
+        sendMessage();
     }
 
     // The page VQ read: a card with the title, image and a link to the original
