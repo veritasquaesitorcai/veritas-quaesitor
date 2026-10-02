@@ -1,4 +1,4 @@
-import os 
+import os
 import sys
 import json
 import re
@@ -2370,6 +2370,7 @@ def chat():
                             else:
                                 text = "I couldn't make that change: " + bad[0].split("(", 1)[-1].split(")")[0] + "."
                             parts.append(text)
+                            trace['ui_only'] = True      # the app writes a fuller confirmation for settings-only turns
                             yield _sse({"meta": trace})
                             yield _sse({"delta": text})
                             break
