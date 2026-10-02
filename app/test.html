@@ -554,12 +554,12 @@
         @media (max-width: 520px) { .page-card { flex-direction: column; } .page-card img { width: 100%; height: 9rem; } .page-card-body { padding: 0.7rem 0.9rem; } }
         /* ---- Icon glow: a soft light behind every icon, in each theme's own colour ("glow off" removes it) ---- */
         :root { --ic-glow-color: rgba(var(--ui-accent-rgb), 0.55); }
-        body:not(.no-glow) svg.ic { filter: drop-shadow(0 0 3px var(--ic-glow-color)) drop-shadow(0 0 1px var(--ic-glow-color)); }
-        body:not(.no-glow) .suggestion-icon { box-shadow: 0 0 16px -2px var(--ic-glow-color), inset 0 0 10px -4px var(--ic-glow-color); }
-        body:not(.no-glow) .message-avatar, body:not(.no-glow) .app-avatar-small, body:not(.no-glow) .friend-avatar { box-shadow: 0 0 14px -2px var(--ic-glow-color); }
-        body:not(.no-glow) .welcome-avatar { box-shadow: 0 0 34px 2px var(--ic-glow-color); }
-        body:not(.no-glow) .chat-item-icon svg, body:not(.no-glow) span.icon svg { filter: drop-shadow(0 0 3px var(--ic-glow-color)); }
-        body.no-glow svg.ic { filter: none; }
+        /* The drawings stay crisp; the light sits around them */
+        svg.ic { filter: none !important; }
+        body:not(.no-glow) .suggestion-icon { box-shadow: 0 0 18px 1px var(--ic-glow-color); }
+        body:not(.no-glow) .message-avatar, body:not(.no-glow) .app-avatar-small, body:not(.no-glow) .friend-avatar { box-shadow: 0 0 16px 0 var(--ic-glow-color); }
+        body:not(.no-glow) .welcome-avatar { box-shadow: 0 0 40px 6px var(--ic-glow-color); }
+        body:not(.no-glow) span.icon, body:not(.no-glow) .chat-item-icon { border-radius: 50%; background: radial-gradient(circle, var(--ic-glow-color) 0%, transparent 68%); padding: 0.3rem; margin: -0.3rem; }
         body[data-theme="navy"]     { --ic-glow-color: rgba(140,150,255,0.6); }
         body[data-theme="charcoal"] { --ic-glow-color: rgba(255,184,107,0.5); }
         body[data-theme="midnight"] { --ic-glow-color: rgba(127,243,255,0.75); }
@@ -816,6 +816,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-02-glow"></script>
+    <script src="js/chat-app-test.js?v=2026-10-02-glow2"></script>
 </body>
 </html>
