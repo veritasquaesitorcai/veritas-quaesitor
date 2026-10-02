@@ -460,7 +460,36 @@
     }
 
     const PRESENT_RE = /```vq-present\s*([\s\S]*?)(```|$)/g;
-    function stripPresent(text) { return (text || '').replace(PRESENT_RE, '').trim(); }
+
+    // The model sometimes drops the ``` fences and writes just "vq-present" followed by the JSON.
+    // Find that JSON by matching its braces and put the fences back, so it still becomes a layout.
+    function normalizePresent(text) {
+        let out = '', i = 0;
+        const re = /(^|\n)[ \t]*(?:`{1,3})?vq-present[ \t]*\r?\n/g;
+        let m;
+        while ((m = re.exec(text))) {
+            const before = text.slice(0, m.index);
+            if (/```\s*$/.test(before.slice(-4))) continue;             // already fenced
+            const start = text.indexOf('{', m.index + m[0].length);
+            if (start < 0 || text.slice(m.index + m[0].length, start).trim()) continue;
+            let depth = 0, inStr = false, esc = false, end = -1;
+            for (let k = start; k < text.length; k++) {
+                const ch = text[k];
+                if (inStr) { if (esc) esc = false; else if (ch === '\\') esc = true; else if (ch === '"') inStr = false; continue; }
+                if (ch === '"') inStr = true;
+                else if (ch === '{') depth++;
+                else if (ch === '}') { depth--; if (depth === 0) { end = k; break; } }
+            }
+            out += text.slice(i, m.index) + (m[1] || '') + '```vq-present\n' + text.slice(start, end < 0 ? text.length : end + 1) + (end < 0 ? '' : '\n```');
+            i = end < 0 ? text.length : end + 1;
+            const after = text.slice(i);
+            const trailing = after.match(/^\s*`{1,3}/);              // a lone closing fence left behind
+            if (trailing) i += trailing[0].length;
+            re.lastIndex = i;
+        }
+        return out + text.slice(i);
+    }
+    function stripPresent(text) { return normalizePresent(text || '').replace(PRESENT_RE, '').trim(); }
 
     function fillRichText(contentDiv, text) {
         text.split(/(<img[^>]*>)/i).forEach(part => {
@@ -476,7 +505,7 @@
     function fillRich(contentDiv, content) {
         contentDiv.textContent = '';
         contentDiv.classList.add('rich');
-        const text = cleanReply(content);
+        const text = normalizePresent(cleanReply(content));
         let last = 0;
         text.replace(PRESENT_RE, (m, body, closed, idx) => {
             fillRichText(contentDiv, text.slice(last, idx));
