@@ -498,12 +498,19 @@
         .pcard { display: flex; flex-direction: column; border: 1px solid var(--border-subtle); border-radius: 14px; overflow: hidden; background: var(--message-bg, rgba(255,255,255,0.04)); transition: border-color .2s, transform .2s; }
         .pcard:hover { border-color: rgba(var(--ui-accent-rgb),0.5); transform: translateY(-1px); }
         .pcard img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; background: rgba(255,255,255,0.04); }
-        .pcard-body { padding: 0.7rem 0.85rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem; }
+        .pcard-body { padding: 0.85rem 1rem 0.8rem; display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
         .pcard-tag { align-self: flex-start; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ui-accent-2, #ffb27a); background: rgba(var(--ui-accent-rgb),0.14); padding: 0.1rem 0.45rem; border-radius: 999px; }
-        .pcard-title { font-weight: 700; font-size: 0.95rem; color: var(--text-primary); text-decoration: none; line-height: 1.3; }
-        a.pcard-title:hover { text-decoration: underline; }
-        .pcard-sub { font-size: 0.8rem; color: var(--text-tertiary); }
-        .pcard-text { margin: 0.2rem 0 0; font-size: 0.86rem; color: var(--text-secondary); line-height: 1.5; }
+        .pcard-title { font-weight: 700; font-size: 1.05rem; color: var(--text-primary); line-height: 1.3; }
+
+        .pcard-sub { font-size: 0.86rem; font-weight: 600; color: var(--ui-accent-2, #ffb27a); opacity: 0.9; }
+        .pcard-text { margin: 0.25rem 0 0; font-size: 0.95rem; color: var(--text-primary); opacity: 0.88; line-height: 1.55; }
+        .pcard-foot { margin-top: auto; padding-top: 0.6rem; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-size: 0.82rem; font-weight: 600; }
+        .pcard-more { color: var(--text-tertiary); transition: color .2s; }
+        .pcard-visit { color: var(--ui-accent-2, #ffb27a); text-decoration: none; padding: 0.15rem 0.55rem; border-radius: 999px; border: 1px solid rgba(var(--ui-accent-rgb),0.45); }
+        .pcard-visit:hover { background: rgba(var(--ui-accent-rgb),0.15); }
+        .pcard.clickable { cursor: pointer; }
+        .pcard.clickable:hover .pcard-more, .pcard.clickable:focus-visible .pcard-more { color: var(--ui-accent-2, #ffb27a); }
+        .pcard.clickable:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
         .present-scroll { overflow-x: auto; border: 1px solid var(--border-subtle); border-radius: 12px; }
         .present-type-compare table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
         .present-type-compare th, .present-type-compare td { padding: 0.6rem 0.8rem; text-align: left; border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
@@ -783,6 +790,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-02-browse2"></script>
+    <script src="js/chat-app-test.js?v=2026-10-02-cards"></script>
 </body>
 </html>
