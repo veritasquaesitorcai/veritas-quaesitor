@@ -1682,6 +1682,104 @@ Rules: always open the block with three backticks and vq-present, and close it w
 (never invent addresses; leave them out instead); write one or two sentences of normal prose before the block and don't repeat
 its content in prose. Use a layout only when it truly helps; most answers stay plain prose."""
 
+
+# ---------- Google public services: YouTube videos and Google Books (one key: GOOGLE_API_KEY) ----------
+GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "")
+google_available = bool(GOOGLE_API_KEY)
+print(f"{'✓' if google_available else '⚠'} Google (YouTube, Books) {'ready' if google_available else 'not configured'}", flush=True)
+
+VIDEO_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "youtube_search",
+        "description": "Find YouTube videos (talks, lectures, tutorials, music, documentaries). Use when the user wants videos or something to watch.",
+        "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "What to search for"}}, "required": ["query"]}
+    }
+}
+BOOK_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "book_search",
+        "description": "Find books (titles, authors, covers, descriptions) on Google Books. Use when the user wants books or reading suggestions, or asks about a specific book.",
+        "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "Topic, title or author"}}, "required": ["query"]}
+    }
+}
+MEDIA_TOOL_NAMES = ("youtube_search", "book_search")
+
+def _google_get(url: str):
+    import urllib.request
+    with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "VQChat/1.0"}), timeout=12) as r:
+        return json.loads(r.read().decode())
+
+def youtube_search(query: str) -> dict:
+    import html as _h, urllib.parse as _up
+    t0 = _time.time()
+    try:
+        d = _google_get("https://www.googleapis.com/youtube/v3/search?" + _up.urlencode({
+            "part": "snippet", "type": "video", "maxResults": 6, "safeSearch": "strict",
+            "relevanceLanguage": "en", "q": query[:200], "key": GOOGLE_API_KEY}))
+        vids = []
+        for it in d.get("items", []):
+            vid = (it.get("id") or {}).get("videoId"); sn = it.get("snippet") or {}
+            if not vid or not re.fullmatch(r"[A-Za-z0-9_-]{6,20}", vid):
+                continue
+            thumb = ((sn.get("thumbnails") or {}).get("high") or (sn.get("thumbnails") or {}).get("medium") or {}).get("url", "")
+            vids.append({"id": vid, "title": _h.unescape(sn.get("title", ""))[:160], "channel": _h.unescape(sn.get("channelTitle", ""))[:80],
+                         "published": (sn.get("publishedAt") or "")[:10], "description": _h.unescape(sn.get("description", ""))[:300],
+                         "thumbnail": thumb if thumb.startswith("https://") else f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg"})
+        return {"items": vids, "ms": int((_time.time() - t0) * 1000), "error": None}
+    except Exception as e:
+        print(f"[YOUTUBE] error: {e}", flush=True)
+        return {"items": [], "ms": int((_time.time() - t0) * 1000), "error": str(e)}
+
+def book_search(query: str) -> dict:
+    import urllib.parse as _up
+    t0 = _time.time()
+    try:
+        params = {"q": query[:200], "maxResults": 6, "printType": "books", "orderBy": "relevance"}
+        if GOOGLE_API_KEY:
+            params["key"] = GOOGLE_API_KEY
+        d = _google_get("https://www.googleapis.com/books/v1/volumes?" + _up.urlencode(params))
+        books = []
+        for it in d.get("items", []):
+            v = it.get("volumeInfo") or {}
+            cover = ((v.get("imageLinks") or {}).get("thumbnail") or "").replace("http://", "https://")
+            link = (v.get("infoLink") or "").replace("http://", "https://")
+            if not v.get("title"):
+                continue
+            books.append({"title": (v.get("title", "") + (f": {v['subtitle']}" if v.get("subtitle") else ""))[:180],
+                          "authors": ", ".join(v.get("authors") or [])[:120], "year": (v.get("publishedDate") or "")[:4],
+                          "description": re.sub(r"<[^>]+>", "", v.get("description") or "")[:700],
+                          "cover": cover if cover.startswith("https://") else "", "url": link if link.startswith("https://") else "",
+                          "pages": v.get("pageCount") or None})
+        return {"items": books, "ms": int((_time.time() - t0) * 1000), "error": None}
+    except Exception as e:
+        print(f"[BOOKS] error: {e}", flush=True)
+        return {"items": [], "ms": int((_time.time() - t0) * 1000), "error": str(e)}
+
+def run_media_tool(name: str, args: dict, trace: dict) -> str:
+    q = str((args or {}).get("query") or "").strip()[:200]
+    if name == "youtube_search":
+        res = youtube_search(q)
+        trace.setdefault('steps', []).append({'label': 'Searched YouTube', 'query': q, 'found': len(res['items']), 'ms': res['ms']})
+        if res['items']:
+            trace['videos'] = res['items']
+        lines = [f"[{i}] {v['title']}, by {v['channel']} ({v['published']}): {v['description'][:160]}" for i, v in enumerate(res['items'], 1)]
+        kind = "videos"
+    else:
+        res = book_search(q)
+        trace.setdefault('steps', []).append({'label': 'Searched Google Books', 'query': q, 'found': len(res['items']), 'ms': res['ms']})
+        if res['items']:
+            trace['books'] = res['items']
+        lines = [f"[{i}] {b['title']}, by {b['authors'] or 'unknown'} ({b['year']}): {b['description'][:200]}" for i, b in enumerate(res['items'], 1)]
+        kind = "books"
+    if not lines:
+        return f"No {kind} were found for '{q}'" + (f" ({res['error']})" if res['error'] else "") + ". Tell the user briefly."
+    return (f"{kind.upper()} FOUND FOR '{q}':\n" + "\n".join(lines) +
+            f"\n\nThese {kind} are shown to the user automatically as cards (with covers or thumbnails and links). "
+            "Don't list links or make a vq-present block for them; introduce them briefly, point out the most relevant ones "
+            "and why, and apply content discernment (recommend only what is good; describe the rest neutrally).")
+
 # ---------- Live data tools: weather and local time (VQ decides when to use them) ----------
 WEATHER_TOOL = {
     "type": "function",
@@ -2410,7 +2508,8 @@ def chat():
                     tools_disabled = False
                     while True:
                         kwargs = dict(model="openai/gpt-oss-120b", messages=msgs, temperature=0.7, max_tokens=1200, stream=True)
-                        _all = [] if tools_disabled else ([WEB_TOOL] if offer_tool else []) + ([WEATHER_TOOL, TIME_TOOL, PAGE_TOOL] if offer_live else [])
+                        _all = [] if tools_disabled else ([WEB_TOOL] if offer_tool else []) + ([WEATHER_TOOL, TIME_TOOL, PAGE_TOOL] if offer_live else []) \
+                               + ([VIDEO_TOOL] if offer_live and google_available else []) + ([BOOK_TOOL] if offer_live else [])
                         _tools = list(_all) if rounds < 2 else []
                         if offer_ui and rounds == 0 and not tools_disabled:
                             _tools.append(UI_TOOL)   # screen changes only before any web results are read
@@ -2479,6 +2578,11 @@ def chat():
                                 args = json.loads(c["args"] or "{}")
                             except Exception:
                                 args = {}
+                            if c["name"] in MEDIA_TOOL_NAMES:
+                                yield _sse({"status": "Searching YouTube" if c["name"] == "youtube_search" else "Searching Google Books",
+                                            "detail": str(args.get("query") or "")[:60]})
+                                msgs.append({"role": "tool", "tool_call_id": c["id"] or f"call_{i}", "content": run_media_tool(c["name"], args, trace)})
+                                continue
                             if c["name"] == "read_page":
                                 _u = str(args.get("url") or "")[:500]
                                 yield _sse({"status": "Reading the page", "detail": (_urlparse(_u).hostname or _u)[:60]})
@@ -2560,7 +2664,8 @@ def chat():
         msgs = list(groq_messages)
         for _round in range(3):
             kwargs = dict(model="openai/gpt-oss-120b", messages=msgs, temperature=0.7, max_tokens=1200)
-            _all = ([WEB_TOOL] if offer_tool else []) + ([WEATHER_TOOL, TIME_TOOL, PAGE_TOOL] if offer_live else [])
+            _all = ([WEB_TOOL] if offer_tool else []) + ([WEATHER_TOOL, TIME_TOOL, PAGE_TOOL] if offer_live else []) \
+                   + ([VIDEO_TOOL] if offer_live and google_available else []) + ([BOOK_TOOL] if offer_live else [])
             if _all and _round < 2:
                 kwargs.update(tools=_all, tool_choice="auto")
             elif _all:
@@ -2577,6 +2682,9 @@ def chat():
                     args = json.loads(tc.function.arguments or "{}")
                 except Exception:
                     args = {}
+                if tc.function.name in MEDIA_TOOL_NAMES:
+                    msgs.append({"role": "tool", "tool_call_id": tc.id, "content": run_media_tool(tc.function.name, args, trace)})
+                    continue
                 if tc.function.name == "read_page":
                     _p = read_page(str(args.get("url") or "")[:500])
                     record_page(trace, _p)
