@@ -454,14 +454,16 @@
     }
 
     // Code fences are stripped because the model sometimes wraps image tags in them
+    // Only unwrap old-style ```html fences; real code blocks and layout blocks stay intact
     function cleanReply(text) {
-        return (text || '').replace(/```(?:html)?\s*/g, '').replace(/```\s*/g, '');
+        return (text || '').replace(/```html\s*([\s\S]*?)```/gi, '$1');
     }
 
-    function fillRich(contentDiv, content) {
-        contentDiv.textContent = '';
-        contentDiv.classList.add('rich');
-        cleanReply(content).split(/(<img[^>]*>)/i).forEach(part => {
+    const PRESENT_RE = /```vq-present\s*([\s\S]*?)(```|$)/g;
+    function stripPresent(text) { return (text || '').replace(PRESENT_RE, '').trim(); }
+
+    function fillRichText(contentDiv, text) {
+        text.split(/(<img[^>]*>)/i).forEach(part => {
             if (/^<img/i.test(part)) {
                 const imgEl = safeImageFrom(part);
                 if (imgEl) contentDiv.appendChild(imgEl);
@@ -469,7 +471,135 @@
                 appendRichText(contentDiv, part);
             }
         });
+    }
+
+    function fillRich(contentDiv, content) {
+        contentDiv.textContent = '';
+        contentDiv.classList.add('rich');
+        const text = cleanReply(content);
+        let last = 0;
+        text.replace(PRESENT_RE, (m, body, closed, idx) => {
+            fillRichText(contentDiv, text.slice(last, idx));
+            if (!closed) {
+                contentDiv.appendChild(el('div', 'present-loading', 'Preparing a layout…'));
+            } else {
+                try { const node = renderPresent(JSON.parse(body.trim())); if (node) contentDiv.appendChild(node); }
+                catch (e) { /* malformed layout: leave it out rather than show raw data */ }
+            }
+            last = idx + m.length;
+            return m;
+        });
+        fillRichText(contentDiv, text.slice(last));
         enhanceTables(contentDiv);
+    }
+
+    // ---------- Presentation layouts (VQ supplies data; the app draws it) ----------
+    const safeHttps = (u) => { try { const x = new URL(u); return x.protocol === 'https:' ? x.href : null; } catch (e) { return null; } };
+    const str = (v, n) => (typeof v === 'string' || typeof v === 'number') ? String(v).slice(0, n) : '';
+
+    function renderPresent(d) {
+        if (!d || typeof d !== 'object') return null;
+        const wrap = el('div', `present present-type-${String(d.type).replace(/[^a-z]/g, '')}`);
+        if (d.title) wrap.appendChild(el('div', 'present-title', str(d.title, 120)));
+        if (d.type === 'cards' && Array.isArray(d.items)) {
+            const grid = el('div', 'present-cards');
+            d.items.slice(0, 8).forEach(it => {
+                if (!it) return;
+                const card = el('div', 'pcard');
+                const img = safeHttps(it.image);
+                if (img) {
+                    const im = document.createElement('img');
+                    im.src = img; im.alt = str(it.title, 120); im.loading = 'lazy'; im.referrerPolicy = 'no-referrer';
+                    im.onerror = () => im.remove();
+                    card.appendChild(im);
+                }
+                const bodyEl = el('div', 'pcard-body');
+                if (it.tag) bodyEl.appendChild(el('span', 'pcard-tag', str(it.tag, 30)));
+                const url = safeHttps(it.url);
+                const t = url ? el('a', 'pcard-title', str(it.title, 100)) : el('div', 'pcard-title', str(it.title, 100));
+                if (url) { t.href = url; t.target = '_blank'; t.rel = 'noopener noreferrer'; }
+                bodyEl.appendChild(t);
+                if (it.subtitle) bodyEl.appendChild(el('div', 'pcard-sub', str(it.subtitle, 120)));
+                if (it.text) bodyEl.appendChild(el('p', 'pcard-text', str(it.text, 400)));
+                card.appendChild(bodyEl);
+                grid.appendChild(card);
+            });
+            wrap.appendChild(grid);
+        } else if (d.type === 'compare' && Array.isArray(d.columns) && Array.isArray(d.rows)) {
+            const scroller = el('div', 'present-scroll');
+            const table = document.createElement('table');
+            const head = document.createElement('tr');
+            head.appendChild(document.createElement('th'));
+            d.columns.slice(0, 5).forEach(c => head.appendChild(el('th', null, str(c, 60))));
+            const thead = document.createElement('thead'); thead.appendChild(head); table.appendChild(thead);
+            const tb = document.createElement('tbody');
+            d.rows.slice(0, 14).forEach(r => {
+                if (!r) return;
+                const tr = document.createElement('tr');
+                tr.appendChild(el('th', null, str(r.label, 60)));
+                (r.values || []).slice(0, 5).forEach(v => tr.appendChild(el('td', null, str(v, 200))));
+                tb.appendChild(tr);
+            });
+            table.appendChild(tb);
+            scroller.appendChild(table);
+            wrap.appendChild(scroller);
+        } else if (d.type === 'timeline' && Array.isArray(d.events)) {
+            const list = el('ol', 'present-timeline');
+            d.events.slice(0, 12).forEach(ev => {
+                if (!ev) return;
+                const li = el('li');
+                li.appendChild(el('span', 'tl-date', str(ev.date, 40)));
+                li.appendChild(el('div', 'tl-title', str(ev.title, 120)));
+                if (ev.text) li.appendChild(el('p', 'tl-text', str(ev.text, 300)));
+                list.appendChild(li);
+            });
+            wrap.appendChild(list);
+        } else if (d.type === 'steps' && Array.isArray(d.steps)) {
+            const list = el('ol', 'present-steps');
+            d.steps.slice(0, 12).forEach(st => {
+                if (!st) return;
+                const li = el('li');
+                li.appendChild(el('div', 'st-title', str(st.title, 120)));
+                if (st.text) li.appendChild(el('p', 'st-text', str(st.text, 400)));
+                list.appendChild(li);
+            });
+            wrap.appendChild(list);
+        } else if (d.type === 'facts' && Array.isArray(d.facts)) {
+            const grid = el('dl', 'present-facts');
+            d.facts.slice(0, 12).forEach(f => {
+                if (!f) return;
+                const row = el('div', 'fact');
+                row.appendChild(el('dt', null, str(f.label, 60)));
+                row.appendChild(el('dd', null, str(f.value, 200)));
+                grid.appendChild(row);
+            });
+            wrap.appendChild(grid);
+        } else {
+            return null;
+        }
+        return wrap.childElementCount > (d.title ? 1 : 0) ? wrap : null;
+    }
+
+    // The page VQ read: a card with the title, image and a link to the original
+    function buildPageCard(page) {
+        const url = safeHttps(page.url) || (/^http:\/\//.test(page.url || '') ? page.url : null);
+        if (!url) return null;
+        const a = el('a', 'page-card');
+        a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+        const img = safeHttps(page.image);
+        if (img) {
+            const im = document.createElement('img');
+            im.src = img; im.alt = ''; im.loading = 'lazy'; im.referrerPolicy = 'no-referrer';
+            im.onerror = () => im.remove();
+            a.appendChild(im);
+        }
+        const b = el('div', 'page-card-body');
+        b.appendChild(el('span', 'page-card-site', str(page.site, 60) || hostOf(url)));
+        b.appendChild(el('span', 'page-card-title', str(page.title, 140) || url));
+        if (page.description) b.appendChild(el('span', 'page-card-desc', str(page.description, 220)));
+        b.appendChild(el('span', 'page-card-open', 'Open the original ↗'));
+        a.appendChild(b);
+        return a;
     }
 
     // Tables: small ones stay inline; big ones become a compact preview card that opens full size,
@@ -725,7 +855,7 @@
             copyBtn.type = 'button';
             copyBtn.className = 'msg-action';
             copyBtn.textContent = 'Copy';
-            copyBtn.addEventListener('click', () => copyText(content.replace(/<img[^>]*>/gi, '').trim(), copyBtn));
+            copyBtn.addEventListener('click', () => copyText(stripPresent(content.replace(/<img[^>]*>/gi, '')) || contentDiv.innerText.trim(), copyBtn));
             actions.appendChild(copyBtn);
 
             const noteBtn = document.createElement('button');
@@ -754,6 +884,7 @@
             body.appendChild(actions);
             if (meta && typeof meta === 'object') {
                 if (Array.isArray(meta.sources) && meta.sources.length) linkCitations(contentDiv, meta.sources);
+                if (meta.page && meta.page.url) { const pc = buildPageCard(meta.page); if (pc) body.insertBefore(pc, body.querySelector('.message-actions')); }
                 if (Array.isArray(meta.images) && meta.images.length) body.appendChild(buildGallery(meta.images));
                 appendAnswerChips(body, messageDiv, meta);
             }
@@ -915,6 +1046,10 @@
 
     // One-line summary for the chip under an answer; null when nothing notable happened
     function summarize(meta) {
+        if (meta && meta.page && meta.page.url) {
+            const extra = (meta.sources || []).filter(src => src.url !== meta.page.url).length;
+            return `Read ${meta.page.site || hostOf(meta.page.url)}` + (extra ? ` · searched ${extra} source${extra === 1 ? '' : 's'}` : '');
+        }
         if (!meta) return null;
         const n = Array.isArray(meta.sources) ? meta.sources.length : 0;
         if (n) return `${(meta.live || []).indexOf('News search') >= 0 ? 'Searched the news' : 'Searched the web'} · ${n} source${n === 1 ? '' : 's'}`;
@@ -1031,7 +1166,8 @@
     }
 
     function appendAnswerChips(body, messageDiv, meta) {
-        const sources = Array.isArray(meta.sources) ? meta.sources : [];
+        // The page VQ read already has its own card, so it isn't repeated as a source chip
+        const sources = (Array.isArray(meta.sources) ? meta.sources : []).filter(src => !(meta.page && src.url === meta.page.url));
         if (sources.length) {
             const row = el('div', 'src-row');
             sources.slice(0, 3).forEach(src => {
@@ -1642,6 +1778,10 @@
         (meta.steps || []).forEach(st => {
             const secs = typeof st.ms === 'number' ? ` (${(st.ms / 1000).toFixed(1)} s)` : '';
             if (st.kind === 'notes') { add(`Read your notes (${st.detail}), because you asked about them.`); return; }
+            if (st.kind === 'live' && /page/i.test(st.label)) {
+                add(st.failed ? `Tried to read the page on ${st.detail}, but it couldn't be read.` : `Read the page on ${st.detail}${secs}.`);
+                return;
+            }
             if (st.kind === 'live') {
                 const what = /weather/i.test(st.label) ? 'the current weather' : 'the local time';
                 add(/failed/.test(st.detail || '') ? `Tried to check ${what} for ${String(st.detail).replace(' (lookup failed)', '')}, but the lookup failed.`
