@@ -649,6 +649,121 @@
         sendMessage();
     }
 
+
+    // ---------- YouTube videos and Google Books as cards ----------
+    function buildVideoRow(videos) {
+        const wrap = el('div', 'media-row');
+        wrap.appendChild(el('div', 'present-title', 'Videos'));
+        const grid = el('div', 'video-grid');
+        videos.slice(0, 6).forEach(v => {
+            if (!v || !/^[A-Za-z0-9_-]{6,20}$/.test(v.id || '')) return;
+            const card = el('button', 'video-card');
+            card.type = 'button';
+            card.setAttribute('aria-label', `Play: ${str(v.title, 120)}`);
+            const th = el('div', 'video-thumb');
+            const img = document.createElement('img');
+            img.src = safeHttps(v.thumbnail) || `https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`;
+            img.alt = ''; img.loading = 'lazy'; img.referrerPolicy = 'no-referrer';
+            th.appendChild(img);
+            th.appendChild(el('span', 'video-play', '▶'));
+            card.appendChild(th);
+            const b = el('div', 'video-body');
+            b.appendChild(el('span', 'video-title', str(v.title, 120)));
+            b.appendChild(el('span', 'video-meta', [str(v.channel, 60), str(v.published, 10)].filter(Boolean).join(' · ')));
+            card.appendChild(b);
+            card.addEventListener('click', () => openVideo(v));
+            grid.appendChild(card);
+        });
+        wrap.appendChild(grid);
+        return wrap;
+    }
+
+    function openVideo(v) {
+        closeTableView();
+        const overlay = el('div', 'table-overlay video-overlay');
+        overlay.id = 'table-overlay';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('aria-label', str(v.title, 120));
+        const box = el('div', 'video-view');
+        const close = el('button', 'table-overlay-close', '×');
+        close.type = 'button'; close.setAttribute('aria-label', 'Close');
+        close.addEventListener('click', closeTableView);
+        const frameWrap = el('div', 'video-frame');
+        const iframe = document.createElement('iframe');
+        iframe.src = `https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0`;
+        iframe.title = str(v.title, 120);
+        iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+        iframe.allowFullscreen = true;
+        iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+        frameWrap.appendChild(iframe);
+        const cap = el('div', 'video-caption');
+        cap.appendChild(el('span', 'video-title', str(v.title, 160)));
+        const watch = el('a', 'pcard-visit', 'Watch on YouTube ↗');
+        watch.href = `https://www.youtube.com/watch?v=${v.id}`; watch.target = '_blank'; watch.rel = 'noopener noreferrer';
+        cap.appendChild(watch);
+        box.append(close, frameWrap, cap);
+        overlay.appendChild(box);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) closeTableView(); });
+        document.body.appendChild(overlay);
+        close.focus();
+    }
+
+    function buildBookRow(books) {
+        const wrap = el('div', 'media-row');
+        wrap.appendChild(el('div', 'present-title', 'Books'));
+        const grid = el('div', 'book-grid');
+        books.slice(0, 6).forEach(bk => {
+            if (!bk || !bk.title) return;
+            const card = el('div', 'book-card');
+            card.tabIndex = 0;
+            card.setAttribute('role', 'button');
+            card.setAttribute('aria-expanded', 'false');
+            const cover = safeHttps(bk.cover);
+            const cv = el('div', 'book-cover');
+            if (cover) {
+                const img = document.createElement('img');
+                img.src = cover; img.alt = ''; img.loading = 'lazy'; img.referrerPolicy = 'no-referrer';
+                img.onerror = () => { img.remove(); cv.textContent = '📖'; };
+                cv.appendChild(img);
+            } else { cv.textContent = '📖'; }
+            card.appendChild(cv);
+            const b = el('div', 'book-body');
+            b.appendChild(el('span', 'book-title', str(bk.title, 160)));
+            b.appendChild(el('span', 'book-meta', [str(bk.authors, 100), str(bk.year, 4)].filter(Boolean).join(' · ')));
+            const extra = el('div', 'book-extra');
+            if (bk.description) extra.appendChild(el('p', 'pcard-more-text', str(bk.description, 700)));
+            const actions = el('div', 'pcard-actions');
+            const url = safeHttps(bk.url);
+            if (url) {
+                const a = el('a', 'pcard-visit', 'View on Google Books ↗');
+                a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+                a.addEventListener('click', (e) => e.stopPropagation());
+                actions.appendChild(a);
+            }
+            const ask = el('button', 'pcard-ask', 'Ask VQ about this book');
+            ask.type = 'button';
+            ask.addEventListener('click', (e) => { e.stopPropagation(); askAbout(str(bk.title, 120), str(bk.authors, 80)); });
+            actions.appendChild(ask);
+            extra.appendChild(actions);
+            b.appendChild(extra);
+            const toggle = el('span', 'pcard-toggle', 'More ▾');
+            b.appendChild(toggle);
+            card.appendChild(b);
+            const flip = () => {
+                const open = !card.classList.contains('expanded');
+                card.classList.toggle('expanded', open);
+                card.setAttribute('aria-expanded', String(open));
+                toggle.textContent = open ? 'Less ▴' : 'More ▾';
+            };
+            card.addEventListener('click', flip);
+            card.addEventListener('keydown', (e) => { if (e.target === card && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); flip(); } });
+            grid.appendChild(card);
+        });
+        wrap.appendChild(grid);
+        return wrap;
+    }
+
     // The page VQ read: a card with the title, image and a link to the original
     function buildPageCard(page) {
         const url = safeHttps(page.url) || (/^http:\/\//.test(page.url || '') ? page.url : null);
@@ -954,6 +1069,8 @@
             if (meta && typeof meta === 'object') {
                 if (Array.isArray(meta.sources) && meta.sources.length) linkCitations(contentDiv, meta.sources);
                 if (meta.page && meta.page.url) { const pc = buildPageCard(meta.page); if (pc) body.insertBefore(pc, body.querySelector('.message-actions')); }
+                if (Array.isArray(meta.videos) && meta.videos.length) body.insertBefore(buildVideoRow(meta.videos), body.querySelector('.message-actions'));
+                if (Array.isArray(meta.books) && meta.books.length) body.insertBefore(buildBookRow(meta.books), body.querySelector('.message-actions'));
                 if (Array.isArray(meta.images) && meta.images.length) body.appendChild(buildGallery(meta.images));
                 appendAnswerChips(body, messageDiv, meta);
             }
@@ -1328,7 +1445,8 @@
             const k = typeof st.found === 'number' ? st.found : (meta.sources || []).length;
             const q = st.query ? `"${st.query}" · ` : '';
             const pics = st.images ? ` · ${st.images} images` : '';
-            ol.appendChild(codeLine(++n, v, r, `${q}${k ? `${k} sources found` : 'no usable results'}${pics}`, st.ms));
+            const unit = /YouTube/.test(st.label) ? 'videos' : /Books/.test(st.label) ? 'books' : 'sources';
+            ol.appendChild(codeLine(++n, v, r, `${q}${k ? `${k} ${unit} found` : 'no usable results'}${pics}`, st.ms));
         });
         if (!(meta.steps || []).some(st => st.kind === 'live')) {
             (meta.live || []).filter(x => /weather|time|image/i.test(x)).forEach(x => ol.appendChild(codeLine(++n, 'Fetched', x.toLowerCase())));
@@ -1860,7 +1978,9 @@
             } else {
                 const k = typeof st.found === 'number' ? st.found : (meta.sources || []).length;
                 const pics = st.images ? ` and ${st.images} pictures` : '';
-                add(`Searched ${/news/i.test(st.label) ? 'the news' : 'the web'}${st.query ? ` for “${st.query}”` : ''} and found ${k} sources${pics}${secs}.`);
+                const where = /YouTube/.test(st.label) ? 'YouTube' : /Books/.test(st.label) ? 'Google Books' : /news/i.test(st.label) ? 'the news' : 'the web';
+                const unit = /YouTube/.test(st.label) ? 'videos' : /Books/.test(st.label) ? 'books' : 'sources';
+                add(`Searched ${where}${st.query ? ` for “${st.query}”` : ''} and found ${k} ${unit}${pics}${secs}.`);
             }
         });
         (meta.rules || []).filter(r => !/^Appreciation/.test(r)).forEach(r => {
