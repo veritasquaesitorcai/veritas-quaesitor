@@ -480,6 +480,14 @@
         body[data-theme="plum"]     { --ic-tile: rgba(216,140,255,0.14); --ic-line: #f3e8ff; --ic-fill: rgba(216,140,255,0.24); --ic-accent: #f0abfc;
                                       --vq-eye: #f0abfc; --vq-light: #f472b6; --vq-ear: #d8b4fe; --vq-visor: #1e0b2a;
                                       --vq-avatar-bg: linear-gradient(135deg, #9333ea, #6b21a8); }
+        /* ---- Settings-only exchanges: lighter, spaced, no action buttons ---- */
+        .message.user.ui-change-user { margin-top: 1.4rem; }
+        .message.ui-change { margin-top: 0.1rem; margin-bottom: 1.8rem; }
+        .message.ui-change .message-actions, .message.ui-change .insight-chip, .message.ui-change .src-row { display: none !important; }
+        .message.ui-change .message-content { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.55; }
+        .message.ui-change .message-content strong { color: var(--text-primary); }
+        .message.ui-change .message-content em { color: var(--ui-accent-2, #ffb27a); font-style: normal; }
+        .message.ui-change .message-avatar { transform: scale(0.85); opacity: 0.9; }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -728,6 +736,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-02-icons"></script>
+    <script src="js/chat-app-test.js?v=2026-10-02-uichange"></script>
 </body>
 </html>
