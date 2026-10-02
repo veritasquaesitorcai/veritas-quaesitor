@@ -88,6 +88,7 @@ def health():
         "message": "VQ Backend is Live",
         "groq_configured": bool(os.environ.get("GROQ_API_KEY")),
         "web_search": "enabled (Tavily)" if tavily_available else "enabled (DuckDuckGo)",
+        "youtube_and_books": "enabled (Google API key set)" if google_available else "books only, no key (set GOOGLE_API_KEY)",
         "image_search": "enabled (DuckDuckGo Images)"
     }), 200
 
@@ -2375,6 +2376,13 @@ def chat():
                 trace.setdefault('steps', []).append({'label': f'Read {ENQUIRER_NAME}\'s side chat', 'detail': f"{min(len(_o), 8)} messages", 'kind': 'notes'})
         offer_live = not already_handled
         groq_messages[0]["content"] += PRESENT_NOTE
+        groq_messages[0]["content"] += (
+            "\n\nBOOKS AND VIDEOS: When the user asks for books or reading suggestions, call book_search; when they ask for "
+            "videos, talks, lectures or something to watch, call youtube_search" + ("" if google_available else " (not switched on yet)") + ". "
+            "Their results appear as cards automatically. Never write book or video links from memory, and never invent "
+            "YouTube addresses: a made-up link is worse than none. If a search tool isn't available, name a few titles or "
+            "speakers from your knowledge without links, and suggest the user searches for them."
+        )
         if offer_live:
             groq_messages[0]["content"] += LIVE_SYSTEM_NOTE
 
