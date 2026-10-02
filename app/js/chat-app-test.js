@@ -333,6 +333,7 @@
             const d = addMessageToUI(msg.role, msg.content, msg.role === 'assistant' ? msg.meta : null);
             if (d && msg.role === 'assistant') d._record = msg;
             if (d && msg.meta && msg.meta.fromOria) styleAsOria(d);
+            if (d && msg.meta && msg.meta.uiOnly) d.classList.add(msg.role === 'user' ? 'ui-change-user' : 'ui-change');
             if (d && msg.meta && msg.meta.voice === 'oria') styleOriaAnswer(d);
             if (d && msg.meta && msg.meta.fromVQPanel) styleAsVQPanel(d);
         });
@@ -1189,7 +1190,8 @@
         const b = elements.panelBody;
         b.textContent = '';
         liveEntry = null;
-        const msgs = [...elements.messagesArea.querySelectorAll('.message:not(.user):not(.pending):not(.streaming)')].filter(m => m._record);
+        const msgs = [...elements.messagesArea.querySelectorAll('.message:not(.user):not(.pending):not(.streaming)')]
+            .filter(m => m._record && !(m._record.meta && m._record.meta.local));   // on-device confirmations have nothing to show
         if (!msgs.length) {
             const box = el('div', 'insight-empty');
             box.appendChild(el('span', 'tk-com', '// nothing here yet'));
@@ -2706,6 +2708,100 @@
         setTimeout(() => { note.classList.add('fade'); setTimeout(() => note.remove(), 600); }, 6000);
     }
 
+
+    // ---------- Friendly confirmations for screen changes (no AI needed) ----------
+
+    const CHOICES = {
+        theme: ['VQ', 'Navy', 'Charcoal', 'Midnight', 'Ocean', 'Forest', 'Ember', 'Slate', 'Plum'],
+        font: ['Default', 'Readable', 'Serif', 'Mono', 'Script', 'Handwriting', 'Elegant', 'Classic', 'Inscription', 'Futuristic', 'Retro', 'Playful', 'Rounded'],
+        accent: ['Orange', 'Gold', 'Teal', 'Rose', 'Violet', 'Green', 'Blue', 'Grey'],
+        title: ['Inscription', 'Elegant', 'Futuristic']
+    };
+    const TIPS = [
+        ['theme', 'Try a different background: “ocean theme”, “midnight” or “ember”.'],
+        ['font', 'Fancy a new font? Try “cursive font” or “typewriter font”.'],
+        ['title', 'The title has three styles: “futuristic title”, “elegant title” and “inscription title”.'],
+        ['accent', 'Change the accent colour: “teal accent”, “gold” or “rose”.'],
+        ['bubbles', 'Prefer chat bubbles? Say “bubbles on”.'],
+        ['focus', 'Want fewer distractions? Say “focus”.'],
+        ['oria', 'Meet O.R.I.A. in the side panel, or say “swap” to let her take over the chat for a while.'],
+        ['notes', 'Ask me to “note that down” and I’ll save it to your Notes.'],
+        ['size', 'Say “bigger” or “smaller” to change the text size, and it costs no messages.'],
+        ['reset', 'Say “reset” any time to put everything back to normal.']
+    ];
+    const cap = (w) => (w || '').charAt(0).toUpperCase() + (w || '').slice(1);
+    const others = (list, chosen) => list.filter(x => x.toLowerCase() !== String(chosen || '').toLowerCase()).join(', ');
+
+    function uiConfirmation(acts) {
+        const lines = [];
+        const used = new Set();
+        (acts || []).forEach(a => {
+            if (!a || !a.action) return;
+            const st = a.style || {};
+            switch (a.action) {
+                case 'style':
+                    if (st.theme) { used.add('theme'); lines.push(`Theme set to **${st.theme === 'vq' ? 'VQ' : cap(st.theme)}**. Other themes: ${others(CHOICES.theme, st.theme)}.`); }
+                    if (st.font) { used.add('font'); lines.push(`Font set to **${cap(st.font)}**. Other fonts: ${others(CHOICES.font, st.font)}.`); }
+                    if (st.accent) { used.add('accent'); lines.push(`Accent colour set to **${cap(st.accent)}**. Other colours: ${others(CHOICES.accent, st.accent)}.`); }
+                    if (st.title) { used.add('title'); lines.push(`Title style set to **${cap(st.title)}**. The others are ${others(CHOICES.title, st.title).replace(/, ([^,]*)$/, ' and $1')}.`); }
+                    if (st.bubbles) { used.add('bubbles'); lines.push(st.bubbles === 'on' ? 'Answers now show **in chat bubbles**. Say “bubbles off” for the open page layout.' : 'Answers now use the **open page layout**. Say “bubbles on” to bring the bubbles back.'); }
+                    if (typeof st.text_scale === 'number') { used.add('size'); lines.push(`Text size set to **${Math.round(st.text_scale * 100)}%**.`); }
+                    if (typeof st.line_spacing === 'number') lines.push(`Line spacing set to **${st.line_spacing}**.`);
+                    if (st.contrast) lines.push(`Contrast set to **${st.contrast}**.`);
+                    if (st.motion) lines.push(st.motion === 'reduced' ? 'Animations are now **reduced**.' : 'Animations are back to **normal**.');
+                    if (st.width) lines.push(`The chat column is now **${st.width}**.`);
+                    break;
+                case 'text_size':
+                    used.add('size');
+                    lines.push(`Text size is now **${Math.round((uiPrefs.scale || 1) * 100)}%**. Say “bigger” or “smaller” any time.`);
+                    break;
+                case 'reset_display':
+                    used.add('reset');
+                    lines.push('Everything is back to the standard look: the VQ theme, default font and text size, orange accent, open layout, and the Details panel.');
+                    break;
+                case 'undo':
+                    lines.push('Undid the last screen change.');
+                    break;
+                case 'focus_mode':
+                    used.add('focus');
+                    lines.push(a.state === 'off' ? 'Focus mode is **off**: the sidebar and panel are back.' : 'Focus mode is **on**: just the conversation. Say “unfocus” to bring everything back.');
+                    break;
+                case 'panel':
+                    lines.push(a.state === 'close' ? 'Side panel closed. Say “open the panel” to bring it back.' : 'Side panel opened.');
+                    break;
+                case 'panel_view':
+                    lines.push(`Side panel switched to **${a.view === 'enquirer' ? 'O.R.I.A.' : cap(a.view || 'details')}**.`);
+                    break;
+                case 'add_note':
+                    used.add('notes');
+                    lines.push('Saved to your **Notes**. You’ll find it in the side panel.');
+                    break;
+                case 'show_reasoning':
+                    lines.push('Opened the details for that answer in the side panel.');
+                    break;
+                case 'new_chat':
+                    lines.push('Starting a fresh chat for you.');
+                    break;
+                case 'swap':
+                    used.add('oria');
+                    lines.push(a.state === 'off' ? 'VQ is back in the main chat.' : '**O.R.I.A. has the main chat** for a few messages, and VQ is watching from the panel. Say “swap back” to end it early.');
+                    break;
+                default:
+                    lines.push('Done.');
+            }
+        });
+        if (!lines.length) lines.push('Done.');
+        let n = 0;
+        try { n = parseInt(localStorage.getItem('vq-tip-n') || '0', 10) || 0; } catch (e) {}
+        let lastTip = '';
+        try { lastTip = localStorage.getItem('vq-tip-last') || ''; } catch (e) {}
+        const pool = TIPS.filter(([k, t]) => !used.has(k) && t !== lastTip);
+        const tip = pool.length ? pool[n % pool.length][1] : '';
+        try { localStorage.setItem('vq-tip-n', String(n + 1)); localStorage.setItem('vq-tip-last', tip); } catch (e) {}
+        const noUndo = (acts || []).every(a => a && ['undo', 'new_chat', 'show_reasoning'].includes(a.action));
+        return lines.join('\n\n') + (tip ? `\n\n*Tip: ${tip}*` : '') + (noUndo ? '' : '\n\nSay “undo” if you’d like it back.');
+    }
+
     async function sendMessage() {
         const rawMessage = elements.messageInput.value.trim();
         if (!rawMessage || isTyping) return;
@@ -2713,8 +2809,20 @@
         // Simple display commands run on this device: instant, free, and they work even after the daily limit
         const local = localCommand(rawMessage);
         if (local) {
+            ensureActiveChat();
+            hideWelcomeScreen();
+            elements.chatContainer.classList.add('has-messages');
+            const uRec = { role: 'user', content: rawMessage, meta: { uiOnly: true } };
+            conversationHistory.push(uRec);
+            const uDiv = addMessageToUI('user', rawMessage);
+            if (uDiv) uDiv.classList.add('ui-change-user');
             applyUIAction(local.act);
-            showLocalNote(local.label);
+            const text = uiConfirmation([local.act]);
+            const aRec = { role: 'assistant', content: text, meta: { uiOnly: true, local: true } };
+            conversationHistory.push(aRec);
+            const aDiv = addMessageToUI('assistant', text, null);
+            if (aDiv) { aDiv._record = aRec; aDiv.classList.add('ui-change'); }
+            touchActiveChat();
             elements.messageInput.value = '';
             elements.messageInput.style.height = 'auto';
             elements.charCount.textContent = `0 / ${CONFIG.maxMessageLength}`;
@@ -2771,6 +2879,7 @@
         let finished = false;
         let meta = null;
         let firstMs = null;
+        const uiActs = [];
         const t0 = performance.now();
 
         const paint = () => {
@@ -2799,7 +2908,7 @@
                     let msg;
                     try { msg = JSON.parse(line.slice(5).trim()); } catch (e) { continue; }
                     if (msg.meta && typeof msg.meta === 'object') { meta = msg.meta; if (meta.quota) updateQuota(meta.quota); }
-                    if (msg.ui && typeof msg.ui === 'object') applyUIAction(msg.ui);
+                    if (msg.ui && typeof msg.ui === 'object') { applyUIAction(msg.ui); uiActs.push(msg.ui); }
                     if (typeof msg.status === 'string') {
                         if (!bubble) showPending(msg.status, msg.detail || '');
                         pushLiveStep(msg.status, msg.detail || null);
@@ -2817,7 +2926,7 @@
             if (bubble) bubble.div.remove();
         }
         const text = cleanReply(full).trim();
-        return { text: text || "Friend, that one came back empty on my end. Ask me again?", meta,
+        return { text: text || "Friend, that one came back empty on my end. Ask me again?", meta, uiActs,
                  timing: { firstMs, totalMs: Math.round(performance.now() - t0) } };
     }
 
@@ -2830,7 +2939,7 @@
         showPending('Reading your question');
         startLivePanel(message.replace(/^\[[A-Z ]+\]\s*/, ''));
 
-        const history = conversationHistory.slice(-CONFIG.historySent).map(m => ({ role: m.role,
+        const history = conversationHistory.filter(m => !(m.meta && m.meta.uiOnly)).slice(-CONFIG.historySent).map(m => ({ role: m.role,
             content: m.meta && m.meta.voice === 'oria' && !isSwapped() ? `[O.R.I.A., while she had the main chat]: ${m.content}` : m.content }));
         const voice = isSwapped() ? 'oria' : null;
         // Mode of the previous answer, so related follow-ups can stay in that mode without pressing the button again
@@ -2850,6 +2959,16 @@
             if (response.ok && contentType.includes('text/event-stream') && response.body) {
                 const streamed = await readStream(response);
                 data = { response: streamed.text, meta: streamed.meta, timing: streamed.timing };
+                if (streamed.meta && streamed.meta.ui_only && streamed.uiActs.length) {
+                    data.response = uiConfirmation(streamed.uiActs);
+                    data.meta = Object.assign({}, streamed.meta, { uiOnly: true });
+                    const lastUser = [...conversationHistory].reverse().find(m => m.role === 'user');
+                    if (lastUser) {
+                        lastUser.meta = Object.assign({}, lastUser.meta || {}, { uiOnly: true });
+                        const uDivs = elements.messagesArea.querySelectorAll('.message.user');
+                        if (uDivs.length) uDivs[uDivs.length - 1].classList.add('ui-change-user');
+                    }
+                }
             } else {
                 data = await response.json().catch(() => ({}));
             }
@@ -2880,6 +2999,7 @@
                 const rec = { role: 'assistant', content: data.response, meta: voice ? Object.assign({}, data.meta || {}, { voice }) : (data.meta || null), timing: data.timing || null };
                 const div = addMessageToUI('assistant', data.response, data.meta || null);
                 div._record = rec;
+                if (data.meta && data.meta.uiOnly) div.classList.add('ui-change');
                 conversationHistory.push(rec);
                 addPanelEntry(div);
                 if (voice) { styleOriaAnswer(div); afterSwappedAnswer(rec); }
