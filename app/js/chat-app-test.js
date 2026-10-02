@@ -548,28 +548,41 @@
                 bodyEl.appendChild(el('div', 'pcard-title', title));
                 if (it.subtitle) bodyEl.appendChild(el('div', 'pcard-sub', str(it.subtitle, 120)));
                 if (it.text) bodyEl.appendChild(el('p', 'pcard-text', str(it.text, 400)));
-                // Footer: "Tell me more" (asks VQ) and, when there is a real link, "Visit ↗"
-                const foot = el('div', 'pcard-foot');
-                foot.appendChild(el('span', 'pcard-more', 'Tell me more →'));
+                // Expanded part: VQ's extra detail plus the actions (no AI call just for opening it)
+                const more = el('div', 'pcard-extra');
+                if (it.more) more.appendChild(el('p', 'pcard-more-text', str(it.more, 900)));
+                const actions = el('div', 'pcard-actions');
                 const url = safeHttps(it.url);
                 if (url) {
-                    const a = el('a', 'pcard-visit', 'Visit ↗');
+                    const a = el('a', 'pcard-visit', `Visit ${hostOf(url)} ↗`);
                     a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
-                    a.title = hostOf(url);
                     a.addEventListener('click', (e) => e.stopPropagation());
-                    foot.appendChild(a);
+                    actions.appendChild(a);
                 }
-                bodyEl.appendChild(foot);
-                card.appendChild(bodyEl);
                 if (title) {
-                    card.classList.add('clickable');
-                    card.tabIndex = 0;
-                    card.setAttribute('role', 'button');
-                    card.setAttribute('aria-label', `Tell me more about ${title}`);
-                    const ask = () => askAbout(title, str(it.subtitle, 120));
-                    card.addEventListener('click', ask);
-                    card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ask(); } });
+                    const ask = el('button', 'pcard-ask', 'Ask VQ about this');
+                    ask.type = 'button';
+                    ask.addEventListener('click', (e) => { e.stopPropagation(); askAbout(title, str(it.subtitle, 120)); });
+                    actions.appendChild(ask);
                 }
+                more.appendChild(actions);
+                bodyEl.appendChild(more);
+                const toggle = el('span', 'pcard-toggle', 'More ▾');
+                bodyEl.appendChild(toggle);
+                card.appendChild(bodyEl);
+                card.classList.add('clickable');
+                card.tabIndex = 0;
+                card.setAttribute('role', 'button');
+                card.setAttribute('aria-expanded', 'false');
+                card.setAttribute('aria-label', `${title}: show more`);
+                const flip = () => {
+                    const open = !card.classList.contains('expanded');
+                    card.classList.toggle('expanded', open);
+                    card.setAttribute('aria-expanded', String(open));
+                    toggle.textContent = open ? 'Less ▴' : 'More ▾';
+                };
+                card.addEventListener('click', flip);
+                card.addEventListener('keydown', (e) => { if (e.target === card && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); flip(); } });
                 grid.appendChild(card);
             });
             wrap.appendChild(grid);
