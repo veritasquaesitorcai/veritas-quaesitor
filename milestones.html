@@ -207,21 +207,22 @@
         @media (prefers-reduced-motion: reduce) { .hero h1 { animation: none; } }
 
         /* --- TIMELINE (glass panel overlapping the hero, as on the index) --- */
-        .container.glass-panel.timeline-panel { margin-top: -3.5rem !important; z-index: 2; }
+        .hud.timeline-panel { margin: -3.5rem auto 2rem; }
         .timeline-section { padding-top: 0 !important; }
         .timeline-panel h2 { margin-top: 0; }
-        .timeline-intro { text-align: center; max-width: 680px; margin: -1rem auto 2.5rem; color: rgba(255,255,255,0.85) !important; }
+        .timeline-intro { text-align: center; max-width: 62ch; margin: 0 auto 2.25rem; color: var(--hud-dim) !important; }
         .timeline-intro a { color: #ffd9a8; }
         .timeline { position: relative; padding-left: 2.25rem; }
         .timeline::before { content: ""; position: absolute; left: 0.55rem; top: 0.5rem; bottom: 0.5rem; width: 2px; border-radius: 2px; background: linear-gradient(180deg, #ff8c42, rgba(255,217,168,0.6) 60%, rgba(255,255,255,0.15)); }
-        .milestone { position: relative; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 14px; padding: 1.75rem 2rem; margin-bottom: 1.75rem; transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s; }
-        .milestone::before { content: ""; position: absolute; left: -2.05rem; top: 2rem; width: 14px; height: 14px; border-radius: 50%; background: #1a1030; border: 3px solid #ff8c42; box-shadow: 0 0 10px rgba(255,140,66,0.7); }
+        .milestone { position: relative; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,140,66,0.2); border-radius: 14px; padding: 1.75rem 2rem; margin-bottom: 1.75rem; transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s; }
+        .milestone::before { content: ""; position: absolute; left: -2.05rem; top: 2rem; width: 14px; height: 14px; border-radius: 50%; background: #09071a; border: 3px solid #ff8c42; box-shadow: 0 0 10px rgba(255,140,66,0.7); }
         .milestone:hover { transform: translateY(-3px); border-color: rgba(255,140,66,0.6); box-shadow: 0 10px 30px rgba(0,0,0,0.25), 0 0 24px rgba(255,140,66,0.18); }
-        .milestone.latest { background: rgba(9,7,26,0.72); border-color: rgba(255,140,66,0.5); box-shadow: 0 16px 40px rgba(0,0,0,0.35), 0 0 30px rgba(255,140,66,0.12); }
+        .milestone.latest { background: rgba(255,140,66,0.07); border-color: rgba(255,140,66,0.55); box-shadow: 0 0 30px rgba(255,140,66,0.12); }
         .milestone.latest::before { background: #ffd9a8; }
         .milestone h3 { font-size: 1.35rem !important; line-height: 1.35; margin: 0 0 0.6rem !important; }
         .milestone-date { display: inline-block; font-size: 0.82rem !important; letter-spacing: 0.03em; color: #ffd9a8 !important; background: rgba(255,140,66,0.1); border: 1px solid rgba(255,140,66,0.35); border-radius: 999px; padding: 0.2rem 0.85rem; margin: 0 0 1rem !important; line-height: 1.5 !important; }
-        .milestone p, .milestone li { font-size: 0.98rem; line-height: 1.7; color: rgba(255,255,255,0.9); }
+        .milestone p, .milestone li { font-size: 0.98rem; line-height: 1.7; color: rgba(255,255,255,0.82); }
+        .hud .milestone h3 { border-bottom: 0; padding-bottom: 0; }
         .milestone ul { padding-left: 1.2rem; }
         .milestone strong { color: #ffb27a; }
         .milestone a { color: #ffd9a8; }
@@ -240,7 +241,7 @@
             .hero .tagline { font-size: 1.25rem !important; }
             .hero .subtitle { font-size: 1.05rem; }
             .hero-credit { bottom: 3.2rem; left: 1rem; font-size: 0.7rem !important; }
-            .container.glass-panel.timeline-panel { margin-top: -2rem !important; width: 94% !important; }
+            .hud.timeline-panel { margin-top: -2rem; width: 94%; padding: 2rem 1.1rem 1.5rem; }
             .timeline { padding-left: 1.5rem; }
             .timeline::before { left: 0.3rem; }
             .milestone { padding: 1.3rem 1.1rem; }
@@ -422,7 +423,7 @@
     </header>
 
     <section class="timeline-section">
-        <div class="container glass-panel timeline-panel">
+        <div class="hud timeline-panel">
             <h2>The Timeline</h2>
             <p class="timeline-intro">Newest first. Every AI run mentioned here is recorded with its conditions on the <a href="symmetric-record.html">Symmetric Record</a>.</p>
             <div class="timeline">
