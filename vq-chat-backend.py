@@ -1399,7 +1399,8 @@ UI_TOOL = {
                         "width": {"type": "string", "description": "narrow, normal or wide"},
                         "title": {"type": "string", "description": "style of the app's title: inscription (Roman capitals), elegant (book serif) or futuristic (wide sci-fi capitals)"},
                         "bubbles": {"type": "string", "description": "on: show VQ's answers in chat bubbles; off: open page-style answers (default)"},
-                        "theme": {"type": "string", "description": "background theme: vq (default), navy, charcoal, midnight (black), ocean, forest, ember, slate or plum"}
+                        "theme": {"type": "string", "description": "background theme: vq (default), navy, charcoal, midnight (black), ocean, forest, ember, slate or plum"},
+                        "glow": {"type": "string", "description": "on (default) or off: the soft glow behind icons"}
                     }
                 },
                 "note": {"type": "string", "description": "A few words describing the change, e.g. 'warmer, easier to read'"}
@@ -1417,6 +1418,7 @@ _STYLE_CHOICES = {
     "title": ["inscription", "elegant", "futuristic"],
     "bubbles": ["on", "off"],
     "theme": ["vq", "navy", "charcoal", "midnight", "ocean", "forest", "ember", "slate", "plum"],
+    "glow": ["on", "off"],
 }
 _TITLE_SYNONYMS = {"roman": "inscription", "classic": "inscription", "latin": "inscription", "1": "inscription",
                    "serif": "elegant", "fancy": "elegant", "refined": "elegant", "2": "elegant",
@@ -1454,7 +1456,7 @@ def validate_ui_action(args: dict):
                     style[key] = round(min(hi, max(lo, float(st[key]))), 2)
             except (TypeError, ValueError):
                 pass
-        for key in ("accent", "contrast", "font", "motion", "width", "title", "bubbles", "theme"):
+        for key in ("accent", "contrast", "font", "motion", "width", "title", "bubbles", "theme", "glow"):
             val = str(st.get(key) or "").strip().lower()
             if key == "accent":
                 val = _ACCENT_SYNONYMS.get(val, val)
@@ -1467,6 +1469,8 @@ def validate_ui_action(args: dict):
                        "blue": "navy", "deep blue": "navy", "warm": "charcoal", "grey": "slate", "gray": "slate", "sea": "ocean",
                        "teal": "ocean", "green": "forest", "nature": "forest", "fire": "ember", "red": "ember", "cozy": "ember",
                        "purple": "plum", "violet": "plum"}.get(val, val)
+            if key == "glow":
+                val = {"true": "on", "yes": "on", "more": "on", "false": "off", "no": "off", "none": "off", "flat": "off"}.get(val, val)
             if key == "bubbles":
                 val = {"true": "on", "yes": "on", "show": "on", "false": "off", "no": "off", "hide": "off", "none": "off"}.get(val, val)
             if val in _STYLE_CHOICES[key]:
