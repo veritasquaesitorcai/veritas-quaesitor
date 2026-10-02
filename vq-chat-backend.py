@@ -1673,7 +1673,7 @@ PRESENTATION LAYOUTS: When content is clearer as a layout than as paragraphs, ad
 Types: "cards" (places, products, people, options; 2-6 items), "compare" ({"columns": ["A","B"], "rows": [{"label": "...", "values": ["...","..."]}]}),
 "timeline" ({"events": [{"date": "...", "title": "...", "text": "..."}]}), "steps" ({"steps": [{"title": "...", "text": "..."}]}),
 "facts" ({"facts": [{"label": "...", "value": "..."}]}).
-Rules: valid JSON only; keep texts short; only use image and url values that came from search results or a page you read
+Rules: always open the block with three backticks and vq-present, and close it with three backticks; valid JSON only; keep texts short; only use image and url values that came from search results or a page you read
 (never invent addresses; leave them out instead); write one or two sentences of normal prose before the block and don't repeat
 its content in prose. Use a layout only when it truly helps; most answers stay plain prose."""
 
@@ -2614,10 +2614,9 @@ def chat():
         if not assistant_message.strip():
             assistant_message = "Friend, that one came back empty on my end. Ask me again?"
 
-        # Strip markdown code fences that prevent HTML from rendering
+        # Unwrap only ```html fences (old image replies); code blocks and layout blocks stay intact
         import re as _re
-        assistant_message = _re.sub(r'```(?:html)?\s*', '', assistant_message)
-        assistant_message = _re.sub(r'```\s*', '', assistant_message)
+        assistant_message = _re.sub(r'```html\s*([\s\S]*?)```', r'\1', assistant_message, flags=_re.I)
 
         # Test image rendering
         if 'test image rendering' in user_message.lower():
