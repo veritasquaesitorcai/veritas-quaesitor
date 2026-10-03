@@ -461,10 +461,11 @@
         body[data-theme="navy"]     { --ic-tile: rgba(140,150,255,0.14); --ic-line: #e9ebff; --ic-fill: rgba(140,150,255,0.26); --vq-eye: #8fe8ff; }
         body[data-theme="charcoal"] { --ic-tile: rgba(255,190,120,0.12); --ic-line: #f6eadc; --ic-fill: rgba(255,190,120,0.22); --ic-accent: #ffb86b; --vq-eye: #ffd9a0; --vq-light: #ffb86b; --vq-visor: #2a2420;
                                       --vq-avatar-bg: linear-gradient(135deg, #5a4a3c, #3a302a); }
-        body[data-theme="midnight"] { --ic-tile: rgba(127,243,255,0.07); --ic-line: #7ff3ff; --ic-fill: transparent; --ic-accent: #ff5fd2; --ic-glow: drop-shadow(0 0 3px rgba(127,243,255,0.75));
+        body[data-theme="midnight"], body[data-theme="vq"] { --ic-tile: rgba(127,243,255,0.07); --ic-line: #7ff3ff; --ic-fill: transparent; --ic-accent: #ff5fd2; --ic-glow: drop-shadow(0 0 3px rgba(127,243,255,0.75));
                                       --vq-head: transparent; --vq-line: #7ff3ff; --vq-visor: #05060a; --vq-eye: #7ff3ff; --vq-light: #ff5fd2; --vq-ear: #ff5fd2;
                                       --vq-avatar-bg: radial-gradient(circle at 50% 40%, #16161c, #050507); }
-        body[data-theme="midnight"] .message-avatar, body[data-theme="midnight"] .welcome-avatar, body[data-theme="midnight"] .app-avatar-small { box-shadow: 0 0 0 1px rgba(127,243,255,0.45), 0 0 14px rgba(127,243,255,0.25); }
+        body[data-theme="midnight"] .message-avatar, body[data-theme="midnight"] .welcome-avatar, body[data-theme="midnight"] .app-avatar-small,
+        body[data-theme="vq"] .message-avatar, body[data-theme="vq"] .welcome-avatar, body[data-theme="vq"] .app-avatar-small { box-shadow: 0 0 0 1px rgba(127,243,255,0.45), 0 0 14px rgba(127,243,255,0.25); }
         body[data-theme="ocean"]    { --ic-tile: rgba(80,200,230,0.14); --ic-line: #bdeeff; --ic-fill: rgba(80,200,230,0.25); --ic-accent: #5eead4; --ic-stroke: 2;
                                       --vq-eye: #5eead4; --vq-light: #7dd3fc; --vq-ear: #5eead4; --vq-visor: #062433;
                                       --vq-avatar-bg: linear-gradient(135deg, #0e7490, #1e3a8a); }
@@ -562,7 +563,7 @@
         body:not(.no-glow) span.icon, body:not(.no-glow) .chat-item-icon { border-radius: 50%; background: radial-gradient(circle, var(--ic-glow-color) 0%, transparent 68%); padding: 0.3rem; margin: -0.3rem; }
         body[data-theme="navy"]     { --ic-glow-color: rgba(140,150,255,0.6); }
         body[data-theme="charcoal"] { --ic-glow-color: rgba(255,184,107,0.5); }
-        body[data-theme="midnight"] { --ic-glow-color: rgba(127,243,255,0.75); }
+        body[data-theme="midnight"], body[data-theme="vq"] { --ic-glow-color: rgba(127,243,255,0.75); }
         body[data-theme="ocean"]    { --ic-glow-color: rgba(94,234,212,0.6); }
         body[data-theme="forest"]   { --ic-glow-color: rgba(163,230,53,0.5); }
         body[data-theme="ember"]    { --ic-glow-color: rgba(255,120,50,0.65); }
@@ -847,6 +848,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-03-filter"></script>
+    <script src="js/chat-app-test.js?v=2026-10-03-vqdefault"></script>
 </body>
 </html>
