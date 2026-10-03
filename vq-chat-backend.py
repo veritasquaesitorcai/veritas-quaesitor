@@ -1401,7 +1401,7 @@ UI_TOOL = {
                         "width": {"type": "string", "description": "narrow, normal or wide"},
                         "title": {"type": "string", "description": "style of the app's title: inscription (Roman capitals), elegant (book serif) or futuristic (wide sci-fi capitals)"},
                         "bubbles": {"type": "string", "description": "on: show VQ's answers in chat bubbles; off: open page-style answers (default)"},
-                        "theme": {"type": "string", "description": "background theme: vq (default), navy, charcoal, midnight (black), ocean, forest, ember, slate or plum"},
+                        "theme": {"type": "string", "description": "background theme: vq (default, near-black with neon icons), classic (warm charcoal on desktop, navy on phones), navy, charcoal, midnight, ocean, forest, ember, slate or plum"},
                         "glow": {"type": "string", "description": "on (default) or off: the soft glow behind icons"}
                     }
                 },
@@ -1419,7 +1419,7 @@ _STYLE_CHOICES = {
     "motion": ["normal", "reduced"], "width": ["narrow", "normal", "wide"],
     "title": ["inscription", "elegant", "futuristic"],
     "bubbles": ["on", "off"],
-    "theme": ["vq", "navy", "charcoal", "midnight", "ocean", "forest", "ember", "slate", "plum"],
+    "theme": ["vq", "classic", "navy", "charcoal", "midnight", "ocean", "forest", "ember", "slate", "plum"],
     "glow": ["on", "off"],
 }
 _TITLE_SYNONYMS = {"roman": "inscription", "classic": "inscription", "latin": "inscription", "1": "inscription",
@@ -1467,7 +1467,8 @@ def validate_ui_action(args: dict):
             if key == "title":
                 val = _TITLE_SYNONYMS.get(val, val)
             if key == "theme":
-                val = {"default": "vq", "normal": "vq", "standard": "vq", "black": "midnight", "oled": "midnight", "dark": "midnight",
+                val = {"default": "vq", "normal": "vq", "standard": "vq", "original": "classic", "old": "classic",
+                       "old default": "classic", "previous": "classic", "black": "midnight", "oled": "midnight", "dark": "midnight",
                        "blue": "navy", "deep blue": "navy", "warm": "charcoal", "grey": "slate", "gray": "slate", "sea": "ocean",
                        "teal": "ocean", "green": "forest", "nature": "forest", "fire": "ember", "red": "ember", "cozy": "ember",
                        "purple": "plum", "violet": "plum"}.get(val, val)
@@ -1480,7 +1481,7 @@ def validate_ui_action(args: dict):
         if not style:
             return None, ("that option isn't available. Accent colours: orange, gold, teal, rose, violet, green, blue, grey; "
                           "fonts: default, readable, serif, mono, script, handwriting, elegant, classic, inscription, futuristic, "
-                          "retro, playful, rounded; title styles: inscription, elegant, futuristic; themes: vq, navy, charcoal, midnight, ocean, "
+                          "retro, playful, rounded; title styles: inscription, elegant, futuristic; themes: vq, classic, navy, charcoal, midnight, ocean, "
                           "forest, ember, slate, plum")
         clean["style"] = style
         parts = [f"{k.replace('_', ' ')} {v}" for k, v in style.items()]
