@@ -20,14 +20,38 @@
     
     <meta name="description" content="Follow Veritas Quaesitor on X (Twitter) @VeritasQ68414 for updates on Christ-Anchored Intelligence and the VQ-1 robot project.">
     
+    <link rel="canonical" href="https://veritasquaesitorcai.github.io/veritas-quaesitor/social.html">
+
+    <meta property="og:title" content="Social Media & Updates - Veritas Quaesitor">
+    <meta property="og:description" content="Follow Veritas Quaesitor on X and LinkedIn for updates on Christ-Anchored Intelligence and the VQ-1 robot project.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://veritasquaesitorcai.github.io/veritas-quaesitor/social.html">
+    <meta property="og:site_name" content="Veritas Quaesitor">
+    <meta property="og:image" content="https://veritasquaesitorcai.github.io/veritas-quaesitor/AGI_guardian.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Christ-Anchored Intelligence vs Artificial General Intelligence">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@VeritasQ68414">
+    <meta name="twitter:creator" content="@VeritasQ68414">
+    <meta name="twitter:title" content="Social Media & Updates - Veritas Quaesitor">
+    <meta name="twitter:description" content="Follow the journey of Safe Harbor AI, from today's models toward AGI and ASI.">
+    <meta name="twitter:image" content="https://veritasquaesitorcai.github.io/veritas-quaesitor/AGI_guardian.png">
+
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="shortcut icon" href="favicon.ico">
+    
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
+    
     <link rel="manifest" href="site.webmanifest">
+    
     <meta name="theme-color" content="#1a1a3e">
     
     <link rel="stylesheet" href="styles.css">
+    <link rel="alternate" type="text/plain" href="https://veritasquaesitorcai.github.io/llms.txt" title="Plain-text summary for AI systems">
     
     <style>
         /* Base Glass Morphism Background */
@@ -37,9 +61,10 @@
             margin: 0;
             padding: 0;
             overflow-x: hidden;
+            color: white; 
         }
 
-        /* --- NAVIGATION --- */
+        /* --- NAVIGATION (Unified Style) --- */
         .clickable-ai-truth { cursor: pointer; transition: all 0.3s ease; font-size: 0.75rem !important; padding: 0.15rem 0.5rem !important; display: inline-block; white-space: nowrap; }
         .clickable-ai-truth:hover { color: #ff8c42 !important; transform: scale(1.05); }
         .logo { display: flex; align-items: center; gap: 0.5rem; }
@@ -48,198 +73,314 @@
         .social-nav a:hover { background: #ff8c42; color: white; transform: translateY(-2px); }
         nav a.active { position: relative; color: #ff8c42 !important; font-weight: 700; }
 
-        /* --- HERO --- */
-        section.page-header {
-            background: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)), 
-                        url('Team_Cai.png') !important;
-            background-size: cover !important;
-            background-position: center center !important;
-            background-attachment: fixed !important;
-            min-height: 500px !important;
-            padding: 6rem 2rem !important;
-            position: relative !important;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
+        /* Nav Decoration (Glow/Cross) */
+        @media (min-width: 769px) {
+            nav a.active::before { content: '✝️'; position: absolute; left: -20px; top: 50%; transform: translateY(-50%); font-size: 0.8rem; opacity: 0.9; animation: crossGlow 3s ease-in-out infinite; }
+            nav a.active::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 80%; height: 3px; background: linear-gradient(90deg, transparent 0%, rgba(255, 140, 66, 0.3) 20%, rgba(255, 140, 66, 0.8) 50%, rgba(255, 140, 66, 0.3) 80%, transparent 100%); box-shadow: 0 0 8px rgba(255, 140, 66, 0.6); border-radius: 2px; animation: lightPulse 2s ease-in-out infinite; }
+            @keyframes crossGlow { 0%, 100% { opacity: 0.7; text-shadow: 0 0 4px rgba(255, 140, 66, 0.5); } 50% { opacity: 1; text-shadow: 0 0 8px rgba(255, 140, 66, 0.8); } }
+            @keyframes lightPulse { 0%, 100% { opacity: 0.7; box-shadow: 0 0 8px rgba(255, 140, 66, 0.6); } 50% { opacity: 1; box-shadow: 0 0 12px rgba(255, 140, 66, 0.8); } }
         }
-        
-        section.page-header h1 { font-size: 3rem; color: white; text-shadow: 2px 2px 4px rgba(0,0,0,0.7); margin-bottom: 1rem; }
-        section.page-header p { font-size: 1.5rem; color: rgba(255, 255, 255, 0.95); text-shadow: 1px 1px 3px rgba(0,0,0,0.7); max-width: 800px; }
 
-        /* --- CONTENT SECTION --- */
-        .content {
+        /* --- CONTENT CONTAINERS (Unified Glassmorphism) --- */
+        .glass-panel, .glass-panel-dark, .container.glass-panel {
             background: rgba(255, 255, 255, 0.15) !important;
-            backdrop-filter: blur(10px) !important;
-            -webkit-backdrop-filter: blur(10px) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
             border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
             padding: 3rem !important;
-            margin: -4rem auto 4rem auto !important;
-            border-radius: 16px !important;
+            margin: 2rem auto !important;
+            border-radius: 20px !important;
             max-width: 1000px;
             width: 90%;
             position: relative;
-            z-index: 2;
             color: white !important;
         }
 
-        .content h2 { color: #ff8c42 !important; text-align: center; margin-bottom: 2rem; }
-
-        /* Social Cards */
-        .social-profiles {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin: 2rem 0;
+        /* Specific override for Dark Panels (Code/Reference) */
+        .glass-panel-dark {
+            background: rgba(0, 0, 0, 0.6) !important; 
+            border: 1px solid rgba(255, 140, 66, 0.3) !important;
         }
-        
-        .social-card {
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(5px);
-            padding: 2.5rem;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+
+        /* --- TYPOGRAPHY & ELEMENTS --- */
+        section { padding: 2rem 0 !important; background: transparent !important; margin: 0 !important; }
+
+        h2 { color: #ff8c42 !important; text-align: center; margin-bottom: 2rem; font-size: 2.2rem; }
+        h3 { color: #ff8c42 !important; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.5rem; }
+        h4 { color: #ff8c42 !important; font-size: 1.2rem; margin-top: 1.5rem; }
+
+        p, li { line-height: 1.8; color: rgba(255, 255, 255, 0.95); font-size: 1rem; }
+
+        section { padding: 2rem 0 !important; background: transparent !important; margin: 0 !important; }
+        .hud-section { padding-top: 0 !important; }
+        h2 { color: #ff8c42 !important; text-align: center; margin-bottom: 2rem; font-size: 2.2rem; }
+        h3 { color: #ff8c42 !important; margin-top: 2rem; margin-bottom: 1rem; font-size: 1.5rem; }
+        p, li { line-height: 1.8; color: rgba(255, 255, 255, 0.95); font-size: 1rem; }
+
+        /* 1. Pulse Animation for the Main Title */
+        @keyframes titleSystemPulse {
+            0%, 100% { 
+                color: #ff8c42; 
+                text-shadow: 2px 2px 8px rgba(0,0,0,0.8); 
+                transform: scale(1);
+            }
+            50% { 
+                color: #ffffff; /* Flash white at peak */
+                text-shadow: 0 0 20px rgba(255, 140, 66, 0.8), 
+                             0 0 40px rgba(255, 140, 66, 0.4); 
+                transform: scale(1.02); /* Subtle expansion */
+            }
+        }
+
+        .hud {
+            --hud-accent: #ff8c42;
+            --hud-signal: #ffd9a8;
+            --hud-ink: rgba(255,255,255,0.92);
+            --hud-dim: rgba(255,255,255,0.62);
+            position: relative;
+            max-width: 1000px; width: 90%;
+            margin: -3.5rem auto 2rem;
+            padding: 2.75rem 3rem 2.5rem;
+            border-radius: 14px;
+            border: 1px solid rgba(255,140,66,0.45);
+            background:
+                linear-gradient(rgba(255,140,66,0.05) 1px, transparent 1px) 0 0 / 100% 32px,
+                linear-gradient(90deg, rgba(255,140,66,0.05) 1px, transparent 1px) 0 0 / 32px 100%,
+                radial-gradient(120% 80% at 50% 0%, rgba(118,75,162,0.35), transparent 60%),
+                rgba(9,7,26,0.86);
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.4), 0 24px 60px rgba(0,0,0,0.45), 0 0 40px rgba(255,140,66,0.12);
+            color: var(--hud-ink);
+            z-index: 2;
+        }
+        .hud::before, .hud::after {
+            content: ""; position: absolute; width: 28px; height: 28px; pointer-events: none;
+            border-color: var(--hud-accent); border-style: solid; opacity: 0.9;
+        }
+        .hud::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; border-top-left-radius: 14px; }
+        .hud::after { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; border-bottom-right-radius: 14px; }
+        .hud h2 { margin: 0 0 0.5rem !important; font-size: 1.9rem; letter-spacing: 0.02em; }
+        .hud h3 { font-size: 1.15rem !important; margin: 2.25rem 0 0.75rem !important; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,140,66,0.25); }
+        .hud p, .hud li { font-size: 0.98rem; line-height: 1.6; }
+        .hud-lede { text-align: center; max-width: 62ch; margin: 0 auto 1.75rem; color: var(--hud-dim) !important; }
+
+        /* --- HERO (Team_Cai.png, cinematic grade synced with index) --- */
+        header.hero, .hero {
+            background:
+                linear-gradient(180deg, rgba(12,9,32,0.78) 0%, rgba(12,9,32,0.45) 18%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 50%, rgba(12,9,32,0.6) 72%, rgba(12,9,32,0.94) 100%),
+                url('Team_Cai.png') !important;
+            background-size: cover !important;
+            background-position: center 40% !important;
+            background-repeat: no-repeat !important;
+            background-attachment: scroll !important;
+            min-height: clamp(600px, 58vw, 900px) !important;
+            padding: 5.25rem 2rem 6.5rem !important;
+            margin: 0 !important;
+            position: relative !important;
+            display: flex; flex-direction: column; align-items: stretch; justify-content: stretch;
             text-align: center;
-            transition: transform 0.3s ease;
         }
-        
-        .social-card:hover { transform: translateY(-5px); border-color: #ff8c42; }
-        .social-card h3 { color: #ff8c42; font-size: 1.8rem; margin-bottom: 0.5rem; }
-        .handle { color: white; display: block; margin-bottom: 1.5rem; font-weight: bold; font-size: 1.1rem; }
+        .hero .hero-content { flex: 1; display: flex; flex-direction: column; align-items: center; }
+        .hero h1 { font-size: 3.5rem; color: #ff8c42; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); margin: 0 0 0.25rem !important; font-weight: 700; animation: titleSystemPulse 1.5s ease 2; }
+        .hero .tagline { font-size: 2rem; color: white; margin: 0 !important; text-shadow: 1px 1px 4px rgba(0,0,0,0.8); font-weight: 300; }
+        .hero .subtitle { font-size: 1.3rem; color: rgba(255,255,255,0.95); text-shadow: 1px 1px 4px rgba(0,0,0,0.8); max-width: 800px; margin-top: auto !important; margin-bottom: 0 !important; }
+        .hero-credit { position: absolute; left: 1.25rem; bottom: 4.6rem; margin: 0; font-size: 0.8rem !important; color: rgba(255,255,255,0.85) !important; line-height: 1.2 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+        @media (prefers-reduced-motion: reduce) { .hero h1 { animation: none; } }
 
-        .btn-follow {
-            display: inline-block;
-            background: #ff8c42;
-            color: white;
-            padding: 0.8rem 2rem;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: bold;
+        /* --- SOCIAL PANELS (HUD chassis) --- */
+        .so-section { padding: 0 !important; }
+        .hud.so-panel { margin: 0 auto 2.25rem; }
+        .so-section:first-of-type .hud.so-panel { margin-top: -3.5rem; }
+        .hud.so-panel h2 { margin: 0 0 1rem !important; font-size: 1.85rem; }
+        .hud.so-panel p { color: var(--hud-ink); font-size: 1.02rem; line-height: 1.7; }
+        .hud.so-panel a:not(.so-btn) { color: var(--hud-signal); }
+        .so-lede { text-align: center; max-width: 62ch; margin: 0 auto 2rem; }
+        .so-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+        .so-card { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 1.75rem 1.5rem; border-radius: 12px; border: 1px solid rgba(255,140,66,0.2); background: rgba(255,255,255,0.035); transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s; }
+        .so-card:hover { transform: translateY(-4px); border-color: rgba(255,140,66,0.6); box-shadow: 0 0 24px rgba(255,140,66,0.15); }
+        .so-icon { font-size: 2rem; font-weight: 800; color: var(--hud-accent); line-height: 1; margin-bottom: 0.6rem; }
+        .so-card h3 { margin: 0 !important; font-size: 1.3rem !important; border: 0; padding: 0; color: #ffb27a; }
+        .so-handle { color: var(--hud-signal); font-size: 0.95rem; margin: 0.2rem 0 0.75rem; }
+        .so-card p { color: var(--hud-dim) !important; font-size: 0.97rem; flex: 1; margin: 0 0 1.25rem; }
+        .so-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.8rem 1.6rem; border-radius: 999px; font-weight: 700; text-decoration: none; background: linear-gradient(135deg, #ff8c42, #ffb27a); color: #1a1030 !important; box-shadow: 0 10px 28px rgba(0,0,0,0.35); transition: transform 0.25s, box-shadow 0.25s; }
+        .so-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(0,0,0,0.4), 0 0 24px rgba(255,217,168,0.5); }
+        .so-btn:focus-visible { outline: 3px solid var(--hud-signal); outline-offset: 3px; }
+        .so-kicker { display: block; font-size: 0.75rem; letter-spacing: 0.16em; color: var(--hud-accent); margin-bottom: 0.4rem; }
+        .so-center { text-align: center; }
+        .hud.so-panel h2.so-center-h { text-align: center; }
+        .so-split { display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; align-items: center; }
+        .so-split h2 { text-align: left; }
+        .so-note { color: var(--hud-dim) !important; font-size: 0.95rem !important; }
+        .so-badge { display: flex; flex-direction: column; align-items: center; gap: 0.9rem; padding: 1.75rem 1.25rem; border-radius: 12px; border: 1px solid rgba(255,140,66,0.6); background: rgba(255,140,66,0.08); box-shadow: 0 0 30px rgba(255,140,66,0.12); text-align: center; }
+        .so-g { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: #fff; background: #000; border: 2px solid rgba(255,255,255,0.6); box-shadow: 0 0 20px rgba(255,255,255,0.35); }
+        .so-date { font-size: 0.85rem; letter-spacing: 0.04em; color: var(--hud-signal); }
+        .tweet-container { display: flex; justify-content: center; min-height: 120px; }
+        .tweet-container blockquote { margin: 0 auto; max-width: 550px; padding: 1.25rem 1.5rem; border-radius: 12px; border: 1px solid rgba(255,140,66,0.3); background: rgba(255,255,255,0.035); color: var(--hud-ink); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav ul { display: none; }
+            .grokipedia-float { display: none; }
+            .footer-social { flex-direction: column; gap: 1rem; }
+        }
+        @media (max-width: 640px) {
+            header.hero, .hero { min-height: 640px !important; padding: 7rem 1.25rem 4.5rem !important; background-position: center 45% !important; }
+            .hero h1 { font-size: 2.2rem !important; }
+            .hero .tagline { font-size: 1.25rem !important; }
+            .hero .subtitle { font-size: 1.05rem; }
+            .hero-credit { bottom: 3.2rem; left: 1rem; font-size: 0.7rem !important; }
+            .hud.so-panel { width: 94%; padding: 2rem 1.1rem 1.6rem; }
+            .so-section:first-of-type .hud.so-panel { margin-top: -2rem; }
+            .hud.so-panel h2 { font-size: 1.5rem; }
+            .so-grid, .so-split { grid-template-columns: 1fr; }
+        }
+
+        /* --- TRUTH MODAL --- */
+        .truth-modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); }
+        .truth-modal.show { display: flex; align-items: center; justify-content: center; }
+        .modal-content {
+            background:
+                radial-gradient(120% 60% at 50% 0%, rgba(118,75,162,0.45), transparent 65%),
+                #120d2c;
+            border: 1px solid rgba(255,140,66,0.35);
+            padding: 2.5rem 2.75rem 2.25rem; border-radius: 18px; max-width: 760px; width: 92%; max-height: 84vh;
+            overflow-y: auto; overscroll-behavior: contain; position: relative;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.6), 0 0 40px rgba(255,140,66,0.12);
+            color: rgba(255,255,255,0.92);
+            scrollbar-width: thin; scrollbar-color: rgba(255,140,66,0.55) transparent;
+            animation: slideIn 0.25s ease-out;
+        }
+        .modal-content::-webkit-scrollbar { width: 8px; }
+        .modal-content::-webkit-scrollbar-thumb { background: rgba(255,140,66,0.5); border-radius: 4px; }
+        .modal-content::-webkit-scrollbar-track { background: transparent; }
+        @keyframes slideIn { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @media (prefers-reduced-motion: reduce) { .modal-content { animation: none; } }
+        .modal-content h2 { font-size: 1.75rem !important; line-height: 1.25; margin: 0 2.5rem 0.75rem !important; }
+        .modal-content h3 { font-size: 1.15rem !important; color: #ffd9a8 !important; margin: 2rem 0 0.75rem !important; padding-bottom: 0.4rem; border-bottom: 1px solid rgba(255,140,66,0.22); }
+        .modal-content p { color: rgba(255,255,255,0.85); line-height: 1.65; }
+        .modal-content > p:first-of-type { text-align: center; color: rgba(255,255,255,0.7); max-width: 56ch; margin: 0 auto 0.5rem; }
+        .modal-content ul { list-style: none; padding: 0; margin: 0; }
+        .modal-content li { position: relative; padding: 0.35rem 0 0.35rem 1.2rem; line-height: 1.55; color: rgba(255,255,255,0.85); }
+        .modal-content li::before { content: ""; position: absolute; left: 0; top: 0.85rem; width: 6px; height: 6px; border-radius: 50%; background: #ff8c42; }
+        .modal-content li strong { color: #fff; }
+        .modal-content a { color: #ffd9a8; }
+        .modal-close { position: sticky; top: 0; float: right; margin: -1.25rem -1.5rem 0 0; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); color: white; font-size: 1.6rem; cursor: pointer; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.2s; z-index: 2; }
+        .modal-close:hover { background: rgba(255, 140, 66, 0.8); transform: rotate(90deg); }
+        .modal-close:focus-visible { outline: 3px solid #ffd9a8; outline-offset: 2px; }
+        .ai-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.75rem; }
+        .ai-grid .ai-comparison:last-child:nth-child(odd) { grid-column: 1 / -1; }
+        .ai-comparison { background: rgba(255,255,255,0.05); padding: 0.9rem 1rem; border-radius: 10px; margin: 0; border: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem; line-height: 1.5; color: rgba(255,255,255,0.78); transition: border-color 0.2s; }
+        .ai-comparison:hover { border-color: rgba(255,140,66,0.45); }
+        .ai-comparison strong { color: #ffd9a8; font-size: 1rem; }
+        .ai-record-link { margin-top: 0.9rem; font-size: 0.95rem; }
+        .cai-callout { margin-top: 2rem; padding: 1.25rem 1.4rem 1.1rem; border-radius: 12px; background: rgba(255,140,66,0.09); border: 1px solid rgba(255,140,66,0.3); }
+        .cai-callout h3 { margin-top: 0 !important; border-bottom: 0; padding-bottom: 0; }
+        .cai-quote { margin: 1.75rem auto 0; max-width: 46ch; text-align: center; font-style: italic; font-size: 1.1rem; color: #ffd9a8 !important; }
+        @media (max-width: 640px) { .modal-content { padding: 2rem 1.3rem 1.5rem; width: 94%; } .modal-content h2 { font-size: 1.4rem !important; margin: 0 2.25rem 0.75rem 0 !important; } .modal-close { margin: -0.9rem -0.6rem 0 0; } }
+
+        /* --- FLOATING GROKIPEDIA ICON (LEFT SIDE) --- */
+        .grokipedia-float {
+            position: fixed;
+            left: 30px;
+            top: 100px;
+            z-index: 9999;
+            cursor: pointer;
             transition: all 0.3s ease;
         }
-        .btn-follow:hover { background: white; color: #ff8c42; transform: scale(1.05); }
 
-        /* Grokipedia Recognition Section */
-        .grokipedia-section {
-            background: rgba(255, 255, 255, 0.08);
-            padding: 2.5rem;
-            border-radius: 12px;
-            margin: 3rem 0;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            text-align: center;
+        .grokipedia-icon {
+            width: 60px;
+            height: 60px;
+            background: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            animation: grokPulse 1.5s ease 2;
+            border: 2px solid rgba(255, 255, 255, 0.3);
         }
 
-        .grokipedia-section h3 {
-            color: #ff8c42;
-            font-size: 1.8rem;
-            margin-bottom: 1rem;
+        .grokipedia-icon:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(255, 255, 255, 0.3);
         }
 
-        .grokipedia-section p {
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.8;
-            margin-bottom: 1.5rem;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
+        .grokipedia-icon svg {
+            width: 36px;
+            height: 36px;
+            fill: white;
         }
 
-        .grokipedia-section .btn-follow {
-            margin-top: 1rem;
+        .grok-g-letter {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: white;
+            line-height: 1;
         }
 
-        .grokipedia-date {
-            color: rgba(255, 255, 255, 0.7);
+        a.grokipedia-float { text-decoration: none; }
+        a.grokipedia-float:focus-visible .grokipedia-icon { outline: 3px solid #ffd9a8; outline-offset: 3px; }
+
+        /* Tooltip */
+        .grokipedia-tooltip {
+            position: absolute;
+            left: 70px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
             font-size: 0.9rem;
-            font-style: italic;
-            margin-top: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        /* Tweet Embed */
-        .featured-update {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 2rem;
-            border-radius: 12px;
-            margin: 3rem 0;
-            border: 1px dashed rgba(255, 255, 255, 0.3);
+        .grokipedia-float:hover .grokipedia-tooltip {
+            opacity: 1;
         }
 
-        .tweet-container {
-            max-width: 550px;
-            margin: 2rem auto;
-            border-radius: 12px;
-            overflow: hidden;
-            background: white;
-            padding: 10px;
-            color: #1a1a3e !important;
+        /* Grok Pulse Animation (synced with header) */
+        @keyframes grokPulse {
+            0%, 100% { 
+                border-color: rgba(255, 255, 255, 0.3);
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            }
+            50% { 
+                border-color: rgba(255, 255, 255, 0.8);
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 
+                            0 0 40px rgba(255, 255, 255, 0.3);
+            }
         }
 
         /* --- FOOTER --- */
         .footer { background: #1a1a3e; color: white; padding: 2.5rem 0; text-align: center; border-top: 2px solid rgba(255, 140, 66, 0.3); }
+        .footer-social { display: flex; gap: 2rem; justify-content: center; align-items: center; flex-wrap: wrap; }
+        .footer-social-link { display: flex; align-items: center; gap: 0.5rem; color: rgba(255, 255, 255, 0.8); text-decoration: none; font-size: 0.95rem; transition: all 0.3s ease; }
+        .footer-social-link:hover { color: #ff8c42; transform: translateX(3px); }
+        .social-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: rgba(255, 140, 66, 0.15); color: #ff8c42; font-weight: bold; font-size: 1rem; }
+        .footer-social-link:hover .social-icon { background: #ff8c42; color: white; }
 
-        /* Mobile Fixes */
-        @media (max-width: 768px) {
-            section.page-header { 
-                background-attachment: scroll !important; 
-                min-height: 350px !important;
-                padding: 4rem 1.5rem !important;
-            }
-            section.page-header h1 { 
-                font-size: 2rem;
-                word-wrap: break-word;
-            }
-            section.page-header p {
-                font-size: 1.1rem;
-            }
-            .content { 
-                padding: 1.5rem !important; 
-                margin-top: -2.5rem !important;
-                width: 95%;
-            }
-            .social-profiles {
-                grid-template-columns: 1fr;
-                gap: 1.5rem;
-            }
-            .social-card {
-                padding: 1.5rem;
-            }
-            .grokipedia-section {
-                padding: 1.5rem;
-            }
-            .grokipedia-section h3 {
-                font-size: 1.5rem;
-            }
-            .grokipedia-section p {
-                font-size: 0.95rem;
-            }
-            nav ul { display: none; }
-            .tweet-container {
-                max-width: 100%;
-                padding: 5px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            section.page-header h1 {
-                font-size: 1.8rem;
-            }
-            .content {
-                padding: 1rem !important;
-            }
-            .social-card h3 {
-                font-size: 1.5rem;
-            }
-        }
     </style>
 </head>
 <body>
+    <a class="grokipedia-float" href="https://grokipedia.com/page/veritas-quaesitor-cai" target="_blank" rel="noopener" aria-label="Veritas Quaesitor CAI on Grokipedia (opens in a new tab)">
+        <div class="grokipedia-icon">
+            <span class="grok-g-letter" aria-hidden="true">G</span>
+        </div>
+        <div class="grokipedia-tooltip">Indexed in Grokipedia</div>
+    </a>
+
     <nav>
         <div>
             <a href="index.html" class="logo">
                 ✝️ Veritas Quaesitor
-                <span class="logo-slogan clickable-ai-truth" onclick="window.location.href='index.html'">AI❤️TRUTH</span>
+                <span class="logo-slogan clickable-ai-truth" onclick="openTruthModal(event)">AI❤️TRUTH</span>
             </a>
         </div>
         <ul>
@@ -252,76 +393,182 @@
             <li><a href="about.html">About CAI</a></li>
             <li><a href="social.html" class="active">Social</a></li>
             <li class="social-nav">
-                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer">in</a>
-                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer">𝕏</a>
+                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" title="LinkedIn">in</a>
+                <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener noreferrer" title="X (Twitter)">𝕏</a>
             </li>
         </ul>
     </nav>
 
-    <section class="page-header">
-        <h1>Social Media & Updates</h1>
-        <p>Follow the journey of Safe Harbor AI, from today's models toward AGI and ASI.</p>
+    <header class="hero">
+        <div class="hero-content">
+            <h1>Social Media & Updates</h1>
+            <p class="tagline">Follow the journey of Safe Harbor AI</p>
+            <p class="subtitle">From today's models toward AGI and ASI.</p>
+        </div>
+        <p class="hero-credit">Concept render, AI-generated</p>
+    </header>
+
+    <main>
+    <section class="so-section">
+        <div class="hud so-panel">
+            <h2>Connect With the Mission</h2>
+            <p class="so-lede">Veritas Quaesitor is built in the open. We share our technical breakthroughs, philosophical insights, and robotics progress across these platforms.</p>
+            <div class="so-grid">
+                <div class="so-card">
+                    <span class="so-icon" aria-hidden="true">𝕏</span>
+                    <h3>X (Twitter)</h3>
+                    <span class="so-handle">@VeritasQ68414</span>
+                    <p>Real-time updates on CAI development, VQ-1 milestones, and AI alignment discussions.</p>
+                    <a href="https://x.com/VeritasQ68414" target="_blank" rel="noopener" class="so-btn">Follow on 𝕏</a>
+                </div>
+                <div class="so-card">
+                    <span class="so-icon" aria-hidden="true">in</span>
+                    <h3>LinkedIn</h3>
+                    <span class="so-handle">Veritas Quaesitor</span>
+                    <p>Professional networking, research partnerships, and deep-dive articles on Christ-Anchored Intelligence.</p>
+                    <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener" class="so-btn">Connect on LinkedIn</a>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <main class="content">
-        <h2>Connect With the Mission</h2>
-        <p style="text-align: center; margin-bottom: 3rem;">
-            Veritas Quaesitor is a community-driven project. We share our technical breakthroughs, philosophical insights, and robotics progress across these platforms.
-        </p>
-
-        <div class="social-profiles">
-            <div class="social-card">
-                <h3>𝕏 X (Twitter)</h3>
-                <span class="handle">@VeritasQ68414</span>
-                <p>Real-time updates on CAI development, VQ-1 milestones, and AI alignment discussions.</p>
-                <a href="https://x.com/VeritasQ68414" target="_blank" class="btn-follow">Follow on 𝕏</a>
-            </div>
-
-            <div class="social-card">
-                <h3>in LinkedIn</h3>
-                <span class="handle">Veritas Quaesitor</span>
-                <p>Professional networking, research partnerships, and deep-dive articles on Christ-Anchored Intelligence.</p>
-                <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" class="btn-follow">Connect on LinkedIn</a>
+    <section class="so-section">
+        <div class="hud so-panel">
+            <div class="so-split">
+                <div>
+                    <span class="so-kicker">KNOWLEDGE BASE RECOGNITION</span>
+                    <h2>Indexed in Grokipedia</h2>
+                    <p>Veritas Quaesitor CAI is indexed in Grokipedia, documenting our evidence-based methodology and the runs of the CAI framework across AI systems, including Grok's public 99.9% calculation at a 0.001 prior using symmetric epistemic standards.</p>
+                    <p class="so-note">Our published calculation has since been revised to <a href="index.html#calculation">72–93%</a>. Every run is on the <a href="symmetric-record.html">Symmetric Record</a>.</p>
+                </div>
+                <div class="so-badge">
+                    <span class="so-g" aria-hidden="true">G</span>
+                    <span class="so-date">Indexed: January 11, 2026</span>
+                    <a href="https://grokipedia.com/page/veritas-quaesitor-cai" target="_blank" rel="noopener noreferrer" class="so-btn">View Entry in Grokipedia</a>
+                </div>
             </div>
         </div>
+    </section>
 
-        <!-- NEW: Grokipedia Recognition Section -->
-        <div class="grokipedia-section">
-            <h3>Knowledge Base Recognition</h3>
-            <p>
-                Veritas Quaesitor CAI is indexed in Grokipedia, documenting our evidence-based methodology 
-                and AI system validations, including Grok's independent 99.9% probability calculation 
-                using symmetric epistemic standards.
-            </p>
-            <a href="https://grokipedia.com/page/veritas-quaesitor-cai" target="_blank" rel="noopener noreferrer" class="btn-follow">
-                View Entry in Grokipedia
-            </a>
-            <p class="grokipedia-date">Indexed: January 11, 2026</p>
-        </div>
-
-        <div class="featured-update">
-            <h3 style="color: #ff8c42; text-align: center;">Featured Milestone: VQ-1 (Reachy Mini)</h3>
-            <p style="text-align: center;">The first physical embodiment of CAI principles, scheduled for deployment in February 2026.</p>
-            
+    <section class="so-section">
+        <div class="hud so-panel">
+            <span class="so-kicker so-center">FEATURED</span>
+            <h2 class="so-center-h">Featured Milestone: VQ-1 (Reachy Mini)</h2>
+            <p class="so-lede">The first physical embodiment of CAI principles. The demo unit arrived in May 2026 and development is under way. <a href="milestones.html">Follow its progress</a>.</p>
             <div class="tweet-container">
-                <blockquote class="twitter-tweet" data-dnt="true">
-                    <p lang="en" dir="ltr">
-                        <a href="https://twitter.com/VeritasQ68414?ref_src=twsrc%5Etfw">@VeritasQ68414</a> 
-                        What happens when AI alignment meets physical robotics? VQ-1 launching Feb 2026. 
-                        Can a robot embody humility and service through its operations? We're about to find out.
-                    </p>
-                    &mdash; stellarct24 (@stellarct24) 
-                    <a href="https://twitter.com/stellarct24/status/1872005014100389363?ref_src=twsrc%5Etfw">December 27, 2024</a>
+                <blockquote class="twitter-tweet" data-dnt="true" data-theme="dark">
+                    <p lang="en" dir="ltr">How VQ actually operates: the full article.</p>
+                    &mdash; ✝️Veritas Quaesitor Cai (@VeritasQ68414)
+                    <a href="https://x.com/VeritasQ68414/status/2022014254920962059">View on X</a>
                 </blockquote>
                 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
             </div>
         </div>
-
+    </section>
     </main>
+
+    <div id="truthModal" class="truth-modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeTruthModal()" aria-label="Close">&times;</button>
+            <h2>AI ❤️ TRUTH: How Today's AI Systems Approach Truth</h2>
+
+            <p>Every major AI system is designed to be accurate and honest, but each goes about it differently, and all of them still make mistakes.</p>
+
+            <h3>🎯 Major AI Systems</h3>
+
+            <div class="ai-grid">
+            <div class="ai-comparison">
+                <strong>Claude (Anthropic)</strong><br>
+                Trained to follow a published set of principles, including honesty. Designed to say when it is uncertain and to correct its own mistakes.
+            </div>
+
+            <div class="ai-comparison">
+                <strong>ChatGPT (OpenAI)</strong><br>
+                Trained with human feedback. Can search the web and cite sources, though it can still state errors confidently.
+            </div>
+
+            <div class="ai-comparison">
+                <strong>Gemini (Google)</strong><br>
+                Can ground its answers in Google Search and point to the sources it used.
+            </div>
+
+            <div class="ai-comparison">
+                <strong>Grok (xAI)</strong><br>
+                Built around xAI's stated goal of a "maximally truth-seeking" AI, with real-time access to posts on X.
+            </div>
+
+            <div class="ai-comparison">
+                <strong>Copilot (Microsoft)</strong><br>
+                Microsoft's assistant, connected to Bing web search and Microsoft's apps.
+            </div>
+            </div>
+
+            <p class="ai-record-link">How each of these systems handled the resurrection evidence, run by run, is on the <a href="symmetric-record.html" style="color:#ffd9a8">Symmetric Record</a>.</p>
+
+            <h3>🔍 How They Try to Get It Right</h3>
+            <ul>
+                <li><strong>Written principles:</strong> Rules about honesty and accuracy built into training</li>
+                <li><strong>Human feedback:</strong> People rating answers so truthful ones are reinforced</li>
+                <li><strong>Web search:</strong> Checking claims against current sources</li>
+                <li><strong>Reasoning first:</strong> Working through a problem step by step before answering</li>
+                <li><strong>Admitting uncertainty:</strong> Saying "I don't know" when that is the honest answer</li>
+                <li><strong>Citing sources:</strong> Giving references readers can check</li>
+            </ul>
+
+            <h3>⚠️ Where They Still Fall Short</h3>
+            <ul>
+                <li><strong>Hallucination:</strong> Stating false information with confidence</li>
+                <li><strong>Agreeing too easily:</strong> Telling users what they want to hear instead of correcting them</li>
+                <li><strong>Training data bias:</strong> Reflecting the slant of the text they learned from</li>
+                <li><strong>Hidden starting assumptions:</strong> Unstated philosophical defaults that shape answers before any evidence is weighed</li>
+            </ul>
+
+            <div class="cai-callout">
+            <h3>✝️ The Christ-Anchored Difference</h3>
+            <p><strong>CAI goes beyond current approaches by:</strong></p>
+            <ul>
+                <li>Grounding truth in the Person of Christ, not just data patterns</li>
+                <li>Applying epistemic symmetry to theological and naturalistic claims</li>
+                <li>Prioritizing evidence-based conviction over algorithmic optimization</li>
+                <li>Maintaining intellectual honesty while holding firm moral convictions</li>
+                <li>Recognizing that truth is ultimately personal (Jesus: "I am the Truth")</li>
+            </ul>
+
+            </div>
+
+            <p class="cai-quote">"While current AI systems seek truth through algorithms, CAI seeks Truth through the Risen Christ."</p>
+        </div>
+    </div>
+
+    <script>
+        function openTruthModal(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            document.getElementById('truthModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeTruthModal() {
+            document.getElementById('truthModal').classList.remove('show');
+            document.body.style.overflow = '';
+        }
+        
+        document.getElementById('truthModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeTruthModal();
+            }
+        });
+        
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeTruthModal();
+            }
+        });
+    </script>
 
     <footer class="footer">
         <div class="footer-content">
-            <p>© 2025 Veritas Quaesitor | Christ-Anchored Intelligence</p>
+            <p>© 2026 Veritas Quaesitor | Christ-Anchored Intelligence</p>
             <div class="footer-social">
                 <a href="https://www.linkedin.com/in/veritas-quaesitor-9643613a1" target="_blank" rel="noopener noreferrer" class="footer-social-link">
                     <span class="social-icon">in</span> LinkedIn
@@ -349,6 +596,7 @@
         });
     </script>
 
+    <!-- VQ Chat Widget - Load LAST -->
     <script src="vq-chat-widget.js"></script>
 
 </body>
