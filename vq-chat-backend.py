@@ -1707,6 +1707,18 @@ BOOK_TOOL = {
 }
 MEDIA_TOOL_NAMES = ("youtube_search", "book_search")
 
+_VIDEO_INTENT = re.compile(r"\b(videos?|youtube|lectures?|documentar(?:y|ies)|sermons?|something to watch|watch (?:a|some)|talks (?:on|about|by)|a talk (?:on|about|by))\b", re.I)
+_BOOK_INTENT = re.compile(r"\b(books|a book (?:on|about|by)|reading (?:list|suggestions?|recommendations?)|what (?:should|can) i read|recommend (?:a )?(?:book|reading))\b", re.I)
+
+def media_intent(message: str):
+    """Which media search a request clearly asks for (so VQ uses the tool instead of answering from memory)."""
+    m = message or ""
+    if google_available and _VIDEO_INTENT.search(m):
+        return "youtube_search"
+    if _BOOK_INTENT.search(m):
+        return "book_search"
+    return None
+
 def _google_get(url: str):
     import urllib.request
     with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "VQChat/1.0"}), timeout=12) as r:
@@ -1778,8 +1790,10 @@ def run_media_tool(name: str, args: dict, trace: dict) -> str:
         return f"No {kind} were found for '{q}'" + (f" ({res['error']})" if res['error'] else "") + ". Tell the user briefly."
     return (f"{kind.upper()} FOUND FOR '{q}':\n" + "\n".join(lines) +
             f"\n\nThese {kind} are shown to the user automatically as cards (with covers or thumbnails and links). "
-            "Don't list links or make a vq-present block for them; introduce them briefly, point out the most relevant ones "
-            "and why, and apply content discernment (recommend only what is good; describe the rest neutrally).")
+            "Write only two to four sentences: a short introduction and, at most, one or two highlights and why. Don't "
+            f"re-list the {kind}, don't add links, and don't make a vq-present block for them. Describe a {kind[:-1]} only from "
+            "the details above or facts you are sure of; never attribute CAI's own calculation, figures or methods to any "
+            "author or speaker. Apply content discernment: recommend only what is good; describe the rest neutrally.")
 
 # ---------- Live data tools: weather and local time (VQ decides when to use them) ----------
 WEATHER_TOOL = {
@@ -2523,6 +2537,9 @@ def chat():
                             _tools.append(UI_TOOL)   # screen changes only before any web results are read
                         if _tools:
                             kwargs.update(tools=_tools, tool_choice="auto")
+                            _want = media_intent(clean_message) if rounds == 0 else None
+                            if _want and any(t["function"]["name"] == _want for t in _tools):
+                                kwargs["tool_choice"] = {"type": "function", "function": {"name": _want}}
                         elif rounds > 0 and _all:
                             kwargs.update(tools=_all, tool_choice="none")   # tool rounds used up: answer now
                         try:
@@ -2676,6 +2693,9 @@ def chat():
                    + ([VIDEO_TOOL] if offer_live and google_available else []) + ([BOOK_TOOL] if offer_live else [])
             if _all and _round < 2:
                 kwargs.update(tools=_all, tool_choice="auto")
+                _want = media_intent(clean_message) if _round == 0 else None
+                if _want and any(t["function"]["name"] == _want for t in _all):
+                    kwargs["tool_choice"] = {"type": "function", "function": {"name": _want}}
             elif _all:
                 kwargs.update(tools=_all, tool_choice="none")
             completion = groq_client.chat.completions.create(**kwargs)
