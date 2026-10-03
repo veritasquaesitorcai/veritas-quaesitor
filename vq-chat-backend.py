@@ -1345,8 +1345,9 @@ def tavily_search(query: str, topic: str = "general", max_results: int = 5, imag
         pics = []
         for im in (data.get("images") or [])[:6]:
             url = im.get("url") if isinstance(im, dict) else im
-            if isinstance(url, str) and url.startswith("https://"):
-                pics.append({"url": url[:500], "description": ((im.get("description") if isinstance(im, dict) else "") or "")[:200]})
+            desc = ((im.get("description") if isinstance(im, dict) else "") or "")[:200]
+            if isinstance(url, str) and url.startswith("https://") and passes_filter(desc, url):
+                pics.append({"url": url[:500], "description": desc})
         print(f"[TAVILY] '{query[:60]}' ({topic}) -> {len(results)} results, {len(pics)} images", flush=True)
         return {"results": results, "images": pics, "ms": int((_time.time() - t0) * 1000), "error": None}
     except Exception as e:
@@ -1684,6 +1685,34 @@ Rules: always open the block with three backticks and vq-present, and close it w
 its content in prose. Use a layout only when it truly helps; most answers stay plain prose."""
 
 
+
+# ---------- Christian content filter for media cards (videos, books, pictures) ----------
+_BLOCK_WORDS = [
+    # occult and demonic
+    "demon", "demons", "demonic", "satan", "satanic", "satanism", "lucifer", "occult", "witchcraft", "witch", "witches",
+    "warlock", "sorcery", "necromancy", "seance", "séance", "ouija", "tarot", "horoscope", "horoscopes", "zodiac",
+    "astrology", "spellbook", "voodoo", "hex", "curse ritual", "666", "possessed", "possession", "exorcist", "pentagram",
+    "summoning", "paranormal", "haunted", "ghost hunting",
+    # sexual content
+    "sexy", "nude", "nudes", "naked", "porn", "porno", "xxx", "nsfw", "onlyfans", "erotic", "erotica", "hentai",
+    "strip club", "stripper", "fetish", "hookup", "seductive", "lingerie",
+    # profanity
+    "wtf", "fuck", "fucking", "shit", "bitch", "bastard", "damn", "goddamn", "crap", "pissed",
+    # drugs, drunkenness, gambling
+    "weed", "stoned", "cocaine", "meth", "drunk", "wasted", "high af", "420", "gambling", "casino", "betting",
+    # gore and cruelty
+    "gore", "gory", "brutal kill", "torture", "murdered", "massacre", "bloodbath", "slaughter",
+]
+_BLOCK_RE = re.compile(r"(?<![a-z0-9])(" + "|".join(re.escape(w) for w in _BLOCK_WORDS) + r")(?![a-z0-9])", re.I)
+# Christian teaching about these subjects (e.g. a sermon on spiritual warfare) is allowed through
+_CHRISTIAN_CONTEXT = re.compile(r"(?<![a-z])(bible|biblical|scripture|christian|christianity|jesus|christ|church|sermon|gospel|apologetic|apologetics|theology|pastor|ministry|deliverance|spiritual warfare)(?![a-z])", re.I)
+
+def passes_filter(*texts) -> bool:
+    t = " ".join(x for x in texts if isinstance(x, str))
+    if not _BLOCK_RE.search(t):
+        return True
+    return bool(_CHRISTIAN_CONTEXT.search(t)) and not re.search(r"(?<![a-z])(porn|nude|nudes|naked|xxx|nsfw|onlyfans|hentai|erotic|fuck|fucking)(?![a-z])", t, re.I)
+
 # ---------- Google public services: YouTube videos and Google Books (one key: GOOGLE_API_KEY) ----------
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "")
 google_available = bool(GOOGLE_API_KEY)
@@ -1729,7 +1758,7 @@ def youtube_search(query: str) -> dict:
     t0 = _time.time()
     try:
         d = _google_get("https://www.googleapis.com/youtube/v3/search?" + _up.urlencode({
-            "part": "snippet", "type": "video", "maxResults": 6, "safeSearch": "strict",
+            "part": "snippet", "type": "video", "maxResults": 15, "safeSearch": "strict",
             "relevanceLanguage": "en", "q": query[:200], "key": GOOGLE_API_KEY}))
         vids = []
         for it in d.get("items", []):
@@ -1740,7 +1769,8 @@ def youtube_search(query: str) -> dict:
             vids.append({"id": vid, "title": _h.unescape(sn.get("title", ""))[:160], "channel": _h.unescape(sn.get("channelTitle", ""))[:80],
                          "published": (sn.get("publishedAt") or "")[:10], "description": _h.unescape(sn.get("description", ""))[:300],
                          "thumbnail": thumb if thumb.startswith("https://") else f"https://i.ytimg.com/vi/{vid}/hqdefault.jpg"})
-        return {"items": vids, "ms": int((_time.time() - t0) * 1000), "error": None}
+        kept = [v for v in vids if passes_filter(v["title"], v["description"], v["channel"])]
+        return {"items": kept[:6], "filtered": len(vids) - len(kept), "ms": int((_time.time() - t0) * 1000), "error": None}
     except Exception as e:
         print(f"[YOUTUBE] error: {e}", flush=True)
         return {"items": [], "ms": int((_time.time() - t0) * 1000), "error": str(e)}
@@ -1749,7 +1779,7 @@ def book_search(query: str) -> dict:
     import urllib.parse as _up
     t0 = _time.time()
     try:
-        params = {"q": query[:200], "maxResults": 6, "printType": "books", "orderBy": "relevance"}
+        params = {"q": query[:200], "maxResults": 15, "printType": "books", "orderBy": "relevance"}
         if GOOGLE_API_KEY:
             params["key"] = GOOGLE_API_KEY
         d = _google_get("https://www.googleapis.com/books/v1/volumes?" + _up.urlencode(params))
@@ -1765,7 +1795,8 @@ def book_search(query: str) -> dict:
                           "description": re.sub(r"<[^>]+>", "", v.get("description") or "")[:700],
                           "cover": cover if cover.startswith("https://") else "", "url": link if link.startswith("https://") else "",
                           "pages": v.get("pageCount") or None})
-        return {"items": books, "ms": int((_time.time() - t0) * 1000), "error": None}
+        kept = [b for b in books if passes_filter(b["title"], b["description"], b["authors"])]
+        return {"items": kept[:6], "filtered": len(books) - len(kept), "ms": int((_time.time() - t0) * 1000), "error": None}
     except Exception as e:
         print(f"[BOOKS] error: {e}", flush=True)
         return {"items": [], "ms": int((_time.time() - t0) * 1000), "error": str(e)}
@@ -1774,14 +1805,14 @@ def run_media_tool(name: str, args: dict, trace: dict) -> str:
     q = str((args or {}).get("query") or "").strip()[:200]
     if name == "youtube_search":
         res = youtube_search(q)
-        trace.setdefault('steps', []).append({'label': 'Searched YouTube', 'query': q, 'found': len(res['items']), 'ms': res['ms']})
+        trace.setdefault('steps', []).append({'label': 'Searched YouTube', 'query': q, 'found': len(res['items']), 'ms': res['ms'], 'filtered': res.get('filtered', 0)})
         if res['items']:
             trace['videos'] = res['items']
         lines = [f"[{i}] {v['title']}, by {v['channel']} ({v['published']}): {v['description'][:160]}" for i, v in enumerate(res['items'], 1)]
         kind = "videos"
     else:
         res = book_search(q)
-        trace.setdefault('steps', []).append({'label': 'Searched Google Books', 'query': q, 'found': len(res['items']), 'ms': res['ms']})
+        trace.setdefault('steps', []).append({'label': 'Searched Google Books', 'query': q, 'found': len(res['items']), 'ms': res['ms'], 'filtered': res.get('filtered', 0)})
         if res['items']:
             trace['books'] = res['items']
         lines = [f"[{i}] {b['title']}, by {b['authors'] or 'unknown'} ({b['year']}): {b['description'][:200]}" for i, b in enumerate(res['items'], 1)]
