@@ -385,6 +385,7 @@
     function handleInputChange() {
         const length = elements.messageInput.value.length;
         elements.charCount.textContent = `${length} / ${CONFIG.maxMessageLength}`;
+        elements.charCount.classList.toggle('show', length > CONFIG.maxMessageLength * 0.75);   // phones show it only near the limit
         elements.sendBtn.disabled = length === 0 || length > CONFIG.maxMessageLength || isTyping;
         autoResizeTextarea();
     }
