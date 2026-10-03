@@ -1699,22 +1699,28 @@
     // Background themes. 'vq' is the default: warm charcoal on desktop, deep navy on phones (set in the stylesheet).
     const THEME_VARS = ['--bg-dark', '--bg-darker', '--bg-panel', '--surface-raised', '--border-subtle', '--message-bg', '--text-primary'];
     const THEMES = {
-        vq: null,
-        navy:     ['#0f0f23', '#0d0d20', 'rgba(26, 26, 62, 0.75)', '#141230', 'rgba(255,255,255,0.10)', 'rgba(255,255,255,0.07)', '#e8e8f0'],
-        charcoal: ['#262624', '#232321', 'rgba(48, 47, 44, 0.8)', '#2c2b29', 'rgba(255,255,255,0.09)', 'rgba(255,255,255,0.05)', '#ecebe7'],
-        midnight: ['#0e0e0e', '#121212', 'rgba(28, 28, 28, 0.85)', '#1b1b1b', 'rgba(255,255,255,0.09)', 'rgba(255,255,255,0.05)', '#ececec'],
-        ocean:    ['#0c1d27', '#0a1922', 'rgba(16, 40, 56, 0.8)', '#12293a', 'rgba(140,200,230,0.12)', 'rgba(140,200,230,0.06)', '#e4f1f6'],
-        forest:   ['#121a15', '#101813', 'rgba(24, 38, 30, 0.8)', '#19251e', 'rgba(150,210,170,0.11)', 'rgba(150,210,170,0.05)', '#e6efe8'],
-        ember:    ['#1e1513', '#1a1210', 'rgba(46, 30, 25, 0.8)', '#2a1d18', 'rgba(255,190,150,0.11)', 'rgba(255,190,150,0.05)', '#f2e9e4'],
-        slate:    ['#1d2026', '#1a1d22', 'rgba(40, 44, 52, 0.8)', '#252930', 'rgba(255,255,255,0.10)', 'rgba(255,255,255,0.05)', '#e9ecf1'],
-        plum:     ['#1b1322', '#18101e', 'rgba(42, 28, 52, 0.8)', '#24182d', 'rgba(220,180,255,0.11)', 'rgba(220,180,255,0.05)', '#efe8f5']
+        // Default: the original near-black Midnight look
+        vq:       ['#0e0e0e', '#121212', 'rgba(28, 28, 28, 0.85)', '#1b1b1b', 'rgba(255,255,255,0.09)', 'rgba(255,255,255,0.05)', '#ececec'],
+        // The previous default: warm charcoal on desktop, deep navy on phones (from the stylesheet)
+        classic:  null,
+        navy:     ['#0d0e2b', '#0b0c26', 'rgba(26, 28, 78, 0.78)', '#151640', 'rgba(150,160,255,0.13)', 'rgba(150,160,255,0.07)', '#e8e9fb'],
+        charcoal: ['#2a2622', '#26221e', 'rgba(58, 50, 42, 0.82)', '#332d27', 'rgba(255,220,180,0.11)', 'rgba(255,220,180,0.05)', '#efe9e2'],
+        midnight: ['#0b0b10', '#0f0f15', 'rgba(26, 26, 36, 0.86)', '#1a1a24', 'rgba(255,255,255,0.10)', 'rgba(255,255,255,0.05)', '#ececf2'],
+        ocean:    ['#06202e', '#051b27', 'rgba(10, 50, 72, 0.82)', '#0b2c40', 'rgba(110,210,240,0.16)', 'rgba(110,210,240,0.07)', '#e2f3f8'],
+        forest:   ['#0d1f14', '#0b1a11', 'rgba(20, 52, 33, 0.82)', '#14301f', 'rgba(140,225,165,0.15)', 'rgba(140,225,165,0.06)', '#e4f2e8'],
+        ember:    ['#25130d', '#20100a', 'rgba(62, 28, 18, 0.82)', '#361c12', 'rgba(255,170,120,0.15)', 'rgba(255,170,120,0.06)', '#f6e8e1'],
+        slate:    ['#1a2030', '#171c2a', 'rgba(38, 48, 70, 0.82)', '#232b3d', 'rgba(170,190,230,0.14)', 'rgba(170,190,230,0.06)', '#e8edf6'],
+        plum:     ['#1f1030', '#1b0d2a', 'rgba(50, 24, 74, 0.82)', '#2b1742', 'rgba(225,175,255,0.15)', 'rgba(225,175,255,0.06)', '#f1e7f8']
     };
+    // Each theme comes with an accent colour that complements it (the user can still pick another accent afterwards)
+    const THEME_ACCENT = { vq: 'orange', classic: 'orange', navy: 'gold', charcoal: 'teal', midnight: 'rose', ocean: 'orange',
+                           forest: 'gold', ember: 'teal', slate: 'violet', plum: 'rose' };
 
     function applyTheme(name) {
         const root = document.documentElement.style;
         const vals = THEMES[name];
         THEME_VARS.forEach((v, i) => { if (vals) root.setProperty(v, vals[i]); else root.removeProperty(v); });
-        document.body.dataset.theme = vals ? name : 'vq';
+        document.body.dataset.theme = vals ? name : 'classic';
     }
 
     function applyUIPrefs() {
@@ -1786,7 +1792,10 @@
                 if (WIDTHS[st.width]) uiPrefs.width = st.width;
                 if (TITLE_STYLES[st.title]) uiPrefs.title = st.title;
                 if (st.bubbles === 'on' || st.bubbles === 'off') uiPrefs.bubbles = st.bubbles === 'on';
-                if (THEMES.hasOwnProperty(st.theme)) uiPrefs.theme = st.theme;
+                if (THEMES.hasOwnProperty(st.theme)) {
+                    uiPrefs.theme = st.theme;
+                    if (!ACCENTS[st.accent] && THEME_ACCENT[st.theme]) uiPrefs.accent = THEME_ACCENT[st.theme];
+                }
                 if (st.glow === 'on' || st.glow === 'off') uiPrefs.glow = st.glow === 'on';
                 break;
             }
@@ -3044,7 +3053,7 @@
     // ---------- Friendly confirmations for screen changes (no AI needed) ----------
 
     const CHOICES = {
-        theme: ['VQ', 'Navy', 'Charcoal', 'Midnight', 'Ocean', 'Forest', 'Ember', 'Slate', 'Plum'],
+        theme: ['VQ', 'Classic', 'Navy', 'Charcoal', 'Midnight', 'Ocean', 'Forest', 'Ember', 'Slate', 'Plum'],
         font: ['Default', 'Readable', 'Serif', 'Mono', 'Script', 'Handwriting', 'Elegant', 'Classic', 'Inscription', 'Futuristic', 'Retro', 'Playful', 'Rounded'],
         accent: ['Orange', 'Gold', 'Teal', 'Rose', 'Violet', 'Green', 'Blue', 'Grey'],
         title: ['Inscription', 'Elegant', 'Futuristic']
@@ -3072,7 +3081,11 @@
             const st = a.style || {};
             switch (a.action) {
                 case 'style':
-                    if (st.theme) { used.add('theme'); lines.push(`Theme set to **${st.theme === 'vq' ? 'VQ' : cap(st.theme)}**. Other themes: ${others(CHOICES.theme, st.theme)}.`); }
+                    if (st.theme) {
+                        used.add('theme'); used.add('accent');
+                        const pair = !st.accent && THEME_ACCENT[st.theme] ? ` with its matching **${cap(THEME_ACCENT[st.theme])}** accent` : '';
+                        lines.push(`Theme set to **${st.theme === 'vq' ? 'VQ' : cap(st.theme)}**${pair}. Other themes: ${others(CHOICES.theme, st.theme)}. You can still pick any accent, for example “teal accent”.`);
+                    }
                     if (st.font) { used.add('font'); lines.push(`Font set to **${cap(st.font)}**. Other fonts: ${others(CHOICES.font, st.font)}.`); }
                     if (st.accent) { used.add('accent'); lines.push(`Accent colour set to **${cap(st.accent)}**. Other colours: ${others(CHOICES.accent, st.accent)}.`); }
                     if (st.title) { used.add('title'); lines.push(`Title style set to **${cap(st.title)}**. The others are ${others(CHOICES.title, st.title).replace(/, ([^,]*)$/, ' and $1')}.`); }
