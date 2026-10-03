@@ -1446,7 +1446,8 @@
             const q = st.query ? `"${st.query}" · ` : '';
             const pics = st.images ? ` · ${st.images} images` : '';
             const unit = /YouTube/.test(st.label) ? 'videos' : /Books/.test(st.label) ? 'books' : 'sources';
-            ol.appendChild(codeLine(++n, v, r, `${q}${k ? `${k} ${unit} found` : 'no usable results'}${pics}`, st.ms));
+            const filt = st.filtered ? ` · ${st.filtered} hidden by the content filter` : '';
+            ol.appendChild(codeLine(++n, v, r, `${q}${k ? `${k} ${unit} found` : 'no usable results'}${pics}${filt}`, st.ms));
         });
         if (!(meta.steps || []).some(st => st.kind === 'live')) {
             (meta.live || []).filter(x => /weather|time|image/i.test(x)).forEach(x => ol.appendChild(codeLine(++n, 'Fetched', x.toLowerCase())));
@@ -1980,7 +1981,7 @@
                 const pics = st.images ? ` and ${st.images} pictures` : '';
                 const where = /YouTube/.test(st.label) ? 'YouTube' : /Books/.test(st.label) ? 'Google Books' : /news/i.test(st.label) ? 'the news' : 'the web';
                 const unit = /YouTube/.test(st.label) ? 'videos' : /Books/.test(st.label) ? 'books' : 'sources';
-                add(`Searched ${where}${st.query ? ` for “${st.query}”` : ''} and found ${k} ${unit}${pics}${secs}.`);
+                add(`Searched ${where}${st.query ? ` for “${st.query}”` : ''} and found ${k} ${unit}${pics}${secs}${st.filtered ? `, hiding ${st.filtered} that didn’t pass the content filter` : ''}.`);
             }
         });
         (meta.rules || []).filter(r => !/^Appreciation/.test(r)).forEach(r => {
