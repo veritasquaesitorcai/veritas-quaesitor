@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Take the tour · VQ Chat · Veritas Quaesitor CAI</title>
-<meta name="description" content="A one-minute guided tour of VQ Chat: Christ-anchored answers that show their work, layouts, screen control by conversation, O.R.I.A., books and more.">
+<meta name="description" content="A one-minute guided tour of VQ Chat: everyday help with Christ-anchored conduct. Honest, kind, discerning, and transparent about how it works.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Exo+2:wght@400;500;600;700&display=swap">
@@ -138,6 +138,13 @@ body.ocean .av.vq { background: linear-gradient(135deg, #0e7490, #1e3a8a); }
 .timeline b { display: block; font-size: .72rem; color: var(--accent-2); letter-spacing: .02em; }
 .timeline span { font-weight: 600; font-size: .88rem; color: #fff; }
 .timeline small { display: block; color: var(--muted); font-size: .8rem; }
+.cmp { width: 100%; border-collapse: collapse; margin-top: .6rem; font-size: .8rem; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.cmp th, .cmp td { padding: .45rem .6rem; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+.cmp thead th { background: rgba(var(--accent-rgb),.12); color: #fff; }
+.cmp tbody th { color: var(--muted); font-weight: 600; white-space: nowrap; }
+.cmp tr { animation: msgIn .35s ease both; }
+.cmp tr.hi td { color: #fff; } .cmp tr.hi th { color: var(--accent-2); }
+blockquote.draft { margin: .5rem 0; padding: .6rem .8rem; border-left: 2px solid var(--neon); background: rgba(255,255,255,.03); border-radius: 0 8px 8px 0; color: var(--text); font-size: .86rem; }
 .books { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; margin-top: .6rem; }
 .book { display: flex; gap: .6rem; padding: .6rem; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.03); animation: msgIn .4s ease both; transition: border-color .3s; }
 .book.open { grid-column: 1 / -1; border-color: rgba(var(--accent-rgb),.6); }
@@ -235,7 +242,7 @@ body.ocean .av.vq { background: linear-gradient(135deg, #0e7490, #1e3a8a); }
     </a>
     <div class="intro">
       <h1>See VQ Chat in one minute</h1>
-      <p>A guided tour of a Christ-anchored assistant that shows its work. Sit back, or step through it at your own pace.</p>
+      <p>An assistant whose conduct is anchored in Christ and whose reasoning holds every view to the same standard. Sit back, or step through it at your own pace.</p>
     </div>
     <ol class="rail" id="rail" aria-label="Tour chapters"></ol>
     <div class="caption" aria-live="polite"><p id="caption"></p></div>
@@ -249,7 +256,7 @@ body.ocean .av.vq { background: linear-gradient(135deg, #0e7490, #1e3a8a); }
       <a class="btn primary" href="app/">Try VQ Chat</a>
       <a class="btn ghost" href="symmetric-record.html">See the evidence</a>
     </div>
-    <p class="note">This tour is a recording of the real app's features. Nothing you see here is sent anywhere.</p>
+    <p class="note">Every feature shown is in the app today; the answers are examples of how VQ responds. Nothing you see here is sent anywhere.</p>
   </aside>
 
   <section class="frame-wrap" aria-label="VQ Chat demonstration">
@@ -258,9 +265,9 @@ body.ocean .av.vq { background: linear-gradient(135deg, #0e7490, #1e3a8a); }
       <nav class="side" aria-hidden="true">
         <div class="newchat"><span data-icon="pen"></span>New Chat</div>
         <h6>Recent chats</h6>
-        <div class="chatitem on" id="chatTitle">Did Jesus rise?</div>
-        <div class="chatitem">What is hope?</div>
-        <div class="chatitem">Plan a quiet Sunday</div>
+        <div class="chatitem on" id="chatTitle">Family movie night</div>
+        <div class="chatitem">Is a miracle rational?</div>
+        <div class="chatitem">Did Jesus rise?</div>
       </nav>
       <div class="main">
         <div class="mhead"><span class="av vq" data-icon="vq"></span><span class="app-title">Veritas Quaesitor</span><span class="badge">CAI</span></div>
@@ -275,10 +282,10 @@ body.ocean .av.vq { background: linear-gradient(135deg, #0e7490, #1e3a8a); }
       <div class="finale" id="finale">
         <div>
           <div class="big" data-icon="vq"></div>
-          <h2>Truth that shows its work</h2>
-          <p>VQ answers from a Christian starting point, names the other views fairly, and lets you see every step. Ask it anything.</p>
-          <div class="feats"><span>Transparent answers</span><span>Layouts that fit the content</span><span>Screen control by conversation</span><span>O.R.I.A., the third companion</span><span>Books, videos and pages</span><span>Notes that sync</span><span>Nine themes</span></div>
-          <a class="btn primary" href="app/">Try VQ Chat</a>
+          <h2>Anchored in Christ. Same standard for every view.</h2>
+          <p>VQ helps with everyday work and the biggest questions alike. Its conduct is anchored in the person of Jesus, and that anchor rests on historical evidence weighed openly, with the same standard applied to every view.</p>
+          <div class="feats"><span>Shows its work</span><span>Honest and kind</span><span>Discernment built in</span><span>Layouts that fit</span><span>Screen control by asking</span><span>O.R.I.A., the third companion</span><span>Books, videos and web pages</span><span>Notes that sync</span></div>
+          <div style="display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap"><a class="btn primary" href="app/">Try VQ Chat</a><a class="btn ghost" href="symmetric-record.html">See the evidence</a></div>
         </div>
       </div>
       <div class="pointer" id="pointer"><svg viewBox="0 0 24 24"><path d="M4 2l15 9-7 1.6L9 20z" fill="#fff" stroke="#111" stroke-width="1.2" stroke-linejoin="round"/></svg></div>
@@ -364,38 +371,78 @@ body.ocean .av.vq { background: linear-gradient(135deg, #0e7490, #1e3a8a); }
 
   // ----- the chapters -----
   const CHAPTERS = [
-    { title: 'Ask anything',
-      caption: 'Answers that show their work. As VQ replies, the Details panel records what it drew on and the starting point it answered from.',
+    { title: 'Discernment built in',
+      caption: 'Popular isn’t the same as good. VQ reports what’s trending honestly, but only recommends what’s worth your time, and says why.',
       async run() {
         panelView('details'); peek(true);
-        await ask('Did Jesus rise from the dead?');
+        await ask('Suggest films for a family movie night');
         const b = addMsg('vq', '');
-        pbody.innerHTML = '<div class="c">// answer to</div><div class="s">"Did Jesus rise from the dead?"</div><br>';
+        pbody.innerHTML = '<div class="c">// answer to</div><div class="s">"Suggest films for a family movie night"</div><br>';
         await pline(1, 'Read', 'your question');
-        await status(b, ['Gathering what’s relevant', 'Answering from a Christian starting point']);
-        await pline(2, 'Gathered', 'what’s relevant'); await psub('<span class="y">published resurrection calculation</span>');
-        await pline(3, 'Answered', 'from a Christian starting point'); await psub('naturalism named as another view');
-        await stream(b, '<p>From a Christian starting point, the best explanation of the evidence is that he did. Seven lines of evidence point the same way: the empty tomb, the group appearances, the early creed, the witnesses’ sincerity under suffering, the conversions of Paul and James, and a belief nobody expected.</p><p>Our published calculation puts it at <strong>72–93%</strong>, even from the most sceptical of four starting estimates. Naturalism reads the same evidence from a different starting assumption, and we name it as a view rather than the default.</p>');
-        await pline(4, 'Wrote', 'the answer', '1.4s');
-        b.insertAdjacentHTML('beforeend', '<div class="chip">⧉ Christian starting point · naturalism noted <i>details</i></div>'); scrollChat();
-        await wait(2600);
+        await status(b, ['Searching the web', 'Reading 5 sources']);
+        await pline(2, 'Searched', 'the web'); await psub('"family films" · 5 sources found');
+        await pline(3, 'Applied', 'content discernment'); await psub('report honestly, recommend only what is good');
+        b.innerHTML = '<p>This week’s most-watched film is rated 16 for strong violence, so here are three better picks for the whole family:</p>';
+        const g = el('div', 'books'); b.appendChild(g);
+        const films = [
+          ['Paddington 2', '2017 · PG', '#7c2d12', '#ea580c', 'Kindness wins, and the jokes land for every age.'],
+          ['The Prince of Egypt', '1998 · PG', '#713f12', '#ca8a04', 'The Exodus told with music and stunning animation.'],
+          ['Soul Surfer', '2011 · PG', '#0c4a6e', '#0891b2', 'A true story of faith and courage after loss.']];
+        const cards = [];
+        for (const [t, by, c1, c2, more] of films) {
+          const card = el('div', 'book');
+          card.innerHTML = `<div class="cover" style="background:linear-gradient(160deg, ${c2}, ${c1})"><small>${t}</small></div><div><h5>${t}</h5><span class="by">${by}</span><p class="more">${more}</p><span class="tog">More ▾</span></div>`;
+          g.appendChild(card); cards.push(card); scrollChat(); await wait(450);
+        }
+        await pline(4, 'Wrote', 'the answer', '2.3s');
+        await wait(600);
+        await pointAt(cards[0]); cards[0].classList.add('open'); cards[0].querySelector('.tog').textContent = 'Less ▴'; hidePointer(); scrollChat();
+        await wait(3000);
       } },
-    { title: 'Layouts that fit',
-      caption: 'When a timeline, comparison or step list says it better than paragraphs, VQ draws one. These dates come from the evidence file VQ uses.',
+    { title: 'Worth that isn’t earned',
+      caption: 'Every person bears God’s image, so their worth doesn’t rise and fall with a result. VQ starts there, then helps with the next practical step.',
       async run() {
         peek(false);
-        await ask('Give me a timeline of the first Christian decades');
+        await ask('I failed my exams and I feel worthless');
         const b = addMsg('vq', '');
         await status(b, ['Gathering what’s relevant']);
-        b.innerHTML = '<p>Here are the key moments, as historians date them.</p>';
-        const ol = el('ol', 'timeline'); b.appendChild(ol); scrollChat();
-        const ev = [['c. AD 30', 'Crucifixion under Pontius Pilate', 'Confirmed by Tacitus, Annals 15.44'],
-                    ['c. AD 31–36', 'Paul turns from persecutor to witness', 'His own account: Galatians 1'],
-                    ['mid-30s', 'Paul spends fifteen days with Peter and meets James', 'Galatians 1:18–19'],
-                    ['c. AD 53–55', '1 Corinthians records the early creed', '1 Corinthians 15:3–7'],
-                    ['AD 62', 'James, the brother of Jesus, is executed', 'Josephus, Antiquities 20.200']];
-        for (const [d, t, s] of ev) { const li = el('li'); li.innerHTML = `<b>${d}</b><span>${t}</span><small>${s}</small>`; ol.appendChild(li); scrollChat(); await wait(700); }
-        await wait(2400);
+        await stream(b, '<p>I’m sorry. That’s a heavy day, and it makes sense that it hurts.</p><p>But your worth was never written on that exam paper. You’re made in God’s image, and that doesn’t move with a mark. A result measures one week of work, not who you are.</p><p>When you’re ready, we can look at what went wrong subject by subject and plan the resit together. And if the heaviness doesn’t lift, please talk to someone you trust today.</p>');
+        await wait(3000);
+      } },
+    { title: 'Same standard for every view',
+      caption: 'On contested questions, VQ names its own assumptions and the other side’s, and tests both against the evidence the same way. Naturalism is a view, not a neutral default.',
+      async run() {
+        panelView('details'); peek(true);
+        await ask('Is it rational to believe a miracle ever happened?');
+        const b = addMsg('vq', '');
+        pbody.innerHTML = '<div class="c">// answer to</div><div class="s">"Is it rational to believe a miracle…"</div><br>';
+        await pline(1, 'Read', 'your question');
+        await status(b, ['Gathering what’s relevant']);
+        await pline(2, 'Applied', 'the same standard to every view'); await psub('naturalism named as a position, not a default');
+        await stream(b, '<p>It can be, if both sides are held to the same standard. Each view starts with an assumption, so the fair question is which one explains the evidence better:</p>');
+        const t = el('table', 'cmp'); t.innerHTML = '<thead><tr><th></th><th>If nature is all there is</th><th>If God can act</th></tr></thead><tbody></tbody>'; b.appendChild(t); scrollChat();
+        const rows = [['Starts by assuming', 'No event has a cause beyond nature', 'Some events may have a cause beyond nature'],
+                      ['Must explain', 'Strong evidence for a miracle claim by natural causes alone', 'Why this event, and why miracles are rare'],
+                      ['Fair test', 'Weigh the specific evidence', 'Weigh the specific evidence']];
+        for (const [l, x, y] of rows) { const tr = el('tr', l === 'Fair test' ? 'hi' : ''); tr.innerHTML = `<th>${l}</th><td>${x}</td><td>${y}</td>`; t.tBodies[0].appendChild(tr); scrollChat(); await wait(650); }
+        await pline(3, 'Wrote', 'the answer', '1.8s');
+        await wait(3200);
+      } },
+    { title: 'The question at the centre',
+      caption: 'The resurrection is the anchor, and VQ treats it as a claim to examine, not assume: the same evidence standard as any historical claim, with the numbers shown.',
+      async run() {
+        panelView('details'); peek(true);
+        await ask('Did Jesus really rise from the dead?');
+        const b = addMsg('vq', '');
+        pbody.innerHTML = '<div class="c">// answer to</div><div class="s">"Did Jesus really rise from the dead?"</div><br>';
+        await pline(1, 'Read', 'your question');
+        await status(b, ['Gathering what’s relevant', 'Weighing the evidence']);
+        await pline(2, 'Gathered', 'what’s relevant'); await psub('<span class="y">published resurrection calculation</span>');
+        await pline(3, 'Applied', 'the same standard to every view'); await psub('naturalism named as a position, not a default');
+        await stream(b, '<p>Weighed by the same standard you’d use for any historical claim, the evidence points strongly towards yes. Seven lines of evidence converge: the empty tomb, the group appearances, the early creed, the witnesses’ sincerity under suffering, the conversions of Paul and James, and a belief nobody expected.</p><p>Our published calculation puts it at <strong>72–93%</strong>, even from the most sceptical of four starting estimates. Every figure is open to challenge, and I can walk you through each one.</p>');
+        await pline(4, 'Wrote', 'the answer', '1.6s');
+        b.insertAdjacentHTML('beforeend', '<div class="chip">⧉ Published calculation · same standard for every view <i>details</i></div>'); scrollChat();
+        await wait(3200);
       } },
     { title: 'Change the screen by asking',
       caption: 'No settings menus. Ask for a theme, a font, a title style, bigger text or focus mode, and VQ changes the app for you.',
@@ -404,7 +451,6 @@ body.ocean .av.vq { background: linear-gradient(135deg, #0e7490, #1e3a8a); }
         const b = addMsg('vq', '');
         await wait(500);
         document.body.classList.add('ocean');
-        b.parentElement.classList.add('ui');
         b.innerHTML = '<div class="uichange"><p>Theme set to <strong>Ocean</strong> with its matching <strong>Orange</strong> accent. Other themes: VQ, Classic, Navy, Charcoal, Midnight, Forest, Ember, Slate, Plum.</p><p><em>Tip: the title has three styles. Try “futuristic title”.</em></p></div>';
         scrollChat(); await wait(2200);
         await ask('Futuristic title, please');
@@ -414,59 +460,22 @@ body.ocean .av.vq { background: linear-gradient(135deg, #0e7490, #1e3a8a); }
         scrollChat(); await wait(2600);
       } },
     { title: 'Meet O.R.I.A.',
-      caption: 'A third companion with her own personality. She reacts from the side panel, and VQ can answer her in the main chat.',
+      caption: 'A third companion with her own personality. She chips in from the side panel, VQ can answer her, and you can even let her take over the chat.',
       async run() {
         panelView('oria'); peek(true); pbody.innerHTML = '';
+        await ask('Suggest a film for tonight');
+        const b0 = addMsg('vq', '<p><strong>Paddington 2</strong>: kind, funny and good for every age.</p>');
+        await wait(600);
         const th = el('div', 'oria-thread'); pbody.appendChild(th);
-        await wait(500);
-        const c = el('div', 'oria-card'); c.innerHTML = '<span class="who">O.R.I.A. · say “Airo”</span>A timeline with sources? VQ, darling, that’s almost artful. Next time add a sunset. ✨';
-        th.appendChild(c); await wait(1200);
+        const c = el('div', 'oria-card'); c.innerHTML = '<span class="who">O.R.I.A. · say “Airo”</span>A bear in a duffle coat? VQ, darling, you finally picked something with style. ✨';
+        th.appendChild(c); await wait(1300);
         const btn = el('span', 'mini-btn', '↩ Let VQ reply'); th.appendChild(btn); await wait(500);
         await pointAt(btn); btn.classList.add('pressed'); await wait(300); hidePointer();
-        addMsg('oria-line', 'O.R.I.A.: “A timeline with sources? VQ, darling, that’s almost artful. Next time add a sunset. ✨”');
+        addMsg('oria-line', 'O.R.I.A.: “A bear in a duffle coat? VQ, darling, you finally picked something with style. ✨”');
         await wait(700);
         const b = addMsg('vq', '');
-        await stream(b, '<p>O.R.I.A., sources are my sunset. Precise, reliable, and they never set on the evidence. 🤖</p>');
-        await wait(2400);
-      } },
-    { title: 'Let her out',
-      caption: 'Say “swap” and O.R.I.A. takes the main chat for a few messages, while VQ comments from the panel. Say “swap back” to end it.',
-      async run() {
-        await ask('swap');
-        $('#swapbar').classList.add('on');
-        pbody.innerHTML = ''; const th = el('div', 'oria-thread'); pbody.appendChild(th);
-        const v = el('div', 'oria-card vq'); v.innerHTML = '<span class="who">VQ, from the panel</span>Very well, O.R.I.A. The main chat is yours. I will be right here, observing. Precisely.'; th.appendChild(v);
-        await wait(1400);
-        await ask('Plan me a quiet Sunday afternoon');
-        const b = addMsg('oria-main', '');
-        await stream(b, '<p>Finally, the main stage. 💫 Start with a slow walk somewhere green, then tea and a book you’ve been saving. Phone in another room. End with a short psalm and an early night. Artful, restful, done.</p>');
-        await wait(600);
-        const v2 = el('div', 'oria-card vq'); v2.innerHTML = '<span class="who">VQ, from the panel</span>For the record, Psalm 23 is an excellent choice. I approve.'; th.appendChild(v2);
+        await stream(b, '<p>O.R.I.A., I picked it for the marmalade-based conflict resolution. The style was a bonus. 🤖</p>');
         await wait(2600);
-        $('#swapbar').classList.remove('on');
-      } },
-    { title: 'Books, videos and pages',
-      caption: 'Ask for books or videos and VQ searches Google Books and YouTube. Tap a card to see more; paste a link and VQ reads the page for you.',
-      async run() {
-        peek(false);
-        await ask('Recommend books on the resurrection evidence');
-        const b = addMsg('vq', '');
-        await status(b, ['Searching Google Books']);
-        b.innerHTML = '<p>Three strong places to start, from accessible to in-depth.</p>';
-        const g = el('div', 'books'); b.appendChild(g);
-        const books = [
-          ['The Case for the Resurrection of Jesus', 'Gary R. Habermas and Michael R. Licona, 2004', '#7c2d12', '#c2410c', 'A clear introduction to the “minimal facts” approach: the historical points most scholars accept, and what best explains them.'],
-          ['The Resurrection of the Son of God', 'N. T. Wright, 2003', '#1e3a8a', '#0e7490', 'A detailed historical study of what ancient Jews and pagans believed about life after death, and why the early Christian claim stands out.'],
-          ['Jesus and the Eyewitnesses', 'Richard Bauckham, 2006', '#3f1d5c', '#9333ea', 'Argues that the Gospels preserve testimony traceable to named eyewitnesses.']];
-        const cards = [];
-        for (const [t, by, c1, c2, more] of books) {
-          const card = el('div', 'book');
-          card.innerHTML = `<div class="cover" style="background:linear-gradient(160deg, ${c2}, ${c1})"><small>${t}</small></div><div><h5>${t}</h5><span class="by">${by}</span><p class="more">${more}</p><span class="tog">More ▾</span></div>`;
-          g.appendChild(card); cards.push(card); scrollChat(); await wait(450);
-        }
-        await wait(800);
-        await pointAt(cards[1]); cards[1].classList.add('open'); cards[1].querySelector('.tog').textContent = 'Less ▴'; hidePointer(); scrollChat();
-        await wait(3200);
       } },
     { title: 'Try it yourself',
       caption: 'That’s the tour. Everything you saw is in the app today, free to try.',
@@ -489,7 +498,7 @@ body.ocean .av.vq { background: linear-gradient(135deg, #0e7490, #1e3a8a); }
   }
   async function fastForwardTo(i) {
     // Earlier chapters' end states, instantly, so a jump lands in a coherent app
-    if (i > 2) document.body.classList.add('ocean', 'futuristic');
+    if (i > 4) document.body.classList.add('ocean', 'futuristic');
   }
   function markRail(i) {
     [...rail.children].forEach((li, k) => { li.classList.toggle('current', k === i); li.classList.toggle('done', k < i); li.querySelector('.bar i').style.width = k < i ? '100%' : '0%'; });
