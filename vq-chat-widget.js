@@ -1,463 +1,190 @@
 /**
- * VQ Chat Widget - Floating Chat Interface
- * Veritas Quaesitor (veritasquaesitorcai.github.io)
- * 
+ * VQ Chat Widget: the quick-answer front door to VQ Chat
+ * Veritas Quaesitor CAI (veritasquaesitorcai.github.io)
+ *
  * Usage: <script src="vq-chat-widget.js"></script>
+ * Quick plain-text answers on every page; "Open in VQ Chat" carries the conversation into the full app.
  */
 
 (function() {
     'use strict';
 
-    // Configuration
+    const SCRIPT_SRC = (document.currentScript && document.currentScript.src) || location.href;
+    const BASE = new URL('.', SCRIPT_SRC);
     const CONFIG = {
         apiEndpoint: 'https://veritas-quaesitor-production.up.railway.app/chat',
-        welcomeMessage: `Hey! 👋 I'm VQ.
-
-Ask me about the evidence, CAI, or whatever's on your mind. Where do we start?`
+        appUrl: new URL('app/', BASE).href,
+        tourUrl: new URL('tour.html', BASE).href,
+        welcomeMessage: "Hi, I'm VQ. Ask me anything, from everyday questions to the big ones.\n\nFor layouts, books, videos, themes and saved chats, open the full **VQ Chat** app any time."
     };
 
-    // Styles
+    const ROBOT = '<svg viewBox="0 0 32 32" aria-hidden="true"><line x1="16" y1="4.2" x2="16" y2="8" stroke="#7ff3ff" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="3.4" r="2.1" fill="#ff5fd2"/><rect x="5.5" y="8" width="21" height="16.5" rx="6.5" fill="none" stroke="#7ff3ff" stroke-width="2"/><rect x="8.6" y="11.6" width="14.8" height="7.6" rx="3.8" fill="#05060a"/><circle cx="12.6" cy="15.4" r="2" fill="#7ff3ff"/><circle cx="19.4" cy="15.4" r="2" fill="#7ff3ff"/><circle cx="13.2" cy="14.8" r=".6" fill="#fff"/><circle cx="20" cy="14.8" r=".6" fill="#fff"/><path d="M13 21.6c1.9 1 4.1 1 6 0" stroke="#7ff3ff" stroke-width="1.8" fill="none" stroke-linecap="round"/><rect x="2.6" y="13.6" width="2.6" height="5.2" rx="1.3" fill="#ff5fd2"/><rect x="26.8" y="13.6" width="2.6" height="5.2" rx="1.3" fill="#ff5fd2"/></svg>';
+    const ICON = {
+        open: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+        clear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>',
+        close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+        send: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.4 19.6 21 12 4.4 4.4l.1 5.9L15 12 4.5 13.7z"/></svg>'
+    };
+
     const styles = `
-        #vq-chat-widget * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        #vq-chat-widget, #vq-chat-widget * { box-sizing: border-box; }
+        #vq-chat-widget h3, #vq-chat-widget p, #vq-chat-widget ul, #vq-chat-widget ol, #vq-chat-widget li { margin: 0; padding: 0; }
+        #vq-chat-widget button { margin: 0; font-family: inherit; }
+        #vq-chat-widget { --vq-bg: #0e0e0e; --vq-surface: #161616; --vq-line: rgba(255,255,255,0.09); --vq-text: #ececec;
+            --vq-muted: rgba(236,236,236,0.62); --vq-neon: #7ff3ff; --vq-accent: #ff8c42; --vq-accent-2: #ffb27a;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
 
-        #vq-chat-bubble {
-            position: fixed;
-            top: 100px;
-            right: 30px;
-            height: 52px;
-            padding: 0 20px 0 14px;
-            background: radial-gradient(120% 120% at 30% 0%, rgba(118,75,162,0.55), transparent 60%), #140f30;
-            border: 1.5px solid rgba(255, 140, 66, 0.7);
-            border-radius: 26px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 1.45rem;
-            cursor: pointer;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 18px rgba(255, 140, 66, 0.25);
-            animation: vq-pulse 2.2s ease-out 1s 2;
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-            z-index: 9998;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: 0.02em;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        }
+        #vq-chat-bubble { position: fixed; top: 100px; right: 30px; z-index: 9998; height: 50px; padding: 0 18px 0 6px;
+            display: flex; align-items: center; gap: 10px; border-radius: 25px; cursor: pointer; color: #fff;
+            background: #101014; border: 1px solid rgba(127,243,255,0.35); font: 600 0.95rem/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 18px rgba(127,243,255,0.18); transition: transform .25s ease, box-shadow .25s ease;
+            animation: vq-pulse 2.4s ease-out 1.2s 2; }
+        #vq-chat-bubble:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(0,0,0,0.5), 0 0 26px rgba(127,243,255,0.32); }
+        #vq-chat-bubble:focus-visible, #vq-chat-widget button:focus-visible, #vq-chat-widget a:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 3px; }
+        #vq-chat-bubble .vq-face { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center;
+            background: radial-gradient(circle at 50% 40%, #17171e, #050507); box-shadow: 0 0 0 1px rgba(127,243,255,0.4), 0 0 12px rgba(127,243,255,0.35); }
+        #vq-chat-bubble .vq-face svg { width: 30px; height: 30px; }
+        @keyframes vq-pulse { 0% { box-shadow: 0 10px 30px rgba(0,0,0,.45), 0 0 0 0 rgba(127,243,255,.5); } 100% { box-shadow: 0 10px 30px rgba(0,0,0,.45), 0 0 0 16px rgba(127,243,255,0); } }
 
-        #vq-chat-bubble:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5), 0 0 26px rgba(255, 140, 66, 0.45);
-        }
+        #vq-chat-panel { position: fixed; top: 162px; right: 30px; z-index: 9999; width: 400px; height: min(620px, calc(100vh - 182px)); min-height: 380px;
+            display: none; flex-direction: column; overflow: hidden; border-radius: 18px; background: var(--vq-bg); color: var(--vq-text);
+            border: 1px solid rgba(127,243,255,0.2); box-shadow: 0 24px 70px rgba(0,0,0,0.6), 0 0 34px rgba(127,243,255,0.08); }
+        #vq-chat-panel.open { display: flex; animation: vq-in .22s ease-out; }
+        @keyframes vq-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 
-        #vq-chat-bubble:focus-visible { outline: 3px solid #ffd9a8; outline-offset: 3px; }
+        #vq-chat-header { display: flex; align-items: center; gap: 10px; padding: 12px 12px 12px 14px; border-bottom: 1px solid var(--vq-line); background: var(--vq-surface); }
+        #vq-chat-header .vq-face { width: 34px; height: 34px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center;
+            background: radial-gradient(circle at 50% 40%, #17171e, #050507); box-shadow: 0 0 0 1px rgba(127,243,255,0.4), 0 0 12px rgba(127,243,255,0.3); }
+        #vq-chat-header .vq-face svg { width: 27px; height: 27px; }
+        #vq-chat-info { flex: 1; min-width: 0; }
+        #vq-chat-info h3 { display: flex; align-items: center; gap: 7px; white-space: nowrap; font: 700 0.9rem/1.2 "Cinzel", Georgia, serif; letter-spacing: .05em; color: #fff; }
+        #vq-chat-info h3 span { font: 700 0.58rem/1 -apple-system, "Segoe UI", sans-serif; letter-spacing: .14em; color: #1a1030; padding: 3px 5px 2px; border-radius: 4px;
+            background: linear-gradient(135deg, var(--vq-accent), var(--vq-accent-2)); }
+        #vq-chat-info p { margin-top: 3px; font-size: .74rem; color: var(--vq-muted); }
+        .vq-hbtn { width: 34px; height: 34px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--vq-line);
+            background: transparent; color: var(--vq-muted); cursor: pointer; transition: color .2s, border-color .2s; }
+        .vq-hbtn:hover { color: #fff; border-color: rgba(255,140,66,.55); }
+        .vq-hbtn svg { width: 16px; height: 16px; }
 
-        @keyframes vq-pulse {
-            0% { box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 0 0 rgba(255,140,66,0.55); }
-            70% { box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 0 16px rgba(255,140,66,0); }
-            100% { box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 18px rgba(255,140,66,0.25); }
-        }
+        #vq-chat-messages { flex: 1; overflow-y: auto; padding: 16px 16px 8px; display: flex; flex-direction: column; gap: 14px; scrollbar-width: thin; }
+        .vq-message { display: flex; gap: 9px; align-items: flex-start; animation: vq-in .25s ease-out; }
+        .vq-message .vq-av { width: 26px; height: 26px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center; margin-top: 1px;
+            background: radial-gradient(circle at 50% 40%, #17171e, #050507); box-shadow: 0 0 0 1px rgba(127,243,255,0.35), 0 0 10px rgba(127,243,255,0.25); }
+        .vq-message .vq-av svg { width: 21px; height: 21px; }
+        .vq-message-content { min-width: 0; font-size: .92rem; line-height: 1.6; color: var(--vq-text); overflow-wrap: anywhere; }
+        #vq-chat-widget .vq-message-content p { margin: 0 0 .6em; } #vq-chat-widget .vq-message-content p:last-child { margin-bottom: 0; }
+        #vq-chat-widget .vq-message-content ul, #vq-chat-widget .vq-message-content ol { margin: .25em 0 .6em 1.25em; } .vq-message-content li { margin: .15em 0; }
+        .vq-message-content strong { color: #fff; }
+        .vq-message-content a { color: var(--vq-accent-2); text-decoration: underline; text-underline-offset: 2px; }
+        .vq-message-content code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .85em; background: rgba(255,255,255,.07); padding: 1px 5px; border-radius: 4px; }
+        .vq-message-content img { display: block; width: 100%; border-radius: 8px; margin-top: 8px; }
+        .vq-user-message { justify-content: flex-end; }
+        .vq-user-message .vq-message-content { max-width: 82%; padding: 9px 13px; border-radius: 16px 16px 4px 16px; color: #1a1030; font-weight: 500;
+            background: linear-gradient(135deg, var(--vq-accent), var(--vq-accent-2)); box-shadow: 0 4px 14px rgba(255,140,66,.18); }
+        .vq-typing { display: flex; gap: 5px; padding: 8px 2px; }
+        .vq-typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--vq-neon); opacity: .35; animation: vq-dot 1.2s ease-in-out infinite; }
+        .vq-typing i:nth-child(2) { animation-delay: .15s; } .vq-typing i:nth-child(3) { animation-delay: .3s; }
+        @keyframes vq-dot { 30% { opacity: 1; transform: translateY(-3px); } }
 
-        #vq-chat-label {
-            position: fixed;
-            right: 180px;
-            top: 112px;
-            background: #140f30;
-            color: #ffd9a8;
-            border: 1px solid rgba(255, 140, 66, 0.4);
-            padding: 7px 14px;
-            border-radius: 999px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
-            white-space: nowrap;
-            z-index: 9997;
-            opacity: 0;
-            transform: translateX(10px);
-            transition: opacity 0.25s, transform 0.25s;
-            pointer-events: none;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        }
+        #vq-chat-input-area { padding: 10px 12px 8px; border-top: 1px solid var(--vq-line); }
+        .vq-inputrow { display: flex; align-items: center; gap: 6px; padding: 4px 4px 4px 14px; border-radius: 22px; border: 1px solid var(--vq-line); background: rgba(255,255,255,.04); }
+        .vq-inputrow:focus-within { border-color: rgba(255,140,66,.5); }
+        #vq-chat-input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--vq-text); font: inherit; font-size: .92rem; padding: 8px 0; }
+        #vq-chat-input::placeholder { color: rgba(236,236,236,.4); }
+        #vq-chat-send { width: 36px; height: 36px; flex-shrink: 0; border: 0; border-radius: 50%; cursor: pointer; display: grid; place-items: center; color: #1a1030;
+            background: linear-gradient(135deg, var(--vq-accent), var(--vq-accent-2)); }
+        #vq-chat-send:disabled { opacity: .45; cursor: default; }
+        #vq-chat-send svg { width: 17px; height: 17px; margin-left: 2px; }
+        .vq-links { display: flex; justify-content: space-between; gap: 10px; margin-top: 8px; padding: 0 4px; font-size: .74rem; }
+        .vq-links a { color: var(--vq-muted); text-decoration: none; } .vq-links a:hover { color: var(--vq-accent-2); }
+        .vq-links a.vq-full { color: var(--vq-accent-2); font-weight: 600; }
 
-        #vq-chat-bubble:hover + #vq-chat-label {
-            opacity: 1;
-            transform: translateX(0);
-        }
-
-        #vq-chat-panel {
-            position: fixed;
-            top: 164px;
-            right: 30px;
-            width: 420px;
-            height: min(640px, calc(100vh - 184px));
-            min-height: 380px;
-            background: rgba(13, 10, 34, 0.94);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: 18px;
-            border: 1px solid rgba(255, 140, 66, 0.3);
-            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6), 0 0 36px rgba(255, 140, 66, 0.1);
-            overflow: hidden;
-            display: none;
-            flex-direction: column;
-            z-index: 9999;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            animation: vq-slideUp 0.25s ease-out;
-        }
-
-        #vq-chat-panel.open { display: flex; }
-
-        #vq-chat-panel.expanded {
-            top: 50%;
-            left: 50%;
-            right: auto;
-            transform: translate(-50%, -50%);
-            width: min(820px, 94vw);
-            height: 86vh;
-            max-height: 900px;
-        }
-
-        @keyframes vq-slideUp {
-            from { transform: translateY(14px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        #vq-chat-panel.expanded { animation: none; }
-
-        #vq-chat-header {
-            background: radial-gradient(120% 140% at 20% 0%, rgba(118, 75, 162, 0.5), transparent 65%), #140f30;
-            padding: 14px 16px;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid rgba(255, 140, 66, 0.25);
-            flex-shrink: 0;
-        }
-
-        #vq-chat-avatar {
-            font-size: 1.35rem;
-            background: rgba(255, 140, 66, 0.12);
-            border: 1.5px solid rgba(255, 140, 66, 0.55);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        #vq-chat-info { min-width: 0; }
-        #vq-chat-info h3 {
-            font-size: 1.02rem;
-            margin-bottom: 2px;
-            font-weight: 700;
-            color: #fff;
-            white-space: nowrap;
-        }
-        #vq-chat-info p {
-            font-size: 0.76rem;
-            color: rgba(255, 217, 168, 0.8);
-            white-space: nowrap;
-        }
-
-        #vq-chat-clear, #vq-chat-expand, #vq-chat-close {
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            color: rgba(255, 255, 255, 0.85);
-            height: 32px;
-            border-radius: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s, border-color 0.2s, color 0.2s;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            flex-shrink: 0;
-        }
-        #vq-chat-clear { margin-left: auto; padding: 0 12px; font-size: 0.78rem; gap: 4px; }
-        #vq-chat-expand { width: 32px; font-size: 0.95rem; }
-        #vq-chat-close { width: 32px; font-size: 1.3rem; line-height: 1; }
-        #vq-chat-clear:hover, #vq-chat-expand:hover, #vq-chat-close:hover {
-            background: rgba(255, 140, 66, 0.2);
-            border-color: rgba(255, 140, 66, 0.6);
-            color: #fff;
-        }
-        #vq-chat-panel button:focus-visible, #vq-chat-input:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
-
-        #vq-chat-messages {
-            flex: 1;
-            padding: 18px 16px 8px;
-            overflow-y: auto;
-            background: transparent;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 140, 66, 0.5) transparent;
-        }
-        #vq-chat-messages::-webkit-scrollbar { width: 6px; }
-        #vq-chat-messages::-webkit-scrollbar-track { background: transparent; }
-        #vq-chat-messages::-webkit-scrollbar-thumb { background: rgba(255, 140, 66, 0.45); border-radius: 3px; }
-
-        #vq-chat-widget .vq-message {
-            margin-bottom: 14px;
-            display: flex;
-            gap: 9px;
-            align-items: flex-start;
-            animation: vq-fadeIn 0.25s ease;
-        }
-        @keyframes vq-fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .vq-message-avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: rgba(255, 140, 66, 0.12);
-            border: 1px solid rgba(255, 140, 66, 0.45);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.95rem;
-            flex-shrink: 0;
-        }
-
-        #vq-chat-widget .vq-message-content {
-            background: rgba(255, 255, 255, 0.06);
-            padding: 11px 14px;
-            border-radius: 4px 14px 14px 14px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.55;
-            font-size: 0.94rem;
-            max-width: 82%;
-            white-space: pre-wrap;
-            overflow-wrap: anywhere;
-        }
-        #vq-chat-widget .vq-message-content strong { color: #ffd9a8; }
-        #vq-chat-widget .vq-message-content a { color: #ffd9a8; }
-
-        .vq-user-message { flex-direction: row-reverse; }
-        .vq-user-message .vq-message-avatar {
-            background: linear-gradient(135deg, #ff8c42 0%, #ffb27a 100%);
-            border-color: transparent;
-        }
-        #vq-chat-widget .vq-user-message .vq-message-content {
-            background: linear-gradient(135deg, #ff8c42 0%, #ffb27a 100%);
-            color: #1a1030;
-            border: none;
-            border-radius: 14px 4px 14px 14px;
-            font-weight: 500;
-        }
-        #vq-chat-widget .vq-user-message .vq-message-content strong { color: #1a1030; }
-
-        #vq-chat-widget .vq-cap-pills {
-            display: flex;
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            gap: 6px;
-            padding: 10px 14px 2px;
-            background: #140f30;
-            border-top: 1px solid rgba(255, 140, 66, 0.18);
-            scrollbar-width: none;
-            flex-shrink: 0;
-        }
-        .vq-cap-pills::-webkit-scrollbar { display: none; }
-
-        #vq-chat-widget .vq-cap-pill {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 140, 66, 0.3);
-            color: rgba(255, 255, 255, 0.78);
-            border-radius: 999px;
-            padding: 5px 11px;
-            font-size: 0.78rem;
-            cursor: pointer;
-            transition: background 0.18s, border-color 0.18s, color 0.18s;
-            white-space: nowrap;
-            flex-shrink: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        }
-        .vq-cap-pill:hover {
-            background: rgba(255, 140, 66, 0.14);
-            border-color: rgba(255, 140, 66, 0.65);
-            color: #fff;
-        }
-        .vq-cap-pill.active {
-            background: linear-gradient(135deg, #ff8c42 0%, #ffb27a 100%) !important;
-            border-color: transparent !important;
-            color: #1a1030 !important;
-            font-weight: 600;
-        }
-
-        #vq-chat-input-area {
-            padding: 10px 14px 14px;
-            background: #140f30;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-shrink: 0;
-        }
-
-        #vq-chat-input {
-            flex: 1;
-            min-width: 0;
-            padding: 11px 16px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            border-radius: 22px;
-            font-size: 0.93rem;
-            outline: none;
-            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            color: #fff;
-        }
-        #vq-chat-input::placeholder { color: rgba(255, 255, 255, 0.45); }
-        #vq-chat-input:focus {
-            border-color: rgba(255, 140, 66, 0.7);
-            background: rgba(255, 255, 255, 0.09);
-            box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.15);
-        }
-
-        #vq-chat-send {
-            background: linear-gradient(135deg, #ff8c42 0%, #ffb27a 100%);
-            border: none;
-            color: #1a1030;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.05rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 14px rgba(255, 140, 66, 0.3);
-            flex-shrink: 0;
-        }
-        #vq-chat-send:hover:not(:disabled) { transform: scale(1.06); box-shadow: 0 6px 18px rgba(255, 140, 66, 0.45); }
-        #vq-chat-send:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        #vq-chat-widget .vq-typing-indicator { display: flex; gap: 5px; padding: 12px 14px; }
-        .vq-typing-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #ff8c42;
-            animation: vq-typing 1.3s infinite;
-        }
-        .vq-typing-dot:nth-child(2) { animation-delay: 0.18s; }
-        .vq-typing-dot:nth-child(3) { animation-delay: 0.36s; }
-        @keyframes vq-typing {
-            0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-            30% { transform: translateY(-6px); opacity: 1; }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            #vq-chat-bubble, #vq-chat-panel, .vq-message { animation: none !important; }
-            .vq-typing-dot { animation-duration: 2.6s; }
-        }
-
-        /* Phones: floating button bottom-right, chat opens full screen */
+        @media (prefers-reduced-motion: reduce) { #vq-chat-bubble, #vq-chat-panel, .vq-message, .vq-typing i { animation: none !important; } }
         @media (max-width: 768px) {
-            #vq-chat-bubble {
-                top: auto;
-                bottom: calc(18px + env(safe-area-inset-bottom, 0px));
-                right: 16px;
-                width: 54px;
-                height: 54px;
-                padding: 0;
-                border-radius: 50%;
-                font-size: 1.5rem;
-            }
+            #vq-chat-bubble { top: auto; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); right: 16px; width: 58px; height: 58px; padding: 0; border-radius: 50%; justify-content: center; }
             #vq-chat-bubble .vq-bubble-text { display: none; }
-            #vq-chat-bubble:hover { transform: none; }
-            #vq-chat-label { display: none; }
-
-            #vq-chat-panel,
-            #vq-chat-panel.expanded {
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                transform: none;
-                width: 100%;
-                height: 100vh;
-                height: 100dvh;
-                max-height: none;
-                min-height: 0;
-                border-radius: 0;
-                border: none;
-                background: #0d0a22;
-                backdrop-filter: none;
-                -webkit-backdrop-filter: none;
-                animation: vq-slideUp 0.2s ease-out;
-            }
-            #vq-chat-header { padding: calc(12px + env(safe-area-inset-top, 0px)) 14px 12px; }
-            #vq-chat-expand { display: none; }
-            #vq-chat-clear { padding: 0 10px; }
-            #vq-chat-close { width: 38px; height: 38px; border-radius: 19px; font-size: 1.5rem; }
-            #vq-chat-messages { padding: 16px 14px 8px; overscroll-behavior: contain; }
-            #vq-chat-widget .vq-message-content { max-width: 86%; font-size: 1rem; }
-            #vq-chat-widget .vq-cap-pill { padding: 7px 13px; font-size: 0.85rem; }
-            #vq-chat-input-area { padding: 10px 12px calc(12px + env(safe-area-inset-bottom, 0px)); }
-            #vq-chat-input { font-size: 16px; padding: 12px 16px; }
-            #vq-chat-send { width: 46px; height: 46px; }
-        }
-        @media (max-width: 768px) {
+            #vq-chat-bubble .vq-face { width: 46px; height: 46px; } #vq-chat-bubble .vq-face svg { width: 36px; height: 36px; }
+            #vq-chat-panel { top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100vh; height: 100dvh; min-height: 0; border-radius: 0; border: 0; }
+            #vq-chat-header { padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+            #vq-chat-input { font-size: 16px; }
+            #vq-chat-input-area { padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
             html.vq-chat-open, html.vq-chat-open body { overflow: hidden; }
         }
     `;
 
-    // Create and inject styles
+    if (!document.querySelector('link[href*="family=Cinzel"]')) {
+        const f = document.createElement('link');
+        f.rel = 'stylesheet';
+        f.href = 'https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap';
+        document.head.appendChild(f);
+    }
     const styleSheet = document.createElement('style');
     styleSheet.textContent = styles;
     document.head.appendChild(styleSheet);
 
-    // Create widget HTML
     const widgetHTML = `
         <div id="vq-chat-widget">
-            <button id="vq-chat-bubble" aria-label="Chat with VQ">🤖<span class="vq-bubble-text">VQ</span></button>
-            <div id="vq-chat-label">Chat with VQ</div>
-            
-            <div id="vq-chat-panel">
+            <button id="vq-chat-bubble" aria-label="Chat with VQ" aria-expanded="false">
+                <span class="vq-face">${ROBOT}</span><span class="vq-bubble-text">Ask VQ</span>
+            </button>
+            <div id="vq-chat-panel" role="dialog" aria-label="Chat with VQ">
                 <div id="vq-chat-header">
-                    <div id="vq-chat-avatar">🕊️</div>
+                    <span class="vq-face">${ROBOT}</span>
                     <div id="vq-chat-info">
-                        <h3>Veritas Quaesitor</h3>
-                        <p>Truth Seeker • CAI v3.1</p>
+                        <h3>Veritas Quaesitor <span>CAI</span></h3>
+                        <p>Quick answers here. More in the full app.</p>
                     </div>
-                    <button id="vq-chat-clear" title="Clear conversation">🗑️ Clear</button>
-                    <button id="vq-chat-expand" title="Expand view">⛶</button>
-                    <button id="vq-chat-close" aria-label="Close chat">×</button>
+                    <button class="vq-hbtn" id="vq-chat-open-app" title="Open in VQ Chat" aria-label="Open this conversation in VQ Chat">${ICON.open}</button>
+                    <button class="vq-hbtn" id="vq-chat-clear" title="Start over" aria-label="Start a new conversation">${ICON.clear}</button>
+                    <button class="vq-hbtn" id="vq-chat-close" aria-label="Close chat">${ICON.close}</button>
                 </div>
-                
-                <div id="vq-chat-messages"></div>
-
-                <div class="vq-cap-pills">
-                    <button class="vq-cap-pill" data-mode="[DDG SEARCH]" title="Force DuckDuckGo web search">🔍 DDG Search</button>
-                    <button class="vq-cap-pill" data-mode="[DDG NEWS]" title="Force DuckDuckGo news search">📰 DDG News</button>
-                    <button class="vq-cap-pill" data-mode="[TIME]" title="Get current time for any city">🕐 Time</button>
-                    <button class="vq-cap-pill" data-mode="[CAI EVOLUTION]" title="CAI position on evolutionary naturalism">🧬 CAI Evolution</button>
-                </div>
-                
+                <div id="vq-chat-messages" aria-live="polite"></div>
                 <div id="vq-chat-input-area">
-                    <input 
-                        type="text" 
-                        id="vq-chat-input" 
-                        placeholder="Ask anything about VQ, CAI, or the evidence..."
-                        autocomplete="off"
-                    >
-                    <button id="vq-chat-send">➤</button>
+                    <div class="vq-inputrow">
+                        <input type="text" id="vq-chat-input" placeholder="Ask VQ anything…" autocomplete="off" maxlength="2000" aria-label="Message VQ">
+                        <button id="vq-chat-send" aria-label="Send">${ICON.send}</button>
+                    </div>
+                    <div class="vq-links">
+                        <a href="${CONFIG.appUrl}" class="vq-full" id="vq-chat-full">Open in VQ Chat</a>
+                        <a href="${CONFIG.tourUrl}">Take the 1-minute tour</a>
+                    </div>
                 </div>
             </div>
         </div>
     `;
 
-    // Wait for DOM to load
+    // Safe, minimal Markdown: escape everything, then allow bold, italics, code, https links and lists
+    function escapeHtml(t) { return t.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    function inline(t) {
+        return escapeHtml(t)
+            .replace(/`([^`]+)`/g, '<code>$1</code>')
+            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+            .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>')
+            .replace(/\[([^\]]+)\]\((https:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+            .replace(/(^|[\s(])(https:\/\/[^\s<)]+)/g, '$1<a href="$2" target="_blank" rel="noopener noreferrer">$2</a>');
+    }
+    function renderMarkdown(text) {
+        const out = []; let list = null;
+        const close = () => { if (list) { out.push(`</${list}>`); list = null; } };
+        text.replace(/\r/g, '').split('\n').forEach(line => {
+            const ul = /^\s*[-•*]\s+(.*)$/.exec(line), ol = /^\s*\d+[.)]\s+(.*)$/.exec(line);
+            if (ul || ol) {
+                const kind = ul ? 'ul' : 'ol';
+                if (list !== kind) { close(); out.push(`<${kind}>`); list = kind; }
+                out.push(`<li>${inline((ul || ol)[1])}</li>`);
+            } else if (!line.trim()) {
+                close(); out.push('');
+            } else {
+                close();
+                const h = /^#{1,6}\s+(.*)$/.exec(line);
+                out.push(`<p>${h ? '<strong>' + inline(h[1]) + '</strong>' : inline(line)}</p>`);
+            }
+        });
+        close();
+        // consecutive lines inside one paragraph join with a line break; a blank line starts a new paragraph
+        return out.join('\n').replace(/<\/p>\n<p>/g, '<br>').replace(/\n/g, '');
+    }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {
@@ -465,217 +192,114 @@ Ask me about the evidence, CAI, or whatever's on your mind. Where do we start?`
     }
 
     function init() {
-        // Insert widget into page
+        if (document.getElementById('vq-chat-widget')) return;
         const container = document.createElement('div');
         container.innerHTML = widgetHTML;
-        document.body.appendChild(container);
+        document.body.appendChild(container.firstElementChild);
 
-        // Get elements
         const bubble = document.getElementById('vq-chat-bubble');
         const panel = document.getElementById('vq-chat-panel');
-        const closeBtn = document.getElementById('vq-chat-close');
         const input = document.getElementById('vq-chat-input');
         const sendBtn = document.getElementById('vq-chat-send');
         const messagesContainer = document.getElementById('vq-chat-messages');
 
-        // Conversation history
         let conversationHistory = [];
-        let activePill = null; // capability pill mode
+        try { conversationHistory = JSON.parse(localStorage.getItem('vq-conversation-history') || '[]'); } catch (e) { conversationHistory = []; }
+        if (!Array.isArray(conversationHistory)) conversationHistory = [];
+        if (conversationHistory.length) conversationHistory.forEach(m => addMessageToUI(m.role, m.content));
+        else addMessage('assistant', CONFIG.welcomeMessage);
 
-        // PERSISTENCE: Load saved state from localStorage
-        const savedHistory = localStorage.getItem('vq-conversation-history');
-        const wasOpen = localStorage.getItem('vq-widget-open') === 'true';
-        
-        if (savedHistory) {
-            try {
-                conversationHistory = JSON.parse(savedHistory);
-                conversationHistory.forEach(msg => {
-                    addMessageToUI(msg.role, msg.content);
-                });
-            } catch (e) {
-                console.error('Failed to load conversation history:', e);
-                addMessage('assistant', CONFIG.welcomeMessage);
-            }
-        } else {
-            addMessage('assistant', CONFIG.welcomeMessage);
-        }
-        
         const isPhone = () => window.matchMedia('(max-width: 768px)').matches;
+        if (localStorage.getItem('vq-widget-open') === 'true' && !isPhone()) openChat(false);
 
-        if (wasOpen && !isPhone()) {
-            panel.classList.add('open');
-            input.focus();
-        }
-
-        // Event listeners
-        bubble.addEventListener('click', toggleChat);
-        closeBtn.addEventListener('click', closeChat);
-        const clearBtn = document.getElementById('vq-chat-clear');
-        clearBtn.addEventListener('click', clearConversation);
-        const expandBtn = document.getElementById('vq-chat-expand');
-        expandBtn.addEventListener('click', toggleExpanded);
+        bubble.addEventListener('click', () => panel.classList.contains('open') ? closeChat() : openChat(true));
+        document.getElementById('vq-chat-close').addEventListener('click', closeChat);
+        document.getElementById('vq-chat-clear').addEventListener('click', clearConversation);
+        document.getElementById('vq-chat-open-app').addEventListener('click', openInApp);
+        document.getElementById('vq-chat-full').addEventListener('click', (e) => { e.preventDefault(); openInApp(); });
         sendBtn.addEventListener('click', sendMessage);
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
+        input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); sendMessage(); } });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && panel.classList.contains('open')) closeChat(); });
 
-        // Capability pills
-        document.querySelectorAll('.vq-cap-pill').forEach(pill => {
-            pill.addEventListener('click', () => {
-                const mode = pill.dataset.mode;
-                if (activePill === mode) {
-                    activePill = null;
-                    pill.classList.remove('active');
-                } else {
-                    document.querySelectorAll('.vq-cap-pill').forEach(p => p.classList.remove('active'));
-                    activePill = mode;
-                    pill.classList.add('active');
-                }
-                input.focus();
-            });
-        });
-
-        function toggleChat() {
-            if (panel.classList.contains('open')) {
-                closeChat();
-            } else {
-                openChat();
-            }
-        }
-
-        function openChat() {
+        function openChat(focus) {
             panel.classList.add('open');
+            bubble.setAttribute('aria-expanded', 'true');
             document.documentElement.classList.add('vq-chat-open');
             localStorage.setItem('vq-widget-open', 'true');
-            if (!isPhone()) input.focus();
+            if (focus && !isPhone()) input.focus();
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
-
         function closeChat() {
             panel.classList.remove('open');
+            bubble.setAttribute('aria-expanded', 'false');
             document.documentElement.classList.remove('vq-chat-open');
             localStorage.setItem('vq-widget-open', 'false');
         }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && panel.classList.contains('open')) closeChat();
-        });
-        
-        function toggleExpanded() {
-            panel.classList.toggle('expanded');
-            if (panel.classList.contains('expanded')) {
-                expandBtn.textContent = '⛶';
-                expandBtn.title = 'Normal view';
-            } else {
-                expandBtn.textContent = '⛶';
-                expandBtn.title = 'Expand view';
-            }
-        }
-        
         function clearConversation() {
             localStorage.removeItem('vq-conversation-history');
-            localStorage.setItem('vq-widget-open', 'true');
             messagesContainer.innerHTML = '';
             conversationHistory = [];
-            activePill = null;
-            document.querySelectorAll('.vq-cap-pill').forEach(p => p.classList.remove('active'));
             addMessage('assistant', CONFIG.welcomeMessage);
         }
-        
+
+        // Hand the conversation to the full app (same site, so it travels through this browser's storage)
+        function openInApp() {
+            const messages = conversationHistory.filter(m => m.content !== CONFIG.welcomeMessage);
+            try {
+                if (messages.some(m => m.role === 'user')) localStorage.setItem('vq-handoff', JSON.stringify({ ts: Date.now(), messages }));
+            } catch (e) { /* storage full: the app simply opens fresh */ }
+            window.location.href = CONFIG.appUrl;
+        }
+
         function addMessageToUI(role, content) {
-            const hasImage = /<img/i.test(content);
             const messageDiv = document.createElement('div');
             messageDiv.className = role === 'user' ? 'vq-message vq-user-message' : 'vq-message';
-
-            messageDiv.innerHTML = `
-                <div class="vq-message-avatar">${role === 'user' ? '👤' : '🕊️'}</div>
-                <div class="vq-message-content"></div>
-            `;
-
-            const bubble = messageDiv.querySelector('.vq-message-content');
-
-            if (hasImage) {
-                const parts = content.split(/(<img[^>]*>)/i);
-                parts.forEach(part => {
-                    if (/^<img/i.test(part)) {
-                        const imgEl = safeImageFrom(part);
-                        if (imgEl) bubble.appendChild(imgEl);
-                    } else if (part.trim()) {
-                        const textEl = document.createElement('span');
-                        textEl.style.whiteSpace = 'pre-wrap';
-                        textEl.style.display = 'block';
-                        textEl.textContent = part;
-                        bubble.appendChild(textEl);
-                    }
-                });
+            const bubbleEl = document.createElement('div');
+            bubbleEl.className = 'vq-message-content';
+            if (role === 'user') {
+                bubbleEl.textContent = content;
             } else {
-                bubble.textContent = content;
+                const av = document.createElement('span');
+                av.className = 'vq-av';
+                av.innerHTML = ROBOT;
+                messageDiv.appendChild(av);
+                String(content).split(/(<img[^>]*>)/i).forEach(part => {
+                    if (/^<img/i.test(part)) { const img = safeImageFrom(part); if (img) bubbleEl.appendChild(img); }
+                    else if (part.trim()) { const d = document.createElement('div'); d.innerHTML = renderMarkdown(part); bubbleEl.appendChild(d); }
+                });
             }
-
+            messageDiv.appendChild(bubbleEl);
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-
-        // Build an <img> from a model-supplied tag using only its https src (no other attributes survive)
         function safeImageFrom(tagHtml) {
             const m = /\ssrc\s*=\s*["']([^"']+)["']/i.exec(tagHtml);
             if (!m) return null;
-            let url;
-            try { url = new URL(m[1]); } catch (e) { return null; }
+            let url; try { url = new URL(m[1]); } catch (e) { return null; }
             if (url.protocol !== 'https:') return null;
             const img = document.createElement('img');
-            img.src = url.href;
-            img.alt = '';
-            img.loading = 'lazy';
-            img.referrerPolicy = 'no-referrer';
-            img.style.display = 'block';
-            img.style.width = '100%';
-            img.style.borderRadius = '8px';
-            img.style.marginTop = '8px';
-            img.onerror = function() { this.style.display = 'none'; };
+            img.src = url.href; img.alt = ''; img.loading = 'lazy'; img.referrerPolicy = 'no-referrer';
+            img.onerror = function () { this.remove(); };
             return img;
         }
 
         function addMessage(role, content) {
             addMessageToUI(role, content);
             conversationHistory.push({ role, content });
-            try {
-                localStorage.setItem('vq-conversation-history', JSON.stringify(conversationHistory));
-            } catch (e) {
-                console.error('Failed to save conversation:', e);
-                if (conversationHistory.length > 20) {
-                    conversationHistory = conversationHistory.slice(-20);
-                    localStorage.setItem('vq-conversation-history', JSON.stringify(conversationHistory));
-                }
-            }
+            if (conversationHistory.length > 40) conversationHistory = conversationHistory.slice(-40);
+            try { localStorage.setItem('vq-conversation-history', JSON.stringify(conversationHistory)); }
+            catch (e) { conversationHistory = conversationHistory.slice(-12); try { localStorage.setItem('vq-conversation-history', JSON.stringify(conversationHistory)); } catch (_) {} }
         }
 
         function showTypingIndicator() {
-            const typingDiv = document.createElement('div');
-            typingDiv.className = 'vq-message';
-            typingDiv.id = 'vq-typing';
-            typingDiv.innerHTML = `
-                <div class="vq-message-avatar">🕊️</div>
-                <div class="vq-message-content">
-                    <div class="vq-typing-indicator">
-                        <div class="vq-typing-dot"></div>
-                        <div class="vq-typing-dot"></div>
-                        <div class="vq-typing-dot"></div>
-                    </div>
-                </div>
-            `;
-            messagesContainer.appendChild(typingDiv);
+            const t = document.createElement('div');
+            t.className = 'vq-message'; t.id = 'vq-typing';
+            t.innerHTML = `<span class="vq-av">${ROBOT}</span><div class="vq-typing" aria-label="VQ is typing"><i></i><i></i><i></i></div>`;
+            messagesContainer.appendChild(t);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
-
-        function hideTypingIndicator() {
-            const typingDiv = document.getElementById('vq-typing');
-            if (typingDiv) typingDiv.remove();
-        }
+        function hideTypingIndicator() { const t = document.getElementById('vq-typing'); if (t) t.remove(); }
 
         function getSmartPageContext() {
             const url = window.location.href;
@@ -851,55 +475,38 @@ Ask me about the evidence, CAI, or whatever's on your mind. Where do we start?`
         }
 
         async function sendMessage() {
-            const rawMessage = input.value.trim();
-            if (!rawMessage) return;
-
-            // Prepend active pill prefix for backend routing; show clean message in UI
-            const message = activePill ? `${activePill} ${rawMessage}` : rawMessage;
-
-            addMessage('user', rawMessage); // always show clean message to user
+            const message = input.value.trim();
+            if (!message || sendBtn.disabled) return;
+            addMessage('user', message);
             input.value = '';
             sendBtn.disabled = true;
-
-            // Clear active pill after send
-            activePill = null;
-            document.querySelectorAll('.vq-cap-pill').forEach(p => p.classList.remove('active'));
-
             const pageContext = getSmartPageContext();
             showTypingIndicator();
-
             try {
                 const response = await fetch(CONFIG.apiEndpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         message: message,
-                        history: conversationHistory.slice(-20),
+                        history: conversationHistory.filter(m => m.content !== CONFIG.welcomeMessage).slice(-20),
                         pageContext: pageContext
                     })
                 });
-
                 const data = await response.json().catch(() => ({}));
-
-                if (!response.ok) {
-                    if (data && data.response) {
-                        hideTypingIndicator();
-                        addMessageToUI('assistant', data.response);
-                        return;
-                    }
+                hideTypingIndicator();
+                if (data && data.response) {
+                    if (response.ok) addMessage('assistant', data.response);
+                    else addMessageToUI('assistant', data.response);   // limit or error notices aren't saved
+                } else {
                     throw new Error('Network response was not ok');
                 }
-
-                hideTypingIndicator();
-                addMessage('assistant', data.response);
-                
             } catch (error) {
-                console.error('Error:', error);
+                console.error('VQ chat error:', error);
                 hideTypingIndicator();
-                addMessage('assistant', "Friend, I'm having trouble connecting right now. Please try again in a moment, or visit the website directly at veritasquaesitorcai.github.io");
+                addMessageToUI('assistant', "I'm having trouble connecting right now. Please try again in a moment, or open the full VQ Chat app.");
             } finally {
                 sendBtn.disabled = false;
-                input.focus();
+                if (!isPhone()) input.focus();
             }
         }
     }
