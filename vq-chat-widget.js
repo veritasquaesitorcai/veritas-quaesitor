@@ -422,12 +422,12 @@
         }
 
         // Hand the conversation to the full app (same site, so it travels through this browser's storage)
-        function openInApp() {
+        function openInApp(mode) {
             const messages = conversationHistory.filter(m => m.content !== CONFIG.welcomeMessage);
             try {
                 if (messages.some(m => m.role === 'user')) localStorage.setItem('vq-handoff', JSON.stringify({ ts: Date.now(), messages }));
             } catch (e) { /* storage full: the app simply opens fresh */ }
-            window.location.href = CONFIG.appUrl;
+            window.location.href = CONFIG.appUrl + (mode === 'signin' ? '?signin=1' : '');
         }
 
         let activeTyping = null;   // finishes the reply being typed, if any
@@ -774,6 +774,36 @@
             return text.substring(0, maxChars);
         }
 
+        // Same device id and the same account as the VQ Chat app (they share this site's storage),
+        // so a signed-in person gets their full allowance here too
+        function requestHeaders() {
+            const h = { 'Content-Type': 'application/json' };
+            try {
+                let id = localStorage.getItem('vq-device-id');
+                if (!id) { id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)); localStorage.setItem('vq-device-id', id); }
+                h['X-VQ-Device'] = id;
+                const sess = JSON.parse(localStorage.getItem('sb-luilxyqmsomulxkgjzti-auth-token') || 'null');
+                if (sess && sess.access_token && (!sess.expires_at || sess.expires_at * 1000 > Date.now() + 30000)) h['Authorization'] = 'Bearer ' + sess.access_token;
+            } catch (e) {}
+            return h;
+        }
+
+        // Out of guest messages: signing in happens in VQ Chat (one tap), and the bubble then uses that account too
+        function showSignInOffer(quota) {
+            const text = `That's today's ${quota.limit} free guest messages. **Sign in (it's free)** for ${30} a day, here and in the full app, with your chats saved across devices. Your conversation comes with you.`;
+            addMessageToUI('assistant', text);
+            const box = messagesContainer.lastElementChild && messagesContainer.lastElementChild.querySelector('.vq-message-content');
+            if (!box) return;
+            const row = document.createElement('div');
+            row.className = 'vq-go-row';
+            const b = document.createElement('button');
+            b.type = 'button'; b.className = 'vq-go';
+            b.innerHTML = '<span>Sign in free in VQ Chat</span>→';
+            b.addEventListener('click', () => openInApp('signin'));
+            row.appendChild(b);
+            box.appendChild(row);
+        }
+
         async function sendMessage() {
             const message = input.value.trim();
             if (!message || sendBtn.disabled) return;
@@ -793,7 +823,7 @@
             try {
                 const response = await fetch(CONFIG.apiEndpoint, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: requestHeaders(),
                     body: JSON.stringify({
                         message: message,
                         client: 'bubble',
@@ -805,6 +835,7 @@
                 hideTypingIndicator();
                 if (data && data.response) {
                     if (response.ok) { addMessage('assistant', data.response); maybeGrow(data.response); }
+                    else if (response.status === 429 && data.quota && data.quota.tier === 'guest') showSignInOffer(data.quota);
                     else addMessageToUI('assistant', data.response);   // limit or error notices aren't saved
                 } else {
                     throw new Error('Network response was not ok');
