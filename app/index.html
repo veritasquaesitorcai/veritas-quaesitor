@@ -614,6 +614,34 @@
             .quota-note { margin-top: 0.3rem; }
             .swap-banner { margin-bottom: 0.4rem; padding: 0.35rem 0.6rem; }
         }
+        /* ---- News, Scripture and scholarly-paper cards ---- */
+        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.7rem; }
+        .news-card, .paper-card { display: flex; flex-direction: column; gap: 0.35rem; padding: 0.8rem 0.9rem; border: 1px solid var(--border-subtle); border-radius: 14px;
+            background: var(--message-bg, rgba(255,255,255,0.04)); cursor: pointer; transition: border-color .2s; }
+        .news-card:hover, .paper-card:hover { border-color: rgba(var(--ui-accent-rgb),0.5); }
+        .news-card:focus-visible, .paper-card:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
+        .news-card.expanded { grid-column: 1 / -1; border-color: rgba(var(--ui-accent-rgb),0.55); }
+        .news-top { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.74rem; }
+        .news-source { font-weight: 700; color: var(--ui-accent-2, #ffb27a); text-transform: uppercase; letter-spacing: 0.04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .news-date { color: var(--text-tertiary); white-space: nowrap; }
+        .news-title, .paper-title { font-weight: 700; font-size: 0.95rem; line-height: 1.35; color: var(--text-primary); }
+        .news-extra { display: none; }
+        .news-card.expanded .news-extra, .paper-card.expanded .news-extra { display: block; animation: pcardOpen .25s ease; }
+        .news-card:hover .pcard-toggle, .news-card.expanded .pcard-toggle, .paper-card:hover .pcard-toggle, .paper-card.expanded .pcard-toggle { color: var(--ui-accent-2, #ffb27a); }
+        .paper-list { display: flex; flex-direction: column; gap: 0.6rem; }
+        .paper-card.expanded { border-color: rgba(var(--ui-accent-rgb),0.55); }
+        .paper-meta { font-size: 0.8rem; color: var(--text-secondary); }
+        .paper-cited { align-self: flex-start; font-size: 0.72rem; font-weight: 700; color: var(--ui-accent-2, #ffb27a); background: rgba(var(--ui-accent-rgb),0.12);
+            padding: 0.12rem 0.5rem; border-radius: 999px; }
+        .verse-row { display: flex; flex-direction: column; gap: 0.7rem; }
+        .verse-card { margin: 0; padding: 1rem 1.2rem 0.9rem; border-radius: 14px; border: 1px solid rgba(var(--ui-accent-rgb),0.35);
+            background: linear-gradient(135deg, rgba(var(--ui-accent-rgb),0.10), rgba(255,255,255,0.02)); position: relative; }
+        .verse-card::before { content: "“"; position: absolute; top: -0.35rem; left: 0.7rem; font: 700 2.6rem/1 Georgia, serif; color: rgba(var(--ui-accent-rgb),0.55); }
+        .verse-text { margin: 0.4rem 0 0.7rem; font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif; font-size: 1.12rem; line-height: 1.6; color: var(--text-primary); }
+        .verse-ref { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.6rem; font-size: 0.8rem; }
+        .verse-name { font-family: "Cinzel", Georgia, serif; font-weight: 700; letter-spacing: 0.04em; color: var(--ui-accent-2, #ffb27a); }
+        .verse-tr { color: var(--text-tertiary); }
+        .verse-link { margin-left: auto; color: var(--text-secondary); text-decoration: none; } .verse-link:hover { color: var(--ui-accent-2, #ffb27a); }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -862,6 +890,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app.js?v=2026-10-05-wording"></script>
+    <script src="js/chat-app.js?v=2026-10-05-cards"></script>
 </body>
 </html>
