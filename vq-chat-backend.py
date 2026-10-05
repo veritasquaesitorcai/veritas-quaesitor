@@ -2421,8 +2421,13 @@ def chat():
                 groq_messages[0]["content"] += f"\nWhat was recently said in her side panel:\n{_seen}"
                 trace.setdefault('steps', []).append({'label': f'Read {ENQUIRER_NAME}\'s side chat', 'detail': f"{min(len(_o), 8)} messages", 'kind': 'notes'})
         offer_live = not already_handled
-        groq_messages[0]["content"] += PRESENT_NOTE
-        groq_messages[0]["content"] += (
+        # Layouts, page reading and book/video cards need a client that can draw them (the streaming app).
+        # The website chat bubble is a plain-text client, so it gets plain answers.
+        rich_client = bool(data.get('stream'))
+        if rich_client:
+            groq_messages[0]["content"] += PRESENT_NOTE
+        if rich_client:
+          groq_messages[0]["content"] += (
             "\n\nBOOKS AND VIDEOS: When the user asks for books or reading suggestions, call book_search; when they ask for "
             "videos, talks, lectures or something to watch, call youtube_search" + ("" if google_available else " (not switched on yet)") + ". "
             "Their results appear as cards automatically. Never write book or video links from memory, and never invent "
@@ -2721,8 +2726,7 @@ def chat():
         msgs = list(groq_messages)
         for _round in range(3):
             kwargs = dict(model="openai/gpt-oss-120b", messages=msgs, temperature=0.7, max_tokens=1200)
-            _all = ([WEB_TOOL] if offer_tool else []) + ([WEATHER_TOOL, TIME_TOOL, PAGE_TOOL] if offer_live else []) \
-                   + ([VIDEO_TOOL] if offer_live and google_available else []) + ([BOOK_TOOL] if offer_live else [])
+            _all = ([WEB_TOOL] if offer_tool else []) + ([WEATHER_TOOL, TIME_TOOL] if offer_live else [])   # plain-text client
             if _all and _round < 2:
                 kwargs.update(tools=_all, tool_choice="auto")
                 _want = media_intent(clean_message) if _round == 0 else None
