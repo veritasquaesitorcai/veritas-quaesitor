@@ -208,160 +208,181 @@ nav ul li a, .nav-links li a {
 h2, h3 { color: var(--accent-orange); margin-bottom: 1rem; }
 
 /* =====================================================================
-   NAV v2 (Oct 2026) — dark glass bar matching the HUD panels.
-   Appended last so it overrides the older nav rules above and the
-   per-page inline nav rules (higher specificity + !important).
+   NAV v3 (Oct 2026) — HUD instrument bar.
+   Links sit in one segmented track; the current page is a solid orange
+   segment. Appended last so it overrides the older nav rules above and
+   the per-page inline nav rules (higher specificity + !important).
    ===================================================================== */
 nav, .navbar {
-    padding: 0.55rem 4% !important;
-    background: linear-gradient(180deg, rgba(14, 10, 36, 0.94) 0%, rgba(14, 10, 36, 0.84) 100%) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    backdrop-filter: blur(16px) saturate(140%);
-    border-bottom: 1px solid rgba(255, 140, 66, 0.16) !important;
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
-    gap: 1.25rem;
+    min-height: 64px;
+    padding: 0.7rem 3.5% !important;
+    gap: 1.5rem;
+    background:
+        linear-gradient(180deg, rgba(255,255,255,0.035) 0%, rgba(255,255,255,0) 40%),
+        rgba(11, 8, 28, 0.92) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+    border-bottom: 0 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 nav::after, .navbar::after {
     content: "";
-    position: absolute; left: 50%; bottom: -1px; transform: translateX(-50%);
-    width: min(520px, 60%); height: 1px; pointer-events: none;
-    background: linear-gradient(90deg, transparent, rgba(255, 140, 66, 0.9), transparent);
-    box-shadow: 0 0 12px rgba(255, 140, 66, 0.55);
+    position: absolute; left: 0; right: 0; bottom: 0; height: 2px; pointer-events: none;
+    background: linear-gradient(90deg, rgba(255,140,66,0) 0%, rgba(255,140,66,0.55) 25%, #ffb27a 50%, rgba(255,140,66,0.55) 75%, rgba(255,140,66,0) 100%);
+    box-shadow: 0 0 14px rgba(255, 140, 66, 0.55);
 }
 
+/* Brand */
 nav .logo, .navbar .logo {
-    font-size: 1.15rem !important;
-    font-weight: 700;
-    letter-spacing: 0.01em;
-    gap: 0.6rem !important;
+    font-size: 1.22rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.015em;
+    gap: 0.7rem !important;
+    color: #fff !important;
+    text-shadow: 0 0 18px rgba(255, 140, 66, 0.25);
 }
 nav .logo-slogan, .navbar .logo-slogan {
-    font-size: 0.66rem !important;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    color: #ffd9a8 !important;
-    padding: 0.2rem 0.55rem !important;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 140, 66, 0.5);
-    background: rgba(255, 140, 66, 0.1);
-    line-height: 1.3;
+    font-size: 0.64rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.1em;
+    color: #1a1030 !important;
+    padding: 0.28rem 0.6rem !important;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #ff8c42, #ffb27a);
+    box-shadow: 0 0 12px rgba(255, 140, 66, 0.45);
+    line-height: 1.2;
+    text-shadow: none;
 }
 nav .logo-slogan:hover, .navbar .logo-slogan:hover {
-    background: rgba(255, 140, 66, 0.22);
-    color: #fff !important;
+    background: linear-gradient(135deg, #ffa060, #ffd9a8) !important;
+    color: #1a1030 !important;
     transform: none !important;
 }
 
-nav ul, .nav-links { gap: 0.2rem !important; }
+/* The segmented track: built from the page-link items so the social icons stay outside it */
+nav ul, .nav-links { gap: 0 !important; }
+nav ul li:not(.social-nav), .nav-links li:not(.social-nav) {
+    background: rgba(255, 255, 255, 0.045);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 3px 1px;
+}
+nav ul li:first-child, .nav-links li:first-child {
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px 0 0 12px;
+    padding-left: 3px !important;
+}
+nav ul li:nth-last-child(2), .nav-links li:nth-last-child(2) {
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0 12px 12px 0;
+    padding-right: 3px !important;
+}
 
 nav ul li a, .nav-links li a {
     position: relative;
     display: inline-flex !important;
     align-items: center;
-    padding: 0.5rem 0.85rem !important;
-    border-radius: 999px !important;
-    color: rgba(255, 255, 255, 0.78) !important;
-    font-size: 0.9rem !important;
-    font-weight: 500 !important;
+    padding: 0.5rem 0.8rem !important;
+    border-radius: 9px !important;
+    color: rgba(255, 255, 255, 0.72) !important;
+    font-size: 0.74rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
     line-height: 1.2;
     transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease !important;
 }
 nav ul li a:hover, .nav-links li a:hover {
     color: #fff !important;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 140, 66, 0.12);
 }
-nav ul li a:focus-visible, .nav-links li a:focus-visible {
-    outline: 2px solid #ffd9a8; outline-offset: 2px;
-}
+nav ul li a:focus-visible, .nav-links li a:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
 
-/* Active page: lit pill with the cross inside it (no longer overlapping the previous link) */
+/* Current page: solid orange segment with the cross inside */
 nav ul li a.active, .nav-links li a.active {
-    color: #ffd9a8 !important;
-    font-weight: 600 !important;
-    background: rgba(255, 140, 66, 0.14) !important;
-    box-shadow: inset 0 0 0 1px rgba(255, 140, 66, 0.5), 0 0 16px rgba(255, 140, 66, 0.18) !important;
+    color: #1a1030 !important;
+    background: linear-gradient(135deg, #ff8c42 0%, #ffb27a 100%) !important;
+    box-shadow: 0 0 18px rgba(255, 140, 66, 0.5), inset 0 1px 0 rgba(255,255,255,0.35) !important;
+    font-weight: 800 !important;
 }
 nav ul li a.active::before, .nav-links li a.active::before {
     content: "✝" !important;
     position: static !important;
     transform: none !important;
     margin-right: 0.4rem;
-    font-size: 0.85em !important;
-    color: #ff8c42;
+    font-size: 0.95em !important;
+    color: #1a1030;
     opacity: 1 !important;
-    animation: crossGlow 3s ease-in-out infinite;
-}
-nav ul li a.active::after, .nav-links li a.active::after {
-    content: "" !important;
-    position: absolute !important;
-    left: 50% !important; bottom: -7px !important; top: auto !important;
-    transform: translateX(-50%) !important;
-    width: 22px !important; height: 2px !important;
-    border-radius: 2px !important;
-    background: #ff8c42 !important;
-    box-shadow: 0 0 10px rgba(255, 140, 66, 0.9) !important;
+    text-shadow: none;
     animation: none !important;
 }
+nav ul li a.active::after, .nav-links li a.active::after { content: none !important; animation: none !important; }
 
-/* Social icons: outlined, separated from the page links */
+/* Social icons: outside the track */
 nav .social-nav, .navbar .social-nav {
-    margin-left: 0.6rem !important;
-    padding-left: 0.85rem;
-    border-left: 1px solid rgba(255, 255, 255, 0.14);
-    gap: 0.45rem !important;
+    margin-left: 0.9rem !important;
+    gap: 0.5rem !important;
+    background: none !important; border: 0 !important; padding: 0 !important;
 }
 nav .social-nav a, .navbar .social-nav a {
-    width: 32px !important; height: 32px !important;
+    width: 34px !important; height: 34px !important;
     padding: 0 !important;
     justify-content: center;
-    border-radius: 50% !important;
-    background: transparent !important;
-    box-shadow: inset 0 0 0 1px rgba(255, 140, 66, 0.45) !important;
+    border-radius: 10px !important;
+    background: rgba(255, 255, 255, 0.045) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12) !important;
     color: #ffb27a !important;
     font-size: 0.85rem !important;
-    font-weight: 700 !important;
+    letter-spacing: 0;
+    text-transform: none;
 }
 nav .social-nav a:hover, .navbar .social-nav a:hover {
     background: #ff8c42 !important;
     color: #1a1030 !important;
+    box-shadow: 0 0 14px rgba(255, 140, 66, 0.5) !important;
     transform: translateY(-1px);
 }
 nav .social-nav a::before, nav .social-nav a::after { content: none !important; }
 
-/* Tighter desktop range so everything fits on one line */
-@media (min-width: 1025px) and (max-width: 1280px) {
-    nav, .navbar { padding: 0.55rem 2.5% !important; }
-    nav ul li a, .nav-links li a { padding: 0.45rem 0.55rem !important; font-size: 0.84rem !important; }
-    nav .logo, .navbar .logo { font-size: 1.05rem !important; }
+/* Narrower desktops: tighten so everything stays on one line */
+@media (min-width: 1025px) and (max-width: 1480px) {
+    nav, .navbar { padding: 0.7rem 2% !important; gap: 1rem; }
+    nav ul li a, .nav-links li a { padding: 0.48rem 0.55rem !important; font-size: 0.68rem !important; letter-spacing: 0.06em; }
+    nav .logo, .navbar .logo { font-size: 1.08rem !important; }
 }
-@media (min-width: 1025px) and (max-width: 1180px) {
+@media (min-width: 1025px) and (max-width: 1240px) {
     nav .social-nav, .navbar .social-nav { display: none !important; }
+    nav ul li:nth-last-child(2), .nav-links li:nth-last-child(2) { border-right: 1px solid rgba(255,255,255,0.1); }
 }
 
-/* Mobile and tablet: brand row, then a swipeable row of pills with soft edges */
+/* Phones and tablets: brand row, then a swipeable row of segments */
 @media (max-width: 1024px) {
-    nav, .navbar { padding: 0.6rem 0 0.2rem !important; gap: 0; }
-    nav .logo, .navbar .logo { margin-bottom: 0.45rem !important; font-size: 1.1rem !important; }
+    nav, .navbar { padding: 0.65rem 0 0.25rem !important; gap: 0; }
+    nav::after, .navbar::after { height: 1px; }
+    nav .logo, .navbar .logo { margin-bottom: 0.5rem !important; font-size: 1.12rem !important; }
     nav ul, .nav-links {
-        gap: 0.45rem !important;
-        padding: 0.35rem 1rem 0.75rem !important;
+        gap: 0.4rem !important;
+        padding: 0.3rem 1rem 0.8rem !important;
         -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
         mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
     }
+    nav ul li:not(.social-nav), .nav-links li:not(.social-nav) { background: none; border: 0 !important; padding: 0 !important; border-radius: 0; }
     nav ul li a, .nav-links li a {
-        padding: 0.5rem 0.95rem !important;
-        font-size: 0.82rem !important;
+        padding: 0.55rem 0.95rem !important;
+        font-size: 0.7rem !important;
+        border-radius: 9px !important;
         background: rgba(255, 255, 255, 0.06) !important;
         border: 0 !important;
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12) !important;
     }
     nav ul li a.active, .nav-links li a.active {
-        background: rgba(255, 140, 66, 0.16) !important;
-        box-shadow: inset 0 0 0 1px rgba(255, 140, 66, 0.6) !important;
+        background: linear-gradient(135deg, #ff8c42 0%, #ffb27a 100%) !important;
+        color: #1a1030 !important;
+        box-shadow: 0 0 14px rgba(255, 140, 66, 0.45) !important;
     }
-    nav ul li a.active::after, .nav-links li a.active::after { content: none !important; }
 }
-
-@media (prefers-reduced-motion: reduce) {
-    nav ul li a.active::before, .nav-links li a.active::before { animation: none; }
+@media (min-width: 1025px) and (max-width: 1160px) {
+    nav, .navbar { padding: 0.7rem 1.5% !important; gap: 0.6rem; }
+    nav ul li a, .nav-links li a { padding: 0.46rem 0.42rem !important; font-size: 0.64rem !important; letter-spacing: 0.03em; }
+    nav .logo, .navbar .logo { font-size: 1rem !important; gap: 0.5rem !important; }
 }
