@@ -71,11 +71,11 @@
         #vq-chat-panel.open { display: flex; animation: vq-in .22s ease-out; }
         #vq-chat-panel.vq-welcome { animation: vq-fade-in 1.1s cubic-bezier(.2,.7,.2,1) both; }
         @keyframes vq-fade-in { from { opacity: 0; transform: translateY(-10px) scale(.985); } to { opacity: 1; transform: none; } }
-        /* single diagonal accent: neon corner brackets top-left and bottom-right */
+        /* single diagonal accent: neon corner brackets top-right and bottom-left */
         #vq-chat-panel::before, #vq-chat-panel::after { content: ""; position: absolute; width: 34px; height: 34px; pointer-events: none; z-index: 3;
             border: 0 solid #7ff3ff; filter: drop-shadow(0 0 4px rgba(127,243,255,.7)); }
-        #vq-chat-panel::before { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 18px; }
-        #vq-chat-panel::after { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 18px; }
+        #vq-chat-panel::before { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 18px; }
+        #vq-chat-panel::after { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 18px; }
         #vq-chat-panel.expanded { width: min(760px, calc(100vw - 60px)); height: calc(100vh - 182px); }
         #vq-chat-panel.expanded .vq-message-content { font-size: .98rem; }
         .vq-go-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
