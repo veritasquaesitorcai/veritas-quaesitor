@@ -671,6 +671,112 @@
     }
 
 
+
+    // ---------- News, Scripture and scholarly-paper cards ----------
+    function expandable(card, toggleEl) {
+        card.tabIndex = 0;
+        card.setAttribute('role', 'button');
+        card.setAttribute('aria-expanded', 'false');
+        const flip = () => {
+            const open = !card.classList.contains('expanded');
+            card.classList.toggle('expanded', open);
+            card.setAttribute('aria-expanded', String(open));
+            toggleEl.textContent = open ? 'Less ▴' : 'More ▾';
+        };
+        card.addEventListener('click', flip);
+        card.addEventListener('keydown', (e) => { if (e.target === card && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); flip(); } });
+    }
+    function cardActions(url, linkLabel, askTitle, askSub) {
+        const actions = el('div', 'pcard-actions');
+        const u = safeHttps(url);
+        if (u) {
+            const a = el('a', 'pcard-visit', linkLabel);
+            a.href = u; a.target = '_blank'; a.rel = 'noopener noreferrer';
+            a.addEventListener('click', (e) => e.stopPropagation());
+            actions.appendChild(a);
+        }
+        const ask = el('button', 'pcard-ask', 'Ask VQ about this');
+        ask.type = 'button';
+        ask.addEventListener('click', (e) => { e.stopPropagation(); askAbout(askTitle, askSub); });
+        actions.appendChild(ask);
+        return actions;
+    }
+    function friendlyDate(d) {
+        const t = Date.parse(d || '');
+        return isNaN(t) ? '' : new Date(t).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function buildNewsRow(items) {
+        const wrap = el('div', 'media-row');
+        wrap.appendChild(el('div', 'present-title', 'News'));
+        const grid = el('div', 'news-grid');
+        items.slice(0, 6).forEach(n => {
+            if (!n || !n.title) return;
+            const card = el('div', 'news-card');
+            const top = el('div', 'news-top');
+            top.appendChild(el('span', 'news-source', str(n.source, 60)));
+            const d = friendlyDate(n.date);
+            if (d) top.appendChild(el('span', 'news-date', d));
+            card.appendChild(top);
+            card.appendChild(el('div', 'news-title', str(n.title, 200)));
+            const extra = el('div', 'news-extra');
+            if (n.summary) extra.appendChild(el('p', 'pcard-more-text', str(n.summary, 420)));
+            extra.appendChild(cardActions(n.url, `Read on ${str(n.source, 40) || 'the site'} ↗`, str(n.title, 120), str(n.source, 60)));
+            card.appendChild(extra);
+            const toggle = el('span', 'pcard-toggle', 'More ▾');
+            card.appendChild(toggle);
+            expandable(card, toggle);
+            grid.appendChild(card);
+        });
+        wrap.appendChild(grid);
+        return wrap;
+    }
+
+    function buildVerseCards(items) {
+        const wrap = el('div', 'media-row verse-row');
+        items.slice(0, 3).forEach(v => {
+            if (!v || !v.text) return;
+            const card = el('figure', 'verse-card');
+            card.appendChild(el('blockquote', 'verse-text', str(v.text, 2400)));
+            const cap = el('figcaption', 'verse-ref');
+            cap.appendChild(el('span', 'verse-name', str(v.reference, 60)));
+            cap.appendChild(el('span', 'verse-tr', str(v.translation, 60)));
+            const u = safeHttps(v.url);
+            if (u) {
+                const a = el('a', 'verse-link', 'Read in context ↗');
+                a.href = u; a.target = '_blank'; a.rel = 'noopener noreferrer';
+                cap.appendChild(a);
+            }
+            card.appendChild(cap);
+            wrap.appendChild(card);
+        });
+        return wrap;
+    }
+
+    function buildPaperRow(items) {
+        const wrap = el('div', 'media-row');
+        wrap.appendChild(el('div', 'present-title', 'Scholarly sources'));
+        const list = el('div', 'paper-list');
+        items.slice(0, 6).forEach(p => {
+            if (!p || !p.title) return;
+            const card = el('div', 'paper-card');
+            card.appendChild(el('div', 'paper-title', str(p.title, 220)));
+            const meta = [str(p.authors, 140), str(p.year, 4), str(p.venue, 100)].filter(Boolean).join(' · ');
+            card.appendChild(el('div', 'paper-meta', meta));
+            if (p.cited) card.appendChild(el('span', 'paper-cited', `Cited ${Number(p.cited).toLocaleString()} times`));
+            const extra = el('div', 'news-extra');
+            if (p.abstract) extra.appendChild(el('p', 'pcard-more-text', str(p.abstract, 600) + (String(p.abstract).length > 590 ? '…' : '')));
+            extra.appendChild(cardActions(p.url, 'Open the paper ↗', str(p.title, 120), str(p.authors, 80)));
+            card.appendChild(extra);
+            const toggle = el('span', 'pcard-toggle', 'More ▾');
+            card.appendChild(toggle);
+            expandable(card, toggle);
+            list.appendChild(card);
+        });
+        wrap.appendChild(list);
+        return wrap;
+    }
+
     // ---------- YouTube videos and Google Books as cards ----------
     function buildVideoRow(videos) {
         const wrap = el('div', 'media-row');
@@ -1092,6 +1198,9 @@
                 if (meta.page && meta.page.url) { const pc = buildPageCard(meta.page); if (pc) body.insertBefore(pc, body.querySelector('.message-actions')); }
                 if (Array.isArray(meta.videos) && meta.videos.length) body.insertBefore(buildVideoRow(meta.videos), body.querySelector('.message-actions'));
                 if (Array.isArray(meta.books) && meta.books.length) body.insertBefore(buildBookRow(meta.books), body.querySelector('.message-actions'));
+                if (Array.isArray(meta.verses) && meta.verses.length) body.insertBefore(buildVerseCards(meta.verses), body.querySelector('.message-actions'));
+                if (Array.isArray(meta.news) && meta.news.length) body.insertBefore(buildNewsRow(meta.news), body.querySelector('.message-actions'));
+                if (Array.isArray(meta.papers) && meta.papers.length) body.insertBefore(buildPaperRow(meta.papers), body.querySelector('.message-actions'));
                 if (Array.isArray(meta.images) && meta.images.length) body.appendChild(buildGallery(meta.images));
                 appendAnswerChips(body, messageDiv, meta);
             }
@@ -1466,9 +1575,10 @@
             const k = typeof st.found === 'number' ? st.found : (meta.sources || []).length;
             const q = st.query ? `"${st.query}" · ` : '';
             const pics = st.images ? ` · ${st.images} images` : '';
-            const unit = /YouTube/.test(st.label) ? 'videos' : /Books/.test(st.label) ? 'books' : 'sources';
+            const unit = /YouTube/.test(st.label) ? 'videos' : /Books/.test(st.label) ? 'books' : /news/i.test(st.label) ? 'articles'
+                       : /papers/i.test(st.label) ? 'papers' : /Scripture/.test(st.label) ? 'passage' : 'sources';
             const filt = st.filtered ? ` · ${st.filtered} hidden by the content filter` : '';
-            ol.appendChild(codeLine(++n, v, r, `${q}${k ? `${k} ${unit} found` : 'no usable results'}${pics}${filt}`, st.ms));
+            ol.appendChild(codeLine(++n, v, r, `${q}${k ? `${k} ${k === 1 ? unit.replace(/s$/, '') : unit} found` : 'no usable results'}${pics}${filt}`, st.ms));
         });
         if (!(meta.steps || []).some(st => st.kind === 'live')) {
             (meta.live || []).filter(x => /weather|time|image/i.test(x)).forEach(x => ol.appendChild(codeLine(++n, 'Fetched', x.toLowerCase())));
@@ -2009,9 +2119,11 @@
             } else {
                 const k = typeof st.found === 'number' ? st.found : (meta.sources || []).length;
                 const pics = st.images ? ` and ${st.images} pictures` : '';
-                const where = /YouTube/.test(st.label) ? 'YouTube' : /Books/.test(st.label) ? 'Google Books' : /news/i.test(st.label) ? 'the news' : 'the web';
-                const unit = /YouTube/.test(st.label) ? 'videos' : /Books/.test(st.label) ? 'books' : 'sources';
-                add(`Searched ${where}${st.query ? ` for “${st.query}”` : ''} and found ${k} ${unit}${pics}${secs}${st.filtered ? `, hiding ${st.filtered} that didn’t pass the content filter` : ''}.`);
+                const where = /YouTube/.test(st.label) ? 'YouTube' : /Books/.test(st.label) ? 'Google Books' : /news/i.test(st.label) ? 'the news'
+                            : /papers/i.test(st.label) ? 'scholarly papers' : /Scripture/.test(st.label) ? 'the Bible' : 'the web';
+                const unit = /YouTube/.test(st.label) ? 'videos' : /Books/.test(st.label) ? 'books' : /news/i.test(st.label) ? 'articles'
+                           : /papers/i.test(st.label) ? 'papers' : /Scripture/.test(st.label) ? 'passage' : 'sources';
+                add(`Searched ${where}${st.query ? ` for “${st.query}”` : ''} and found ${k} ${k === 1 ? unit.replace(/s$/, '') : unit}${pics}${secs}${st.filtered ? `, hiding ${st.filtered} that didn’t pass the content filter` : ''}.`);
             }
         });
         (meta.rules || []).filter(r => !/^Appreciation/.test(r)).forEach(r => {
