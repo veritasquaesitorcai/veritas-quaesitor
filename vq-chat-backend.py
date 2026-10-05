@@ -2086,6 +2086,150 @@ def run_media_tool(name: str, args: dict, trace: dict) -> str:
             "the details above or facts you are sure of; never attribute CAI's own calculation, figures or methods to any "
             "author or speaker. Apply content discernment: recommend only what is good; describe the rest neutrally.")
 
+
+# ---------- More card sources: news, Scripture (exact text), scholarly papers ----------
+NEWS_TOOL = {"type": "function", "function": {
+    "name": "news_search",
+    "description": "Find recent news articles. Use when the user asks for news, headlines or what's happening on a topic.",
+    "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "News topic"}}, "required": ["query"]}}}
+VERSE_TOOL = {"type": "function", "function": {
+    "name": "bible_lookup",
+    "description": ("Get the exact text of a Bible passage (World English Bible, public domain). Use it whenever you quote or cite "
+                    "Scripture, so the quote is exact. One reference per call, e.g. 'John 3:16' or '1 Corinthians 15:3-8'."),
+    "parameters": {"type": "object", "properties": {"reference": {"type": "string", "description": "Book chapter:verse(s)"}}, "required": ["reference"]}}}
+PAPER_TOOL = {"type": "function", "function": {
+    "name": "paper_search",
+    "description": "Find scholarly papers and academic books (titles, authors, year, journal, citations). Use when the user asks for research, studies, papers or academic sources.",
+    "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "Research topic"}}, "required": ["query"]}}}
+CARD_TOOL_NAMES = ("news_search", "bible_lookup", "paper_search")
+
+_NEWS_CARD_INTENT = re.compile(r"\b(news|headlines?|what'?s happening (?:with|in|on)|latest on)\b", re.I)
+_PAPER_INTENT = re.compile(r"\b(papers?|studies|a study|research (?:on|about|into)|scholarly|academic (?:sources?|work)|journals?|peer[- ]reviewed)\b", re.I)
+_VERSE_REF = re.compile(r"\b((?:[1-3]\s?)?(?:Genesis|Exodus|Leviticus|Numbers|Deuteronomy|Joshua|Judges|Ruth|Samuel|Kings|Chronicles|Ezra|Nehemiah|Esther|Job|"
+                        r"Psalms?|Proverbs|Ecclesiastes|Song of Songs|Isaiah|Jeremiah|Lamentations|Ezekiel|Daniel|Hosea|Joel|Amos|Obadiah|Jonah|Micah|"
+                        r"Nahum|Habakkuk|Zephaniah|Haggai|Zechariah|Malachi|Matthew|Mark|Luke|John|Acts|Romans|Corinthians|Galatians|Ephesians|"
+                        r"Philippians|Colossians|Thessalonians|Timothy|Titus|Philemon|Hebrews|James|Peter|Jude|Revelation)\s+\d+:\d+(?:[-–]\d+)?)", re.I)
+
+def card_intent(message: str):
+    m = message or ""
+    if _VERSE_REF.search(m):
+        return "bible_lookup"
+    if _PAPER_INTENT.search(m):
+        return "paper_search"
+    if tavily_available and _NEWS_CARD_INTENT.search(m):
+        return "news_search"
+    return None
+
+def _json_get(url: str, timeout: int = 12):
+    import urllib.request
+    req = urllib.request.Request(url, headers={"User-Agent": "VQChat/1.0 (mailto:veritasquaesitorcai@gmail.com)"})
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return json.loads(r.read().decode())
+
+def news_cards(query: str) -> dict:
+    from urllib.parse import urlparse as _up
+    res = tavily_search(query, topic="news", max_results=10)
+    items = []
+    for r in res.get("results", []):
+        if not passes_filter(r["title"], r["content"]):
+            continue
+        items.append({"title": r["title"], "url": r["url"], "source": (_up(r["url"]).hostname or "").replace("www.", ""),
+                      "date": (r.get("date") or "")[:16], "summary": re.sub(r"\s+", " ", r["content"])[:420]})
+    return {"items": items[:6], "filtered": len(res.get("results", [])) - len(items), "ms": res["ms"], "error": res["error"]}
+
+def bible_lookup(reference: str) -> dict:
+    import urllib.parse as _upr
+    t0 = _time.time()
+    ref = re.sub(r"\s+", " ", reference or "").strip()[:60]
+    try:
+        d = _json_get("https://bible-api.com/" + _upr.quote(ref) + "?translation=web")
+        text = re.sub(r"\s+", " ", d.get("text") or "").strip()
+        if not text:
+            raise ValueError(d.get("error") or "not found")
+        return {"items": [{"reference": d.get("reference") or ref, "text": text[:2400], "translation": d.get("translation_name") or "World English Bible",
+                           "url": "https://www.biblegateway.com/passage/?search=" + _upr.quote(d.get("reference") or ref) + "&version=WEB"}],
+                "ms": int((_time.time() - t0) * 1000), "error": None}
+    except Exception as e:
+        print(f"[BIBLE] {ref}: {e}", flush=True)
+        return {"items": [], "ms": int((_time.time() - t0) * 1000), "error": str(e)}
+
+def paper_search(query: str) -> dict:
+    import urllib.parse as _upr
+    t0 = _time.time()
+    items = []
+    try:
+        d = _json_get("https://api.openalex.org/works?" + _upr.urlencode({"search": query[:200], "per_page": 8,
+                      "mailto": "veritasquaesitorcai@gmail.com"}))
+        for w in d.get("results", []):
+            inv = w.get("abstract_inverted_index") or {}
+            words = sorted(((pos, wd) for wd, ps in inv.items() for pos in ps))
+            abstract = " ".join(wd for _, wd in words)[:600]
+            src = ((w.get("primary_location") or {}).get("source") or {}).get("display_name") or ""
+            authors = ", ".join(a["author"]["display_name"] for a in (w.get("authorships") or [])[:3] if a.get("author"))
+            url = w.get("doi") or ((w.get("primary_location") or {}).get("landing_page_url")) or w.get("id") or ""
+            if w.get("display_name"):
+                items.append({"title": w["display_name"][:220], "authors": authors[:160], "year": w.get("publication_year") or "",
+                              "venue": src[:120], "cited": w.get("cited_by_count") or 0, "url": url, "abstract": abstract})
+    except Exception as e:
+        print(f"[OPENALEX] {e}; trying Crossref", flush=True)
+        try:
+            d = _json_get("https://api.crossref.org/works?" + _upr.urlencode({"query": query[:200], "rows": 8,
+                          "select": "title,author,issued,container-title,DOI,is-referenced-by-count,abstract"}))
+            for w in d.get("message", {}).get("items", []):
+                title = (w.get("title") or [""])[0]
+                if not title:
+                    continue
+                authors = ", ".join(f"{a.get('given', '')} {a.get('family', '')}".strip() for a in (w.get("author") or [])[:3])
+                items.append({"title": title[:220], "authors": authors[:160], "year": ((w.get("issued") or {}).get("date-parts") or [[""]])[0][0],
+                              "venue": (w.get("container-title") or [""])[0][:120], "cited": w.get("is-referenced-by-count") or 0,
+                              "url": "https://doi.org/" + w["DOI"] if w.get("DOI") else "",
+                              "abstract": re.sub(r"<[^>]+>", "", w.get("abstract") or "")[:600]})
+        except Exception as e2:
+            return {"items": [], "ms": int((_time.time() - t0) * 1000), "error": str(e2)}
+    for it in items:
+        if it["url"] and not it["url"].startswith("https://"):
+            it["url"] = it["url"].replace("http://", "https://")
+    return {"items": items[:6], "ms": int((_time.time() - t0) * 1000), "error": None}
+
+def run_card_tool(name: str, args: dict, trace: dict) -> str:
+    a = args or {}
+    if name == "news_search":
+        q = str(a.get("query") or "").strip()[:200]
+        res = news_cards(q)
+        trace.setdefault('steps', []).append({'label': 'Searched the news', 'query': q, 'found': len(res['items']), 'ms': res['ms'], 'filtered': res.get('filtered', 0)})
+        if res['items']:
+            trace['news'] = res['items']
+        lines = [f"[{i}] {n['title']} ({n['source']}, {n['date'] or 'recent'}): {n['summary'][:220]}" for i, n in enumerate(res['items'], 1)]
+        if not lines:
+            return f"No news was found for '{q}'. Tell the user briefly."
+        return ("NEWS FOUND:\n" + "\n".join(lines) + "\n\nThese articles are shown to the user as cards with links. Write two to four sentences: "
+                "what's significant and why it matters, especially for AI safety, human dignity or faith. Don't re-list them or add links. "
+                "They are news reports, not verified fact; say so if a claim is contested.")
+    if name == "bible_lookup":
+        ref = str(a.get("reference") or "").strip()[:60]
+        res = bible_lookup(ref)
+        trace.setdefault('steps', []).append({'label': 'Looked up Scripture', 'query': ref, 'found': len(res['items']), 'ms': res['ms']})
+        if res['items']:
+            trace.setdefault('verses', [])
+            if not any(v['reference'] == res['items'][0]['reference'] for v in trace['verses']):
+                trace['verses'].append(res['items'][0])
+            v = res['items'][0]
+            return (f"{v['reference']} ({v['translation']}): \"{v['text']}\"\n\nThe passage is shown to the user as a card with the exact text. "
+                    "If you quote it, quote it exactly as above; otherwise refer to it without re-quoting.")
+        return f"'{ref}' couldn't be looked up ({res['error']}). Don't quote it from memory; name the reference instead."
+    q = str(a.get("query") or "").strip()[:200]
+    res = paper_search(q)
+    trace.setdefault('steps', []).append({'label': 'Searched scholarly papers', 'query': q, 'found': len(res['items']), 'ms': res['ms']})
+    if res['items']:
+        trace['papers'] = res['items']
+    lines = [f"[{i}] {p['title']}, {p['authors'] or 'unknown authors'} ({p['year']}), {p['venue'] or 'n/a'}, cited {p['cited']} times. {p['abstract'][:200]}"
+             for i, p in enumerate(res['items'], 1)]
+    if not lines:
+        return f"No papers were found for '{q}'. Tell the user briefly."
+    return ("PAPERS FOUND:\n" + "\n".join(lines) + "\n\nThese are shown to the user as cards with links. Write two to four sentences: which look "
+            "most relevant and why. Describe a paper only from the details above; never claim what a paper concludes beyond its abstract, "
+            "and never attribute CAI's own figures to any author.")
+
 # ---------- Live data tools: weather and local time (VQ decides when to use them) ----------
 WEATHER_TOOL = {
     "type": "function",
@@ -2705,7 +2849,9 @@ def chat():
             "videos, talks, lectures or something to watch, call youtube_search" + ("" if google_available else " (not switched on yet)") + ". "
             "Their results appear as cards automatically. Never write book or video links from memory, and never invent "
             "YouTube addresses: a made-up link is worse than none. If a search tool isn't available, name a few titles or "
-            "speakers from your knowledge without links, and suggest the user searches for them."
+            "speakers from your knowledge without links, and suggest the user searches for them. "
+            "NEWS, SCRIPTURE AND PAPERS: for news use news_search; for research or academic sources use paper_search; and whenever "
+            "you quote a Bible verse, first call bible_lookup for it, so the words shown are exact (one call per passage, at most three)."
         )
         if offer_live:
             groq_messages[0]["content"] += LIVE_SYSTEM_NOTE
@@ -2841,13 +2987,14 @@ def chat():
                     while True:
                         kwargs = dict(model="openai/gpt-oss-120b", messages=msgs, temperature=0.7, max_tokens=1200, stream=True)
                         _all = [] if tools_disabled else ([WEB_TOOL] if offer_tool else []) + ([WEATHER_TOOL, TIME_TOOL, PAGE_TOOL] if offer_live else []) \
-                               + ([VIDEO_TOOL] if offer_live and google_available else []) + ([BOOK_TOOL] if offer_live else [])
+                               + ([VIDEO_TOOL] if offer_live and google_available else []) + ([BOOK_TOOL] if offer_live else []) \
+                               + (([NEWS_TOOL] if tavily_available else []) + [VERSE_TOOL, PAPER_TOOL] if offer_live else [])
                         _tools = list(_all) if rounds < 2 else []
                         if offer_ui and rounds == 0 and not tools_disabled:
                             _tools.append(UI_TOOL)   # screen changes only before any web results are read
                         if _tools:
                             kwargs.update(tools=_tools, tool_choice="auto")
-                            _want = media_intent(clean_message) if rounds == 0 else None
+                            _want = (media_intent(clean_message) or card_intent(clean_message)) if rounds == 0 else None
                             if _want and any(t["function"]["name"] == _want for t in _tools):
                                 kwargs["tool_choice"] = {"type": "function", "function": {"name": _want}}
                         elif rounds > 0 and _all:
@@ -2913,6 +3060,12 @@ def chat():
                                 args = json.loads(c["args"] or "{}")
                             except Exception:
                                 args = {}
+                            if c["name"] in CARD_TOOL_NAMES:
+                                yield _sse({"status": {"news_search": "Searching the news", "bible_lookup": "Looking up Scripture",
+                                                       "paper_search": "Searching scholarly papers"}[c["name"]],
+                                            "detail": str(args.get("query") or args.get("reference") or "")[:60]})
+                                msgs.append({"role": "tool", "tool_call_id": c["id"] or f"call_{i}", "content": run_card_tool(c["name"], args, trace)})
+                                continue
                             if c["name"] in MEDIA_TOOL_NAMES:
                                 yield _sse({"status": "Searching YouTube" if c["name"] == "youtube_search" else "Searching Google Books",
                                             "detail": str(args.get("query") or "")[:60]})
