@@ -69,7 +69,7 @@
             display: none; flex-direction: column; overflow: hidden; border-radius: 18px; background: var(--vq-bg); color: var(--vq-text);
             border: 1px solid rgba(127,243,255,0.2); box-shadow: 0 24px 70px rgba(0,0,0,0.6), 0 0 34px rgba(127,243,255,0.08); }
         #vq-chat-panel.open { display: flex; animation: vq-in .22s ease-out; }
-        #vq-chat-panel.vq-welcome { animation: vq-fade-in .9s cubic-bezier(.2,.7,.2,1) both; }
+        #vq-chat-panel.vq-welcome { animation: vq-fade-in 1.1s cubic-bezier(.2,.7,.2,1) both; }
         @keyframes vq-fade-in { from { opacity: 0; transform: translateY(-10px) scale(.985); } to { opacity: 1; transform: none; } }
         /* single diagonal accent: neon corner brackets top-left and bottom-right */
         #vq-chat-panel::before, #vq-chat-panel::after { content: ""; position: absolute; width: 34px; height: 34px; pointer-events: none; z-index: 3;
@@ -319,15 +319,20 @@
             if (/\/app\//.test(location.pathname)) return;
             sessionStorage.setItem('vq-welcomed', '1');
             sessionStorage.setItem('vq-teaser-shown', '1');
-            panel.classList.add('vq-welcome');
-            openChat(false);                                                     // no keyboard focus, no scrolling
-            setTimeout(() => panel.classList.remove('vq-welcome'), 1200);
+            fadeOpen();                                                          // no keyboard focus, no scrolling
         }
         // (deferred so everything below has been set up first)
         setTimeout(() => { if (isPhone()) setTimeout(showTeaser, 2500); else setTimeout(welcomeOpen, 3000); }, 0);
 
         const isPhone = () => window.matchMedia('(max-width: 768px)').matches;
-        if (localStorage.getItem('vq-widget-open') === 'true' && !isPhone()) openChat(false);
+        // Reopen a bubble that was left open, but let the page settle first and fade it in
+        function fadeOpen() {
+            if (panel.classList.contains('open')) return;
+            panel.classList.add('vq-welcome');
+            openChat(false);
+            setTimeout(() => panel.classList.remove('vq-welcome'), 1400);
+        }
+        if (localStorage.getItem('vq-widget-open') === 'true' && !isPhone()) setTimeout(fadeOpen, 900);
 
         bubble.addEventListener('click', () => panel.classList.contains('open') ? closeChat() : openChat(true));
         document.getElementById('vq-chat-close').addEventListener('click', closeChat);
