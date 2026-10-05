@@ -1,11 +1,11 @@
 {
   "name": "VQ Chat - Veritas Quaesitor",
   "short_name": "VQ Chat",
-  "description": "Christ-Anchored Intelligence chat interface for exploring evidence-based faith and AI alignment",
+  "description": "An assistant anchored in Christ that holds every view to the same standard and shows its work.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0f0f23",
-  "theme_color": "#667eea",
+  "background_color": "#0e0e0e",
+  "theme_color": "#0e0e0e",
   "orientation": "portrait-primary",
   "icons": [
     {
