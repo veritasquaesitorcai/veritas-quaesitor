@@ -1733,6 +1733,14 @@ SITE_EXTRA_PAGES = ["tour.html", "symmetric-record.html", "epistemic-tier-system
                     "epistemic-alignment-framework.html", "endtimes.html", "reports.html", "protocols.html", "TTCSF.html",
                     "privacy.html", "terms.html"]
 _site_map = {"text": "", "built": 0}
+TOUR_KNOWLEDGE = (
+    "THE 1-MINUTE TOUR (" + SITE_BASE + "tour.html, opens in its own tab): an auto-playing demo of VQ Chat with seven chapters: "
+    "1 Discernment built in (family films: reports what's popular honestly, recommends only what's good); "
+    "2 Worth that isn't earned (someone who failed exams: worth grounded in the image of God, then practical help); "
+    "3 Same standard for every view (is a miracle rational: both views' assumptions named and tested the same way); "
+    "4 The question at the centre (the resurrection weighed like any historical claim, 72-93% with the numbers shown); "
+    "5 Change the screen by asking (themes and title styles by conversation); 6 Meet O.R.I.A. (the third companion); "
+    "7 Try it yourself. Controls: play/pause, chapter list, speed. Offer to open it when someone wants to see VQ Chat in action.")
 _site_lock = _threading.Lock()
 
 def _fetch_text(url, limit=900_000):
@@ -1800,7 +1808,19 @@ def build_site_map():
           f"- VQ Chat, the full app: {SITE_BASE}app/ · layouts, books and videos, themes, notes, O.R.I.A., saved chats and sign-in"]
     for f in SITE_EXTRA_PAGES:
         if f not in seen: L += block(f)
-    L += ["", "SOCIAL: X https://x.com/VeritasQ68414 · LinkedIn https://www.linkedin.com/in/veritas-quaesitor-9643613a1"]
+    # What's new: the newest tool, plus the latest dated entries on the milestones page
+    latest = []
+    if "milestones.html" in parsed:
+        for hd in parsed["milestones.html"][2] + parsed["milestones.html"][3]:
+            if re.search(r"\b20\d\d\b", hd):
+                latest.append(" ".join(frag(hd)[0].split()))
+            if len(latest) >= 4: break
+    L += ["", "WHAT'S NEW:",
+          f"- The newest tool is VQ Chat, the full app ({SITE_BASE}app/), launched in October 2026, together with the 1-minute guided tour.",
+          "  When someone asks for the latest or newest tool, it's VQ Chat (not the Resurrection Engine, which is older)."]
+    if latest:
+        L.append("- Latest milestones (newest first): " + " | ".join(latest) + f" ({SITE_BASE}milestones.html)")
+    L += ["", TOUR_KNOWLEDGE, "", "SOCIAL: X https://x.com/VeritasQ68414 · LinkedIn https://www.linkedin.com/in/veritas-quaesitor-9643613a1"]
     return "\n".join(L) + "\n"
 
 def site_map_text():
@@ -1849,9 +1869,62 @@ def surface_note(is_bubble: bool, page_context) -> str:
                 " Then ask: \"Want me to take you there?\" The bubble shows a 'Take me there' button, and a yes takes them there."
                 " You can't change the screen, draw layouts, or show books, videos or saved chats in the bubble. Only when a request"
                 f" needs those, or a long answer, suggest the full VQ Chat app ({SITE_BASE}app/); the 'Open in VQ Chat' link at the"
-                " bottom carries the conversation over. Don't mention the app otherwise.\n\n" + site_map_text())
+                " bottom carries the conversation over. Don't mention the app otherwise."
+                " When asked about AI news, use the AI news digest if it's provided: a few significant items, each with its link."
+                " The 1-minute tour opens in its own tab, so the person can come back to this page.\n\n" + site_map_text())
     return ("\n\nWHERE YOU ARE: You are VQ in the full VQ Chat app: answers with layouts, the Details panel, notes, O.R.I.A., themes,"
-            " books, videos, page reading and saved chats. The website also has a smaller chat bubble on every page for quick answers.")
+            " books, videos, page reading and saved chats. The website also has a smaller chat bubble on every page for quick answers."
+            " You know the website too: when a question is about something covered on the site, give a Markdown link with a readable"
+            " label (it opens in a new tab), to the exact section when one fits.")
+
+
+# ---------- AI news digest: recent AI news worth knowing, refreshed every 6 hours ----------
+NEWS_QUERIES = ["artificial intelligence news this week", "AI alignment safety news", "AI Christianity faith ethics news"]
+_news = {"text": "", "built": 0}
+_news_lock = _threading.Lock()
+
+def build_news_digest():
+    seen, items = set(), []
+    for q in NEWS_QUERIES:
+        res = tavily_search(q, topic="news", max_results=6)
+        for r in res.get("results", []):
+            key = re.sub(r"\W+", "", r["title"].lower())[:60]
+            if not r["url"] or key in seen or not passes_filter(r["title"], r["content"][:300]):
+                continue
+            seen.add(key)
+            host = re.sub(r"^www\.", "", (re.match(r"https?://([^/]+)", r["url"]) or [None, ""])[1])
+            items.append(f"- {r['title']} ({host}{', ' + r['date'][:16] if r.get('date') else ''}): {r['content'][:260].strip()} {r['url']}")
+    if not items:
+        return ""
+    stamp = _time.strftime("%Y-%m-%d %H:%M UTC", _time.gmtime())
+    return ("AI NEWS DIGEST (gathered " + stamp + " from news searches; treat as reported news, not verified fact):\n" +
+            "\n".join(items[:12]) +
+            "\nWhen asked about AI news: pick the few most significant items, summarise each in your own words with its link, and say "
+            "briefly why it matters for CAI's concerns (truthfulness, alignment, human dignity, how AI treats worldviews). "
+            "Don't overstate, and say the date range is roughly the past week.")
+
+def news_digest_text():
+    if not tavily_available:
+        return ""
+    now = _time.time()
+    if (not _news["text"] or now - _news["built"] > 6 * 3600) and _news_lock.acquire(blocking=False):
+        def _refresh():
+            try:
+                t = build_news_digest()
+                if t:
+                    _news.update(text=t, built=_time.time())
+                    print(f"[NEWS] digest rebuilt: {len(t)} chars", flush=True)
+                else:
+                    _news["built"] = _time.time() - 5 * 3600
+            except Exception as e:
+                _news["built"] = _time.time() - 5 * 3600
+                print(f"[NEWS] rebuild failed: {e}", flush=True)
+            finally:
+                _news_lock.release()
+        _threading.Thread(target=_refresh, daemon=True).start()
+    return _news["text"]
+
+_NEWS_INTENT = re.compile(r"\b(news|headlines?|latest in ai|what'?s (?:new|happening) in (?:ai|tech)|this week in ai|ai (?:updates?|developments?)|recent(?:ly)? in ai)\b", re.I)
 
 # ---------- Christian content filter for media cards (videos, books, pictures) ----------
 _BLOCK_WORDS = [
@@ -2589,15 +2662,19 @@ def chat():
         offer_live = not already_handled
         _is_bubble = (data.get('client') == 'bubble') or not data.get('stream')
         groq_messages[0]["content"] += surface_note(_is_bubble, page_context)
+        if _NEWS_INTENT.search(clean_message or ""):
+            _nd = news_digest_text()
+            if _nd:
+                groq_messages[0]["content"] += "\n\n" + _nd
+                trace.setdefault('steps', []).append({'label': 'Checked the AI news digest', 'detail': 'refreshed every 6 hours', 'kind': 'notes'})
         if not _is_bubble and _SITE_INTENT.search(clean_message or ""):
             groq_messages[0]["content"] += "\n\n" + site_map_text()
             trace.setdefault('steps', []).append({'label': 'Checked the site map', 'detail': 'pages and sections', 'kind': 'notes'})
         # Layouts, page reading and book/video cards need a client that can draw them (the streaming app).
         # The website chat bubble is a plain-text client, so it gets plain answers.
         rich_client = bool(data.get('stream'))
-        surface = 'bubble' if (data.get('client') == 'bubble' or not rich_client) else 'app'
-        groq_messages[0]["content"] += SURFACE_NOTES[surface]
-        trace['surface'] = surface
+        # (where VQ is, bubble or app, was already explained above by surface_note)
+        trace['surface'] = 'bubble' if _is_bubble else 'app'
         if rich_client:
             groq_messages[0]["content"] += PRESENT_NOTE
         if rich_client:
