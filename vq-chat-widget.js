@@ -69,6 +69,13 @@
             display: none; flex-direction: column; overflow: hidden; border-radius: 18px; background: var(--vq-bg); color: var(--vq-text);
             border: 1px solid rgba(127,243,255,0.2); box-shadow: 0 24px 70px rgba(0,0,0,0.6), 0 0 34px rgba(127,243,255,0.08); }
         #vq-chat-panel.open { display: flex; animation: vq-in .22s ease-out; }
+        #vq-chat-panel.vq-welcome { animation: vq-fade-in .9s cubic-bezier(.2,.7,.2,1) both; }
+        @keyframes vq-fade-in { from { opacity: 0; transform: translateY(-10px) scale(.985); } to { opacity: 1; transform: none; } }
+        /* single diagonal accent: neon corner brackets top-left and bottom-right */
+        #vq-chat-panel::before, #vq-chat-panel::after { content: ""; position: absolute; width: 34px; height: 34px; pointer-events: none; z-index: 3;
+            border: 0 solid #7ff3ff; filter: drop-shadow(0 0 4px rgba(127,243,255,.7)); }
+        #vq-chat-panel::before { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 18px; }
+        #vq-chat-panel::after { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 18px; }
         #vq-chat-panel.expanded { width: min(760px, calc(100vw - 60px)); height: calc(100vh - 182px); }
         #vq-chat-panel.expanded .vq-message-content { font-size: .98rem; }
         .vq-go-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
@@ -76,6 +83,15 @@
             border: 1px solid rgba(255,140,66,.55); background: rgba(255,140,66,.12); color: #ffd2ad; font: 600 .82rem/1.2 inherit; text-align: left; }
         .vq-go:hover { background: rgba(255,140,66,.24); color: #fff; }
         .vq-go span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        #vq-teaser { position: fixed; top: 160px; right: 30px; z-index: 9997; max-width: 260px; display: flex; gap: 8px; align-items: flex-start;
+            padding: 11px 12px 11px 14px; border-radius: 14px 4px 14px 14px; background: #121216; color: #ececec; cursor: pointer;
+            border: 1px solid rgba(127,243,255,.3); box-shadow: 0 14px 34px rgba(0,0,0,.45); font: 500 .86rem/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            animation: vq-in .3s ease-out; }
+        #vq-teaser b { color: #fff; }
+        #vq-teaser button { flex-shrink: 0; width: 22px; height: 22px; border: 0; border-radius: 50%; cursor: pointer; display: grid; place-items: center;
+            background: rgba(255,255,255,.1); color: #ccc; font-size: 13px; line-height: 1; }
+        #vq-teaser button:hover { background: rgba(255,255,255,.2); color: #fff; }
+        @media (max-width: 768px) { #vq-teaser { top: auto; right: 16px; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); max-width: min(270px, calc(100vw - 32px)); } }
         .vq-section-flash { outline: 2px solid rgba(255,140,66,.75) !important; outline-offset: 6px; border-radius: 6px; }
         @keyframes vq-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 
@@ -91,6 +107,9 @@
         .vq-hbtn { width: 34px; height: 34px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--vq-line);
             background: transparent; color: var(--vq-muted); cursor: pointer; transition: color .2s, border-color .2s; }
         .vq-hbtn:hover { color: #fff; border-color: rgba(255,140,66,.55); }
+        #vq-chat-close { width: 36px; height: 36px; color: #fff; background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.28); }
+        #vq-chat-close svg { width: 18px; height: 18px; }
+        #vq-chat-close:hover { background: #ff8c42; border-color: #ff8c42; color: #1a1030; }
         .vq-hbtn svg { width: 16px; height: 16px; }
 
         #vq-chat-messages { flex: 1; overflow-y: auto; padding: 16px 16px 8px; display: flex; flex-direction: column; gap: 14px; scrollbar-width: thin; }
@@ -110,6 +129,8 @@
             background: linear-gradient(135deg, var(--vq-accent), var(--vq-accent-2)); box-shadow: 0 4px 14px rgba(255,140,66,.18); }
         .vq-typing { display: flex; gap: 5px; padding: 8px 2px; }
         .vq-typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--vq-neon); opacity: .35; animation: vq-dot 1.2s ease-in-out infinite; }
+        .vq-typing-text p:last-child::after { content: "▍"; color: #7ff3ff; margin-left: 1px; animation: vq-blink 1s steps(1) infinite; }
+        @keyframes vq-blink { 50% { opacity: 0; } }
         .vq-typing i:nth-child(2) { animation-delay: .15s; } .vq-typing i:nth-child(3) { animation-delay: .3s; }
         @keyframes vq-dot { 30% { opacity: 1; transform: translateY(-3px); } }
 
@@ -132,6 +153,7 @@
             #vq-chat-bubble .vq-bubble-text { display: none; }
             #vq-chat-bubble .vq-face { width: 46px; height: 46px; } #vq-chat-bubble .vq-face svg { width: 36px; height: 36px; }
             #vq-chat-panel, #vq-chat-panel.expanded { top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100vh; height: 100dvh; min-height: 0; border-radius: 0; border: 0; }
+            #vq-chat-panel::before, #vq-chat-panel::after { display: none; }
             .vq-expand, #vq-chat-expand { display: none; }
             #vq-chat-header { padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
             #vq-chat-input { font-size: 16px; }
@@ -164,7 +186,7 @@
                     </div>
                     <button class="vq-hbtn vq-expand" id="vq-chat-expand" title="Bigger window" aria-label="Make the chat window bigger" aria-pressed="false">${ICON.expand}</button>
                     <button class="vq-hbtn" id="vq-chat-clear" title="Start over" aria-label="Start a new conversation">${ICON.clear}</button>
-                    <button class="vq-hbtn" id="vq-chat-close" aria-label="Close chat">${ICON.close}</button>
+                    <button class="vq-hbtn" id="vq-chat-close" title="Close (Esc)" aria-label="Close chat">${ICON.close}</button>
                 </div>
                 <div id="vq-chat-messages" aria-live="polite"></div>
                 <div id="vq-chat-input-area">
@@ -174,7 +196,7 @@
                     </div>
                     <div class="vq-links">
                         <a href="${CONFIG.appUrl}" class="vq-full" id="vq-chat-full">Open in VQ Chat</a>
-                        <a href="${CONFIG.tourUrl}">Take the 1-minute tour</a>
+                        <a href="${CONFIG.tourUrl}" target="_blank" rel="noopener">Take the 1-minute tour</a>
                     </div>
                 </div>
             </div>
@@ -235,9 +257,74 @@
         let pendingGo = null;   // the last place VQ offered to take you
         try { conversationHistory = JSON.parse(localStorage.getItem('vq-conversation-history') || '[]'); } catch (e) { conversationHistory = []; }
         if (!Array.isArray(conversationHistory)) conversationHistory = [];
+        // Greetings aren't stored, so visitors always see the current welcome
+        const isWelcome = (m) => m && m.role === 'assistant' && typeof m.content === 'string' &&
+            (m.content === CONFIG.welcomeMessage || /^(Hi, I'm VQ|Hey! 👋 I'm VQ|Hey! I'm VQ)/.test(m.content));
+        conversationHistory = conversationHistory.filter(m => !isWelcome(m));
+        addMessageToUI('assistant', CONFIG.welcomeMessage);
+        // The greeting is typed out the first time the chat opens in a visit (instant if motion is reduced)
+        let welcomeBox = messagesContainer.lastElementChild && messagesContainer.lastElementChild.querySelector('.vq-message-content');
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let typingTimer = null;
+        if (welcomeBox && !reduceMotion && !sessionStorage.getItem('vq-greeting-typed')) {
+            welcomeBox.innerHTML = '';
+            welcomeBox.dataset.pending = '1';
+        }
+        function finishGreeting() {
+            if (!welcomeBox || !welcomeBox.dataset.pending) return;
+            clearInterval(typingTimer); typingTimer = null;
+            delete welcomeBox.dataset.pending;
+            welcomeBox.innerHTML = renderMarkdown(CONFIG.welcomeMessage);
+            welcomeBox.classList.remove('vq-typing-text');
+        }
+        function typeGreeting() {
+            if (!welcomeBox || !welcomeBox.dataset.pending || typingTimer || welcomeBox.dataset.started) return;
+            welcomeBox.dataset.started = '1';
+            sessionStorage.setItem('vq-greeting-typed', '1');
+            const full = CONFIG.welcomeMessage;
+            welcomeBox.innerHTML = '<div class="vq-typing" aria-hidden="true"><i></i><i></i><i></i></div>';
+            let i = 0;
+            setTimeout(() => {
+                if (!welcomeBox || !welcomeBox.dataset.pending) return;
+                welcomeBox.classList.add('vq-typing-text');
+                typingTimer = setInterval(() => {
+                    i = Math.min(full.length, i + 2);
+                    welcomeBox.innerHTML = renderMarkdown(full.slice(0, i));
+                    if (i >= full.length) finishGreeting();
+                }, 28);
+            }, 650);
+        }
         if (conversationHistory.length) conversationHistory.forEach(m => addMessageToUI(m.role, m.content));
-        else addMessage('assistant', CONFIG.welcomeMessage);
         setTimeout(greetArrival, 0);
+
+        // First visit in this browser session (desktop): a small hello under the button, gone after a few seconds
+        function showTeaser() {
+            if (panel.classList.contains('open') || sessionStorage.getItem('vq-teaser-shown')) return;
+            sessionStorage.setItem('vq-teaser-shown', '1');
+            const t = document.createElement('div');
+            t.id = 'vq-teaser';
+            t.setAttribute('role', 'status');
+            t.innerHTML = '<span><b>Hi, I\'m VQ.</b> Looking for something on this site? I can take you straight to it.</span><button type="button" aria-label="Dismiss">✕</button>';
+            const remove = () => { t.remove(); };
+            t.querySelector('button').addEventListener('click', (e) => { e.stopPropagation(); remove(); });
+            t.addEventListener('click', () => { remove(); openChat(true); });
+            document.getElementById('vq-chat-widget').appendChild(t);
+            setTimeout(remove, 9000);
+            bubble.addEventListener('click', remove, { once: true });
+        }
+        function welcomeOpen() {
+            if (panel.classList.contains('open') || sessionStorage.getItem('vq-welcomed')) return;
+            const dismissed = parseInt(localStorage.getItem('vq-widget-dismissed') || '0', 10);
+            if (Date.now() - dismissed < 7 * 24 * 3600 * 1000) return;          // they closed it recently: respect that
+            if (/\/app\//.test(location.pathname)) return;
+            sessionStorage.setItem('vq-welcomed', '1');
+            sessionStorage.setItem('vq-teaser-shown', '1');
+            panel.classList.add('vq-welcome');
+            openChat(false);                                                     // no keyboard focus, no scrolling
+            setTimeout(() => panel.classList.remove('vq-welcome'), 1200);
+        }
+        // (deferred so everything below has been set up first)
+        setTimeout(() => { if (isPhone()) setTimeout(showTeaser, 2500); else setTimeout(welcomeOpen, 3000); }, 0);
 
         const isPhone = () => window.matchMedia('(max-width: 768px)').matches;
         if (localStorage.getItem('vq-widget-open') === 'true' && !isPhone()) openChat(false);
@@ -246,23 +333,33 @@
         document.getElementById('vq-chat-close').addEventListener('click', closeChat);
         document.getElementById('vq-chat-clear').addEventListener('click', clearConversation);
         const expandBtn = document.getElementById('vq-chat-expand');
-        const setExpanded = (on) => {
+        let userSized = false;   // once someone sizes the window themselves, we stop resizing it for them
+        const setExpanded = (on, auto) => {
+            if (!auto) userSized = true;
             panel.classList.toggle('expanded', on);
             expandBtn.innerHTML = on ? ICON.shrink : ICON.expand;
             expandBtn.title = on ? 'Smaller window' : 'Bigger window';
             expandBtn.setAttribute('aria-label', on ? 'Make the chat window smaller' : 'Make the chat window bigger');
             expandBtn.setAttribute('aria-pressed', String(on));
-            try { localStorage.setItem('vq-widget-expanded', on ? 'true' : 'false'); } catch (e) {}
+            if (!auto) { try { localStorage.setItem('vq-widget-expanded', on ? 'true' : 'false'); } catch (e) {} }
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         };
         expandBtn.addEventListener('click', () => setExpanded(!panel.classList.contains('expanded')));
-        if (localStorage.getItem('vq-widget-expanded') === 'true') setExpanded(true);
+        if (localStorage.getItem('vq-widget-expanded') === 'true') { setExpanded(true, true); userSized = true; }
+        // Long answers get room to breathe: the window grows for them (desktop only)
+        const maybeGrow = (text) => {
+            if (userSized || isPhone() || panel.classList.contains('expanded')) return;
+            const t = String(text || '');
+            if (t.length > 700 || (t.match(/\n/g) || []).length > 9) setExpanded(true, true);
+        };
         document.getElementById('vq-chat-full').addEventListener('click', (e) => { e.preventDefault(); openInApp(); });
         sendBtn.addEventListener('click', sendMessage);
+        input.addEventListener('input', finishGreeting);
         input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); sendMessage(); } });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && panel.classList.contains('open')) closeChat(); });
 
         function openChat(focus) {
+            setTimeout(typeGreeting, 350);
             panel.classList.add('open');
             bubble.setAttribute('aria-expanded', 'true');
             document.documentElement.classList.add('vq-chat-open');
@@ -271,7 +368,8 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
         function closeChat() {
-            panel.classList.remove('open');
+            if (panel.classList.contains('open')) { try { localStorage.setItem('vq-widget-dismissed', String(Date.now())); } catch (e) {} }
+            panel.classList.remove('open', 'vq-welcome');
             bubble.setAttribute('aria-expanded', 'false');
             document.documentElement.classList.remove('vq-chat-open');
             localStorage.setItem('vq-widget-open', 'false');
@@ -280,7 +378,8 @@
             localStorage.removeItem('vq-conversation-history');
             messagesContainer.innerHTML = '';
             conversationHistory = [];
-            addMessage('assistant', CONFIG.welcomeMessage);
+            addMessageToUI('assistant', CONFIG.welcomeMessage);
+            welcomeBox = null;
         }
 
         // Hand the conversation to the full app (same site, so it travels through this browser's storage)
@@ -397,6 +496,13 @@
                 localStorage.setItem('vq-arrival', JSON.stringify({ ts: Date.now(), page: t.page, section: t.section }));
                 localStorage.setItem('vq-widget-open', isPhone() ? 'false' : 'true');
             } catch (e) {}
+            if (/\/tour\.html$/.test(t.url.pathname)) {
+                localStorage.removeItem('vq-arrival');
+                window.open(t.url.href, '_blank', 'noopener');
+                addMessage('assistant', 'I opened the **1-minute tour** in a new tab. Come back here any time with questions about it.');
+                return;
+            }
+            if (panel.classList.contains('expanded')) setExpanded(false, true);
             window.location.href = t.url.href;
         }
         // After arriving on the new page: say where we are and point at the section
@@ -626,7 +732,7 @@
                 const data = await response.json().catch(() => ({}));
                 hideTypingIndicator();
                 if (data && data.response) {
-                    if (response.ok) addMessage('assistant', data.response);
+                    if (response.ok) { addMessage('assistant', data.response); maybeGrow(data.response); }
                     else addMessageToUI('assistant', data.response);   // limit or error notices aren't saved
                 } else {
                     throw new Error('Network response was not ok');
