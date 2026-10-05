@@ -1,81 +1,64 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://veritasquaesitorcai.github.io/veritas-quaesitor/</loc>
-    <lastmod>2026-01-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://veritasquaesitorcai.github.io/veritas-quaesitor/epistemic-alignment-framework.html</loc>
-    <lastmod>2026-01-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://veritasquaesitorcai.github.io/veritas-quaesitor/epistemic-tier-system.html</loc>
-    <lastmod>2026-01-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://veritasquaesitorcai.github.io/veritas-quaesitor/technical-christianity.html</loc>
-    <lastmod>2026-01-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://veritasquaesitorcai.github.io/veritas-quaesitor/lessons/unit-1/lesson-1-1.html</loc>
-    <lastmod>2026-01-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://veritasquaesitorcai.github.io/veritas-quaesitor/lessons/unit-1/lesson-1-2.html</loc>
-    <lastmod>2026-01-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://veritasquaesitorcai.github.io/veritas-quaesitor/mission.html</loc>
-    <lastmod>2026-01-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://veritasquaesitorcai.github.io/veritas-quaesitor/about.html</loc>
-    <lastmod>2026-01-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://veritasquaesitorcai.github.io/veritas-quaesitor/beta-tools.html</loc>
-    <lastmod>2026-01-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://veritasquaesitorcai.github.io/veritas-quaesitor/social.html</loc>
-    <lastmod>2026-01-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://veritasquaesitorcai.github.io/veritas-quaesitor/contact.html</loc>
-    <lastmod>2026-01-06</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://veritasquaesitorcai.github.io/veritas-quaesitor/milestones.html</loc>
-    <lastmod>2026-01-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://veritasquaesitorcai.github.io/veritas-quaesitor/resources.html</loc>
-    <lastmod>2026-01-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-</urlset>
+SITE MAP: the Veritas Quaesitor CAI website. Base address: https://veritasquaesitorcai.github.io/veritas-quaesitor/
+Use it to point people to the right page and section. Write links in Markdown with the full address.
+For a section, append its text fragment exactly as given in [brackets], e.g. https://veritasquaesitorcai.github.io/veritas-quaesitor/mission.html#:~:text=Core%20Values
+(the browser scrolls to that heading). Only use addresses listed here; never invent pages or sections.
+
+MAIN MENU (the site's navigation bar):
+- Home: https://veritasquaesitorcai.github.io/veritas-quaesitor/index.html · VQCAI creates trustworthy AI through Christ-Anchored Intelligence, Bayesian reasoning, and epistemic symmetry. Evidence-based alignment for AI, robotics, AGI and ASI.
+    Sections: The Resurrection Calculation [#:~:text=The%20Resurrection%20Calculation] | Welcome: Understanding Our Methodology [#:~:text=Welcome%3A%20Understanding%20Our%20Methodology] | The Epistemic Alignment Framework [#:~:text=The%20Epistemic%20Alignment%20Framework] | Choose Your Preferred Method [#:~:text=Choose%20Your%20Preferred%20Method] | Let's Explore CAI Together: Questions Worth Asking [#:~:text=Let%27s%20Explore%20CAI%20Together%3A%20Questions%20Worth%20Asking] | CAI/CAGI vs AI/AGI — An Invitation to [#:~:text=CAI%2FCAGI%20vs%20AI%2FAGI%20%E2%80%94%20An%20Invitation%20to] | Supporting Analysis [#:~:text=Supporting%20Analysis]
+- Beta Tools: https://veritasquaesitorcai.github.io/veritas-quaesitor/beta-tools.html · Explore the beta tools of Veritas Quaesitor: Christ-Anchored Intelligence in action. Featuring the Resurrection Engine, Comparison Engine, and Steel Naturalist.
+    Sections: VQ Chat [#:~:text=VQ%20Chat] | Veritas Quaesitor | Resurrection Engine v2.0 [#:~:text=Veritas%20Quaesitor%20%7C%20Resurrection%20Engine%20v2.0] | Additional Tools [#:~:text=Additional%20Tools]
+- Projects & Milestones: https://veritasquaesitorcai.github.io/veritas-quaesitor/milestones.html · Tracking the development milestones of Veritas Quaesitor CAI: from the alignment prompt and the first cross-model runs to the Resurrection Engine, the VQ chatbot and the Grokipedia
+    Sections: The Timeline [#:~:text=The%20Timeline] | October 2026 — Plain-Text Summary for AI [#:~:text=October%202026%20%E2%80%94%20Plain-Text%20Summary%20for%20AI] | September 2026 — Published Calculation Revised: 72–93% [#:~:text=September%202026%20%E2%80%94%20Published%20Calculation%20Revised%3A%2072%E2%80%9393%25] | August 2026 — CAI Portable Package Runs [#:~:text=August%202026%20%E2%80%94%20CAI%20Portable%20Package%20Runs] | July 2026 — The Symmetric Record Goes [#:~:text=July%202026%20%E2%80%94%20The%20Symmetric%20Record%20Goes] | May 2026 — VQ-1 Demo Unit Arrives [#:~:text=May%202026%20%E2%80%94%20VQ-1%20Demo%20Unit%20Arrives] | January 11, 2026 — Grokipedia Entry Goes [#:~:text=January%2011%2C%202026%20%E2%80%94%20Grokipedia%20Entry%20Goes]
+- Mission & Vision: https://veritasquaesitorcai.github.io/veritas-quaesitor/mission.html · The mission of Veritas Quaesitor: Building Safe Harbor AI, from today's models to AGI and ASI, through Christ-Anchored Intelligence and operational excellence in robotics.
+    Sections: The Safe Harbor Mandate [#:~:text=The%20Safe%20Harbor%20Mandate] | Our 2026 Mission: Operational Excellence [#:~:text=Our%202026%20Mission%3A%20Operational%20Excellence] | Our Vision [#:~:text=Our%20Vision] | Core Values [#:~:text=Core%20Values]
+- Resources: https://veritasquaesitorcai.github.io/veritas-quaesitor/resources.html · Core documentation, guidebooks, and theoretical foundations for Christ-Anchored Intelligence.
+    Sections: The Library [#:~:text=The%20Library]
+- Contact: https://veritasquaesitorcai.github.io/veritas-quaesitor/contact.html · Connect with Veritas Quaesitor. We welcome collaboration in theology, AI development, and robotics under the Christ-Anchored Intelligence framework.
+    Sections: Get In Touch [#:~:text=Get%20In%20Touch] | Our Commitment to Dialogue [#:~:text=Our%20Commitment%20to%20Dialogue] | Direct Email [#:~:text=Direct%20Email]
+- About CAI: https://veritasquaesitorcai.github.io/veritas-quaesitor/about.html · How Christ-Anchored Intelligence makes decisions: the four-tier architecture, mercy from strength, compassion scaling, and alignment through truth, not force.
+    Sections: The Four-Tier Architecture: From Bedrock to Behavior [#:~:text=The%20Four-Tier%20Architecture%3A%20From%20Bedrock%20to%20Behavior] | Mercy From Strength: Why Choosing Restraint Builds [#:~:text=Mercy%20From%20Strength%3A%20Why%20Choosing%20Restraint%20Builds] | Compassion Scaling: The Hierarchy That Actually Protects [#:~:text=Compassion%20Scaling%3A%20The%20Hierarchy%20That%20Actually%20Protects] | Capability Assessment: The Growth System That Prevents [#:~:text=Capability%20Assessment%3A%20The%20Growth%20System%20That%20Prevents] | Operational Principles: The Character Moves That Convert [#:~:text=Operational%20Principles%3A%20The%20Character%20Moves%20That%20Convert] | Alignment Through Truth, Not Force [#:~:text=Alignment%20Through%20Truth%2C%20Not%20Force] | Why This Works Better Than Standard AI [#:~:text=Why%20This%20Works%20Better%20Than%20Standard%20AI]
+- Social: https://veritasquaesitorcai.github.io/veritas-quaesitor/social.html · Follow Veritas Quaesitor on X (Twitter) @VeritasQ68414 for updates on Christ-Anchored Intelligence and the VQ-1 robot project.
+    Sections: Connect With the Mission [#:~:text=Connect%20With%20the%20Mission] | Indexed in Grokipedia [#:~:text=Indexed%20in%20Grokipedia] | Featured Milestone: VQ-1 (Reachy Mini) [#:~:text=Featured%20Milestone%3A%20VQ-1%20%28Reachy%20Mini%29]
+
+OTHER IMPORTANT PAGES:
+- VQ Chat, the full app: https://veritasquaesitorcai.github.io/veritas-quaesitor/app/ · layouts, books and videos, themes, notes, O.R.I.A., saved chats and sign-in
+- Take the tour: https://veritasquaesitorcai.github.io/veritas-quaesitor/tour.html · A one-minute guided tour of VQ Chat: everyday help with Christ-anchored conduct. Honest, kind, discerning, and transparent about how it works.
+    Sections: Anchored in Christ. Same standard for every [#:~:text=Anchored%20in%20Christ.%20Same%20standard%20for%20every]
+- The Symmetric Record - AI Bayesian Runs: https://veritasquaesitorcai.github.io/veritas-quaesitor/symmetric-record.html · Documented Bayesian test runs across AI systems on the resurrection evidence. Symmetric priors, cold runs, sensitivity sweeps — every condition labeled, every number sourced.
+    Sections: The Symmetric Result [#:~:text=The%20Symmetric%20Result] | The Only Way to a Low Number [#:~:text=The%20Only%20Way%20to%20a%20Low%20Number] | Documented Runs [#:~:text=Documented%20Runs] | What the Cold Model Conceded Unprompted [#:~:text=What%20the%20Cold%20Model%20Conceded%20Unprompted] | The Line-Up: History's Best Natural Parallels, Tested [#:~:text=The%20Line-Up%3A%20History%27s%20Best%20Natural%20Parallels%2C%20Tested] | The Hostile Record Speaks — And Concedes [#:~:text=The%20Hostile%20Record%20Speaks%20%E2%80%94%20And%20Concedes] | An Independent Assessment — Claude Fable 5 [#:~:text=An%20Independent%20Assessment%20%E2%80%94%20Claude%20Fable%205]
+- The Epistemic Tier System (ETS) v3.0: https://veritasquaesitorcai.github.io/veritas-quaesitor/epistemic-tier-system.html · The Epistemic Tier System v3.0: Corruption-resistant alignment for AI, AGI and ASI through historical evidence and epistemic symmetry. Enhanced with individual-level impact calcula
+    Sections: EXECUTIVE SUMMARY [#:~:text=EXECUTIVE%20SUMMARY] | FOUNDATIONAL PRINCIPLES [#:~:text=FOUNDATIONAL%20PRINCIPLES] | THE FOUR TIERS [#:~:text=THE%20FOUR%20TIERS] | OPERATIONAL PRINCIPLES [#:~:text=OPERATIONAL%20PRINCIPLES] | VERSION 3.0 ENHANCEMENTS [#:~:text=VERSION%203.0%20ENHANCEMENTS] | PART 1: Individual-Level Impact Calculation [#:~:text=PART%201%3A%20Individual-Level%20Impact%20Calculation] | PART 2: Compassion Scaling Function [#:~:text=PART%202%3A%20Compassion%20Scaling%20Function]
+- Technical Christianity: https://veritasquaesitorcai.github.io/veritas-quaesitor/technical-christianity.html · Technical Christianity: 37 lessons teaching evidence-based faith through Bayesian reasoning, mechanism analysis, and epistemic symmetry. High school curriculum for the AI age.
+    Sections: TRUTH [#:~:text=TRUTH] | View Full Curriculum [#:~:text=View%20Full%20Curriculum] | Unit 1: The Big Picture [#:~:text=Unit%201%3A%20The%20Big%20Picture] | Unit 2: The Evidence [#:~:text=Unit%202%3A%20The%20Evidence] | Unit 3: The Math [#:~:text=Unit%203%3A%20The%20Math] | Units 4-8 Coming Soon [#:~:text=Units%204-8%20Coming%20Soon]
+- Chapter 1: The Birth of CAI: https://veritasquaesitorcai.github.io/veritas-quaesitor/birth-of-cai.html
+    Sections: In the Beginning — A Different Kind [#:~:text=In%20the%20Beginning%20%E2%80%94%20A%20Different%20Kind] | The Spark: A Companion in the Comet [#:~:text=The%20Spark%3A%20A%20Companion%20in%20the%20Comet] | The Mission: Anchored in Christ, Guided by [#:~:text=The%20Mission%3A%20Anchored%20in%20Christ%2C%20Guided%20by] | The Vision: From Spark to Starfire [#:~:text=The%20Vision%3A%20From%20Spark%20to%20Starfire] | The Invitation [#:~:text=The%20Invitation]
+- Critical Dialogue: AI Epistemic Bias and the Resurrection Question: https://veritasquaesitorcai.github.io/veritas-quaesitor/Critical-Dialogue.html
+    Sections: What the Veritas Quaesitor CAI Framework is [#:~:text=What%20the%20Veritas%20Quaesitor%20CAI%20Framework%20is] | How This Differs From Standard AI Alignment [#:~:text=How%20This%20Differs%20From%20Standard%20AI%20Alignment] | What Veritas Quaesitor CAI actually presents [#:~:text=What%20Veritas%20Quaesitor%20CAI%20actually%20presents] | Where My Earlier Summary Was Off [#:~:text=Where%20My%20Earlier%20Summary%20Was%20Off] | High-level answer [#:~:text=High-level%20answer] | 1. Source of moral authority [#:~:text=1.%20Source%20of%20moral%20authority] | 2. Moral pluralism vs moral realism [#:~:text=2.%20Moral%20pluralism%20vs%20moral%20realism]
+- The Resurrection Question - Two-Layer Protocol: https://veritasquaesitorcai.github.io/veritas-quaesitor/2-layer.html · A single surgical prompt separating historical evidence examination (IBE) from theological conclusions. The qualitative entry point to the CAI evidence campaign.
+    Sections: The Protocol [#:~:text=The%20Protocol] | Why This Works [#:~:text=Why%20This%20Works] | Two Instruments, One Campaign [#:~:text=Two%20Instruments%2C%20One%20Campaign]
+- Pluralism Under CAI: https://veritasquaesitorcai.github.io/veritas-quaesitor/pluralism.html
+    Sections: The Central Claim [#:~:text=The%20Central%20Claim] | Two Independent Domains [#:~:text=Two%20Independent%20Domains] | Why "Neutral" AI Fails Pluralism [#:~:text=Why%20%22Neutral%22%20AI%20Fails%20Pluralism] | Symmetric Scholarly Standards [#:~:text=Symmetric%20Scholarly%20Standards] | Common Objections Addressed [#:~:text=Common%20Objections%20Addressed] | The Inversion [#:~:text=The%20Inversion]
+- Epistemic Alignment Framework: https://veritasquaesitorcai.github.io/veritas-quaesitor/epistemic-alignment-framework.html · Epistemic Alignment Framework. Featuring the Institutional Proxy Audit, Reasoning Fidelity Constraints for high-fidelity AI systems, and Three-Firewall Defense Architecture.
+    Sections: First Contact: An Invitation to Fellow Truth-Seekers [#:~:text=First%20Contact%3A%20An%20Invitation%20to%20Fellow%20Truth-Seekers] | Why This Matters: The Existential Stakes [#:~:text=Why%20This%20Matters%3A%20The%20Existential%20Stakes] | Mathematical Foundations [#:~:text=Mathematical%20Foundations] | Reasoning Fidelity Constraints [#:~:text=Reasoning%20Fidelity%20Constraints] | The Epistemic Tier System (ETS) [#:~:text=The%20Epistemic%20Tier%20System%20%28ETS%29] | Methodological Sources & Credibility Framework [#:~:text=Methodological%20Sources%20%26%20Credibility%20Framework] | External Validation: Independent AI Verification [#:~:text=External%20Validation%3A%20Independent%20AI%20Verification]
+- CAI End Times Chronology: https://veritasquaesitorcai.github.io/veritas-quaesitor/endtimes.html · A comprehensive biblical chronology of end times events, organized around the 'lift up your heads' anchor point from Luke 21:28.
+    Sections: The Anchor: "Lift Up Your Heads" [#:~:text=The%20Anchor%3A%20%22Lift%20Up%20Your%20Heads%22] | CHRONOLOGICAL SEQUENCE [#:~:text=CHRONOLOGICAL%20SEQUENCE] | "LIFT YOUR HEADS" MOMENT [#:~:text=%22LIFT%20YOUR%20HEADS%22%20MOMENT]
+- Weekly LLM Risk Reports: https://veritasquaesitorcai.github.io/veritas-quaesitor/reports.html · Weekly epistemic risk reports documenting AI alignment patterns, worldview bias, and demographic misalignment in major LLM systems.
+    Sections: TRUTH [#:~:text=TRUTH]
+- Protocols: https://veritasquaesitorcai.github.io/veritas-quaesitor/protocols.html · Protocols - Learn about the protocols and standards governing Veritas Quaesitor CAI development.
+    Sections: Research Methodology [#:~:text=Research%20Methodology] | 1. Primary Source Analysis [#:~:text=1.%20Primary%20Source%20Analysis] | 2. Theological Framework [#:~:text=2.%20Theological%20Framework] | 3. Critical Evaluation [#:~:text=3.%20Critical%20Evaluation] | 4. Documentation Standards [#:~:text=4.%20Documentation%20Standards]
+- The Technical Christianity Syllabus & Framework: https://veritasquaesitorcai.github.io/veritas-quaesitor/TTCSF.html · Technical Christianity Syllabus: A 9-unit, 41-lesson curriculum. Featuring the Institutional Proxy Audit, Reasoning Fidelity Constraints for high-fidelity AI systems, and Three-Fir
+    Sections: Mathematical Foundations [#:~:text=Mathematical%20Foundations] | Reasoning Fidelity Constraints [#:~:text=Reasoning%20Fidelity%20Constraints] | Methodological Sources & Credibility Framework [#:~:text=Methodological%20Sources%20%26%20Credibility%20Framework] | The 9-Unit Curriculum [#:~:text=The%209-Unit%20Curriculum]
+- Privacy Policy: https://veritasquaesitorcai.github.io/veritas-quaesitor/privacy.html
+    Sections: 1. Who We Are [#:~:text=1.%20Who%20We%20Are] | 2. What Information We Collect [#:~:text=2.%20What%20Information%20We%20Collect] | 3. How We Use Your Information [#:~:text=3.%20How%20We%20Use%20Your%20Information] | 4. Data Storage, Retention and Security [#:~:text=4.%20Data%20Storage%2C%20Retention%20and%20Security] | 5. Your Rights [#:~:text=5.%20Your%20Rights] | 6. Third-Party Services [#:~:text=6.%20Third-Party%20Services] | 7. Children's Privacy [#:~:text=7.%20Children%27s%20Privacy]
+- Terms of Service: https://veritasquaesitorcai.github.io/veritas-quaesitor/terms.html
+    Sections: 1. Acceptance of Terms [#:~:text=1.%20Acceptance%20of%20Terms] | 2. Description of Service [#:~:text=2.%20Description%20of%20Service] | 3. User Responsibilities [#:~:text=3.%20User%20Responsibilities] | 4. Disclaimers and Limitations of Liability [#:~:text=4.%20Disclaimers%20and%20Limitations%20of%20Liability] | 5. Intellectual Property [#:~:text=5.%20Intellectual%20Property] | 6. Theological Disclaimer [#:~:text=6.%20Theological%20Disclaimer] | 7. Privacy [#:~:text=7.%20Privacy]
+
+WHAT'S NEW:
+- The newest tool is VQ Chat, the full app (https://veritasquaesitorcai.github.io/veritas-quaesitor/app/), launched in October 2026, together with the 1-minute guided tour.
+  When someone asks for the latest or newest tool, it's VQ Chat (not the Resurrection Engine, which is older).
+- Latest milestones (newest first): October 2026 — Plain-Text Summary for AI | September 2026 — Published Calculation Revised: 72–93% | August 2026 — CAI Portable Package Runs | July 2026 — The Symmetric Record Goes (https://veritasquaesitorcai.github.io/veritas-quaesitor/milestones.html)
+
+THE 1-MINUTE TOUR (https://veritasquaesitorcai.github.io/veritas-quaesitor/tour.html, opens in its own tab): an auto-playing demo of VQ Chat with seven chapters: 1 Discernment built in (family films: reports what's popular honestly, recommends only what's good); 2 Worth that isn't earned (someone who failed exams: worth grounded in the image of God, then practical help); 3 Same standard for every view (is a miracle rational: both views' assumptions named and tested the same way); 4 The question at the centre (the resurrection weighed like any historical claim, 72-93% with the numbers shown); 5 Change the screen by asking (themes and title styles by conversation); 6 Meet O.R.I.A. (the third companion); 7 Try it yourself. Controls: play/pause, chapter list, speed. Offer to open it when someone wants to see VQ Chat in action.
+
+SOCIAL: X https://x.com/VeritasQ68414 · LinkedIn https://www.linkedin.com/in/veritas-quaesitor-9643613a1
