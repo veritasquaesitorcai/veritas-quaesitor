@@ -15,7 +15,9 @@
         apiEndpoint: 'https://veritas-quaesitor-production.up.railway.app/chat',
         appUrl: new URL('app/', BASE).href,
         tourUrl: new URL('tour.html', BASE).href,
-        welcomeMessage: "Hi, I'm VQ, your guide to this site. Ask me where to find anything (the resurrection calculation, the VQ-1 robot, the ETS, the tour) and I'll take you straight there.\n\nYou can ask me anything else too."
+        welcomeMessage: /\/tour\.html$/.test(location.pathname)
+            ? "Hi, I'm VQ. Ask me anything about what the tour is showing, while it plays: how a feature works, why VQ answers the way it does, or where to find more on the site."
+            : "Hi, I'm VQ, your guide to this site. Ask me where to find anything (the resurrection calculation, the VQ-1 robot, the ETS, the tour) and I'll take you straight there.\n\nYou can ask me anything else too."
     };
 
     const ROBOT = '<svg viewBox="0 0 32 32" aria-hidden="true"><line x1="16" y1="4.2" x2="16" y2="8" stroke="#7ff3ff" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="3.4" r="2.1" fill="#ff5fd2"/><rect x="5.5" y="8" width="21" height="16.5" rx="6.5" fill="none" stroke="#7ff3ff" stroke-width="2"/><rect x="8.6" y="11.6" width="14.8" height="7.6" rx="3.8" fill="#05060a"/><circle cx="12.6" cy="15.4" r="2" fill="#7ff3ff"/><circle cx="19.4" cy="15.4" r="2" fill="#7ff3ff"/><circle cx="13.2" cy="14.8" r=".6" fill="#fff"/><circle cx="20" cy="14.8" r=".6" fill="#fff"/><path d="M13 21.6c1.9 1 4.1 1 6 0" stroke="#7ff3ff" stroke-width="1.8" fill="none" stroke-linecap="round"/><rect x="2.6" y="13.6" width="2.6" height="5.2" rx="1.3" fill="#ff5fd2"/><rect x="26.8" y="13.6" width="2.6" height="5.2" rx="1.3" fill="#ff5fd2"/></svg>';
@@ -113,6 +115,9 @@
             background: rgba(255,255,255,.1); color: #ccc; font-size: 13px; line-height: 1; }
         #vq-teaser button:hover { background: rgba(255,255,255,.2); color: #fff; }
         @media (max-width: 768px) { #vq-teaser { top: auto; right: 16px; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); max-width: min(270px, calc(100vw - 32px)); } }
+        #vq-chat-widget.vq-bottom #vq-chat-bubble { top: auto; bottom: 24px; }
+        #vq-chat-widget.vq-bottom #vq-chat-panel { top: auto; bottom: 86px; height: min(560px, calc(100vh - 120px)); }
+        #vq-chat-widget.vq-bottom #vq-teaser { top: auto; bottom: 86px; border-radius: 14px 14px 4px 14px; }
         .vq-section-flash { outline: 2px solid rgba(255,140,66,.75) !important; outline-offset: 6px; border-radius: 6px; }
         @keyframes vq-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 
@@ -194,7 +199,7 @@
     document.head.appendChild(styleSheet);
 
     const widgetHTML = `
-        <div id="vq-chat-widget">
+        <div id="vq-chat-widget" class="${/\/tour\.html$/.test(location.pathname) ? 'vq-bottom' : ''}">
             <button id="vq-chat-bubble" aria-label="Chat with VQ" aria-expanded="false">
                 <span class="vq-face">${ROBOT}</span><span class="vq-bubble-text">Ask VQ</span>
             </button>
@@ -276,6 +281,7 @@
 
         let conversationHistory = [];
         let pendingGo = null;   // the last place VQ offered to take you
+        const onTour = /\/tour\.html$/.test(location.pathname);
         try { conversationHistory = JSON.parse(localStorage.getItem('vq-conversation-history') || '[]'); } catch (e) { conversationHistory = []; }
         if (!Array.isArray(conversationHistory)) conversationHistory = [];
         // Greetings aren't stored, so visitors always see the current welcome
@@ -320,13 +326,15 @@
         setTimeout(greetArrival, 0);
 
         // First visit in this browser session (desktop): a small hello under the button, gone after a few seconds
-        function showTeaser() {
-            if (panel.classList.contains('open') || sessionStorage.getItem('vq-teaser-shown')) return;
-            sessionStorage.setItem('vq-teaser-shown', '1');
+        function showTeaser(message, key) {
+            key = key || 'vq-teaser-shown';
+            if (panel.classList.contains('open') || sessionStorage.getItem(key)) return;
+            sessionStorage.setItem(key, '1');
             const t = document.createElement('div');
             t.id = 'vq-teaser';
             t.setAttribute('role', 'status');
-            t.innerHTML = '<span><b>Hi, I\'m VQ.</b> Looking for something on this site? I can take you straight to it.</span><button type="button" aria-label="Dismiss">✕</button>';
+            t.innerHTML = '<span></span><button type="button" aria-label="Dismiss">✕</button>';
+            t.firstChild.innerHTML = message || "<b>Hi, I'm VQ.</b> Looking for something on this site? I can take you straight to it.";
             const remove = () => { t.remove(); };
             t.querySelector('button').addEventListener('click', (e) => { e.stopPropagation(); remove(); });
             t.addEventListener('click', () => { remove(); openChat(true); });
@@ -335,6 +343,7 @@
             bubble.addEventListener('click', remove, { once: true });
         }
         function welcomeOpen() {
+            if (onTour) { showTeaser("<b>Questions about the tour?</b> Ask me anything while it plays.", 'vq-tour-hello'); return; }   // don't cover the demo
             if (panel.classList.contains('open') || sessionStorage.getItem('vq-welcomed')) return;
             const dismissed = parseInt(localStorage.getItem('vq-widget-dismissed') || '0', 10);
             if (Date.now() - dismissed < 7 * 24 * 3600 * 1000) return;          // they closed it recently: respect that
@@ -357,7 +366,7 @@
             openChat(false, reduceMotion ? 350 : 2000);   // the greeting starts typing once the panel has fully appeared
             setTimeout(() => { panel.classList.remove('vq-welcome'); scan.remove(); crt.remove(); }, 2600);
         }
-        if (localStorage.getItem('vq-widget-open') === 'true' && !isPhone()) setTimeout(fadeOpen, 900);
+        if (localStorage.getItem('vq-widget-open') === 'true' && !isPhone() && !onTour) setTimeout(fadeOpen, 900);
 
         bubble.addEventListener('click', () => panel.classList.contains('open') ? closeChat() : openChat(true));
         document.getElementById('vq-chat-close').addEventListener('click', closeChat);
