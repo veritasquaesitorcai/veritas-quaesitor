@@ -1330,6 +1330,23 @@ def use_quota(user):
         _guest_counts[ip_key] += 1
         return True, {"tier": "guest", "used": _guest_counts[dev_key], "limit": GUEST_DAILY_LIMIT}
 
+def refund_quota(user, quota, ip=None, device=None):
+    """Give a message back when VQ failed to answer, so errors never use up someone's daily allowance."""
+    try:
+        if not quota or quota.get("used") is None:
+            return
+        if user:
+            _supabase_request("POST", "/rest/v1/rpc/refund_message", {"p_user": user["id"]})   # optional; ignored if missing
+            return
+        day = _time.strftime("%Y-%m-%d", _time.gmtime())
+        with _guest_lock:
+            for k in ((day, f"dev:{ip}:{device}"), (day, f"ip:{ip}")):
+                if _guest_counts.get(k, 0) > 0:
+                    _guest_counts[k] -= 1
+        print("[QUOTA] refunded a failed message", flush=True)
+    except Exception as e:
+        print(f"[QUOTA] refund failed: {e}", flush=True)
+
 def limit_message(quota):
     if quota["tier"] == "guest":
         return (f"You've used today's {quota['limit']} guest messages. Sign in (it's free) for "
@@ -2543,6 +2560,7 @@ def chat():
         _allowed, _quota = use_quota(_user)
         if not _allowed:
             return jsonify({'error': 'daily_limit', 'response': limit_message(_quota), 'quota': _quota}), 429
+        _refund = (_user, _quota, _client_ip(), (request.headers.get("X-VQ-Device") or "")[:64])
         page_context = data.get('pageContext', None)
         if not isinstance(page_context, dict):
             page_context = None
@@ -3143,7 +3161,8 @@ def chat():
                     yield _sse({"done": True})
                 except Exception as _e:
                     print(f"[STREAM] error: {_e}", flush=True)
-                    yield _sse({"replace": "Friend, something needs attention. Please try again.", "done": True})
+                    refund_quota(*_refund)
+                    yield _sse({"replace": "Friend, something needs attention. Please try again. (That one didn't count towards your daily messages.)", "done": True})
 
             return Response(stream_with_context(_generate()), mimetype="text/event-stream",
                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
@@ -3232,9 +3251,11 @@ def chat():
         print(f"Chat error: {e}", flush=True)
         import traceback
         traceback.print_exc()
+        if '_refund' in locals():
+            refund_quota(*_refund)
         return jsonify({
             'error': str(e),
-            'response': "Friend, something needs attention. Please try again."
+            'response': "Friend, something needs attention. Please try again. (That one didn't count towards your daily messages.)"
         }), 500
 
 print("Chat route registered", flush=True)
