@@ -58,6 +58,11 @@
         setupPanel();
         setupPanelViews();
         setupAuth();
+        // Arriving from the website bubble's "Sign in" button: open the sign-in window once the account check has run
+        if (new URLSearchParams(location.search).get('signin')) {
+            try { history.replaceState(null, '', location.pathname); } catch (e) {}
+            setTimeout(() => { if (!currentUser) openAuthModal(); }, 1500);
+        }
         if (window.innerWidth > 768) elements.messageInput.focus();
         if (continued) setTimeout(() => showLocalNote('Continued from the website chat'), 700);
     }
