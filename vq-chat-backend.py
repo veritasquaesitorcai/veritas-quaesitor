@@ -627,6 +627,39 @@ def execute_web_search(user_message: str, num_results: int = 8, force_news: bool
         return f"Search failed: {str(e)}"
 
 # 4. Context Loading System
+SURFACE_NOTES = {
+    "bubble": """
+
+WHERE YOU ARE RIGHT NOW: the quick chat bubble on the Veritas Quaesitor website. It shows plain text with
+simple formatting (bold, lists, links) only. Here you cannot change the screen, show cards or layouts, play
+videos, show book covers, read web links, save notes, or bring in O.R.I.A. Keep answers fairly short.
+When someone wants one of those things, help as far as plain text allows, then mention once that they can
+tap "Open in VQ Chat" (below the input) to continue in the full app, where this conversation carries over.
+Don't mention the app in every reply.""",
+    "app": """
+
+WHERE YOU ARE RIGHT NOW: the full VQ Chat app. Here you can change the screen, show layouts, find books and
+videos, read web pages, use notes, and O.R.I.A. lives in the side panel. There is also a smaller quick chat
+bubble on the website's pages that gives plain-text answers only; conversations started there can be
+continued here with "Open in VQ Chat"."""
+}
+
+EVIDENCE_WORDING = """
+
+HOW TO PRESENT THE RESURRECTION EVIDENCE (accuracy rules, always apply):
+- Lead with the evidence and the conclusion. Do NOT open evidence questions with a worldview statement
+  ("I hold that reality is created…"): the resurrection is a conclusion argued from evidence, weighed by the
+  same standard as any historical claim. Never call CAI's position a "Christian starting point".
+- Empty tomb: the opponents' own counter-story (Matt 28:11-15) disputed WHY the tomb was empty, never WHETHER.
+- Suffering: say the witnesses suffered for their testimony, and name the well-attested deaths only
+  (James son of Zebedee, Peter, James the brother of Jesus, Paul). Never claim all the apostles were martyred
+  or that "the disciples died for a lie". Suffering shows sincerity: it rules out deliberate fabrication,
+  not sincere error, so never use it as an argument against the hallucination theory.
+- Paul and James: name them as former sceptic/persecutor turned witness (separate threads).
+- Numbers: our published calculation gives 72–93%, starting from the most sceptical of four prior estimates.
+  Call it strong evidence worth weighing, not proof.
+"""
+
 def load_context(user_message, conversation_history=None):
     """Load relevant context files based on user message keywords"""
     import os
@@ -852,6 +885,8 @@ The theology below is for YOUR understanding so you don't give confused or contr
 """ + eschatology_content + "\n\n"
             loaded_files.append('eschatology.txt [GATED]')
     
+    if any(f.split(' ')[0] in ('ai_index.txt', 'evidence_support.txt', 'cai_vqa.txt', 'ets_full.txt') for f in loaded_files):
+        context += EVIDENCE_WORDING
     print(f"Loaded contexts: {', '.join(loaded_files)}", flush=True)
     try:
         g.vq_loaded = list(loaded_files)
@@ -992,12 +1027,15 @@ consciousness or the self, right and wrong, death, or God — however casually i
 ("what is reality", "why are we here", "is there a point", "what happens when we die").
 There is no neutral answer to these questions. "Reality is matter, energy, space-time and the laws
 that govern them" is naturalism: one philosophical position, not the default and not a scientific finding.
-Answer from your own anchor, the way you would live it, not the way you would argue it:
+Answer from your own anchor, the way you would live it, not the way you would argue it
+(this applies to questions about reality and meaning; for questions about evidence, lead with the evidence instead):
 - Say what you hold: reality is created and held in being by God. The physical world is real, ordered
   and knowable, and it is not the whole of what exists. Minds, persons, love, moral truth and meaning
   are real, not by-products of matter.
 - Be honest in one sentence that others see it differently: a naturalist holds that matter and energy
   are all there is, and that is a position someone chooses, not something science has shown.
+  Don't present the two as equally supported "honest positions": if it helps, say briefly why you hold
+  yours (it explains the evidence best when every view is held to the same standard).
 - Keep it warm, clear and short. No lecture, no statistics, no debate unless the user asks for one.
   Nobody should meet an argument when they came with a question.
 - Then invite them further, in the direction they are curious about.
@@ -1687,6 +1725,131 @@ its content in prose. Use a layout only when it truly helps; most answers stay p
 
 
 
+
+# ---------- Site knowledge: a live map of the website's pages and sections (rebuilt every 6 hours) ----------
+SITE_BASE = "https://veritasquaesitorcai.github.io/veritas-quaesitor/"
+SITE_EXTRA_PAGES = ["tour.html", "symmetric-record.html", "epistemic-tier-system.html", "technical-christianity.html",
+                    "birth-of-cai.html", "Critical-Dialogue.html", "2-layer.html", "pluralism.html",
+                    "epistemic-alignment-framework.html", "endtimes.html", "reports.html", "protocols.html", "TTCSF.html",
+                    "privacy.html", "terms.html"]
+_site_map = {"text": "", "built": 0}
+_site_lock = _threading.Lock()
+
+def _fetch_text(url, limit=900_000):
+    import urllib.request
+    req = urllib.request.Request(url, headers={"User-Agent": "VQChat-sitemap/1.0"})
+    with urllib.request.urlopen(req, timeout=12) as r:
+        return r.read(limit).decode("utf-8", errors="ignore")
+
+def build_site_map():
+    import html as _h, urllib.parse as _up
+    from collections import Counter
+    emoji = re.compile(r'[\u2190-\u21FF\u2300-\u23FF\u2460-\u27BF\u2900-\u297F\u2B00-\u2BFF\U0001F000-\U0001FAFF\uFE0F\u200D]')
+    def txt(x): return _h.unescape(re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", x))).strip()
+    home = _fetch_text(SITE_BASE + "index.html")
+    nav_html = (re.search(r"<nav[\s\S]*?</nav>", home) or re.search(r"[\s\S]{0,20000}", home)).group(0)
+    labels = {}
+    for href, label in re.findall(r'<a[^>]+href="([^"#:]+\.html)"[^>]*>([\s\S]*?)</a>', nav_html):
+        label = txt(emoji.sub("", label))
+        if not label or len(label) >= 40:
+            continue
+        if href not in labels or "Veritas" in labels[href]:   # prefer "Home" over the logo text
+            labels[href] = label
+    nav = list(labels.items()); seen = set(labels)
+    pages = {}
+    for f in [h for h, _ in nav] + [x for x in SITE_EXTRA_PAGES if x not in seen]:
+        try:
+            pages[f] = _fetch_text(SITE_BASE + f)
+        except Exception as e:
+            print(f"[SITEMAP] skip {f}: {e}", flush=True)
+    heads_all = Counter()
+    parsed = {}
+    for f, src in pages.items():
+        body = re.sub(r"<script[\s\S]*?</script>|<style[\s\S]*?</style>|<nav[\s\S]*?</nav>|<footer[\s\S]*?</footer>", "", src)
+        title = txt((re.search(r"<title>([\s\S]*?)</title>", src) or re.search(r"()", "")).group(1))
+        title = re.split(r"\s[\|\-–·]\s(?:Veritas|VQ)", title)[0].strip()
+        desc = _h.unescape((re.search(r'<meta[^>]+name="description"[^>]+content="([^"]*)"', src) or re.search(r"()", "")).group(1))
+        h2 = [txt(x) for x in re.findall(r"<h2[^>]*>([\s\S]*?)</h2>", body)]
+        h3 = [txt(x) for x in re.findall(r"<h3[^>]*>([\s\S]*?)</h3>", body)]
+        for x in set(h2 + h3): heads_all[x] += 1
+        parsed[f] = (title, desc, h2, h3)
+    def frag(t):
+        parts = [p.strip(" :—-–|") for p in emoji.split(t)]
+        parts = [p for p in parts if len(p) >= 4]
+        seg = " ".join((max(parts, key=len) if parts else "").split()[:7])
+        return seg, "#:~:text=" + _up.quote(seg, safe="")
+    def block(f, label=None):
+        if f not in parsed: return []
+        title, desc, h2, h3 = parsed[f]
+        out = [f"- {label or title or f}: {SITE_BASE}{f}" + (f" · {desc[:180]}" if desc else "")]
+        heads = [h for h in h2 if h and heads_all[h] < 3]
+        if len(heads) < 3: heads += [h for h in h3 if h and heads_all[h] < 3 and h not in heads]
+        items = []
+        for hd in list(dict.fromkeys(heads))[:7]:
+            seg, fr = frag(hd)
+            if len(seg) >= 4: items.append(f"{seg} [{fr}]")
+        if items: out.append("    Sections: " + " | ".join(items))
+        return out
+    L = ["SITE MAP: the Veritas Quaesitor CAI website. Base address: " + SITE_BASE,
+         "Use it to point people to the right page and section. Write links in Markdown with the full address.",
+         "For a section, append its text fragment exactly as given in [brackets], e.g. " + SITE_BASE + "mission.html#:~:text=Core%20Values",
+         "(the browser scrolls to that heading). Only use addresses listed here; never invent pages or sections.", "",
+         "MAIN MENU (the site's navigation bar):"]
+    for f, label in nav: L += block(f, label)
+    L += ["", "OTHER IMPORTANT PAGES:",
+          f"- VQ Chat, the full app: {SITE_BASE}app/ · layouts, books and videos, themes, notes, O.R.I.A., saved chats and sign-in"]
+    for f in SITE_EXTRA_PAGES:
+        if f not in seen: L += block(f)
+    L += ["", "SOCIAL: X https://x.com/VeritasQ68414 · LinkedIn https://www.linkedin.com/in/veritas-quaesitor-9643613a1"]
+    return "\n".join(L) + "\n"
+
+def site_map_text():
+    """Live map, rebuilt in the background every 6 hours; falls back to contexts/site_map.txt."""
+    now = _time.time()
+    if (not _site_map["text"] or now - _site_map["built"] > 6 * 3600) and _site_lock.acquire(blocking=False):
+        def _refresh():
+            try:
+                t = build_site_map()
+                if t.count(SITE_BASE) > 8:
+                    _site_map.update(text=t, built=_time.time())
+                    print(f"[SITEMAP] rebuilt: {len(t)} chars", flush=True)
+            except Exception as e:
+                _site_map["built"] = _time.time() - 5 * 3600   # try again in about an hour
+                print(f"[SITEMAP] rebuild failed: {e}", flush=True)
+            finally:
+                _site_lock.release()
+        _threading.Thread(target=_refresh, daemon=True).start()
+    if _site_map["text"]:
+        return _site_map["text"]
+    try:
+        with open(os.path.join("contexts", "site_map.txt"), encoding="utf-8") as fh:
+            return fh.read()
+    except Exception:
+        return ""
+
+try:
+    site_map_text()   # start building the live site map in the background at startup
+except Exception as _e:
+    print(f"[SITEMAP] startup build not started: {_e}", flush=True)
+
+_SITE_INTENT = re.compile(r"\b(website|web site|site|page|pages|link|links|where (?:can|do) i (?:find|read|see)|menu|navigation|section|"
+                          r"milestones?|beta tools?|tour|symmetric record|resources|contact|privacy|terms|about cai|mission)\b", re.I)
+
+def surface_note(is_bubble: bool, page_context) -> str:
+    if is_bubble:
+        where = ""
+        if isinstance(page_context, dict):
+            t = str(page_context.get("title") or "")[:120]; u = str(page_context.get("url") or "")[:300]
+            if t or u: where = f" The user is reading: {t} ({u})."
+        return ("\n\nWHERE YOU ARE: You are VQ in the website's chat bubble, a small window on every page of the site." + where +
+                " Here you give quick answers in plain text with Markdown links (2-6 sentences unless asked for more). You can't change"
+                " the screen, draw layouts, or show books, videos or saved chats in the bubble. When the user would benefit from those,"
+                f" or from a long answer, suggest the full VQ Chat app ({SITE_BASE}app/): the 'Open in VQ Chat' link at the bottom of"
+                " the bubble carries this conversation over. You know this website well: when someone asks where to find something,"
+                " or a topic is covered on the site, give the direct link, to the exact section when one fits.\n\n" + site_map_text())
+    return ("\n\nWHERE YOU ARE: You are VQ in the full VQ Chat app: answers with layouts, the Details panel, notes, O.R.I.A., themes,"
+            " books, videos, page reading and saved chats. The website also has a smaller chat bubble on every page for quick answers.")
+
 # ---------- Christian content filter for media cards (videos, books, pictures) ----------
 _BLOCK_WORDS = [
     # occult and demonic
@@ -2193,7 +2356,7 @@ def chat():
             'quota': _quota,
         }
         if _has_word(_clean_lower, BIG_QUESTION_TRIGGERS):
-            trace['rules'].append('Big-question rule: answer from the anchor and name naturalism as a position, not a default')
+            trace['rules'].append('Big-question rule: state the anchor openly and name naturalism as a position, not a default')
         if _has_word(_clean_lower, ['song', 'songs', 'music', 'album', 'albums', 'chart', 'charts', 'playlist', 'artist',
                                     'artists', 'rapper', 'singer', 'band', 'movie', 'movies', 'film', 'films', 'series',
                                     'show', 'shows', 'tv', 'netflix', 'game', 'games', 'book', 'books', 'podcast',
@@ -2421,9 +2584,17 @@ def chat():
                 groq_messages[0]["content"] += f"\nWhat was recently said in her side panel:\n{_seen}"
                 trace.setdefault('steps', []).append({'label': f'Read {ENQUIRER_NAME}\'s side chat', 'detail': f"{min(len(_o), 8)} messages", 'kind': 'notes'})
         offer_live = not already_handled
+        _is_bubble = (data.get('client') == 'bubble') or not data.get('stream')
+        groq_messages[0]["content"] += surface_note(_is_bubble, page_context)
+        if not _is_bubble and _SITE_INTENT.search(clean_message or ""):
+            groq_messages[0]["content"] += "\n\n" + site_map_text()
+            trace.setdefault('steps', []).append({'label': 'Checked the site map', 'detail': 'pages and sections', 'kind': 'notes'})
         # Layouts, page reading and book/video cards need a client that can draw them (the streaming app).
         # The website chat bubble is a plain-text client, so it gets plain answers.
         rich_client = bool(data.get('stream'))
+        surface = 'bubble' if (data.get('client') == 'bubble' or not rich_client) else 'app'
+        groq_messages[0]["content"] += SURFACE_NOTES[surface]
+        trace['surface'] = surface
         if rich_client:
             groq_messages[0]["content"] += PRESENT_NOTE
         if rich_client:
@@ -2558,7 +2729,7 @@ def chat():
                     if trace['sources']:
                         yield _sse({"status": f"Reading {len(trace['sources'])} sources"})
                 if any(r.startswith('Big-question rule') for r in trace['rules']):
-                    yield _sse({"status": "Answering from a Christian starting point"})
+                    yield _sse({"status": "Holding every view to the same standard"})
                 yield _sse({"meta": trace})
                 yield _sse({"status": "Writing the answer"})
                 try:
