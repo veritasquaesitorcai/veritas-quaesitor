@@ -1261,7 +1261,7 @@
         const n = Array.isArray(meta.sources) ? meta.sources.length : 0;
         if (n) return `${(meta.live || []).indexOf('News search') >= 0 ? 'Searched the news' : 'Searched the web'} · ${n} source${n === 1 ? '' : 's'}`;
         if ((meta.ui || []).length) return `Changed your screen · ${meta.ui[meta.ui.length - 1]}`;
-        if (isBigQuestion(meta)) return 'Christian starting point · naturalism noted';
+        if (isBigQuestion(meta)) return 'Anchor stated · same standard for every view';
         if (meta.mode) return `${meta.mode} mode${meta.continued ? ' · continued' : ''}`;
         const live = (meta.live || []).filter(x => !/failed/i.test(x));
         if (live.length) return live.join(' · ');
@@ -1474,15 +1474,15 @@
             (meta.live || []).filter(x => /weather|time|image/i.test(x)).forEach(x => ol.appendChild(codeLine(++n, 'Fetched', x.toLowerCase())));
         }
         (meta.ui || []).forEach(u => ol.appendChild(codeLine(++n, 'Changed', 'your screen', u, null, { detailClass: 'tk-fn' })));
-        if (isBigQuestion(meta)) ol.appendChild(codeLine(++n, 'Answered', 'from a Christian starting point', 'naturalism named as another view', null, { restClass: 'tk-fn' }));
+        if (isBigQuestion(meta)) ol.appendChild(codeLine(++n, 'Answered', 'with the anchor stated openly', 'naturalism named as a view, not the default', null, { restClass: 'tk-fn' }));
         const tm = rec.timing || {};
         ol.appendChild(codeLine(++n, 'Wrote', 'the answer', typeof tm.firstMs === 'number' && tm.firstMs >= 100 ? `first words after ${(tm.firstMs / 1000).toFixed(1)}s` : null, tm.totalMs));
         art.appendChild(ol);
 
         if (isBigQuestion(meta)) {
             const sp = el('div', 'entry-block');
-            sp.appendChild(el('span', 'tk-com', '// starting point'));
-            sp.appendChild(el('p', null, 'This answer comes from a Christian view of reality: the world is created and held in being by God, and minds, moral truth and meaning are real. Naturalism starts from a different assumption, and VQ names it as a view rather than treating it as the default.'));
+            sp.appendChild(el('span', 'tk-com', '// the anchor'));
+            sp.appendChild(el('p', null, 'VQ states its anchor openly: reality is created and held in being by God, a conclusion CAI reaches because the evidence, weighed by the same standard as any other view, supports it. Naturalism is a view too, and VQ names it rather than treating it as the neutral default.'));
             art.appendChild(sp);
         }
 
@@ -1540,7 +1540,7 @@
         if (!msgs.length) {
             const box = el('div', 'insight-empty');
             box.appendChild(el('span', 'tk-com', '// nothing here yet'));
-            box.appendChild(el('p', null, 'Each answer adds an entry here: what VQ drew on, what it searched, the sources it found, and the starting point it answered from.'));
+            box.appendChild(el('p', null, 'Each answer adds an entry here: what VQ drew on, what it searched, the sources it found, and the standard it applied.'));
             b.appendChild(box);
         } else {
             msgs.slice().reverse().forEach(m => b.appendChild(buildEntry(m)));   // newest first
@@ -2015,7 +2015,7 @@
             }
         });
         (meta.rules || []).filter(r => !/^Appreciation/.test(r)).forEach(r => {
-            if (/^Big-question/.test(r)) add('Answered from a Christian starting point and named naturalism as a different view, not the default.');
+            if (/^Big-question/.test(r)) add('Stated its anchor openly and named naturalism as a view, not the neutral default.');
             else if (/^Content discernment/.test(r)) add('Reported what is popular honestly, and only recommended what is good.');
             else if (/^Devotional/.test(r)) add('Answered in a devotional way.');
             else add(r + '.');
