@@ -15,7 +15,7 @@
         apiEndpoint: 'https://veritas-quaesitor-production.up.railway.app/chat',
         appUrl: new URL('app/', BASE).href,
         tourUrl: new URL('tour.html', BASE).href,
-        welcomeMessage: "Hi, I'm VQ. Ask me anything, from everyday questions to the big ones.\n\nFor layouts, books, videos, themes and saved chats, open the full **VQ Chat** app any time."
+        welcomeMessage: "Hi, I'm VQ, your guide to this site. Ask me where to find anything (the resurrection calculation, the VQ-1 robot, the ETS, the tour) and I'll take you straight there.\n\nYou can ask me anything else too."
     };
 
     const ROBOT = '<svg viewBox="0 0 32 32" aria-hidden="true"><line x1="16" y1="4.2" x2="16" y2="8" stroke="#7ff3ff" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="3.4" r="2.1" fill="#ff5fd2"/><rect x="5.5" y="8" width="21" height="16.5" rx="6.5" fill="none" stroke="#7ff3ff" stroke-width="2"/><rect x="8.6" y="11.6" width="14.8" height="7.6" rx="3.8" fill="#05060a"/><circle cx="12.6" cy="15.4" r="2" fill="#7ff3ff"/><circle cx="19.4" cy="15.4" r="2" fill="#7ff3ff"/><circle cx="13.2" cy="14.8" r=".6" fill="#fff"/><circle cx="20" cy="14.8" r=".6" fill="#fff"/><path d="M13 21.6c1.9 1 4.1 1 6 0" stroke="#7ff3ff" stroke-width="1.8" fill="none" stroke-linecap="round"/><rect x="2.6" y="13.6" width="2.6" height="5.2" rx="1.3" fill="#ff5fd2"/><rect x="26.8" y="13.6" width="2.6" height="5.2" rx="1.3" fill="#ff5fd2"/></svg>';
@@ -26,6 +26,24 @@
         close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
         send: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.4 19.6 21 12 4.4 4.4l.1 5.9L15 12 4.5 13.7z"/></svg>'
     };
+
+    const PAGE_NAMES = { 'index.html': 'Home', '': 'Home', 'beta-tools.html': 'Beta Tools', 'milestones.html': 'Projects & Milestones',
+        'mission.html': 'Mission & Vision', 'resources.html': 'Resources', 'contact.html': 'Contact', 'about.html': 'About CAI',
+        'social.html': 'Social', 'tour.html': 'The 1-minute tour', 'symmetric-record.html': 'The Symmetric Record',
+        'epistemic-tier-system.html': 'The Epistemic Tier System', 'technical-christianity.html': 'Technical Christianity',
+        'birth-of-cai.html': 'The Birth of CAI', 'Critical-Dialogue.html': 'Critical Dialogue', '2-layer.html': 'The Two-Layer Protocol',
+        'pluralism.html': 'Pluralism Under CAI', 'epistemic-alignment-framework.html': 'Epistemic Alignment Framework',
+        'endtimes.html': 'End Times Chronology', 'reports.html': 'Weekly LLM Risk Reports', 'protocols.html': 'Protocols',
+        'TTCSF.html': 'Technical Christianity Syllabus', 'privacy.html': 'Privacy Policy', 'terms.html': 'Terms of Service', 'app/': 'VQ Chat' };
+    function linkInfo(href) {
+        let url; try { url = new URL(href, location.href); } catch (e) { return null; }
+        if (url.origin !== location.origin) return null;
+        const file = url.pathname.split('/veritas-quaesitor/')[1] ?? url.pathname.split('/').pop();
+        const m = /:~:text=([^&]+)/.exec(url.hash);
+        const section = m ? decodeURIComponent(m[1]) : '';
+        const page = PAGE_NAMES[file] || PAGE_NAMES[file.replace(/^.*\//, '')] || decodeURIComponent(file.replace(/\.html$/, '').replace(/[-_]/g, ' ')) || 'Home';
+        return { url, page, section, label: section ? `${section} · ${page}` : page };
+    }
 
     const styles = `
         #vq-chat-widget, #vq-chat-widget * { box-sizing: border-box; }
@@ -53,6 +71,11 @@
         #vq-chat-panel.open { display: flex; animation: vq-in .22s ease-out; }
         #vq-chat-panel.expanded { width: min(760px, calc(100vw - 60px)); height: calc(100vh - 182px); }
         #vq-chat-panel.expanded .vq-message-content { font-size: .98rem; }
+        .vq-go-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+        .vq-go { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 7px 12px; border-radius: 999px; cursor: pointer;
+            border: 1px solid rgba(255,140,66,.55); background: rgba(255,140,66,.12); color: #ffd2ad; font: 600 .82rem/1.2 inherit; text-align: left; }
+        .vq-go:hover { background: rgba(255,140,66,.24); color: #fff; }
+        .vq-go span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .vq-section-flash { outline: 2px solid rgba(255,140,66,.75) !important; outline-offset: 6px; border-radius: 6px; }
         @keyframes vq-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 
@@ -137,7 +160,7 @@
                     <span class="vq-face">${ROBOT}</span>
                     <div id="vq-chat-info">
                         <h3>Veritas Quaesitor <span>CAI</span></h3>
-                        <p>Quick answers here. More in the full app.</p>
+                        <p>Your guide to this site, and quick answers</p>
                     </div>
                     <button class="vq-hbtn vq-expand" id="vq-chat-expand" title="Bigger window" aria-label="Make the chat window bigger" aria-pressed="false">${ICON.expand}</button>
                     <button class="vq-hbtn" id="vq-chat-clear" title="Start over" aria-label="Start a new conversation">${ICON.clear}</button>
@@ -146,7 +169,7 @@
                 <div id="vq-chat-messages" aria-live="polite"></div>
                 <div id="vq-chat-input-area">
                     <div class="vq-inputrow">
-                        <input type="text" id="vq-chat-input" placeholder="Ask VQ anything…" autocomplete="off" maxlength="2000" aria-label="Message VQ">
+                        <input type="text" id="vq-chat-input" placeholder="Find something on the site, or ask VQ anything…" autocomplete="off" maxlength="2000" aria-label="Message VQ">
                         <button id="vq-chat-send" aria-label="Send">${ICON.send}</button>
                     </div>
                     <div class="vq-links">
@@ -209,10 +232,12 @@
         const messagesContainer = document.getElementById('vq-chat-messages');
 
         let conversationHistory = [];
+        let pendingGo = null;   // the last place VQ offered to take you
         try { conversationHistory = JSON.parse(localStorage.getItem('vq-conversation-history') || '[]'); } catch (e) { conversationHistory = []; }
         if (!Array.isArray(conversationHistory)) conversationHistory = [];
         if (conversationHistory.length) conversationHistory.forEach(m => addMessageToUI(m.role, m.content));
         else addMessage('assistant', CONFIG.welcomeMessage);
+        setTimeout(greetArrival, 0);
 
         const isPhone = () => window.matchMedia('(max-width: 768px)').matches;
         if (localStorage.getItem('vq-widget-open') === 'true' && !isPhone()) openChat(false);
@@ -284,6 +309,29 @@
                     else if (part.trim()) { const d = document.createElement('div'); d.innerHTML = renderMarkdown(part); bubbleEl.appendChild(d); }
                 });
                 bubbleEl.querySelectorAll('a[href]').forEach(prepareLink);
+                const targets = [];
+                bubbleEl.querySelectorAll('a[href]').forEach(a => {
+                    const info = linkInfo(a.getAttribute('href'));
+                    if (!info) return;
+                    if (/^https?:\/\//.test(a.textContent.trim())) a.textContent = info.label;   // no long raw addresses
+                    if (!targets.some(t => t.url.href === info.url.href)) targets.push(info);
+                });
+                if (targets.length) {
+                    const row = document.createElement('div');
+                    row.className = 'vq-go-row';
+                    targets.slice(0, 3).forEach(t => {
+                        const b = document.createElement('button');
+                        b.type = 'button'; b.className = 'vq-go';
+                        b.innerHTML = '<span></span>→';
+                        b.firstChild.textContent = `Take me there: ${t.section || t.page}`;
+                        b.addEventListener('click', () => goTo(t));
+                        row.appendChild(b);
+                    });
+                    bubbleEl.appendChild(row);
+                    pendingGo = targets[0];
+                } else {
+                    pendingGo = null;
+                }
             }
             messageDiv.appendChild(bubbleEl);
             messagesContainer.appendChild(messageDiv);
@@ -321,6 +369,43 @@
             img.src = url.href; img.alt = ''; img.loading = 'lazy'; img.referrerPolicy = 'no-referrer';
             img.onerror = function () { this.remove(); };
             return img;
+        }
+
+        // ---------- Navigation: VQ can take you to a page or section ----------
+        const YES = /^(?:(?:yes|yeah|yep|yup|sure|ok|okay|please|please do|go|go there|go ahead|take me|take me there|open it|let'?s go|do it|show me)[\s,.!]*)+$/i;
+
+        function findHeading(text) {
+            const wanted = String(text || '').toLowerCase().replace(/\s+/g, ' ').trim();
+            if (!wanted) return null;
+            return [...document.querySelectorAll('h1, h2, h3, h4')]
+                .find(h => !h.closest('#vq-chat-widget') && h.textContent.toLowerCase().replace(/\s+/g, ' ').includes(wanted));
+        }
+        function flash(el) {
+            if (isPhone()) closeChat();
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            el.classList.add('vq-section-flash');
+            setTimeout(() => el.classList.remove('vq-section-flash'), 2400);
+        }
+        function goTo(t) {
+            const samePage = t.url.pathname.replace(/index\.html$/, '') === location.pathname.replace(/index\.html$/, '');
+            if (samePage) {
+                const h = findHeading(t.section);
+                if (h) { flash(h); addMessage('assistant', `Here it is: **${t.section || t.page}**.`); return; }
+                if (!t.section) { window.scrollTo({ top: 0, behavior: 'smooth' }); addMessage('assistant', `You're already on **${t.page}**.`); return; }
+            }
+            try {
+                localStorage.setItem('vq-arrival', JSON.stringify({ ts: Date.now(), page: t.page, section: t.section }));
+                localStorage.setItem('vq-widget-open', isPhone() ? 'false' : 'true');
+            } catch (e) {}
+            window.location.href = t.url.href;
+        }
+        // After arriving on the new page: say where we are and point at the section
+        function greetArrival() {
+            let a = null;
+            try { a = JSON.parse(localStorage.getItem('vq-arrival') || 'null'); localStorage.removeItem('vq-arrival'); } catch (e) {}
+            if (!a || Date.now() - (a.ts || 0) > 60000) return;
+            addMessage('assistant', a.section ? `Here you are: **${a.section}** on ${a.page}.` : `Here you are: **${a.page}**. Ask me if you'd like to find something on this page.`);
+            if (a.section) setTimeout(() => { const h = findHeading(a.section); if (h) { h.scrollIntoView({ block: 'start' }); h.classList.add('vq-section-flash'); setTimeout(() => h.classList.remove('vq-section-flash'), 2600); } }, 450);
         }
 
         function addMessage(role, content) {
@@ -516,6 +601,12 @@
         async function sendMessage() {
             const message = input.value.trim();
             if (!message || sendBtn.disabled) return;
+            if (pendingGo && YES.test(message)) {
+                input.value = '';
+                addMessage('user', message);
+                goTo(pendingGo);
+                return;
+            }
             addMessage('user', message);
             input.value = '';
             sendBtn.disabled = true;
