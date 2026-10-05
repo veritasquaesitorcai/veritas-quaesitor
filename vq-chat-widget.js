@@ -116,7 +116,7 @@
         #vq-teaser button:hover { background: rgba(255,255,255,.2); color: #fff; }
         @media (max-width: 768px) { #vq-teaser { top: auto; right: 16px; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); max-width: min(270px, calc(100vw - 32px)); } }
         #vq-chat-widget.vq-bottom #vq-chat-bubble { top: auto; bottom: 24px; }
-        #vq-chat-widget.vq-bottom #vq-chat-panel { top: auto; bottom: 86px; height: min(560px, calc(100vh - 120px)); }
+        #vq-chat-widget.vq-bottom #vq-chat-panel { top: auto; bottom: 86px; width: 370px; height: min(470px, calc(100vh - 120px)); }
         #vq-chat-widget.vq-bottom #vq-teaser { top: auto; bottom: 86px; border-radius: 14px 14px 4px 14px; }
         .vq-section-flash { outline: 2px solid rgba(255,140,66,.75) !important; outline-offset: 6px; border-radius: 6px; }
         @keyframes vq-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
@@ -222,7 +222,7 @@
                     </div>
                     <div class="vq-links">
                         <a href="${CONFIG.appUrl}" class="vq-full" id="vq-chat-full">Open in VQ Chat</a>
-                        <a href="${CONFIG.tourUrl}" target="_blank" rel="noopener">Take the 1-minute tour</a>
+                        ${/\/tour\.html$/.test(location.pathname) ? '' : `<a href="${CONFIG.tourUrl}" target="_blank" rel="noopener">Take the 1-minute tour</a>`}
                     </div>
                 </div>
             </div>
@@ -288,13 +288,22 @@
         const isWelcome = (m) => m && m.role === 'assistant' && typeof m.content === 'string' &&
             (m.content === CONFIG.welcomeMessage || /^(Hi, I'm VQ|Hey! 👋 I'm VQ|Hey! I'm VQ)/.test(m.content));
         conversationHistory = conversationHistory.filter(m => !isWelcome(m));
-        addMessageToUI('assistant', CONFIG.welcomeMessage);
+        const onTourPage = /\/tour\.html$/.test(location.pathname);
+        const greetKey = onTourPage ? 'vq-tour-greeting-typed' : 'vq-greeting-typed';
+        if (onTourPage) {
+            // On the tour, earlier messages come first and the tour greeting sits at the bottom, where it's seen
+            conversationHistory.forEach(m => addMessageToUI(m.role, m.content));
+            addMessageToUI('assistant', CONFIG.welcomeMessage);
+        } else {
+            addMessageToUI('assistant', CONFIG.welcomeMessage);
+        }
         // The greeting is typed out the first time the chat opens in a visit (instant if motion is reduced)
         let welcomeBox = messagesContainer.lastElementChild && messagesContainer.lastElementChild.querySelector('.vq-message-content');
+        if (!onTourPage) welcomeBox = messagesContainer.firstElementChild && messagesContainer.firstElementChild.querySelector('.vq-message-content');
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         let typingTimer = null;
-        // Only a fresh conversation gets the typed greeting; with earlier messages below it, it simply shows
-        if (welcomeBox && !reduceMotion && !conversationHistory.length && !sessionStorage.getItem('vq-greeting-typed')) {
+        // A fresh conversation (or the tour greeting) is typed; above earlier messages, the greeting simply shows
+        if (welcomeBox && !reduceMotion && (onTourPage || !conversationHistory.length) && !sessionStorage.getItem(greetKey)) {
             welcomeBox.innerHTML = '';
             welcomeBox.dataset.pending = '1';
         }
@@ -308,7 +317,7 @@
         function typeGreeting() {
             if (!welcomeBox || !welcomeBox.dataset.pending || typingTimer || welcomeBox.dataset.started) return;
             welcomeBox.dataset.started = '1';
-            sessionStorage.setItem('vq-greeting-typed', '1');
+            sessionStorage.setItem(greetKey, '1');
             const full = CONFIG.welcomeMessage;
             welcomeBox.innerHTML = '<div class="vq-typing" aria-hidden="true"><i></i><i></i><i></i></div>';
             let i = 0;
@@ -322,7 +331,7 @@
                 }, 28);
             }, 650);
         }
-        if (conversationHistory.length) conversationHistory.forEach(m => addMessageToUI(m.role, m.content));
+        if (!onTourPage && conversationHistory.length) conversationHistory.forEach(m => addMessageToUI(m.role, m.content));
         setTimeout(greetArrival, 0);
 
         // First visit in this browser session (desktop): a small hello under the button, gone after a few seconds
@@ -343,7 +352,12 @@
             bubble.addEventListener('click', remove, { once: true });
         }
         function welcomeOpen() {
-            if (onTour) { showTeaser("<b>Questions about the tour?</b> Ask me anything while it plays.", 'vq-tour-hello'); return; }   // don't cover the demo
+            if (onTour) {
+                if (sessionStorage.getItem('vq-tour-welcomed')) return;
+                sessionStorage.setItem('vq-tour-welcomed', '1');
+                fadeOpen();
+                return;
+            }
             if (panel.classList.contains('open') || sessionStorage.getItem('vq-welcomed')) return;
             const dismissed = parseInt(localStorage.getItem('vq-widget-dismissed') || '0', 10);
             if (Date.now() - dismissed < 7 * 24 * 3600 * 1000) return;          // they closed it recently: respect that
@@ -407,7 +421,7 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
         function closeChat() {
-            if (panel.classList.contains('open')) { try { localStorage.setItem('vq-widget-dismissed', String(Date.now())); } catch (e) {} }
+            if (panel.classList.contains('open') && !onTour) { try { localStorage.setItem('vq-widget-dismissed', String(Date.now())); } catch (e) {} }
             panel.classList.remove('open', 'vq-welcome');
             bubble.setAttribute('aria-expanded', 'false');
             document.documentElement.classList.remove('vq-chat-open');
@@ -487,6 +501,8 @@
                     const info = linkInfo(a.getAttribute('href'));
                     if (!info) return;
                     if (/^https?:\/\//.test(a.textContent.trim())) a.textContent = info.label;   // no long raw addresses
+                    const here = info.url.pathname.replace(/index\.html$/, '') === location.pathname.replace(/index\.html$/, '');
+                    if (here && (!info.section || onTour)) { a.replaceWith(document.createTextNode(a.textContent)); return; }   // already here
                     if (!targets.some(t => t.url.href === info.url.href)) targets.push(info);
                 });
                 if (targets.length) {
@@ -539,6 +555,11 @@
             img.onerror = function () { this.remove(); };
             return img;
         }
+
+        document.addEventListener('click', (e) => {
+            const a = e.target.closest && e.target.closest('a[href]');
+            if (a && /(^|\/)tour\.html([?#]|$)/.test(a.getAttribute('href') || '') && !onTour) { a.target = '_blank'; a.rel = 'noopener'; }
+        }, true);
 
         // ---------- Navigation: VQ can take you to a page or section ----------
         const YES = /^(?:(?:yes|yeah|yep|yup|sure|ok|okay|please|please do|go|go there|go ahead|take me|take me there|open it|let'?s go|do it|show me)[\s,.!]*)+$/i;
