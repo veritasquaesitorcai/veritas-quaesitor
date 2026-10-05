@@ -69,8 +69,29 @@
             display: none; flex-direction: column; overflow: hidden; border-radius: 18px; background: var(--vq-bg); color: var(--vq-text);
             border: 1px solid rgba(127,243,255,0.2); box-shadow: 0 24px 70px rgba(0,0,0,0.6), 0 0 34px rgba(127,243,255,0.08); }
         #vq-chat-panel.open { display: flex; animation: vq-in .22s ease-out; }
-        #vq-chat-panel.vq-welcome { animation: vq-fade-in 1.1s cubic-bezier(.2,.7,.2,1) both; }
-        @keyframes vq-fade-in { from { opacity: 0; transform: translateY(-10px) scale(.985); } to { opacity: 1; transform: none; } }
+        /* "Appears digitally": a scan line draws the panel in from the top, with a brief flicker and CRT lines that clear */
+        #vq-chat-panel.vq-welcome { animation: vq-materialize 2.4s cubic-bezier(.25,.6,.2,1) both; }
+        @keyframes vq-materialize {
+            0%   { opacity: 0;   clip-path: inset(0 0 100% 0 round 18px); filter: blur(6px) brightness(1.8) saturate(1.4); }
+            8%   { opacity: .75; }
+            12%  { opacity: .25; }
+            16%  { opacity: .9; }
+            20%  { opacity: .45; }
+            26%  { opacity: 1; }
+            62%  { clip-path: inset(0 0 0 0 round 18px); filter: blur(1.5px) brightness(1.25) saturate(1.15); }
+            100% { opacity: 1;   clip-path: inset(0 0 0 0 round 18px); filter: none; }
+        }
+        #vq-chat-panel .vq-scan { position: absolute; left: 0; right: 0; top: 0; height: 2px; z-index: 6; pointer-events: none;
+            background: #bffaff; box-shadow: 0 0 10px 2px rgba(127,243,255,.9), 0 0 34px 8px rgba(127,243,255,.35);
+            animation: vq-scan 1.5s cubic-bezier(.3,.6,.25,1) forwards; }
+        #vq-chat-panel .vq-scan::after { content: ""; position: absolute; left: 0; right: 0; bottom: 2px; height: 70px;
+            background: linear-gradient(to top, rgba(127,243,255,.18), transparent); }
+        @keyframes vq-scan { 0% { top: 0; opacity: 1; } 88% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        #vq-chat-panel .vq-crt { position: absolute; inset: 0; z-index: 5; pointer-events: none;
+            background: repeating-linear-gradient(to bottom, rgba(127,243,255,.10) 0 1px, transparent 1px 3px);
+            animation: vq-crt 2.4s ease-out forwards; }
+        @keyframes vq-crt { 0% { opacity: 1; } 55% { opacity: .55; } 100% { opacity: 0; } }
+        @media (prefers-reduced-motion: reduce) { #vq-chat-panel.vq-welcome { animation: none; } #vq-chat-panel .vq-scan, #vq-chat-panel .vq-crt { display: none; } }
         /* single diagonal accent: neon corner brackets top-right and bottom-left */
         #vq-chat-panel::before, #vq-chat-panel::after { content: ""; position: absolute; width: 34px; height: 34px; pointer-events: none; z-index: 3;
             border: 0 solid #7ff3ff; filter: drop-shadow(0 0 4px rgba(127,243,255,.7)); }
@@ -330,8 +351,11 @@
         function fadeOpen() {
             if (panel.classList.contains('open')) return;
             panel.classList.add('vq-welcome');
-            openChat(false);
-            setTimeout(() => panel.classList.remove('vq-welcome'), 1400);
+            const scan = document.createElement('div'); scan.className = 'vq-scan';
+            const crt = document.createElement('div'); crt.className = 'vq-crt';
+            panel.append(scan, crt);
+            openChat(false, reduceMotion ? 350 : 2000);   // the greeting starts typing once the panel has fully appeared
+            setTimeout(() => { panel.classList.remove('vq-welcome'); scan.remove(); crt.remove(); }, 2600);
         }
         if (localStorage.getItem('vq-widget-open') === 'true' && !isPhone()) setTimeout(fadeOpen, 900);
 
@@ -364,8 +388,8 @@
         input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); sendMessage(); } });
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && panel.classList.contains('open')) closeChat(); });
 
-        function openChat(focus) {
-            setTimeout(typeGreeting, 350);
+        function openChat(focus, greetDelay) {
+            setTimeout(typeGreeting, greetDelay || 350);
             panel.classList.add('open');
             bubble.setAttribute('aria-expanded', 'true');
             document.documentElement.classList.add('vq-chat-open');
