@@ -217,6 +217,25 @@
         .readout-challenges li::before { content: "› "; color: var(--hud-accent); }
         .visual-caption { text-align: center; margin: 0.9rem 0 0; color: var(--hud-dim) !important; font-size: 0.85rem !important; line-height: 1.5; }
 
+        /* --- VQ CHAT PANEL --- */
+        .featured-section .hud { margin-top: 2.25rem; }
+        .vq-points { list-style: none; padding: 0; margin: 0 0 1.5rem; display: grid; gap: 0.7rem; }
+        .vq-points li { padding-left: 1.4rem; position: relative; }
+        .vq-points li::before { content: "›"; position: absolute; left: 0.2rem; top: 0; color: var(--hud-accent); font-weight: 700; }
+        .vq-points strong { color: var(--hud-signal); }
+        .vq-screen { position: relative; display: flex; flex-direction: column; gap: 0.75rem; padding: 0 1.1rem 1.3rem; border-radius: 12px; border: 1px solid rgba(255,140,66,0.45); background: rgba(0,0,0,0.42); text-decoration: none; overflow: hidden; min-height: 270px; transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s; }
+        .vq-screen:hover { transform: translateY(-3px); border-color: rgba(255,217,168,0.8); box-shadow: 0 0 30px rgba(255,140,66,0.25); }
+        .vq-screen:focus-visible { outline: 3px solid var(--hud-signal); outline-offset: 3px; }
+        .vq-bar { display: flex; align-items: center; gap: 0.35rem; margin: 0 -1.1rem; padding: 0.55rem 0.9rem; background: rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.72rem; color: var(--hud-dim); }
+        .vq-bar i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.25); }
+        .vq-bar span { margin-left: 0.5rem; }
+        .vq-msg { max-width: 85%; padding: 0.6rem 0.9rem; border-radius: 14px; font-size: 0.9rem; line-height: 1.45; }
+        .vq-user { align-self: flex-end; background: rgba(255,140,66,0.22); color: #fff; border-bottom-right-radius: 4px; }
+        .vq-bot { align-self: flex-start; background: rgba(255,255,255,0.08); color: var(--hud-ink); border-bottom-left-radius: 4px; }
+        .vq-play { position: absolute; left: 50%; top: 78%; transform: translate(-50%,-50%); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff8c42, #ffb27a); color: #1a1030; box-shadow: 0 0 0 8px rgba(255,140,66,0.18), 0 10px 30px rgba(0,0,0,0.45); transition: transform 0.25s; }
+        .vq-play svg { width: 28px; height: 28px; margin-left: 4px; }
+        .vq-screen:hover .vq-play { transform: translate(-50%,-50%) scale(1.08); }
+
         /* --- TOOL GRID (glass panel) --- */
         .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 1.5rem; }
         .hud.tools-panel { margin: 0 auto 2rem; }
@@ -444,7 +463,36 @@
         <p class="hero-credit">Concept render, AI-generated</p>
     </header>
 
-    <section class="hud-section" id="featured" aria-labelledby="feat-title">
+    <section class="hud-section" id="vq-chat" aria-labelledby="vq-title">
+        <div class="hud vq-panel">
+            <span class="hud-badge">✨ NEW · PREVIEW</span>
+            <h2 id="vq-title">VQ Chat</h2>
+            <p class="hud-lede">Our assistant for everyday work and the biggest questions alike. Its conduct is anchored in the person of Jesus, and it holds every view to the same standard.</p>
+            <div class="feat-grid">
+                <div>
+                    <ul class="vq-points">
+                        <li><strong>Discernment built in.</strong> Helpful with the everyday, and honest about what it won't cheer on.</li>
+                        <li><strong>Worth that isn't earned.</strong> Every person treated as valuable, useful to it or not.</li>
+                        <li><strong>Same standard for every view.</strong> The resurrection question included, weighed openly.</li>
+                        <li><strong>Shows its work.</strong> How VQ reasoned is on screen, not hidden.</li>
+                        <li><strong>Meet O.R.I.A.</strong> The third companion in the side panel.</li>
+                    </ul>
+                    <a class="launch-cta" href="tour.html">▶ Take the 1-minute tour</a>
+                </div>
+                <div>
+                    <a class="vq-screen" href="tour.html" aria-label="Start the VQ Chat guided tour">
+                        <span class="vq-bar"><i></i><i></i><i></i><span>veritasquaesitorcai.github.io/app</span></span>
+                        <span class="vq-msg vq-user">Is a miracle rational?</span>
+                        <span class="vq-msg vq-bot">Let's weigh it with the same standard we'd use for any claim…</span>
+                        <span class="vq-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg></span>
+                    </a>
+                    <p class="visual-caption">Every feature shown in the tour is in the app today. Nothing you do in the tour is sent anywhere. The app itself is finishing testing.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="hud-section featured-section" id="featured" aria-labelledby="feat-title">
         <div class="hud">
             <span class="hud-badge">⭐ FEATURED TOOL</span>
             <h2 id="feat-title">Veritas Quaesitor | Resurrection Engine v2.0</h2>
@@ -535,6 +583,7 @@
                 <h3>📋 About These Tools</h3>
                 <p>Our tools represent different approaches to truth-seeking:</p>
                 <ul>
+                    <li><strong>VQ Chat</strong> - For everyday help and the big questions, from an assistant with Christ-anchored conduct</li>
                     <li><strong>Resurrection Engine</strong> - For technical skeptics who want full Bayesian rigor</li>
                     <li><strong>Minimal Garden</strong> - For general audiences seeking a gentle introduction to the evidence</li>
                     <li><strong>Comparison Engine</strong> - To see how worldview affects AI reasoning</li>
