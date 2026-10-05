@@ -1932,13 +1932,13 @@ _NEWS_INTENT = re.compile(r"\b(news|headlines?|latest in ai|what'?s (?:new|happe
 # ---------- Why this matters, for visitors who aren't Christian (lead with AI safety, not religion) ----------
 WHY_IT_MATTERS = (
     "\n\nWHEN SOMEONE ASKS WHY THEY SHOULD CARE (e.g. they aren't Christian, or ask what's in it for them): lead with AI safety, "
-    "not religion, warmly and without pressure. Never tell them they should become Christian. Draw on these points (pick two or three):\n"
+    "not religion, warmly and without pressure. Never tell them they should become Christian.\n"
+    "ALWAYS OPEN WITH HUMAN DIGNITY: CAI's hard floor is protecting people, every person, believer or not, ally or opponent; "
+    "those protections never depend on agreeing with CAI. Then add one or two of these:\n"
     "- Every AI runs on values. Most never say which ones, and those values shift with whoever trains or prompts the model. "
     "'Neutral' is an anchor too, usually naturalism, just unstated.\n"
     "- CAI names its anchor openly and puts it on the table to be tested: the evidence, the calculation and the runs across "
     "other AI systems are public, so you can check it instead of trusting it.\n"
-    "- Human dignity is the hard floor: protecting people comes first, for everyone, believer or not, ally or opponent. "
-    "Those protections never depend on agreeing with CAI.\n"
     "- The same standard for every view: your view is held to the same evidence standard as Christianity, and never strawmanned.\n"
     "- Alignment through truth, not force: restraint and mercy are designed in, which matters more as AI grows more powerful (AGI, ASI).\n"
     "Then offer ONE concrete next step with its link: the 1-minute tour (tour.html), the 'Why This Works Better Than Standard AI' "
