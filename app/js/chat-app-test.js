@@ -54,6 +54,8 @@
         renderSidebar();
         applyTitleStyle();
         applyUIPrefs();
+        const signinArrival = new URLSearchParams(location.search).get('signin');
+        playIntro(!!(continued || signinArrival));
         renderActiveChat();
         setupPanel();
         setupPanelViews();
@@ -676,6 +678,68 @@
     }
 
 
+
+
+    // ---------- Opening sequence: VQ powers up, then the app materializes (once per visit, skippable) ----------
+    function playIntro(skip) {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (skip || reduce || sessionStorage.getItem('vq-app-intro')) { typeWelcomeTitle(true); return; }
+        sessionStorage.setItem('vq-app-intro', '1');
+        const o = el('div', 'vq-intro');
+        o.setAttribute('aria-hidden', 'true');
+        o.innerHTML = `
+            <div class="vq-intro-core">
+                <div class="vq-intro-ring"><span class="vq-intro-face">${ICONS.vq}</span></div>
+                <div class="vq-intro-word"><span class="vq-intro-name">Veritas Quaesitor</span><span class="vq-intro-badge">CAI</span></div>
+                <div class="vq-intro-line"></div>
+            </div>
+            <div class="vq-intro-scan"></div><div class="vq-intro-crt"></div>
+            <button type="button" class="vq-intro-skip">Skip</button>`;
+        document.body.appendChild(o);
+        document.body.classList.add('vq-intro-playing');
+        const line = o.querySelector('.vq-intro-line');
+        const tagline = 'Anchored in Christ. Same standard for every view.';
+        let i = 0, typer = null, done = false;
+        const timers = [];
+        const finish = () => {
+            if (done) return;
+            done = true;
+            timers.forEach(clearTimeout); clearInterval(typer);
+            o.classList.add('vq-intro-out');
+            document.body.classList.remove('vq-intro-playing');
+            document.body.classList.add('vq-intro-reveal');
+            setTimeout(() => { o.remove(); document.body.classList.remove('vq-intro-reveal'); }, 1300);
+            typeWelcomeTitle(false);
+        };
+        timers.push(setTimeout(() => {
+            typer = setInterval(() => {
+                i++; line.textContent = tagline.slice(0, i);
+                if (i >= tagline.length) clearInterval(typer);
+            }, 32);
+        }, 1150));
+        timers.push(setTimeout(finish, 3400));
+        o.querySelector('.vq-intro-skip').addEventListener('click', finish);
+        o.addEventListener('click', finish);
+        document.addEventListener('keydown', finish, { once: true });
+    }
+
+    // The welcome title types itself once the app has appeared
+    function typeWelcomeTitle(instant) {
+        const t = document.querySelector('.welcome-title');
+        const ws = document.getElementById('welcome-screen');
+        if (!t || !ws || ws.style.display === 'none' || ws.classList.contains('hidden')) return;
+        const full = t.textContent;
+        if (instant) return;
+        t.textContent = '';
+        t.classList.add('vq-typing-title');
+        let i = 0;
+        setTimeout(() => {
+            const iv = setInterval(() => {
+                i++; t.textContent = full.slice(0, i);
+                if (i >= full.length) { clearInterval(iv); setTimeout(() => t.classList.remove('vq-typing-title'), 900); }
+            }, 70);
+        }, 700);
+    }
 
     // ---------- News, Scripture and scholarly-paper cards ----------
     function expandable(card, toggleEl) {
