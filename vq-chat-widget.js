@@ -20,7 +20,8 @@
 
     const ROBOT = '<svg viewBox="0 0 32 32" aria-hidden="true"><line x1="16" y1="4.2" x2="16" y2="8" stroke="#7ff3ff" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="3.4" r="2.1" fill="#ff5fd2"/><rect x="5.5" y="8" width="21" height="16.5" rx="6.5" fill="none" stroke="#7ff3ff" stroke-width="2"/><rect x="8.6" y="11.6" width="14.8" height="7.6" rx="3.8" fill="#05060a"/><circle cx="12.6" cy="15.4" r="2" fill="#7ff3ff"/><circle cx="19.4" cy="15.4" r="2" fill="#7ff3ff"/><circle cx="13.2" cy="14.8" r=".6" fill="#fff"/><circle cx="20" cy="14.8" r=".6" fill="#fff"/><path d="M13 21.6c1.9 1 4.1 1 6 0" stroke="#7ff3ff" stroke-width="1.8" fill="none" stroke-linecap="round"/><rect x="2.6" y="13.6" width="2.6" height="5.2" rx="1.3" fill="#ff5fd2"/><rect x="26.8" y="13.6" width="2.6" height="5.2" rx="1.3" fill="#ff5fd2"/></svg>';
     const ICON = {
-        open: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+        expand: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>',
+        shrink: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="M14 10l7-7"/><path d="M3 21l7-7"/></svg>',
         clear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>',
         close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
         send: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.4 19.6 21 12 4.4 4.4l.1 5.9L15 12 4.5 13.7z"/></svg>'
@@ -50,6 +51,9 @@
             display: none; flex-direction: column; overflow: hidden; border-radius: 18px; background: var(--vq-bg); color: var(--vq-text);
             border: 1px solid rgba(127,243,255,0.2); box-shadow: 0 24px 70px rgba(0,0,0,0.6), 0 0 34px rgba(127,243,255,0.08); }
         #vq-chat-panel.open { display: flex; animation: vq-in .22s ease-out; }
+        #vq-chat-panel.expanded { width: min(760px, calc(100vw - 60px)); height: calc(100vh - 182px); }
+        #vq-chat-panel.expanded .vq-message-content { font-size: .98rem; }
+        .vq-section-flash { outline: 2px solid rgba(255,140,66,.75) !important; outline-offset: 6px; border-radius: 6px; }
         @keyframes vq-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 
         #vq-chat-header { display: flex; align-items: center; gap: 10px; padding: 12px 12px 12px 14px; border-bottom: 1px solid var(--vq-line); background: var(--vq-surface); }
@@ -104,7 +108,8 @@
             #vq-chat-bubble { top: auto; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); right: 16px; width: 58px; height: 58px; padding: 0; border-radius: 50%; justify-content: center; }
             #vq-chat-bubble .vq-bubble-text { display: none; }
             #vq-chat-bubble .vq-face { width: 46px; height: 46px; } #vq-chat-bubble .vq-face svg { width: 36px; height: 36px; }
-            #vq-chat-panel { top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100vh; height: 100dvh; min-height: 0; border-radius: 0; border: 0; }
+            #vq-chat-panel, #vq-chat-panel.expanded { top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100vh; height: 100dvh; min-height: 0; border-radius: 0; border: 0; }
+            .vq-expand, #vq-chat-expand { display: none; }
             #vq-chat-header { padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
             #vq-chat-input { font-size: 16px; }
             #vq-chat-input-area { padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
@@ -134,7 +139,7 @@
                         <h3>Veritas Quaesitor <span>CAI</span></h3>
                         <p>Quick answers here. More in the full app.</p>
                     </div>
-                    <button class="vq-hbtn" id="vq-chat-open-app" title="Open in VQ Chat" aria-label="Open this conversation in VQ Chat">${ICON.open}</button>
+                    <button class="vq-hbtn vq-expand" id="vq-chat-expand" title="Bigger window" aria-label="Make the chat window bigger" aria-pressed="false">${ICON.expand}</button>
                     <button class="vq-hbtn" id="vq-chat-clear" title="Start over" aria-label="Start a new conversation">${ICON.clear}</button>
                     <button class="vq-hbtn" id="vq-chat-close" aria-label="Close chat">${ICON.close}</button>
                 </div>
@@ -215,7 +220,18 @@
         bubble.addEventListener('click', () => panel.classList.contains('open') ? closeChat() : openChat(true));
         document.getElementById('vq-chat-close').addEventListener('click', closeChat);
         document.getElementById('vq-chat-clear').addEventListener('click', clearConversation);
-        document.getElementById('vq-chat-open-app').addEventListener('click', openInApp);
+        const expandBtn = document.getElementById('vq-chat-expand');
+        const setExpanded = (on) => {
+            panel.classList.toggle('expanded', on);
+            expandBtn.innerHTML = on ? ICON.shrink : ICON.expand;
+            expandBtn.title = on ? 'Smaller window' : 'Bigger window';
+            expandBtn.setAttribute('aria-label', on ? 'Make the chat window smaller' : 'Make the chat window bigger');
+            expandBtn.setAttribute('aria-pressed', String(on));
+            try { localStorage.setItem('vq-widget-expanded', on ? 'true' : 'false'); } catch (e) {}
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        };
+        expandBtn.addEventListener('click', () => setExpanded(!panel.classList.contains('expanded')));
+        if (localStorage.getItem('vq-widget-expanded') === 'true') setExpanded(true);
         document.getElementById('vq-chat-full').addEventListener('click', (e) => { e.preventDefault(); openInApp(); });
         sendBtn.addEventListener('click', sendMessage);
         input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); sendMessage(); } });
@@ -267,10 +283,33 @@
                     if (/^<img/i.test(part)) { const img = safeImageFrom(part); if (img) bubbleEl.appendChild(img); }
                     else if (part.trim()) { const d = document.createElement('div'); d.innerHTML = renderMarkdown(part); bubbleEl.appendChild(d); }
                 });
+                bubbleEl.querySelectorAll('a[href]').forEach(prepareLink);
             }
             messageDiv.appendChild(bubbleEl);
             messagesContainer.appendChild(messageDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Site links open in this tab; a link to a section of the page you're on scrolls straight to it
+        function prepareLink(a) {
+            let url; try { url = new URL(a.getAttribute('href'), location.href); } catch (e) { return; }
+            if (url.origin !== location.origin) return;
+            a.removeAttribute('target');
+            const samePage = url.pathname.replace(/index\.html$/, '') === location.pathname.replace(/index\.html$/, '');
+            const m = /:~:text=([^&]+)/.exec(url.hash);
+            if (samePage && m) {
+                a.addEventListener('click', (e) => {
+                    const wanted = decodeURIComponent(m[1]).toLowerCase().replace(/\s+/g, ' ').trim();
+                    const target = [...document.querySelectorAll('h1, h2, h3, h4')]
+                        .find(h => !h.closest('#vq-chat-widget') && h.textContent.toLowerCase().replace(/\s+/g, ' ').includes(wanted));
+                    if (!target) return;   // let the browser try the text fragment itself
+                    e.preventDefault();
+                    if (isPhone()) closeChat();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    target.classList.add('vq-section-flash');
+                    setTimeout(() => target.classList.remove('vq-section-flash'), 2200);
+                });
+            }
         }
 
         function safeImageFrom(tagHtml) {
@@ -488,6 +527,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         message: message,
+                        client: 'bubble',
                         history: conversationHistory.filter(m => m.content !== CONFIG.welcomeMessage).slice(-20),
                         pageContext: pageContext
                     })
