@@ -48,6 +48,7 @@
     function init() {
         loadSidebarState();
         loadStore();
+        const continued = importHandoff();
         randomizeRotatingCard();
         attachEventListeners();
         renderSidebar();
@@ -58,6 +59,25 @@
         setupPanelViews();
         setupAuth();
         if (window.innerWidth > 768) elements.messageInput.focus();
+        if (continued) setTimeout(() => showLocalNote('Continued from the website chat'), 700);
+    }
+
+    // A conversation handed over from the website chat bubble ("Open in VQ Chat") becomes a new chat here
+    function importHandoff() {
+        let h = null;
+        try { h = JSON.parse(localStorage.getItem('vq-handoff') || 'null'); localStorage.removeItem('vq-handoff'); } catch (e) { return false; }
+        if (!h || !Array.isArray(h.messages) || Date.now() - (h.ts || 0) > 30 * 60 * 1000) return false;
+        const msgs = h.messages
+            .filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.trim())
+            .slice(-40)
+            .map(m => ({ role: m.role, content: m.content.slice(0, 8000) }));
+        if (!msgs.some(m => m.role === 'user')) return false;
+        const id = newId();
+        store.chats[id] = { id, title: titleFrom(msgs), messages: msgs, updated: Date.now() };
+        store.activeId = id;
+        conversationHistory = msgs;
+        saveStore();
+        return true;
     }
 
     function attachEventListeners() {
