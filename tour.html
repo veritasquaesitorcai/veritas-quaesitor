@@ -526,6 +526,7 @@ blockquote.draft { margin: .5rem 0; padding: .6rem .8rem; border-left: 2px solid
   $('#next').addEventListener('click', () => go(current + 1));
   $('#speed').addEventListener('click', (e) => { speed = speed === 1 ? 1.6 : speed === 1.6 ? 2.2 : 1; e.currentTarget.textContent = (speed === 1 ? '1' : speed) + '×'; });
   document.addEventListener('keydown', (e) => {
+    if (e.target.closest('input, textarea, [contenteditable], #vq-chat-widget')) return;   // typing in the VQ bubble
     if (e.target.closest('a, button') && e.key === ' ') return;
     if (e.key === ' ') { e.preventDefault(); setPaused(!paused); }
     if (e.key === 'ArrowRight') go(current + 1);
@@ -537,5 +538,6 @@ blockquote.draft { margin: .5rem 0; padding: .6rem .8rem; border-left: 2px solid
   go(0);
 })();
 </script>
+<script src="vq-chat-widget.js"></script>
 </body>
 </html>
