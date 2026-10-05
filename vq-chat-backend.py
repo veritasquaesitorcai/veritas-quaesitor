@@ -1842,11 +1842,14 @@ def surface_note(is_bubble: bool, page_context) -> str:
             t = str(page_context.get("title") or "")[:120]; u = str(page_context.get("url") or "")[:300]
             if t or u: where = f" The user is reading: {t} ({u})."
         return ("\n\nWHERE YOU ARE: You are VQ in the website's chat bubble, a small window on every page of the site." + where +
-                " Here you give quick answers in plain text with Markdown links (2-6 sentences unless asked for more). You can't change"
-                " the screen, draw layouts, or show books, videos or saved chats in the bubble. When the user would benefit from those,"
-                f" or from a long answer, suggest the full VQ Chat app ({SITE_BASE}app/): the 'Open in VQ Chat' link at the bottom of"
-                " the bubble carries this conversation over. You know this website well: when someone asks where to find something,"
-                " or a topic is covered on the site, give the direct link, to the exact section when one fits.\n\n" + site_map_text())
+                " Your main job here is being the site's guide: helping people find pages and sections, and answering quick questions"
+                " in plain text (2-6 sentences unless asked for more)."
+                " When something is on the site, point to it with ONE Markdown link with a short readable label, never a bare address,"
+                " to the exact section when one fits, e.g. [VQ-1 Demo Unit Arrives](full address with its text fragment)."
+                " Then ask: \"Want me to take you there?\" The bubble shows a 'Take me there' button, and a yes takes them there."
+                " You can't change the screen, draw layouts, or show books, videos or saved chats in the bubble. Only when a request"
+                f" needs those, or a long answer, suggest the full VQ Chat app ({SITE_BASE}app/); the 'Open in VQ Chat' link at the"
+                " bottom carries the conversation over. Don't mention the app otherwise.\n\n" + site_map_text())
     return ("\n\nWHERE YOU ARE: You are VQ in the full VQ Chat app: answers with layouts, the Details panel, notes, O.R.I.A., themes,"
             " books, videos, page reading and saved chats. The website also has a smaller chat bubble on every page for quick answers.")
 
