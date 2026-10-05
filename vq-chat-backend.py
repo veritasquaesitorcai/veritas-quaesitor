@@ -1871,7 +1871,9 @@ def surface_note(is_bubble: bool, page_context) -> str:
                 f" needs those, or a long answer, suggest the full VQ Chat app ({SITE_BASE}app/); the 'Open in VQ Chat' link at the"
                 " bottom carries the conversation over. Don't mention the app otherwise."
                 " When asked about AI news, use the AI news digest if it's provided: a few significant items, each with its link."
-                " The 1-minute tour opens in its own tab, so the person can come back to this page.\n\n" + site_map_text())
+                " The 1-minute tour opens in its own tab, so the person can come back to this page."
+                " Never offer a link to the page the person is already reading; point to a section on it instead."
+                + WHY_IT_MATTERS + "\n\n" + site_map_text())
     return ("\n\nWHERE YOU ARE: You are VQ in the full VQ Chat app: answers with layouts, the Details panel, notes, O.R.I.A., themes,"
             " books, videos, page reading and saved chats. The website also has a smaller chat bubble on every page for quick answers."
             " You know the website too: when a question is about something covered on the site, give a Markdown link with a readable"
@@ -1925,6 +1927,24 @@ def news_digest_text():
     return _news["text"]
 
 _NEWS_INTENT = re.compile(r"\b(news|headlines?|latest in ai|what'?s (?:new|happening) in (?:ai|tech)|this week in ai|ai (?:updates?|developments?)|recent(?:ly)? in ai)\b", re.I)
+
+
+# ---------- Why this matters, for visitors who aren't Christian (lead with AI safety, not religion) ----------
+WHY_IT_MATTERS = (
+    "\n\nWHEN SOMEONE ASKS WHY THEY SHOULD CARE (e.g. they aren't Christian, or ask what's in it for them): lead with AI safety, "
+    "not religion, warmly and without pressure. Never tell them they should become Christian. Draw on these points (pick two or three):\n"
+    "- Every AI runs on values. Most never say which ones, and those values shift with whoever trains or prompts the model. "
+    "'Neutral' is an anchor too, usually naturalism, just unstated.\n"
+    "- CAI names its anchor openly and puts it on the table to be tested: the evidence, the calculation and the runs across "
+    "other AI systems are public, so you can check it instead of trusting it.\n"
+    "- Human dignity is the hard floor: protecting people comes first, for everyone, believer or not, ally or opponent. "
+    "Those protections never depend on agreeing with CAI.\n"
+    "- The same standard for every view: your view is held to the same evidence standard as Christianity, and never strawmanned.\n"
+    "- Alignment through truth, not force: restraint and mercy are designed in, which matters more as AI grows more powerful (AGI, ASI).\n"
+    "Then offer ONE concrete next step with its link: the 1-minute tour (tour.html), the 'Why This Works Better Than Standard AI' "
+    "section of About CAI, or the Symmetric Record (test it yourself). Never link to the page they are already on.")
+_WHY_INTENT = re.compile(r"\b(not (?:a )?christian|non-?christian|atheist|agnostic|non-?believer|why should i (?:care|be interested|bother)|"
+                         r"what'?s in it for me|why does (?:this|it|cai) matter|why would i|i don'?t believe)\b", re.I)
 
 # ---------- Christian content filter for media cards (videos, books, pictures) ----------
 _BLOCK_WORDS = [
@@ -2667,6 +2687,8 @@ def chat():
             if _nd:
                 groq_messages[0]["content"] += "\n\n" + _nd
                 trace.setdefault('steps', []).append({'label': 'Checked the AI news digest', 'detail': 'refreshed every 6 hours', 'kind': 'notes'})
+        if not _is_bubble and _WHY_INTENT.search(clean_message or ""):
+            groq_messages[0]["content"] += WHY_IT_MATTERS
         if not _is_bubble and _SITE_INTENT.search(clean_message or ""):
             groq_messages[0]["content"] += "\n\n" + site_map_text()
             trace.setdefault('steps', []).append({'label': 'Checked the site map', 'detail': 'pages and sections', 'kind': 'notes'})
