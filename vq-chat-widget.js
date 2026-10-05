@@ -396,7 +396,8 @@
             window.location.href = CONFIG.appUrl;
         }
 
-        function addMessageToUI(role, content) {
+        let activeTyping = null;   // finishes the reply being typed, if any
+        function addMessageToUI(role, content, typed) {
             const messageDiv = document.createElement('div');
             messageDiv.className = role === 'user' ? 'vq-message vq-user-message' : 'vq-message';
             const bubbleEl = document.createElement('div');
@@ -408,6 +409,40 @@
                 av.className = 'vq-av';
                 av.innerHTML = ROBOT;
                 messageDiv.appendChild(av);
+                if (typed && !reduceMotion) typeReply(bubbleEl, content);
+                else fillAssistant(bubbleEl, content);
+            }
+            messageDiv.appendChild(bubbleEl);
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Replies are typed out like the greeting; links and buttons appear once the text is complete
+        function typeReply(box, content) {
+            if (activeTyping) activeTyping();
+            const text = String(content).replace(/<img[^>]*>/gi, '');
+            const step = Math.max(2, Math.ceil(text.length / 160));   // long answers still finish in about 4-5 seconds
+            let i = 0, timer = null;
+            box.classList.add('vq-typing-text');
+            const done = () => {
+                clearInterval(timer);
+                if (activeTyping === done) activeTyping = null;
+                box.classList.remove('vq-typing-text');
+                box.innerHTML = '';
+                fillAssistant(box, content);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            };
+            activeTyping = done;
+            timer = setInterval(() => {
+                i = Math.min(text.length, i + step);
+                box.innerHTML = renderMarkdown(text.slice(0, i));
+                const nearBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < 80;
+                if (nearBottom) messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                if (i >= text.length) done();
+            }, 28);
+        }
+
+        function fillAssistant(bubbleEl, content) {
                 String(content).split(/(<img[^>]*>)/i).forEach(part => {
                     if (/^<img/i.test(part)) { const img = safeImageFrom(part); if (img) bubbleEl.appendChild(img); }
                     else if (part.trim()) { const d = document.createElement('div'); d.innerHTML = renderMarkdown(part); bubbleEl.appendChild(d); }
@@ -436,10 +471,6 @@
                 } else {
                     pendingGo = null;
                 }
-            }
-            messageDiv.appendChild(bubbleEl);
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
         // Site links open in this tab; a link to a section of the page you're on scrolls straight to it
@@ -520,7 +551,7 @@
         }
 
         function addMessage(role, content) {
-            addMessageToUI(role, content);
+            addMessageToUI(role, content, role === 'assistant');
             conversationHistory.push({ role, content });
             if (conversationHistory.length > 40) conversationHistory = conversationHistory.slice(-40);
             try { localStorage.setItem('vq-conversation-history', JSON.stringify(conversationHistory)); }
@@ -712,6 +743,8 @@
         async function sendMessage() {
             const message = input.value.trim();
             if (!message || sendBtn.disabled) return;
+            if (activeTyping) activeTyping();   // finish the reply being typed (so its links and buttons are ready)
+            finishGreeting();
             if (pendingGo && YES.test(message)) {
                 input.value = '';
                 addMessage('user', message);
