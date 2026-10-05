@@ -266,7 +266,8 @@
         let welcomeBox = messagesContainer.lastElementChild && messagesContainer.lastElementChild.querySelector('.vq-message-content');
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         let typingTimer = null;
-        if (welcomeBox && !reduceMotion && !sessionStorage.getItem('vq-greeting-typed')) {
+        // Only a fresh conversation gets the typed greeting; with earlier messages below it, it simply shows
+        if (welcomeBox && !reduceMotion && !conversationHistory.length && !sessionStorage.getItem('vq-greeting-typed')) {
             welcomeBox.innerHTML = '';
             welcomeBox.dataset.pending = '1';
         }
