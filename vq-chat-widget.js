@@ -1,4 +1,4 @@
-/**
+/** 
  * VQ Chat Widget: the quick-answer front door to VQ Chat
  * Veritas Quaesitor CAI (veritasquaesitorcai.github.io)
  *
