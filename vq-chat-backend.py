@@ -1878,6 +1878,9 @@ def surface_note(is_bubble: bool, page_context) -> str:
         if isinstance(page_context, dict):
             t = str(page_context.get("title") or "")[:120]; u = str(page_context.get("url") or "")[:300]
             if t or u: where = f" The user is reading: {t} ({u})."
+            if u.split("?")[0].split("#")[0].endswith("tour.html"):
+                where += (" They are watching the 1-minute tour right now: never offer to take them to it. Talk about what"
+                          " it shows, chapter by chapter, and offer the full VQ Chat app or other pages as next steps.")
         return ("\n\nWHERE YOU ARE: You are VQ in the website's chat bubble, a small window on every page of the site." + where +
                 " Your main job here is being the site's guide: helping people find pages and sections, and answering quick questions"
                 " in plain text (2-6 sentences unless asked for more)."
