@@ -642,6 +642,45 @@
         .verse-name { font-family: "Cinzel", Georgia, serif; font-weight: 700; letter-spacing: 0.04em; color: var(--ui-accent-2, #ffb27a); }
         .verse-tr { color: var(--text-tertiary); }
         .verse-link { margin-left: auto; color: var(--text-secondary); text-decoration: none; } .verse-link:hover { color: var(--ui-accent-2, #ffb27a); }
+        /* ---- Opening sequence ---- */
+        .vq-intro { position: fixed; inset: 0; z-index: 100000; display: grid; place-items: center; overflow: hidden;
+            background: radial-gradient(60% 50% at 50% 45%, rgba(127,243,255,0.07), transparent 70%), var(--bg-dark, #0e0e0e); }
+        .vq-intro-core { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 1.5rem; }
+        .vq-intro-ring { width: 132px; height: 132px; border-radius: 50%; display: grid; place-items: center;
+            background: var(--vq-avatar-bg, radial-gradient(circle at 50% 40%, #17171e, #050507));
+            box-shadow: 0 0 0 1px rgba(127,243,255,0.5), 0 0 40px 4px var(--ic-glow-color, rgba(127,243,255,0.45));
+            animation: vqIntroOn 0.9s steps(1, end) both, vqIntroPulse 2.6s ease-in-out 0.9s infinite; }
+        .vq-intro-face { display: grid; place-items: center; width: 100%; height: 100%; color: #fff; }
+        .vq-intro-face svg { width: 76%; height: 76%; }
+        @keyframes vqIntroOn { 0% { opacity: 0; } 12% { opacity: .8; } 20% { opacity: .1; } 32% { opacity: 1; } 40% { opacity: .3; } 52%, 100% { opacity: 1; } }
+        @keyframes vqIntroPulse { 50% { box-shadow: 0 0 0 1px rgba(127,243,255,0.65), 0 0 60px 10px var(--ic-glow-color, rgba(127,243,255,0.5)); } }
+        .vq-intro-word { margin-top: 1.6rem; display: flex; align-items: center; gap: 0.7rem; animation: vqIntroWord 0.7s cubic-bezier(.2,.7,.2,1) 0.7s both; }
+        @keyframes vqIntroWord { from { clip-path: inset(0 50% 0 50%); opacity: 0; letter-spacing: .3em; } to { clip-path: inset(0 0 0 0); opacity: 1; } }
+        .vq-intro-name { font-family: "Cinzel", Georgia, serif; font-weight: 700; font-size: clamp(1.4rem, 3.6vw, 2.1rem); letter-spacing: 0.08em; color: #fff; }
+        .vq-intro-badge { font-weight: 800; font-size: 0.8rem; letter-spacing: 0.14em; color: #1a1030; padding: 0.22rem 0.5rem 0.18rem; border-radius: 6px;
+            background: linear-gradient(135deg, var(--ui-accent, #ff8c42), var(--ui-accent-2, #ffb27a)); box-shadow: 0 0 16px rgba(var(--ui-accent-rgb, 255,140,66), .55);
+            animation: vqIntroPop 0.45s cubic-bezier(.3,1.6,.5,1) 1.15s both; }
+        @keyframes vqIntroPop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .vq-intro-line { margin-top: 1rem; min-height: 1.5em; font-size: clamp(0.9rem, 2vw, 1.05rem); letter-spacing: 0.04em; color: #a8f3fa; }
+        .vq-intro-line::after { content: "▍"; margin-left: 2px; color: #7ff3ff; animation: vqBlink 1s steps(1) infinite; }
+        @keyframes vqBlink { 50% { opacity: 0; } }
+        .vq-intro-crt { position: absolute; inset: 0; pointer-events: none;
+            background: repeating-linear-gradient(to bottom, rgba(127,243,255,0.06) 0 1px, transparent 1px 3px); }
+        .vq-intro-scan { position: absolute; left: 0; right: 0; top: 0; height: 2px; opacity: 0; pointer-events: none; background: #bffaff;
+            box-shadow: 0 0 12px 3px rgba(127,243,255,.9), 0 0 50px 12px rgba(127,243,255,.3); }
+        .vq-intro-skip { position: absolute; right: 1.4rem; bottom: calc(1.2rem + env(safe-area-inset-bottom, 0px)); padding: 0.4rem 0.9rem; border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.7); font: inherit; font-size: 0.8rem; cursor: pointer; }
+        .vq-intro-skip:hover { color: #fff; border-color: rgba(127,243,255,0.6); }
+        /* exit: a scan line sweeps down and the app appears behind it */
+        .vq-intro.vq-intro-out { animation: vqIntroWipe 1.2s cubic-bezier(.45,.05,.3,1) forwards; pointer-events: none; }
+        .vq-intro.vq-intro-out .vq-intro-scan { animation: vqIntroScan 1.2s cubic-bezier(.45,.05,.3,1) forwards; }
+        .vq-intro.vq-intro-out .vq-intro-skip { display: none; }
+        @keyframes vqIntroWipe { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(100% 0 0 0); } }
+        @keyframes vqIntroScan { 0% { top: 0; opacity: 1; } 92% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        body.vq-intro-reveal > *:not(.vq-intro) { animation: vqAppIn 1.3s ease-out both; }
+        @keyframes vqAppIn { from { filter: blur(3px) brightness(1.35); } to { filter: none; } }
+        .welcome-title.vq-typing-title::after { content: "▍"; margin-left: 2px; color: #7ff3ff; -webkit-text-fill-color: #7ff3ff; animation: vqBlink 1s steps(1) infinite; }
+        @media (prefers-reduced-motion: reduce) { .vq-intro { display: none; } }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -890,6 +929,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-05-signin"></script>
+    <script src="js/chat-app-test.js?v=2026-10-05-intro"></script>
 </body>
 </html>
