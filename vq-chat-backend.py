@@ -1458,7 +1458,8 @@ UI_TOOL = {
                         "bubbles": {"type": "string", "description": "on: show VQ's answers in chat bubbles; off: open page-style answers (default)"},
                         "theme": {"type": "string", "description": "background theme: vq (default, near-black with neon icons), classic (warm charcoal on desktop, navy on phones), navy, charcoal, midnight, ocean, forest, ember, slate or plum"},
                         "glow": {"type": "string", "description": "on (default) or off: the soft glow behind icons"},
-                        "mist": {"type": "string", "description": "on (default) or off: the soft mist drifting through the background, in the accent colour"}
+                        "mist": {"type": "string", "description": "on (default) or off: the soft mist drifting through the background, in the accent colour"},
+                        "scene": {"type": "string", "description": "the moving sky behind the app: mist (default), clouds, sunset, night (moon and stars), storm, or none (still)"}
                     }
                 },
                 "note": {"type": "string", "description": "A few words describing the change, e.g. 'warmer, easier to read'"}
@@ -1478,6 +1479,7 @@ _STYLE_CHOICES = {
     "theme": ["vq", "classic", "navy", "charcoal", "midnight", "ocean", "forest", "ember", "slate", "plum"],
     "glow": ["on", "off"],
     "mist": ["on", "off"],
+    "scene": ["mist", "clouds", "sunset", "night", "storm", "none"],
 }
 _TITLE_SYNONYMS = {"roman": "inscription", "classic": "inscription", "latin": "inscription", "1": "inscription",
                    "serif": "elegant", "fancy": "elegant", "refined": "elegant", "2": "elegant",
@@ -1515,7 +1517,7 @@ def validate_ui_action(args: dict):
                     style[key] = round(min(hi, max(lo, float(st[key]))), 2)
             except (TypeError, ValueError):
                 pass
-        for key in ("accent", "contrast", "font", "motion", "width", "title", "bubbles", "theme", "glow", "mist"):
+        for key in ("accent", "contrast", "font", "motion", "width", "title", "bubbles", "theme", "glow", "mist", "scene"):
             val = str(st.get(key) or "").strip().lower()
             if key == "accent":
                 val = _ACCENT_SYNONYMS.get(val, val)
@@ -1529,6 +1531,10 @@ def validate_ui_action(args: dict):
                        "blue": "navy", "deep blue": "navy", "warm": "charcoal", "grey": "slate", "gray": "slate", "sea": "ocean",
                        "teal": "ocean", "green": "forest", "nature": "forest", "fire": "ember", "red": "ember", "cozy": "ember",
                        "purple": "plum", "violet": "plum"}.get(val, val)
+            if key == "scene":
+                val = {"cloud": "clouds", "cloudy": "clouds", "sky": "clouds", "sun": "sunset", "sundown": "sunset", "dusk": "sunset",
+                       "moon": "night", "moonlight": "night", "stars": "night", "night sky": "night", "starry": "night", "thunder": "storm", "thunderstorm": "storm", "lightning": "storm", "rain": "storm", "fog": "mist", "haze": "mist",
+                       "off": "none", "still": "none", "nothing": "none", "plain": "none"}.get(val, val)
             if key == "mist":
                 val = {"true": "on", "yes": "on", "fog": "on", "haze": "on", "false": "off", "no": "off", "none": "off", "still": "off"}.get(val, val)
             if key == "glow":
@@ -1591,7 +1597,7 @@ UI_SYSTEM_NOTE = (
     "LOOK: nine themes (VQ, Classic, Navy, Charcoal, Midnight, Ocean, Forest, Ember, Slate, Plum), each with matching icons and accent; "
     "accent colours (orange, gold, teal, rose, violet, green, blue, grey); thirteen fonts (default, readable, serif, mono, script, "
     "handwriting, elegant, classic, inscription, futuristic, retro, playful, rounded); text size ('bigger'/'smaller', free); line spacing; "
-    "chat width; bubbles on/off; icon glow on/off; the living mist in the accent colour on/off; higher contrast; reduced motion; focus mode ('focus'/'unfocus').\n"
+    "chat width; bubbles on/off; icon glow on/off; a moving sky behind the app (mist, drifting clouds, a sunset in the corner, a moonlit night, a gentle sci-fi storm, or still); higher contrast; reduced motion; focus mode ('focus'/'unfocus').\n"
     "PANEL: open or close it; Details, Notes; Standard or Wide, or drag its edge; Plain or Technical detail.\n"
     "USING VQ: answers that show their work; news, books, videos, scholarly papers and Bible verses as cards; layouts for comparisons, "
     "timelines, steps and quick facts; paste a link to have a page read; notes ('note that down', highlight text, export); "
