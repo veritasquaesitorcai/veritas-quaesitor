@@ -621,6 +621,16 @@
         .news-card:hover, .paper-card:hover { border-color: rgba(var(--ui-accent-rgb),0.5); }
         .news-card:focus-visible, .paper-card:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
         .news-card.expanded { grid-column: 1 / -1; border-color: rgba(var(--ui-accent-rgb),0.55); }
+        .news-img { width: calc(100% + 1.8rem); margin: -0.8rem -0.9rem 0.35rem; aspect-ratio: 16 / 9; object-fit: cover; display: block;
+            border-radius: 14px 14px 0 0; background: rgba(255,255,255,0.04); }
+        .news-card.expanded .news-img { aspect-ratio: 21 / 9; }
+        .news-img-none { display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
+            background: radial-gradient(80% 90% at 20% 10%, rgba(var(--ui-accent-rgb),0.28), transparent 60%),
+                        radial-gradient(70% 80% at 90% 100%, rgba(127,243,255,0.14), transparent 60%), var(--surface-raised, #1b1b1b); }
+        .news-img-none::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0 2px, transparent 2px 14px); }
+        .news-img-none span { position: relative; font-family: "Cinzel", Georgia, serif; font-weight: 700; font-size: 1.15rem; letter-spacing: 0.08em;
+            text-transform: uppercase; color: rgba(255,255,255,0.78); text-shadow: 0 2px 12px rgba(0,0,0,0.5); padding: 0 1rem; text-align: center; }
+
         .news-top { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.74rem; }
         .news-source { font-weight: 700; color: var(--ui-accent-2, #ffb27a); text-transform: uppercase; letter-spacing: 0.04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .news-date { color: var(--text-tertiary); white-space: nowrap; }
@@ -929,6 +939,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app.js?v=2026-10-05-intro"></script>
+    <script src="js/chat-app.js?v=2026-10-05-newsimg"></script>
 </body>
 </html>
