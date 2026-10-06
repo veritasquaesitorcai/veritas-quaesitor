@@ -66,6 +66,8 @@
             setTimeout(() => { if (!currentUser) openAuthModal(); }, 1500);
         }
         if (window.innerWidth > 768) elements.messageInput.focus();
+        const tb = document.getElementById('tour-btn');
+        if (tb) tb.addEventListener('click', () => { offerTours('use'); if (window.innerWidth <= 768) document.getElementById('sidebar-scrim')?.click(); });
         if (continued) setTimeout(() => showLocalNote('Continued from the website chat'), 700);
         else setTimeout(showFeaturePrompt, sessionStorage.getItem('vq-app-intro-just-played') ? 5200 : 1800);
         // If this tab is already open, a conversation sent from the website bubble arrives live
@@ -758,47 +760,60 @@
     const FT_TOURS = {
         use: { name: 'Using VQ Chat', other: 'custom', otherLabel: 'Customise tour', steps: [
             { sel: '#message-input', title: 'Ask anything',
-              text: 'Everyday questions, writing, planning and research, or the biggest questions. Short commands such as “focus”, “bigger” or “reset” work instantly and never use a message.' },
+              text: 'Everyday questions, writing, planning, research, or the biggest questions of all. VQ answers from its anchor and holds every view to the same standard. A few short commands work instantly on your device and never use a message.',
+              tips: ['bigger', 'smaller', 'focus', 'undo', 'reset'] },
             { sel: '#insight-panel', title: 'Every answer shows its work', panel: true,
-              text: 'The Details panel records each answer: what VQ drew on, what it searched, how many results the content filter hid, and the standard it applied. Switch between Plain and Technical at the bottom.' },
+              text: 'The Details panel records each answer: what VQ drew on, what it searched and how long it took, how many results the content filter hid, and the standard it applied. Choose Plain for everyday wording or Technical for the full trace, at the bottom of the panel.' },
             { sel: '.suggestion-grid', title: 'Answers in the right shape',
-              text: 'Ask for news, books, videos, scholarly papers or a Bible verse and they arrive as cards you can open. Comparisons, timelines, steps and quick facts get their own layouts.' },
+              text: 'Ask for news, books, videos, scholarly papers or a Bible verse and they arrive as cards you can open, with links to the source. Comparisons, timelines, step-by-step guides and quick facts get their own layouts.',
+              tips: ['news on AI regulation', 'books on the resurrection', 'what does John 3:16 say?', 'compare the iPhone and Pixel'] },
             { sel: '#input-area', title: 'Paste a link',
-              text: 'Paste any web address and VQ reads the page for you, explains it in its own words, and shows a card linking to the original.' },
+              text: 'Paste any web address and VQ reads the page for you: a short explanation in its own words, a card with the page’s title and picture, and a link to the original.',
+              tips: ['summarise https://…', 'what’s the catch in this article?'] },
             { sel: '.panel-tab[data-view="notes"]', title: 'Your notes', panel: true,
-              text: 'Save any answer with “Save to notes”, highlight text to add just that part, or ask VQ to “note that down”. Notes can be edited and exported.' },
+              text: 'Keep anything worth keeping. Use “Save to notes” under an answer, highlight text to save just that part, or ask VQ. Notes can be edited, are timestamped, sync to your account, and can be exported.',
+              tips: ['note that down', 'show my notes'] },
             { sel: '#chat-history', title: 'Your chats',
-              text: 'Every conversation is kept here. Start a fresh one with New Chat; the ⋯ menu lets you export or delete your chats.' },
+              text: 'Every conversation is kept here. Start a fresh one with New Chat, come back to any earlier chat, and use the ⋯ menu to export or delete your chats.' },
             { sel: '#account-box', title: 'Keep everything',
-              text: 'Sign in free for 30 messages a day, with your chats, notes and settings saved across your devices.' },
+              text: 'Sign in free with Google or your email for 30 messages a day (10 as a guest), with your chats, notes and settings saved across all your devices.' },
             { sel: null, title: 'VQ on the website too',
-              text: 'On every page of the site, the “Ask VQ” bubble finds things for you and takes you straight there. “Open in VQ Chat” carries a conversation over to here.' },
+              text: 'On every page of the website, the “Ask VQ” bubble finds things for you and takes you straight to the right page and section. When a conversation grows, “Open in VQ Chat” carries it over to here.' },
             { sel: null, title: 'That’s how it works', end: true,
-              text: 'Ask “what can you do?” any time. Want to make it look your own?' }
+              text: 'Ask “what can you do?” any time for the full list. Ready to make VQ Chat look your own?' }
         ]},
         custom: { name: 'Customise your screen', other: 'use', otherLabel: 'Using VQ Chat tour', demo: true, steps: [
-            { sel: null, title: 'Make it yours', pos: 'top',
-              text: 'Everything in this tour works by simply asking, in your own words. No settings menus. Here’s a sample conversation to show each change.' },
-            { sel: null, title: 'Nine themes', pos: 'top', cycle: [['theme', 'ocean'], ['theme', 'ember'], ['theme', 'forest'], ['theme', 'plum'], ['theme', 'navy']],
-              text: 'Each theme brings its own background, icons and matching accent colour. Say “ocean theme”, “ember”, “forest”, “plum”, “slate”, “midnight”…' },
+            { sel: null, title: 'Make it yours',
+              text: 'Everything here works by simply asking, in your own words: no settings menus. A sample conversation is on screen so you can see each change happen. Nothing is saved; your own look comes back at the end.' },
+            { sel: null, title: 'Nine themes', cycle: [['theme', 'ocean'], ['theme', 'ember'], ['theme', 'forest'], ['theme', 'plum'], ['theme', 'navy']],
+              text: 'Each theme changes the background, panels, icon style and glow, and brings a matching accent colour. You can still pick a different accent afterwards.',
+              tips: ['ocean theme', 'ember', 'forest', 'plum', 'midnight', 'slate', 'charcoal', 'navy', 'classic'] },
             { sel: '.ft-demo', title: 'Accent colours', cycle: [['accent', 'teal'], ['accent', 'rose'], ['accent', 'gold'], ['accent', 'violet']],
-              text: 'The accent colours your messages, buttons and highlights. Say “teal accent”, “rose”, “gold”, “violet”, “green”, “blue” or “grey”.' },
+              text: 'The accent colours your messages, buttons, highlights and the CAI badge.',
+              tips: ['teal accent', 'rose', 'gold', 'violet', 'green', 'blue', 'grey', 'orange'] },
             { sel: '.ft-demo', title: 'Fonts', cycle: [['font', 'script'], ['font', 'retro'], ['font', 'rounded'], ['font', 'classic']],
-              text: 'Thirteen fonts, from easy-reading to playful. Say “cursive font”, “typewriter font”, “rounded font” or “readable font”.' },
+              text: 'Thirteen fonts for the conversation, from easy-reading to playful. Tables and code stay plain so they remain easy to read.',
+              tips: ['readable font', 'cursive font', 'typewriter font', 'rounded font', 'serif', 'handwriting'] },
             { sel: '.ft-demo', title: 'Text size and spacing', cycle: [['scale', 1.25], ['scale', 0.9], ['scale', 1.1]],
-              text: 'Say “bigger” or “smaller” (free, no message used), or ask for more line spacing or a wider chat column.' },
+              text: '“Bigger” and “smaller” work instantly and never use a message. You can also ask for more line spacing, a wider chat column, higher contrast, or less motion.',
+              tips: ['bigger', 'smaller', 'more line spacing', 'wider chat', 'high contrast', 'reduce motion'] },
             { sel: '.ft-demo', title: 'Bubbles or open layout', set: [['bubbles', true]],
-              text: 'Answers read like a page by default. Prefer chat bubbles? Say “bubbles on”; “bubbles off” switches back.' },
+              text: 'By default, answers read like a page, with your messages marked by a soft gradient. Prefer classic chat bubbles on both sides? Switch any time.',
+              tips: ['bubbles on', 'bubbles off'] },
             { sel: '.ft-demo', title: 'Icon glow', cycle: [['glow', false], ['glow', true]],
-              text: 'The soft glow around icons follows each theme. Say “glow off” for clean, flat icons.' },
-            { sel: null, title: 'Focus mode', pos: 'top', set: [['focus', true]],
-              text: 'Just the conversation, nothing else on screen. Say “focus”, and “unfocus” to bring everything back.' },
+              text: 'A soft light sits around the icons and VQ’s avatar, in each theme’s own colour. Turn it off for clean, flat icons.',
+              tips: ['glow off', 'glow on'] },
+            { sel: null, title: 'Focus mode', set: [['focus', true]],
+              text: 'Hides the sidebar, panel and extras, leaving just the conversation. Free, and instant.',
+              tips: ['focus', 'unfocus'] },
             { sel: '#panel-options', title: 'The side panel', panel: true,
-              text: 'Make the panel Standard or Wide, or drag its edge to any width. Choose Plain or Technical detail.' },
+              text: 'Make the panel Standard or Wide, or drag its left edge to any width (double-click the edge to reset). Choose Plain or Technical detail for the Details view.',
+              tips: ['open the panel', 'wide panel', 'plain details'] },
             { sel: '#message-input', title: 'Undo and reset',
-              text: 'Changed your mind? Say “undo”. Say “reset” to return to the standard look. Your settings sync to your account when you’re signed in.' },
+              text: 'Changed your mind? “Undo” steps back one change at a time. “Reset” returns everything to the standard look. Both are free. When you’re signed in, your look follows you to every device.',
+              tips: ['undo', 'reset'] },
             { sel: null, title: 'Back to your own look', end: true,
-              text: 'Everything is exactly as it was. Ask “what can you change?” any time.' }
+              text: 'Everything is exactly as it was. Ask “what can you change?” any time for the full list.' }
         ]}
     };
     let ftKind = null, ftIndex = -1, ftLayer = null, ftSnapshot = null, ftCycle = null;
@@ -832,6 +847,7 @@
         if (ftLayer) endFeatureTour(true);
         ftKind = FT_TOURS[kind] ? kind : 'use';
         hideFeaturePrompt();
+        elements.messagesArea.querySelectorAll('.ft-offer').forEach(o => o.remove());   // the offer has done its job
         try { localStorage.setItem('vq-feature-tour-seen', '1'); } catch (e) {}
         ftSnapshot = { prefs: JSON.parse(JSON.stringify(uiPrefs)), panelOpen: document.body.classList.contains('insight-open') };
         if (FT_TOURS[ftKind].demo) ftDemo(true);
@@ -873,13 +889,19 @@
         if (step.cycle) {
             let k = 0;
             ftApply([step.cycle[0]]);
-            ftCycle = setInterval(() => { k = (k + 1) % step.cycle.length; restoreLookKeepCycle(); ftApply([step.cycle[k]]); }, 1500);
+            ftCycle = setInterval(() => { k = (k + 1) % step.cycle.length; restoreLookKeepCycle(); ftApply([step.cycle[k]]); setTimeout(ftPlace, 80); }, 1700);
         }
         ftLayer.querySelector('.ft-step').textContent = `${tour.name} · ${i + 1} of ${tour.steps.length}`;
         ftLayer.querySelector('.ft-title').textContent = step.title;
         ftLayer.querySelector('.ft-text').textContent = step.text;
         const extra = ftLayer.querySelector('.ft-extra');
         extra.innerHTML = '';
+        if (step.tips) {
+            const t = el('div', 'ft-tips');
+            t.appendChild(el('span', 'ft-tips-label', 'Try saying'));
+            step.tips.forEach(x => t.appendChild(el('span', 'ft-tip', `“${x}”`)));
+            extra.appendChild(t);
+        }
         if (step.end) {
             const b = el('button', 'ft-other', `${tour.otherLabel} →`);
             b.type = 'button';
@@ -903,27 +925,23 @@
         const spot = ftLayer.querySelector('.ft-spot'), card = ftLayer.querySelector('.ft-card');
         const target = step.sel ? [...document.querySelectorAll(step.sel)].find(n => n.offsetParent !== null && n.getBoundingClientRect().width > 0) : null;
         const vw = window.innerWidth, vh = window.innerHeight;
-        const cw = Math.min(360, vw - 32);
-        card.style.width = cw + 'px';
         ftLayer.classList.toggle('ft-open', !target);
-        if (!target) {
+        // The card is docked in a corner, so it never jumps around or slides off screen
+        const narrow = vw <= 640;
+        let corner = narrow ? 'bottom' : 'bottom-right';
+        if (target) {
+            const r = target.getBoundingClientRect(), pad = 8;
+            const x = Math.max(4, r.left - pad), y = Math.max(4, r.top - pad);
+            const w = Math.min(vw - x - 4, r.width + pad * 2), h = Math.min(vh - y - 4, r.height + pad * 2);
+            spot.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${h}px;`;
+            const cardW = Math.min(380, vw - 32), cardH = Math.min(card.offsetHeight || 260, vh - 32);
+            const overlaps = (cx, cy) => !(cx + cardW < x || cx > x + w || cy + cardH < y || cy > y + h);
+            if (narrow) corner = overlaps(12, vh - cardH - 12) ? 'top' : 'bottom';
+            else if (overlaps(vw - cardW - 24, vh - cardH - 24)) corner = overlaps(vw - cardW - 24, 24) ? 'bottom-left' : 'top-right';
+        } else {
             spot.style.cssText = `left:${vw / 2}px;top:${vh / 2}px;width:0;height:0;`;
-            card.style.left = (vw - cw) / 2 + 'px';
-            card.style.top = (step.pos === 'top' ? 24 : Math.max(16, vh / 2 - card.offsetHeight / 2)) + 'px';
-            return;
         }
-        const r = target.getBoundingClientRect(), pad = 8;
-        const x = Math.max(4, r.left - pad), y = Math.max(4, r.top - pad);
-        const w = Math.min(vw - x - 4, r.width + pad * 2), h = Math.min(vh - y - 4, r.height + pad * 2);
-        spot.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${h}px;`;
-        const ch = card.offsetHeight;
-        let top = y + h + 14;
-        if (top + ch > vh - 12) top = y - ch - 14;
-        if (top < 12) top = Math.min(vh - ch - 12, Math.max(12, y + 12));
-        let left = Math.min(vw - cw - 16, Math.max(16, x + w / 2 - cw / 2));
-        if (h > vh * 0.6 && w < vw * 0.45) left = x > vw / 2 ? Math.max(16, x - cw - 16) : Math.min(vw - cw - 16, x + w + 16);
-        card.style.left = left + 'px';
-        card.style.top = top + 'px';
+        card.dataset.corner = corner;
     }
 
     function endFeatureTour(switching) {
@@ -948,6 +966,34 @@
         document.body.appendChild(p);
     }
     function hideFeaturePrompt() { const p = document.querySelector('.ft-prompt'); if (p) p.remove(); }
+
+    // A small card in the chat offering the tours; nothing starts until the person chooses
+    function tourButtons(preferred) {
+        const row = el('div', 'ft-choice');
+        const order = preferred === 'custom' ? ['custom', 'use'] : ['use', 'custom'];
+        order.forEach((k, i) => {
+            const b = el('button', i === 0 ? 'ft-choice-main' : 'ft-choice-alt', k === 'use' ? 'Using VQ Chat tour' : 'Customise tour');
+            b.type = 'button';
+            b.addEventListener('click', () => startFeatureTour(k));
+            row.appendChild(b);
+        });
+        return row;
+    }
+    function offerTours(preferred) {
+        elements.messagesArea.querySelectorAll('.ft-offer').forEach(o => o.remove());   // only one offer at a time
+        hideWelcomeScreen();
+        elements.chatContainer.classList.add('has-messages');
+        const box = el('div', 'ft-offer');
+        box.setAttribute('role', 'status');
+        box.appendChild(el('div', 'ft-offer-title', preferred === 'custom' ? 'Want a quick tour of customising your screen?' : 'Want a quick tour of how VQ Chat works?'));
+        box.appendChild(el('div', 'ft-offer-text', 'About a minute, with live previews. Nothing is changed or saved; your own look comes back at the end.'));
+        box.appendChild(tourButtons(preferred));
+        const no = el('button', 'ft-offer-no', 'Not now'); no.type = 'button';
+        no.addEventListener('click', () => { box.remove(); if (!conversationHistory.length) showWelcomeScreen(); });
+        box.appendChild(no);
+        elements.messagesArea.appendChild(box);
+        box.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
 
     // ---------- News, Scripture and scholarly-paper cards ----------
     function expandable(card, toggleEl) {
@@ -3582,7 +3628,7 @@
             : /^\s*(feature tour|usage tour|how (do i|to) use (this|vq chat|the app)\??|show me (the )?features|tour( the)? (app|features)|what can (this app|vq chat) do\??)\s*$/i.test(rawMessage) ? 'use' : null;
         if (tourAsk) {
             elements.messageInput.value = '';
-            startFeatureTour(tourAsk);
+            offerTours(tourAsk);
             return;
         }
         const local = localCommand(rawMessage);
@@ -3777,6 +3823,11 @@
                 const rec = { role: 'assistant', content: data.response, meta: voice ? Object.assign({}, data.meta || {}, { voice }) : (data.meta || null), timing: data.timing || null };
                 const div = addMessageToUI('assistant', data.response, data.meta || null);
                 div._record = rec;
+                if (/\b(what (else )?can (you|i|vq) (change|do|customi[sz]e)|list (of |all )?(the |your )?features|what features|show me (all )?(your )?features|how (do|can) i (customi[sz]e|change the look))\b/i.test(message || '')) {
+                    const tb = tourButtons(/change|customi/i.test(message) ? 'custom' : 'use');
+                    tb.classList.add('ft-choice-inline');
+                    (div.querySelector('.message-body') || div).insertBefore(tb, div.querySelector('.message-actions'));
+                }
                 if (data.meta && data.meta.uiOnly) div.classList.add('ui-change');
                 conversationHistory.push(rec);
                 addPanelEntry(div);
