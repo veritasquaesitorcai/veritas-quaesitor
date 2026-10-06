@@ -67,7 +67,7 @@
             const clouds = Array.from({ length: 7 }, (_, i) => `<span class="cloud c${i + 1}"></span>`).join('');
             sc.innerHTML = `<div class="stars"></div><div class="moon-wrap"><span class="moon-halo"></span><span class="moon"></span></div>` +
                 `<div class="sun-wrap"><span class="sun-rays r1"></span><span class="sun-rays r2"></span><span class="sun-halo"></span><span class="sun"></span><span class="horizon"></span></div>` +
-                `<div class="clouds">${clouds}</div><div class="rain"></div><div class="flash"></div><svg class="bolt" preserveAspectRatio="none"></svg>`;
+                `<div class="sea"><div class="sea-sky"></div><span class="day-sun"></span><div class="glitter"></div><div class="moon-path"></div><svg class="wave w1" viewBox="0 0 400 40" preserveAspectRatio="none"><path class="body" d="M0 18 Q 25 6 50 18 T 100 18 T 150 18 T 200 18 T 250 18 T 300 18 T 350 18 T 400 18 V40 H0Z"/><path class="crest" d="M0 18 Q 25 6 50 18 T 100 18 T 150 18 T 200 18 T 250 18 T 300 18 T 350 18 T 400 18"/></svg><svg class="wave w2" viewBox="0 0 400 40" preserveAspectRatio="none"><path class="body" d="M0 18 Q 25 6 50 18 T 100 18 T 150 18 T 200 18 T 250 18 T 300 18 T 350 18 T 400 18 V40 H0Z"/><path class="crest" d="M0 18 Q 25 6 50 18 T 100 18 T 150 18 T 200 18 T 250 18 T 300 18 T 350 18 T 400 18"/></svg><svg class="wave w3" viewBox="0 0 400 40" preserveAspectRatio="none"><path class="body" d="M0 18 Q 25 6 50 18 T 100 18 T 150 18 T 200 18 T 250 18 T 300 18 T 350 18 T 400 18 V40 H0Z"/><path class="crest" d="M0 18 Q 25 6 50 18 T 100 18 T 150 18 T 200 18 T 250 18 T 300 18 T 350 18 T 400 18"/></svg><svg class="gulls" viewBox="0 0 120 40"><path d="M10 20 q6 -7 12 0 q6 -7 12 0"/><path d="M60 10 q5 -6 10 0 q5 -6 10 0"/><path d="M92 26 q4 -5 8 0 q4 -5 8 0"/></svg></div><div class="clouds">${clouds}</div><div class="rain"></div><div class="flash"></div><svg class="bolt" preserveAspectRatio="none"></svg>`;
             buildRays(sc);
             document.body.appendChild(sc);
             applyScene();
@@ -2419,7 +2419,7 @@
     function applyScene() {
         const sc = document.querySelector('.vq-scene');
         if (!sc) return;
-        const scene = ['clouds', 'sunset', 'storm', 'night'].includes(uiPrefs.scene) ? uiPrefs.scene : '';
+        const scene = ['clouds', 'sunset', 'storm', 'night', 'seaday', 'seanight'].includes(uiPrefs.scene) ? uiPrefs.scene : '';
         sc.dataset.scene = scene;
         clearTimeout(stormTimer);
         const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches || uiPrefs.motion === 'reduced';
@@ -2518,7 +2518,7 @@
         b.toggle('panel-plain', uiPrefs.panelDetail === 'plain');
         b.toggle('ui-bubbles', !!uiPrefs.bubbles);
         b.toggle('no-glow', uiPrefs.glow === false);
-        b.toggle('no-mist', uiPrefs.mist === false || ['clouds', 'sunset', 'storm', 'night', 'none'].includes(uiPrefs.scene));
+        b.toggle('no-mist', uiPrefs.mist === false || ['clouds', 'sunset', 'storm', 'night', 'seaday', 'seanight', 'none'].includes(uiPrefs.scene));
         applyScene();
         applyTheme(THEMES.hasOwnProperty(uiPrefs.theme) ? uiPrefs.theme : 'vq');
         const tv = TITLE_STYLES[uiPrefs.title] || 1;
@@ -2571,7 +2571,7 @@
                 }
                 if (st.glow === 'on' || st.glow === 'off') uiPrefs.glow = st.glow === 'on';
                 if (st.mist === 'on' || st.mist === 'off') { uiPrefs.mist = st.mist === 'on'; if (st.mist === 'on') uiPrefs.scene = 'mist'; }
-                if (['mist', 'clouds', 'sunset', 'storm', 'night', 'none'].includes(st.scene)) { uiPrefs.scene = st.scene; uiPrefs.mist = st.scene !== 'none'; }
+                if (['mist', 'clouds', 'sunset', 'storm', 'night', 'seaday', 'seanight', 'none'].includes(st.scene)) { uiPrefs.scene = st.scene; uiPrefs.mist = st.scene !== 'none'; }
                 break;
             }
             case 'panel':
@@ -3871,8 +3871,9 @@
                     if (st.title) { used.add('title'); lines.push(`Title style set to **${cap(st.title)}**. The others are ${others(CHOICES.title, st.title).replace(/, ([^,]*)$/, ' and $1')}.`); }
                     if (st.bubbles) { used.add('bubbles'); lines.push(st.bubbles === 'on' ? 'Answers now show **in chat bubbles**. Say “bubbles off” for the open page layout.' : 'Answers now use the **open page layout**. Say “bubbles on” to bring the bubbles back.'); }
                     if (st.scene) lines.push({ mist: 'The **living mist** is back.', clouds: 'Clouds now drift slowly across your screen.',
-                        sunset: 'A **sunset** glows in the corner, with clouds drifting past the sun.', night: 'Night falls: a **moon** with drifting clouds and faint stars.', storm: 'A gentle **sci-fi storm** rolls in: rain, drifting thunderheads and the odd soft flash of lightning.',
-                        none: 'The background is now **still**: no mist or sky effects.' }[st.scene] + ' Other skies: mist, clouds, sunset, night, storm, or none.');
+                        sunset: 'A **sunset** glows in the corner, with clouds drifting past the sun.', night: 'Night falls: a **moon** with drifting clouds and faint stars.', seaday: 'A **seashore by day**: rolling waves, sun sparkling on the water and gulls drifting by.',
+                        seanight: 'A **seashore at night**: dark waves with silver crests and the moon’s path across the water.', storm: 'A gentle **sci-fi storm** rolls in: rain, drifting thunderheads and the odd soft flash of lightning.',
+                        none: 'The background is now **still**: no mist or sky effects.' }[st.scene] + ' Other skies: mist, clouds, sunset, night, seashore by day or night, storm, or none.');
                     if (st.mist) lines.push(st.mist === 'on' ? 'The warm **mist** is back, drifting through the VQ theme.' : 'The warm mist is **off**: a still, clean background. Say “mist on” to bring it back.');
                     if (st.glow) lines.push(st.glow === 'on' ? 'Icon glow is **on**. Each theme glows in its own colour.' : 'Icon glow is **off**: clean, flat icons. Say “glow on” to bring it back.');
                     if (typeof st.text_scale === 'number') { used.add('size'); lines.push(`Text size set to **${Math.round(st.text_scale * 100)}%**.`); }
