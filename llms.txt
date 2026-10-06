@@ -1,6 +1,6 @@
 # Veritas Quaesitor CAI
 
-> Christ-Anchored Intelligence (CAI): building AI whose values are anchored in the character and teachings of Jesus Christ, and publishing an open Bayesian case for the resurrection. Every input below is stated, justified and reproducible. Readers are invited to check it and to challenge any input.
+> Veritas Quaesitor CAI is an AI safety project. It builds AI tools whose conduct rests on unconditional human dignity, modelled on the character and teachings of Jesus Christ (Christ-Anchored Intelligence, CAI), and it publishes an open Bayesian case for the resurrection. Every input below is stated, justified and reproducible. Readers are invited to check it and to challenge any input.
 
 ## The Resurrection Calculation
 
