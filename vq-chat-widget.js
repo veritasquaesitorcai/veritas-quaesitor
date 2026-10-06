@@ -441,7 +441,13 @@
             try {
                 if (messages.some(m => m.role === 'user')) localStorage.setItem('vq-handoff', JSON.stringify({ ts: Date.now(), messages }));
             } catch (e) { /* storage full: the app simply opens fresh */ }
-            window.location.href = CONFIG.appUrl + (mode === 'signin' ? '?signin=1' : '');
+            const target = CONFIG.appUrl + (mode === 'signin' ? '?signin=1' : '');
+            const win = window.open(target, '_blank');
+            if (!win) { window.location.href = target; return; }   // pop-ups blocked: open it here instead
+            try { win.opener = null; } catch (e) {}
+            addMessageToUI('assistant', mode === 'signin'
+                ? 'I opened **VQ Chat** in a new tab so you can sign in. Our conversation is there too, and this bubble will use your account afterwards.'
+                : 'I opened **VQ Chat** in a new tab, with our conversation carried over. This page stays right here.');
         }
 
         let activeTyping = null;   // finishes the reply being typed, if any
