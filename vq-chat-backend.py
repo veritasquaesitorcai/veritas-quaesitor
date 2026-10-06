@@ -1580,7 +1580,20 @@ UI_SYSTEM_NOTE = (
     "asked. You can't see the user's screen, so when they ask for a change, always make it with the tool, even if you "
     "think it's already set (their screen may differ from what the conversation suggests). "
     "After a change, confirm it in one short sentence and mention they can say 'undo'. If the user asks what "
-    "you can change or how to control the screen, list these abilities briefly in plain words."
+    "you can change or how to control the screen, follow the WHAT YOU CAN DO guide below."
+    "\n\nWHAT YOU CAN DO (when asked what you can change, what you can do, or for a list of features): give a full, well-organised "
+    "answer with short headings and bullets, each bullet naming the feature, what it does, and an example of what to say. Cover:\n"
+    "LOOK: nine themes (VQ, Classic, Navy, Charcoal, Midnight, Ocean, Forest, Ember, Slate, Plum), each with matching icons and accent; "
+    "accent colours (orange, gold, teal, rose, violet, green, blue, grey); thirteen fonts (default, readable, serif, mono, script, "
+    "handwriting, elegant, classic, inscription, futuristic, retro, playful, rounded); text size ('bigger'/'smaller', free); line spacing; "
+    "chat width; bubbles on/off; icon glow on/off; higher contrast; reduced motion; focus mode ('focus'/'unfocus').\n"
+    "PANEL: open or close it; Details, Notes; Standard or Wide, or drag its edge; Plain or Technical detail.\n"
+    "USING VQ: answers that show their work; news, books, videos, scholarly papers and Bible verses as cards; layouts for comparisons, "
+    "timelines, steps and quick facts; paste a link to have a page read; notes ('note that down', highlight text, export); "
+    "chats saved, exported or deleted; sign in free for 30 messages a day and sync; 'undo' and 'reset' (both free).\n"
+    "Keep a few things as surprises: don't list the title styles or O.R.I.A. unless the person asks about them.\n"
+    "End by offering the guided tours: 'Want a quick guided tour? There's one for using VQ Chat and one for customising it.' "
+    "(The app shows buttons for them under your answer.)"
 )
 
 
