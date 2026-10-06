@@ -573,6 +573,7 @@
                 if (!it) return;
                 const card = el('div', 'pcard');
                 const img = safeHttps(it.image);
+                if (!img && it.url) setTimeout(() => fillCardImage(card, it.url), 0);
                 if (img) {
                     const im = document.createElement('img');
                     im.src = img; im.alt = str(it.title, 120); im.loading = 'lazy'; im.referrerPolicy = 'no-referrer';
@@ -868,6 +869,75 @@
         });
         wrap.appendChild(list);
         return wrap;
+    }
+
+
+    // ---------- Films and TV (TMDB): poster cards with the official age rating ----------
+    function buildMovieRow(items) {
+        const wrap = el('div', 'media-row');
+        wrap.appendChild(el('div', 'present-title', 'Films and shows'));
+        const grid = el('div', 'movie-grid');
+        items.slice(0, 6).forEach(m => {
+            if (!m || !m.title) return;
+            const card = el('div', 'movie-card');
+            const pv = el('div', 'movie-poster');
+            const src = safeHttps(m.poster);
+            if (src) {
+                const im = document.createElement('img');
+                im.src = src; im.alt = ''; im.loading = 'lazy'; im.referrerPolicy = 'no-referrer';
+                im.onerror = () => { im.remove(); pv.textContent = str(m.title, 40); pv.classList.add('none'); };
+                pv.appendChild(im);
+            } else { pv.textContent = str(m.title, 40); pv.classList.add('none'); }
+            if (m.cert) pv.appendChild(el('span', 'movie-cert', str(m.cert, 8)));
+            card.appendChild(pv);
+            const body = el('div', 'movie-body');
+            body.appendChild(el('div', 'movie-title', str(m.title, 120)));
+            const meta = [str(m.year, 4), m.runtime ? `${m.runtime} min` : '', m.rating ? `★ ${m.rating}` : ''].filter(Boolean).join(' · ');
+            if (meta) body.appendChild(el('div', 'movie-meta', meta));
+            if (m.genres) body.appendChild(el('div', 'movie-genres', str(m.genres, 80)));
+            const extra = el('div', 'news-extra');
+            if (m.overview) extra.appendChild(el('p', 'pcard-more-text', str(m.overview, 700)));
+            const actions = el('div', 'pcard-actions');
+            const tr = el('button', 'pcard-visit', 'Watch the trailer');
+            tr.type = 'button';
+            tr.addEventListener('click', (e) => { e.stopPropagation(); askAbout(`the trailer for ${str(m.title, 100)}${m.year ? ' (' + m.year + ')' : ''}`); });
+            actions.appendChild(tr);
+            const u = safeHttps(m.url);
+            if (u) {
+                const a = el('a', 'pcard-ask', 'Details ↗');
+                a.href = u; a.target = '_blank'; a.rel = 'noopener noreferrer';
+                a.addEventListener('click', (e) => e.stopPropagation());
+                actions.appendChild(a);
+            }
+            extra.appendChild(actions);
+            body.appendChild(extra);
+            const toggle = el('span', 'pcard-toggle', 'More ▾');
+            body.appendChild(toggle);
+            card.appendChild(body);
+            expandable(card, toggle);
+            grid.appendChild(card);
+        });
+        wrap.appendChild(grid);
+        wrap.appendChild(el('div', 'movie-credit', 'Film data and posters from TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.'));
+        return wrap;
+    }
+
+    // Cards from the web without a picture: ask the backend for the linked page's preview image
+    const previewCache = {};
+    function fillCardImage(card, url) {
+        const u = safeHttps(url);
+        if (!u) return;
+        const apply = (img) => {
+            if (!img || card.querySelector('img')) return;
+            const im = document.createElement('img');
+            im.src = img; im.alt = ''; im.loading = 'lazy'; im.referrerPolicy = 'no-referrer';
+            im.onerror = () => im.remove();
+            card.insertBefore(im, card.firstChild);
+        };
+        if (u in previewCache) { previewCache[u].then(apply); return; }
+        previewCache[u] = fetch(CONFIG.apiEndpoint.replace(/\/chat$/, '/preview-image') + '?url=' + encodeURIComponent(u))
+            .then(r => r.ok ? r.json() : {}).then(d => safeHttps(d.image || '')).catch(() => null);
+        previewCache[u].then(apply);
     }
 
     // ---------- YouTube videos and Google Books as cards ----------
@@ -1294,6 +1364,7 @@
                 if (Array.isArray(meta.verses) && meta.verses.length) body.insertBefore(buildVerseCards(meta.verses), body.querySelector('.message-actions'));
                 if (Array.isArray(meta.news) && meta.news.length) body.insertBefore(buildNewsRow(meta.news), body.querySelector('.message-actions'));
                 if (Array.isArray(meta.papers) && meta.papers.length) body.insertBefore(buildPaperRow(meta.papers), body.querySelector('.message-actions'));
+                if (Array.isArray(meta.movies) && meta.movies.length) body.insertBefore(buildMovieRow(meta.movies), body.querySelector('.message-actions'));
                 if (Array.isArray(meta.images) && meta.images.length) body.appendChild(buildGallery(meta.images));
                 appendAnswerChips(body, messageDiv, meta);
             }
@@ -1669,7 +1740,7 @@
             const q = st.query ? `"${st.query}" · ` : '';
             const pics = st.images ? ` · ${st.images} images` : '';
             const unit = /YouTube/.test(st.label) ? 'videos' : /Books/.test(st.label) ? 'books' : /news/i.test(st.label) ? 'articles'
-                       : /papers/i.test(st.label) ? 'papers' : /Scripture/.test(st.label) ? 'passage' : 'sources';
+                       : /papers/i.test(st.label) ? 'papers' : /Scripture/.test(st.label) ? 'passage' : /films/i.test(st.label) ? 'titles' : 'sources';
             const filt = st.filtered ? ` · ${st.filtered} hidden by the content filter` : '';
             ol.appendChild(codeLine(++n, v, r, `${q}${k ? `${k} ${k === 1 ? unit.replace(/s$/, '') : unit} found` : 'no usable results'}${pics}${filt}`, st.ms));
         });
