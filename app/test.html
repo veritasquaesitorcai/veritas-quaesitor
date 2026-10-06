@@ -813,7 +813,11 @@
         @media (max-width: 520px) { .movie-card.expanded { flex-direction: column; } .movie-card.expanded .movie-poster { width: 100%; aspect-ratio: 16 / 10; } }
         /* ---- Sky scenes: clouds, sunset (bottom-left), sci-fi storm ---- */
         .vq-scene { position: fixed; inset: 0; z-index: 899; pointer-events: none; overflow: hidden; display: none; }
-        .vq-scene[data-scene="clouds"], .vq-scene[data-scene="sunset"], .vq-scene[data-scene="storm"], .vq-scene[data-scene="night"] { display: block; }
+        .vq-scene[data-scene="clouds"], .vq-scene[data-scene="sunset"], .vq-scene[data-scene="storm"], .vq-scene[data-scene="night"],
+        .vq-scene[data-scene="seaday"], .vq-scene[data-scene="seanight"] { display: block; }
+        .vq-scene .sea { display: none; }
+        .vq-scene[data-scene="seaday"] .sea, .vq-scene[data-scene="seanight"] .sea { display: block; }
+        .vq-scene[data-scene="seanight"] .stars, .vq-scene[data-scene="seanight"] .moon-wrap { display: block; }
         .vq-scene .sun-wrap, .vq-scene .rain, .vq-scene .flash, .vq-scene .bolt, .vq-scene .stars, .vq-scene .moon-wrap { display: none; }
         .vq-scene[data-scene="night"] .stars, .vq-scene[data-scene="night"] .moon-wrap { display: block; }
         .vq-scene[data-scene="sunset"] .sun-wrap { display: block; }
@@ -919,6 +923,47 @@
         @keyframes vqMoonLight { 0%, 20%, 34%, 100% { opacity: 1; } 25%, 29% { opacity: 0.45; } }
         @keyframes vqMoonLining { 0%, 19%, 35%, 100% { filter: blur(7px) brightness(1); } 27% { filter: blur(6px) brightness(1.8); } }
 
+        /* ---- Seashore, day and night: rolling waves along the bottom of the screen ---- */
+        .vq-scene .sea { position: absolute; inset: 0; mix-blend-mode: screen; }
+        .vq-scene .sea-sky { position: absolute; inset: 0 0 auto 0; height: 70vh; }
+        .vq-scene .wave { position: absolute; left: 0; bottom: 0; width: 200%; }
+        .vq-scene .wave .crest { fill: none; stroke-width: 0.6; vector-effect: non-scaling-stroke; }
+        .vq-scene .wave.w1 { height: 24vh; animation: vqWave 34s linear infinite; }
+        .vq-scene .wave.w2 { height: 17vh; animation: vqWave 23s linear -8s infinite reverse; }
+        .vq-scene .wave.w3 { height: 10vh; animation: vqWave 15s linear -4s infinite, vqSwell 7s ease-in-out infinite; }
+        @keyframes vqWave { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+        @keyframes vqSwell { 0%, 100% { margin-bottom: 0; } 50% { margin-bottom: 1.2vh; } }
+        .vq-scene .day-sun, .vq-scene .glitter, .vq-scene .gulls, .vq-scene .moon-path { display: none; }
+        /* day: a pale sky, a high sun in the corner, glitter on the water, gulls drifting past */
+        .vq-scene[data-scene="seaday"] .sea-sky { background: linear-gradient(to bottom, rgba(120,185,240,0.13), rgba(120,185,240,0.04) 60%, transparent); }
+        .vq-scene[data-scene="seaday"] .wave.w1 .body { fill: rgba(40,150,190,0.20); } .vq-scene[data-scene="seaday"] .wave.w1 .crest { stroke: rgba(210,245,255,0.30); }
+        .vq-scene[data-scene="seaday"] .wave.w2 .body { fill: rgba(70,180,210,0.17); } .vq-scene[data-scene="seaday"] .wave.w2 .crest { stroke: rgba(230,250,255,0.35); }
+        .vq-scene[data-scene="seaday"] .wave.w3 .body { fill: rgba(130,215,235,0.14); } .vq-scene[data-scene="seaday"] .wave.w3 .crest { stroke: rgba(255,255,255,0.45); }
+        .vq-scene[data-scene="seaday"] .day-sun { display: block; position: absolute; left: -5vmin; top: -5vmin; width: 14vmin; height: 14vmin; border-radius: 50%;
+            background: radial-gradient(circle, #fffbea, #ffe9a8 45%, rgba(255,220,140,0.0) 72%);
+            box-shadow: 0 0 60px 30px rgba(255,236,180,0.25), 0 0 160px 80px rgba(255,230,170,0.10); animation: vqSunBreathe2 8s ease-in-out infinite; }
+        @keyframes vqSunBreathe2 { 50% { transform: scale(1.06); } }
+        .vq-scene[data-scene="seaday"] .glitter { display: block; position: absolute; left: 0; bottom: 0; width: 46vw; height: 22vh;
+            background: radial-gradient(1.4px 1.4px at 12% 40%, #fff, transparent), radial-gradient(1.2px 1.2px at 25% 70%, #fff, transparent),
+                        radial-gradient(1.6px 1.6px at 38% 35%, #fff, transparent), radial-gradient(1.2px 1.2px at 50% 80%, #fff, transparent),
+                        radial-gradient(1.4px 1.4px at 62% 52%, #fff, transparent), radial-gradient(1.2px 1.2px at 75% 30%, #fff, transparent),
+                        radial-gradient(1.5px 1.5px at 86% 66%, #fff, transparent), radial-gradient(1.2px 1.2px at 18% 88%, #fff, transparent);
+            -webkit-mask: linear-gradient(to right, #000, transparent); mask: linear-gradient(to right, #000, transparent);
+            animation: vqGlitter 2.6s steps(4) infinite; }
+        @keyframes vqGlitter { 0% { opacity: 0.9; transform: translateX(0); } 50% { opacity: 0.4; transform: translateX(6px); } 100% { opacity: 0.9; transform: translateX(0); } }
+        .vq-scene[data-scene="seaday"] .gulls { display: block; position: absolute; top: 14vh; left: 0; width: 9vw; fill: none; stroke: rgba(235,240,250,0.5);
+            stroke-width: 1.3; stroke-linecap: round; animation: vqGulls 70s linear -20s infinite; }
+        @keyframes vqGulls { 0% { transform: translate(-12vw, 0); } 50% { transform: translate(55vw, -4vh); } 100% { transform: translate(115vw, 2vh); } }
+        /* night: deep water with silver crests, stars, the moon in the corner and its path across the waves */
+        .vq-scene[data-scene="seanight"] .sea-sky { background: linear-gradient(to bottom, rgba(30,50,110,0.14), transparent 70%); }
+        .vq-scene[data-scene="seanight"] .wave.w1 .body { fill: rgba(40,70,140,0.22); } .vq-scene[data-scene="seanight"] .wave.w1 .crest { stroke: rgba(190,210,255,0.22); }
+        .vq-scene[data-scene="seanight"] .wave.w2 .body { fill: rgba(55,90,165,0.18); } .vq-scene[data-scene="seanight"] .wave.w2 .crest { stroke: rgba(205,220,255,0.28); }
+        .vq-scene[data-scene="seanight"] .wave.w3 .body { fill: rgba(80,115,190,0.14); } .vq-scene[data-scene="seanight"] .wave.w3 .crest { stroke: rgba(225,235,255,0.38); }
+        .vq-scene[data-scene="seanight"] .moon-path { display: block; position: absolute; left: 1vw; bottom: 0; width: 12vw; height: 24vh;
+            background: repeating-linear-gradient(to bottom, rgba(225,235,255,0.0) 0 5px, rgba(225,235,255,0.55) 5px 6px, rgba(225,235,255,0) 6px 11px);
+            -webkit-mask: radial-gradient(50% 100% at 50% 100%, #000 30%, transparent 75%); mask: radial-gradient(50% 100% at 50% 100%, #000 30%, transparent 75%);
+            filter: blur(0.6px); animation: vqMoonPath 3.2s ease-in-out infinite; }
+        @keyframes vqMoonPath { 0%, 100% { opacity: 0.8; transform: scaleX(1); } 50% { opacity: 0.5; transform: scaleX(1.12) translateY(2px); } }
         body.ui-reduce-motion .vq-scene *, body.ui-reduce-motion .vq-scene { animation: none !important; }
         @media (prefers-reduced-motion: reduce) { .vq-scene, .vq-scene * { animation: none !important; } .vq-scene .rain { display: none !important; } }
         /* ---- Cast to panel ("Now showing") ---- */
@@ -1217,6 +1262,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-06-cast"></script>
+    <script src="js/chat-app-test.js?v=2026-10-06-sea"></script>
 </body>
 </html>
