@@ -1,944 +1,905 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Exo+2:wght@500;700&display=swap">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="description" content="VQ Chat by Veritas Quaesitor CAI: an assistant anchored in Christ that holds every view to the same standard and shows its work.">
-    <meta name="theme-color" content="#0e0e0e">
-    <title>VQ Chat · Veritas Quaesitor CAI</title>
-    <meta name="robots" content="noindex, nofollow">
-    <link rel="stylesheet" href="css/app.css">
-    <link rel="manifest" href="manifest.json">
-    <style>
-        .message-body { display: flex; flex-direction: column; gap: 0.35rem; max-width: 75%; min-width: 0; }
-        .message.user .message-body { align-items: flex-end; }
-        .message-body .message-content { max-width: 100%; }
-        .message-content.rich { white-space: normal; }
-        .message-content .md > :first-child { margin-top: 0; }
-        .message-content .md > :last-child { margin-bottom: 0; }
-        .message-content .md p { margin: 0 0 0.75em; }
-        .message-content .md ul, .message-content .md ol { margin: 0 0 0.75em 1.3em; padding: 0; }
-        .message-content .md li { margin: 0.2em 0; }
-        .message-content .md h1, .message-content .md h2, .message-content .md h3, .message-content .md h4 { margin: 1em 0 0.4em; font-size: 1.05em; }
-        .message-content .md a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
-        .message-content .md code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.9em; padding: 0.1em 0.35em; border-radius: 4px; background: rgba(255,255,255,0.08); }
-        .message-content .md pre { overflow-x: auto; padding: 0.75em 1em; border-radius: 8px; background: rgba(0,0,0,0.35); margin: 0 0 0.75em; }
-        .message-content .md pre code { padding: 0; background: none; }
-        .message-content .md blockquote { margin: 0 0 0.75em; padding-left: 0.9em; border-left: 3px solid rgba(255,255,255,0.25); opacity: 0.9; }
-        .message.has-table .message-body { max-width: 100%; width: 100%; }
-        .message.has-table .message-content { width: 100%; box-sizing: border-box; }
-        .table-wrap { position: relative; margin: 0.25em 0 1em; }
-        .table-scroll { overflow-x: auto; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.25) transparent; }
-        .md table { border-collapse: collapse; width: max-content; min-width: 100%; font-size: 0.92em; line-height: 1.5; }
-        .md th, .md td { padding: 0.55em 0.8em; text-align: left; vertical-align: top; border-bottom: 1px solid rgba(255,255,255,0.08); min-width: 7rem; max-width: 24rem; }
-        .md th + th, .md td + td { border-left: 1px solid rgba(255,255,255,0.06); }
-        .md thead th { background: rgba(255,255,255,0.05); font-weight: 600; white-space: nowrap; }
-        .md tbody tr:last-child td { border-bottom: 0; }
-        .md tbody tr:hover td { background: rgba(255,255,255,0.025); }
-        .md td:first-child { font-weight: 600; min-width: 4.5rem; }
-        .table-expand { margin-top: 0.4rem; background: transparent; border: 1px solid rgba(255,255,255,0.14); color: rgba(255,255,255,0.65); font-size: 0.75rem; padding: 0.2rem 0.65rem; border-radius: 999px; cursor: pointer; }
-        .table-expand:hover { color: #fff; border-color: rgba(255,255,255,0.35); }
-        .table-card { margin: 0.4em 0 1em; width: min(34rem, 100%); border: 1px solid rgba(255,255,255,0.14); border-radius: 12px; background: rgba(255,255,255,0.03); cursor: pointer; overflow: hidden; transition: border-color .2s, background .2s, transform .2s; }
-        .table-card:hover { border-color: rgba(var(--ui-accent-rgb),0.55); background: rgba(255,255,255,0.05); }
-        .table-card:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
-        .table-card-head { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0.85rem; }
-        .table-card-icon { flex-shrink: 0; width: 36px; height: 36px; border-radius: 9px; background: rgba(130,170,255,0.12); color: #82aaff; display: inline-flex; align-items: center; justify-content: center; }
-        .table-card-icon svg { width: 20px; height: 20px; }
-        .table-card-meta { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-        .table-card-title { font-weight: 600; font-size: 0.92rem; color: var(--text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .table-card-size { font-size: 0.78rem; color: var(--text-tertiary); }
-        .table-card-open { flex-shrink: 0; padding: 0.45rem 0.9rem; border-radius: 999px; background: linear-gradient(135deg, var(--ui-accent), var(--ui-accent-2)); color: #1a1030; font-weight: 700; font-size: 0.82rem; }
-        .table-card:hover .table-card-open { box-shadow: 0 0 16px rgba(var(--ui-accent-rgb),0.45); }
-        .table-preview-wrap { border-top: 1px solid rgba(255,255,255,0.08); max-height: 7.2rem; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent); mask-image: linear-gradient(to bottom, #000 55%, transparent); pointer-events: none; }
-        .md .table-preview { width: 100%; min-width: 0; table-layout: fixed; font-size: 0.78rem; }
-        .md .table-preview th, .md .table-preview td { min-width: 0; max-width: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0.35em 0.7em; }
-        .table-overlay-box { flex-direction: column; }
-        .table-overlay-title { margin: -1.6rem 2.5rem 0.9rem 0.2rem; font-size: 1rem; font-weight: 600; color: var(--text-primary); }
-        .table-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(5,5,15,0.75); display: flex; align-items: center; justify-content: center; padding: 3vh 3vw; }
-        .table-overlay-box { position: relative; max-width: min(1400px, 94vw); max-height: 90vh; width: max-content; background: var(--surface-raised); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; box-shadow: 0 30px 80px rgba(0,0,0,0.6); padding: 2.6rem 1.2rem 1.2rem; display: flex; }
-        .table-overlay-scroll { overflow: auto; color: var(--text-primary); }
-        .table-overlay-box { width: min(1400px, 94vw); }
-        .table-overlay-scroll { width: 100%; }
-        .table-overlay-scroll table { font-size: 0.95rem; width: 100%; min-width: 0; }
-        .table-overlay-scroll th, .table-overlay-scroll td { max-width: none; min-width: 6rem; }
-        .table-wrap.more-right .table-scroll { -webkit-mask-image: linear-gradient(to right, #000 88%, transparent); mask-image: linear-gradient(to right, #000 88%, transparent); }
-        .table-overlay-close { position: absolute; top: 0.5rem; right: 0.6rem; width: 32px; height: 32px; border-radius: 8px; border: 0; background: transparent; color: rgba(255,255,255,0.6); font-size: 1.4rem; cursor: pointer; }
-        .table-overlay-close:hover { background: rgba(255,255,255,0.08); color: #fff; }
-        @media (max-width: 640px) {
-            .table-scroll { border: 0; overflow: visible; }
-            .md table, .md tbody, .md tr, .md td { display: block; width: 100%; min-width: 0; max-width: none; }
-            .md thead { display: none; }
-            .md tr { border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; margin-bottom: 0.6rem; overflow: hidden; }
-            .md td { border: 0 !important; border-bottom: 1px solid rgba(255,255,255,0.06) !important; padding: 0.45em 0.75em; }
-            .md td::before { content: attr(data-label); display: block; font-size: 0.75em; font-weight: 600; opacity: 0.6; margin-bottom: 0.1em; }
-            .md td:first-child { background: rgba(255,255,255,0.05); }
-            .table-expand { display: none; }
-            .md .table-preview, .md .table-preview tbody, .md .table-preview tr, .md .table-preview td { display: revert; }
-            .md .table-preview thead { display: table-header-group; }
-            .md .table-preview td::before { content: none; }
-            .table-card-title { display: none; }
-            .table-overlay { padding: 0; align-items: stretch; }
-            .table-overlay-box { width: 100vw; max-width: 100vw; max-height: none; height: 100dvh; border-radius: 0; padding: 3.2rem 1rem 1rem; }
-        }
-        .message-content .md hr { border: 0; border-top: 1px solid rgba(255,255,255,0.15); margin: 0.9em 0; }
-        .message-actions { display: flex; gap: 0.4rem; padding-left: 0.25rem; }
-        .msg-action { background: transparent; border: 1px solid rgba(255,255,255,0.14); color: rgba(255,255,255,0.65); font-size: 0.78rem; padding: 0.2rem 0.65rem; border-radius: 999px; cursor: pointer; }
-        .msg-action:hover { color: #fff; border-color: rgba(255,255,255,0.35); }
-        .msg-action:focus-visible, .chat-history-delete:focus-visible, .chat-history-item:focus-visible { outline: 2px solid rgba(255,255,255,0.7); outline-offset: 2px; }
-        .chat-history-delete { margin-left: auto; background: none; border: 0; color: rgba(255,255,255,0.4); font-size: 1.1rem; line-height: 1; cursor: pointer; padding: 0 0.2rem; opacity: 0; transition: opacity 0.15s; }
-        .chat-history-item:hover .chat-history-delete, .chat-history-item.active .chat-history-delete, .chat-history-delete:focus-visible { opacity: 1; }
-        .chat-history-delete:hover { color: #ef4444; }
-        .sidebar.minimized .chat-history-delete { display: none; }
-        @media (hover: none) { .chat-history-delete { opacity: 1; } }
-        @media (max-width: 768px) { .message-body { max-width: 85%; } }
-        .trace { margin: 0.1rem 0 0 0.25rem; font-size: 0.82rem; color: rgba(255,255,255,0.72); }
-        .trace summary { cursor: pointer; width: fit-content; list-style: none; padding: 0.15rem 0.6rem; border-radius: 999px; border: 1px dashed rgba(255,255,255,0.22); }
-        .trace summary::-webkit-details-marker { display: none; }
-        .trace summary::before { content: "\25B8  "; }
-        .trace[open] summary::before { content: "\25BE  "; }
-        .trace summary:focus-visible { outline: 2px solid rgba(255,255,255,0.7); outline-offset: 2px; }
-        .trace dl { margin: 0.6rem 0 0.4rem; padding: 0.75rem 0.9rem; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); display: grid; grid-template-columns: max-content 1fr; gap: 0.45rem 0.9rem; }
-        .trace dt { color: rgba(255,255,255,0.5); }
-        .trace dd { margin: 0; min-width: 0; }
-        .trace ul { margin: 0; padding-left: 1.1em; }
-        .trace a { color: inherit; text-decoration: underline; text-underline-offset: 2px; overflow-wrap: anywhere; }
-        .trace-chip { display: inline-block; margin: 0 0.3rem 0.3rem 0; padding: 0.05rem 0.5rem; border-radius: 999px; background: rgba(255,255,255,0.08); }
-        .trace-note { margin: 0; font-size: 0.75rem; opacity: 0.6; }
-        @media (max-width: 520px) { .trace dl { grid-template-columns: 1fr; } .trace dt { margin-top: 0.3rem; } }
+/**
+ * VQ Chat Widget: the quick-answer front door to VQ Chat
+ * Veritas Quaesitor CAI (veritasquaesitorcai.github.io)
+ *
+ * Usage: <script src="vq-chat-widget.js"></script>
+ * Quick plain-text answers on every page; "Open in VQ Chat" carries the conversation into the full app.
+ */
 
-        /* ---- Panel test ---- */
-        :root {
-            --sidebar-width: clamp(240px, 19vw, 380px); --insight-width: clamp(260px, 19vw, 380px);
-            --ui-scale: 1; --ui-line: 1.6; --chat-max: 56rem; --ui-accent: #ff8c42; --ui-accent-2: #ffb27a; --ui-accent-rgb: 255,140,66;
-            --tk-kw: #c792ea; --tk-fn: #ffcb6b; --tk-str: #c3e88d; --tk-num: #f78c6c; --tk-id: #82aaff; --tk-com: #6b7394;
-            --mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
-        }
-        .tk-kw { color: var(--tk-kw); } .tk-fn { color: var(--tk-fn); } .tk-str { color: var(--tk-str); }
-        .tk-num { color: var(--tk-num); } .tk-id { color: var(--tk-id); } .tk-com { color: var(--tk-com); }
-        .insight-toggle { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border-radius: 10px; border: 1px solid var(--border-subtle); background: transparent; color: var(--text-secondary); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: background .2s, color .2s; }
-        .insight-toggle:hover, body.insight-open .insight-toggle { background: rgba(255,255,255,0.06); color: var(--text-primary); }
-        .insight-toggle svg { width: 18px; height: 18px; }
-        #insight-panel { width: 0; flex-shrink: 0; overflow: hidden; background: var(--bg-darker); border-left: 1px solid var(--border-subtle); display: flex; flex-direction: column; transition: width .28s ease; }
-        body.insight-open #insight-panel { width: var(--insight-width); }
-        .insight-head { height: var(--header-height); flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 1rem 0 1.25rem; border-bottom: 1px solid var(--border-subtle); min-width: var(--insight-width); }
-        .insight-head h2 { margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--text-primary); }
-        .insight-close { background: none; border: 0; color: var(--text-tertiary); font-size: 1.4rem; line-height: 1; cursor: pointer; width: 32px; height: 32px; border-radius: 8px; }
-        .insight-close:hover { background: rgba(255,255,255,0.06); color: var(--text-primary); }
-        #insight-body { flex: 1; overflow-y: auto; padding: 0.4rem 0 1.5rem; min-width: var(--insight-width); scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.15) transparent; }
-        .insight-entry { padding: 1rem 1.25rem 1.1rem; border-bottom: 1px solid var(--border-subtle); cursor: pointer; transition: background .3s; scroll-margin-top: 0.5rem; }
-        .insight-entry:hover { background: rgba(255,255,255,0.02); }
-        .insight-entry.selected { background: rgba(var(--ui-accent-rgb),0.05); box-shadow: inset 2px 0 0 rgba(var(--ui-accent-rgb),0.8); }
-        .insight-entry.live { cursor: default; }
-        .insight-entry.fresh { animation: entryIn 1.4s ease-out; }
-        @keyframes entryIn { from { background: rgba(130,170,255,0.08); } to { background: transparent; } }
-        .entry-head { display: flex; flex-direction: column; gap: 0.2rem; margin-bottom: 0.75rem; font-family: var(--mono); font-size: 0.78rem; }
-        .entry-q { font-size: 0.84rem; line-height: 1.45; overflow-wrap: anywhere; }
-        ol.code { list-style: none; margin: 0; padding: 0; font-family: var(--mono); font-size: 0.8rem; line-height: 1.55; }
-        .cl { display: grid; grid-template-columns: 1.4rem 1fr auto; gap: 0.55rem; padding: 0.12rem 0; }
-        .cl-no { color: var(--tk-com); text-align: right; opacity: 0.7; user-select: none; }
-        .cl-txt { color: var(--text-primary); min-width: 0; overflow-wrap: anywhere; }
-        .cl-detail { display: block; }
-        .cl-ms { font-variant-numeric: tabular-nums; white-space: nowrap; }
-        .cl-cursor { display: inline-block; width: 0.5em; height: 1.05em; margin-left: 0.3em; vertical-align: -0.15em; background: var(--tk-kw); animation: blink 1s steps(1) infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-        .entry-block { margin-top: 0.9rem; font-family: var(--mono); font-size: 0.78rem; }
-        .entry-block p { margin: 0.35rem 0 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 0.86rem; line-height: 1.6; color: var(--text-secondary); }
-        .entry-ctx { margin-top: 0.8rem; font-family: var(--mono); font-size: 0.78rem; }
-        .src-card { display: flex; gap: 0.55rem; align-items: baseline; padding: 0.45rem 0.55rem; margin: 0.35rem 0 0; border-radius: 8px; border: 1px solid transparent; text-decoration: none; transition: border-color .2s, background .2s; }
-        .src-card:hover { border-color: rgba(255,203,107,0.35); background: rgba(255,255,255,0.03); }
-        .src-num { flex-shrink: 0; }
-        .src-card-text { display: flex; flex-direction: column; min-width: 0; }
-        .src-card-title { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 0.85rem; color: var(--text-primary); line-height: 1.35; }
-        .src-card-host { font-size: 0.75rem; }
-        .insight-empty { padding: 1rem 1.25rem 1.25rem; font-family: var(--mono); font-size: 0.78rem; }
-        .insight-empty p { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 0.88rem; line-height: 1.6; color: var(--text-secondary); margin: 0.4rem 0 0; }
-        .insight-note { margin: 1rem 1.25rem 0; font-size: 0.75rem; line-height: 1.5; color: var(--text-tertiary); }
-        .src-row { display: flex; flex-wrap: wrap; gap: 0.4rem; padding-left: 0.25rem; }
-        .src-chip { display: inline-flex; align-items: center; gap: 0.45rem; max-width: 260px; padding: 0.25rem 0.6rem 0.25rem 0.3rem; border-radius: 8px; border: 1px solid var(--border-subtle); background: rgba(255,255,255,0.03); color: var(--text-secondary); font-size: 0.78rem; text-decoration: none; }
-        .src-chip:hover { border-color: rgba(255,203,107,0.35); color: var(--text-primary); }
-        .src-dot { width: 18px; height: 18px; border-radius: 5px; background: rgba(255,203,107,0.12); color: var(--tk-fn); font-size: 0.68rem; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .src-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .insight-chip { align-self: flex-start; margin-left: 0.25rem; display: inline-flex; align-items: center; padding: 0.22rem 0.7rem; border-radius: 999px; border: 1px solid var(--border-subtle); background: transparent; color: var(--tk-id); font-family: var(--mono); font-size: 0.74rem; cursor: pointer; }
-        .insight-chip { gap: 0.45rem; }
-        .insight-chip:hover { border-color: rgba(130,170,255,0.45); }
-        .insight-chip-icon { display: inline-flex; opacity: 0.8; }
-        .insight-chip-icon svg { width: 13px; height: 13px; }
-        .insight-chip-more { color: var(--tk-com); }
-        .insight-chip:hover .insight-chip-more { color: var(--tk-id); }
-        .message.selected .message-content { box-shadow: 0 0 0 1px rgba(var(--ui-accent-rgb),0.45); }
-        .message.pending { align-items: center; }
-        .status-line { display: flex; align-items: baseline; gap: 0.5rem; padding: 0.5rem 0.25rem; font-family: var(--mono); font-size: 0.88rem; }
-        .status-line .status-text { color: var(--tk-kw); }
-        .status-line .status-detail { color: var(--tk-str); font-size: 0.8rem; }
-        .status-pulse { display: inline-block; width: 0.5em; height: 1.05em; align-self: center; background: var(--tk-kw); animation: blink 1s steps(1) infinite; order: 3; }
-        .input-disclaimer { text-align: center; font-size: 0.75rem; color: var(--text-tertiary); margin-top: 0.4rem; }
-        #insight-scrim { display: none; }
+(function() {
+    'use strict';
 
-        /* ---- Screen controls + zoom-proof layout ---- */
-        html { font-size: calc(100% * var(--ui-scale)); }
-        #messages-area, .input-container, .welcome-screen { max-width: min(var(--chat-max), 100%); }
-        .message-content, .message-content .md p, .message-content .md li { line-height: var(--ui-line); }
-        .message-content { max-width: 100%; }
-        body.ui-hc { --text-primary: #ffffff; --text-secondary: rgba(255,255,255,0.92); --text-tertiary: rgba(255,255,255,0.78); --border-subtle: rgba(255,255,255,0.28); }
-        body.ui-hc .message-content { color: #fff; border-color: rgba(255,255,255,0.35); }
-        body.ui-font-all, body.ui-font-all button, body.ui-font-all textarea, body.ui-font-all input { font-family: var(--ui-font); }
-        body.ui-font-all .message-content, body.ui-font-all .friend-bubble { font-size: calc(1em * var(--ui-font-boost, 1)); }
-        body.ui-font-msg .message-content, body.ui-font-msg .friend-bubble, body.ui-font-msg #message-input { font-family: var(--ui-font); }
-        body.ui-font-msg .message-content, body.ui-font-msg .friend-bubble { font-size: calc(1em * var(--ui-font-boost, 1)); letter-spacing: 0.005em; }
-        body.ui-font-msg .message-content code, body.ui-font-msg .message-content pre, body.ui-font-msg .message-content table { font-family: inherit; }
-        body.ui-font-msg .md table, body.ui-font-msg .table-card { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 0.9rem; }
-        body.ui-reduce-motion *, body.ui-reduce-motion *::before, body.ui-reduce-motion *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-        body.ui-focus #sidebar, body.ui-focus #insight-panel, body.ui-focus #insight-toggle, body.ui-focus .cap-pills-row, body.ui-focus .input-footer, body.ui-focus .input-disclaimer, body.ui-focus .insight-chip, body.ui-focus .src-row { display: none !important; }
-        body.ui-focus #app-header { margin-left: 0 !important; padding-left: 1.5rem !important; }
-        body.ui-focus .main-content { margin-left: 0 !important; }
-        .insight-chip, .table-card-open, .status-line .status-text { accent-color: var(--ui-accent); }
-        .send-btn, #send-btn { background: var(--accent-gradient) !important; }
-        /* Accent colour reaches the visible parts of the app when the user picks one */
-        body.ui-accent-custom .message.user .message-content { background: var(--accent-gradient); color: #16112e; border-color: transparent; }
-        body.ui-accent-custom .new-chat-btn { border-color: rgba(var(--ui-accent-rgb),0.6); }
-        body.ui-accent-custom .insight-chip { border-color: rgba(var(--ui-accent-rgb),0.4); }
-        body.ui-accent-custom .message-content a { color: var(--ui-accent-2); }
-        body.ui-accent-custom .cap-pill { border-color: rgba(var(--ui-accent-rgb),0.45); }
-        body.ui-accent-custom #message-input:focus, body.ui-accent-custom .input-wrapper:focus-within { border-color: rgba(var(--ui-accent-rgb),0.7) !important; }
-        /* ---- Accounts ---- */
-        .account-box { margin-bottom: 0.4rem; }
-        .account-signin { flex: 1; min-width: 0; border: 1px dashed rgba(var(--ui-accent-rgb),0.55) !important; }
-        .account-row.guest { padding: 0; }
-        .sidebar.minimized .account-row.guest .acct-menu-btn { display: none; }
-        .acct-icon svg { width: 18px; height: 18px; display: block; }
-        .account-row { position: relative; display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.5rem; border-radius: 10px; }
-        .acct-avatar { flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; background: var(--accent-gradient); color: #16112e; font-weight: 700; font-size: 0.85rem; }
-        .acct-avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .acct-who { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-primary); font-size: 0.88rem; }
-        .acct-menu-btn { background: none; border: 0; color: var(--text-secondary); font-size: 1.2rem; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; }
-        .acct-menu-btn:hover { background: rgba(255,255,255,0.07); color: var(--text-primary); }
-        .acct-menu { position: absolute; left: 0.25rem; right: 0.25rem; bottom: calc(100% + 0.3rem); background: var(--surface-raised); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 0.35rem; box-shadow: 0 12px 30px rgba(0,0,0,0.5); z-index: 60; display: flex; flex-direction: column; }
-        .acct-menu[hidden] { display: none; }
-        .acct-menu button { text-align: left; background: none; border: 0; color: var(--text-primary); padding: 0.55rem 0.7rem; border-radius: 8px; cursor: pointer; font-size: 0.88rem; }
-        .acct-menu button:hover { background: rgba(255,255,255,0.07); }
-        .acct-menu button.danger { color: #ff8a8a; }
-        .sidebar.minimized .acct-text, .sidebar.minimized .acct-menu-btn { display: none; }
-        .auth-modal { position: fixed; inset: 0; z-index: 1200; background: rgba(5,5,15,0.72); display: flex; align-items: center; justify-content: center; padding: 1rem; }
-        .auth-modal[hidden] { display: none; }
-        .auth-card { position: relative; width: min(26rem, 100%); background: var(--surface-raised); border: 1px solid rgba(var(--ui-accent-rgb),0.35); border-radius: 18px; padding: 2rem 1.75rem 1.5rem; box-shadow: 0 30px 80px rgba(0,0,0,0.6); color: var(--text-primary); }
-        .auth-card h2 { margin: 0 0 0.35rem; font-size: 1.35rem; }
-        .auth-sub { margin: 0 0 1.25rem; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.5; }
-        .auth-close { position: absolute; top: 0.6rem; right: 0.7rem; width: 32px; height: 32px; border: 0; background: none; color: var(--text-tertiary); font-size: 1.4rem; border-radius: 8px; cursor: pointer; }
-        .auth-close:hover { background: rgba(255,255,255,0.07); color: var(--text-primary); }
-        .auth-google { width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.6rem; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: #fff; color: #1f1f1f; font-weight: 600; font-size: 0.95rem; cursor: pointer; }
-        .auth-google svg { width: 20px; height: 20px; }
-        .auth-google:hover { box-shadow: 0 0 0 3px rgba(var(--ui-accent-rgb),0.35); }
-        .auth-or { display: flex; align-items: center; gap: 0.75rem; margin: 1rem 0; color: var(--text-tertiary); font-size: 0.8rem; }
-        .auth-or::before, .auth-or::after { content: ""; flex: 1; height: 1px; background: var(--border-subtle); }
-        .auth-email { display: flex; flex-direction: column; gap: 0.55rem; }
-        .auth-email input { padding: 0.7rem 0.9rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.05); color: var(--text-primary); font-size: 1rem; }
-        .auth-email input:focus { outline: none; border-color: rgba(var(--ui-accent-rgb),0.7); box-shadow: 0 0 0 3px rgba(var(--ui-accent-rgb),0.2); }
-        .auth-email button { padding: 0.7rem 1rem; border-radius: 12px; border: 0; background: var(--accent-gradient); color: #16112e; font-weight: 700; font-size: 0.95rem; cursor: pointer; }
-        .auth-status { min-height: 1.2em; margin: 0.8rem 0 0; font-size: 0.86rem; color: #9be0ad; line-height: 1.45; }
-        .auth-status.error { color: #ff8a8a; }
-        .auth-legal { margin: 0.8rem 0 0; font-size: 0.75rem; color: var(--text-tertiary); line-height: 1.5; }
-        .auth-legal a { color: var(--text-secondary); }
-        .auth-card button:focus-visible, .auth-card input:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
-        .quota-note { display: flex; align-items: center; justify-content: center; gap: 0.6rem; flex-wrap: wrap; margin: 0.45rem 0 0; font-size: 0.8rem; color: var(--text-secondary); }
-        .quota-note[hidden] { display: none; }
-        .quota-note button { background: none; border: 1px solid rgba(var(--ui-accent-rgb),0.6); color: var(--text-primary); border-radius: 999px; padding: 0.15rem 0.7rem; font-size: 0.78rem; cursor: pointer; }
-        .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-        /* ---- Pictures and citation links ---- */
-        .img-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: 0.5rem; max-width: 100%; padding-left: 0.25rem; }
-        .img-thumb { padding: 0; border: 1px solid var(--border-subtle); border-radius: 10px; overflow: hidden; background: rgba(255,255,255,0.03); cursor: zoom-in; aspect-ratio: 4 / 3; transition: border-color .2s, transform .2s; }
-        .img-thumb:hover { border-color: rgba(var(--ui-accent-rgb),0.6); transform: translateY(-1px); }
-        .img-thumb:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
-        .img-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .img-view { position: relative; margin: 0; max-width: min(1100px, 94vw); max-height: 90vh; display: flex; flex-direction: column; align-items: center; background: var(--surface-raised); border: 1px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 2.6rem 1rem 1rem; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
-        .img-view img { max-width: 100%; max-height: 72vh; object-fit: contain; border-radius: 8px; }
-        .img-view figcaption { margin-top: 0.6rem; font-size: 0.85rem; color: var(--text-secondary); text-align: center; max-width: 70ch; }
-        .img-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); background: rgba(10,8,30,0.7); color: #fff; font-size: 1.5rem; cursor: pointer; }
-        .img-nav.prev { left: 0.6rem; } .img-nav.next { right: 0.6rem; }
-        .img-nav[hidden] { display: none; }
-        .message-content a.cite, .message-content sup.cite { display: inline-flex; align-items: center; justify-content: center; min-width: 1.15rem; height: 1.15rem; padding: 0 0.25rem; margin: 0 0.1rem; border-radius: 5px; background: rgba(var(--ui-accent-rgb),0.16); color: var(--text-primary); font-size: 0.72rem; font-weight: 600; text-decoration: none; vertical-align: 0.15em; }
-        .message-content a.cite:hover { background: rgba(var(--ui-accent-rgb),0.35); }
-        /* ---- Panel views ---- */
-        #insight-panel { position: relative; }
-        .panel-resize { position: absolute; left: -3px; top: 0; bottom: 0; width: 7px; cursor: col-resize; z-index: 5; }
-        .panel-resize:hover, body.panel-resizing .panel-resize { background: linear-gradient(90deg, transparent 2px, rgba(var(--ui-accent-rgb),0.6) 2px, rgba(var(--ui-accent-rgb),0.6) 4px, transparent 4px); }
-        body.panel-resizing, body.panel-resizing * { cursor: col-resize !important; user-select: none !important; }
-        body.panel-resizing #insight-panel { transition: none; }
-        .panel-tabs { display: flex; gap: 0.25rem; min-width: 0; }
-        .panel-tab { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.75rem; border-radius: 999px; border: 1px solid transparent; background: none; color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; cursor: pointer; }
-        .panel-tab svg { width: 16px; height: 16px; }
-        .panel-tab:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
-        .panel-tab[aria-selected="true"] { color: var(--text-primary); background: rgba(var(--ui-accent-rgb),0.14); border-color: rgba(var(--ui-accent-rgb),0.4); }
-        .panel-tab:focus-visible, .opt-btn:focus-visible, .insight-close:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
-        .insight-close svg { width: 18px; height: 18px; display: block; margin: auto; }
-        #notes-body { flex: 1; overflow-y: auto; padding: 0.75rem 1rem 1.25rem; min-width: var(--insight-width); scrollbar-width: thin; }
-        #notes-body[hidden], #insight-body[hidden] { display: none; }
-        .panel-options { flex-shrink: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; padding: 0.6rem 1rem; border-top: 1px solid var(--border-subtle); min-width: var(--insight-width); background: rgba(0,0,0,0.12); }
-        .opt-group { display: flex; align-items: center; gap: 0.45rem; }
-        .opt-label { font-size: 0.72rem; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.04em; }
-        .opt-seg { display: inline-flex; border: 1px solid var(--border-subtle); border-radius: 999px; overflow: hidden; }
-        .opt-seg .opt-btn { border: 0; border-radius: 0; }
-        .opt-btn { background: none; border: 1px solid var(--border-subtle); border-radius: 999px; color: var(--text-secondary); font-size: 0.78rem; padding: 0.25rem 0.7rem; cursor: pointer; }
-        .opt-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
-        .opt-btn[aria-pressed="true"] { color: #16112e; background: var(--accent-gradient); }
-        .opt-btn.danger { color: #ff8a8a; }
-        .opt-actions { flex-wrap: wrap; }
-        .note-card { border: 1px solid var(--border-subtle); border-radius: 12px; background: rgba(255,255,255,0.03); margin-bottom: 0.7rem; overflow: hidden; }
-        .note-card:focus-within { border-color: rgba(var(--ui-accent-rgb),0.55); }
-        .note-card textarea { width: 100%; box-sizing: border-box; min-height: 3.2rem; resize: none; border: 0; background: transparent; color: var(--text-primary); font: inherit; font-size: 0.9rem; line-height: 1.55; padding: 0.7rem 0.8rem 0.3rem; outline: none; }
-        .note-foot { display: flex; align-items: center; gap: 0.5rem; padding: 0.2rem 0.5rem 0.45rem 0.8rem; font-size: 0.74rem; color: var(--text-tertiary); }
-        .note-src { background: none; border: 0; padding: 0; color: var(--tk-id); font-size: 0.74rem; cursor: pointer; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60%; }
-        .note-src:hover { text-decoration: underline; }
-        .note-date { margin-left: auto; white-space: nowrap; }
-        .note-del { background: none; border: 0; color: var(--text-tertiary); font-size: 1.05rem; width: 26px; height: 26px; border-radius: 6px; cursor: pointer; }
-        .note-del:hover { color: #ff8a8a; background: rgba(255,255,255,0.06); }
-        .sel-note { position: fixed; z-index: 1300; padding: 0.35rem 0.8rem; border-radius: 999px; border: 0; background: var(--accent-gradient); color: #16112e; font-weight: 700; font-size: 0.8rem; box-shadow: 0 8px 20px rgba(0,0,0,0.45); cursor: pointer; }
-        .sel-note[hidden] { display: none; }
-        .insight-entry.plain { font-size: 0.9rem; }
-        .plain-q { margin: 0 0 0.6rem; color: var(--tk-str); font-size: 0.88rem; line-height: 1.45; }
-        .plain-steps { margin: 0; padding-left: 1.1rem; color: var(--text-primary); }
-        .plain-steps li { margin: 0.25rem 0; line-height: 1.5; font-size: 0.88rem; }
-        .plain-sub { margin: 0.9rem 0 0.2rem; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-tertiary); }
-        body.panel-plain ol.code { font-family: inherit; font-size: 0.88rem; }
-        body.panel-plain ol.code .cl-no { display: none; }
-        body.panel-plain ol.code .cl { grid-template-columns: 1fr auto; }
-        /* Tabs stay tidy in a narrow panel: inactive tabs show just their icon */
-        #insight-panel { container-type: inline-size; container-name: vqpanel; }
-        .panel-tab { padding: 0.35rem 0.6rem; gap: 0.35rem; font-size: 0.82rem; white-space: nowrap; }
-        .insight-head { gap: 0.4rem; padding-right: 0.6rem; }
-        .panel-tabs { overflow: hidden; }
-        @container vqpanel (max-width: 360px) {
-            .panel-tab:not([aria-selected="true"]) .tab-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-            .panel-tab:not([aria-selected="true"]) { padding: 0.35rem 0.5rem; }
+    const SCRIPT_SRC = (document.currentScript && document.currentScript.src) || location.href;
+    const BASE = new URL('.', SCRIPT_SRC);
+    const CONFIG = {
+        apiEndpoint: 'https://veritas-quaesitor-production.up.railway.app/chat',
+        appUrl: new URL('app/', BASE).href,
+        tourUrl: new URL('tour.html', BASE).href,
+        welcomeMessage: /\/tour\.html$/.test(location.pathname)
+            ? "Hi, I'm VQ. Ask me anything about what the tour is showing, while it plays: how a feature works, why VQ answers the way it does, or where to find more on the site."
+            : "Hi, I'm VQ, your guide to this site. Ask me where to find anything (the resurrection calculation, the VQ-1 robot, the ETS, the tour) and I'll take you straight there.\n\nYou can ask me anything else too."
+    };
+
+    const ROBOT = '<svg viewBox="0 0 32 32" aria-hidden="true"><line x1="16" y1="4.2" x2="16" y2="8" stroke="#7ff3ff" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="3.4" r="2.1" fill="#ff5fd2"/><rect x="5.5" y="8" width="21" height="16.5" rx="6.5" fill="none" stroke="#7ff3ff" stroke-width="2"/><rect x="8.6" y="11.6" width="14.8" height="7.6" rx="3.8" fill="#05060a"/><circle cx="12.6" cy="15.4" r="2" fill="#7ff3ff"/><circle cx="19.4" cy="15.4" r="2" fill="#7ff3ff"/><circle cx="13.2" cy="14.8" r=".6" fill="#fff"/><circle cx="20" cy="14.8" r=".6" fill="#fff"/><path d="M13 21.6c1.9 1 4.1 1 6 0" stroke="#7ff3ff" stroke-width="1.8" fill="none" stroke-linecap="round"/><rect x="2.6" y="13.6" width="2.6" height="5.2" rx="1.3" fill="#ff5fd2"/><rect x="26.8" y="13.6" width="2.6" height="5.2" rx="1.3" fill="#ff5fd2"/></svg>';
+    const ICON = {
+        expand: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>',
+        shrink: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="M14 10l7-7"/><path d="M3 21l7-7"/></svg>',
+        clear: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>',
+        close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+        send: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.4 19.6 21 12 4.4 4.4l.1 5.9L15 12 4.5 13.7z"/></svg>'
+    };
+
+    const PAGE_NAMES = { 'index.html': 'Home', '': 'Home', 'beta-tools.html': 'Beta Tools', 'milestones.html': 'Projects & Milestones',
+        'mission.html': 'Mission & Vision', 'resources.html': 'Resources', 'contact.html': 'Contact', 'about.html': 'About CAI',
+        'social.html': 'Social', 'tour.html': 'The 1-minute tour', 'symmetric-record.html': 'The Symmetric Record',
+        'epistemic-tier-system.html': 'The Epistemic Tier System', 'technical-christianity.html': 'Technical Christianity',
+        'birth-of-cai.html': 'The Birth of CAI', 'Critical-Dialogue.html': 'Critical Dialogue', '2-layer.html': 'The Two-Layer Protocol',
+        'pluralism.html': 'Pluralism Under CAI', 'epistemic-alignment-framework.html': 'Epistemic Alignment Framework',
+        'endtimes.html': 'End Times Chronology', 'reports.html': 'Weekly LLM Risk Reports', 'protocols.html': 'Protocols',
+        'TTCSF.html': 'Technical Christianity Syllabus', 'privacy.html': 'Privacy Policy', 'terms.html': 'Terms of Service', 'app/': 'VQ Chat' };
+    function linkInfo(href) {
+        let url; try { url = new URL(href, location.href); } catch (e) { return null; }
+        if (url.origin !== location.origin) return null;
+        const file = url.pathname.split('/veritas-quaesitor/')[1] ?? url.pathname.split('/').pop();
+        const m = /:~:text=([^&]+)/.exec(url.hash);
+        const section = m ? decodeURIComponent(m[1]) : '';
+        const page = PAGE_NAMES[file] || PAGE_NAMES[file.replace(/^.*\//, '')] || decodeURIComponent(file.replace(/\.html$/, '').replace(/[-_]/g, ' ')) || 'Home';
+        return { url, page, section, label: section ? `${section} · ${page}` : page };
+    }
+
+    const styles = `
+        #vq-chat-widget, #vq-chat-widget * { box-sizing: border-box; }
+        #vq-chat-widget h3, #vq-chat-widget p, #vq-chat-widget ul, #vq-chat-widget ol, #vq-chat-widget li { margin: 0; padding: 0; }
+        #vq-chat-widget button { margin: 0; font-family: inherit; }
+        #vq-chat-widget { --vq-bg: #0e0e0e; --vq-surface: #161616; --vq-line: rgba(255,255,255,0.09); --vq-text: #ececec;
+            --vq-muted: rgba(236,236,236,0.62); --vq-neon: #7ff3ff; --vq-accent: #ff8c42; --vq-accent-2: #ffb27a;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+        #vq-chat-bubble { position: fixed; top: 100px; right: 30px; z-index: 9998; height: 50px; padding: 0 18px 0 6px;
+            display: flex; align-items: center; gap: 10px; border-radius: 25px; cursor: pointer; color: #fff;
+            background: #101014; border: 1px solid rgba(127,243,255,0.35); font: 600 0.95rem/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 18px rgba(127,243,255,0.18); transition: transform .25s ease, box-shadow .25s ease;
+            animation: vq-pulse 2.4s ease-out 1.2s 2; }
+        #vq-chat-bubble:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(0,0,0,0.5), 0 0 26px rgba(127,243,255,0.32); }
+        #vq-chat-bubble:focus-visible, #vq-chat-widget button:focus-visible, #vq-chat-widget a:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 3px; }
+        #vq-chat-bubble .vq-face { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center;
+            background: radial-gradient(circle at 50% 40%, #17171e, #050507); box-shadow: 0 0 0 1px rgba(127,243,255,0.4), 0 0 12px rgba(127,243,255,0.35); }
+        #vq-chat-bubble .vq-face svg { width: 30px; height: 30px; }
+        @keyframes vq-pulse { 0% { box-shadow: 0 10px 30px rgba(0,0,0,.45), 0 0 0 0 rgba(127,243,255,.5); } 100% { box-shadow: 0 10px 30px rgba(0,0,0,.45), 0 0 0 16px rgba(127,243,255,0); } }
+
+        #vq-chat-panel { position: fixed; top: 162px; right: 30px; z-index: 9999; width: 400px; height: min(620px, calc(100vh - 182px)); min-height: 380px;
+            display: none; flex-direction: column; overflow: hidden; border-radius: 18px; background: var(--vq-bg); color: var(--vq-text);
+            border: 1px solid rgba(127,243,255,0.2); box-shadow: 0 24px 70px rgba(0,0,0,0.6), 0 0 34px rgba(127,243,255,0.08); }
+        #vq-chat-panel.open { display: flex; animation: vq-in .22s ease-out; }
+        /* "Appears digitally": a scan line draws the panel in from the top, with a brief flicker and CRT lines that clear */
+        #vq-chat-panel.vq-welcome { animation: vq-materialize 2.4s cubic-bezier(.25,.6,.2,1) both; }
+        @keyframes vq-materialize {
+            0%   { opacity: 0;   clip-path: inset(0 0 100% 0 round 18px); filter: blur(6px) brightness(1.8) saturate(1.4); }
+            8%   { opacity: .75; }
+            12%  { opacity: .25; }
+            16%  { opacity: .9; }
+            20%  { opacity: .45; }
+            26%  { opacity: 1; }
+            62%  { clip-path: inset(0 0 0 0 round 18px); filter: blur(1.5px) brightness(1.25) saturate(1.15); }
+            100% { opacity: 1;   clip-path: inset(0 0 0 0 round 18px); filter: none; }
         }
-        /* ---- Aria, the third friend ---- */
-        .friend-row { display: flex; gap: 0.6rem; align-items: flex-start; margin: 0.4rem 0 0.8rem; }
-        .friend-avatar { flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: #1b1030; background: linear-gradient(135deg, #7fe0d2, #f5a3c7); box-shadow: 0 0 12px rgba(245,163,199,0.35); }
-        .friend-bubble { flex: 1; min-width: 0; padding: 0.65rem 0.85rem !important; border-radius: 4px 14px 14px 14px !important; background: rgba(127,224,210,0.08) !important; border: 1px solid rgba(127,224,210,0.28) !important; font-size: 0.92rem; line-height: 1.55; }
-        .friend-row.deep .friend-bubble { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.14) !important; font-size: 0.88rem; }
-        .friend-typing { display: inline-flex !important; gap: 4px; align-items: center; width: auto; flex: 0 0 auto; }
-        .friend-typing span { width: 6px; height: 6px; border-radius: 50%; background: #7fe0d2; animation: friendDot 1.1s ease-in-out infinite; }
-        .friend-typing span:nth-child(2) { animation-delay: .15s; } .friend-typing span:nth-child(3) { animation-delay: .3s; }
-        @keyframes friendDot { 0%,80%,100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
-        .enq-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.4rem; }
-        .enq-ask.secondary { background: transparent; }
-        .enq-ask.suggested { border-color: rgba(245,163,199,0.7); box-shadow: 0 0 12px rgba(245,163,199,0.25); }
-        .enq-hint { margin: 0.5rem 0 0; font-size: 0.8rem; color: #f5a3c7; }
-        /* ---- O.R.I.A. side chat ---- */
-        .enq-say { font-weight: 400; color: var(--text-tertiary); font-size: 0.8rem; }
-        .friend-thread { display: flex; flex-direction: column; }
-        .friend-row.mine { justify-content: flex-end; }
-        .friend-bubble.mine { flex: 0 1 auto; max-width: 85%; padding: 0.5rem 0.8rem !important; border-radius: 14px 4px 14px 14px !important; background: rgba(var(--ui-accent-rgb),0.16) !important; border: 1px solid rgba(var(--ui-accent-rgb),0.35) !important; color: var(--text-primary); font-size: 0.9rem; white-space: pre-wrap; }
-        .friend-col { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.2rem; }
-        .friend-about { font-size: 0.72rem; color: var(--text-tertiary); }
-        .friend-row.err .friend-bubble { border-color: rgba(255,138,138,0.4) !important; }
-        .friend-avatar { background: linear-gradient(135deg, #7fe0d2, #f5a3c7) !important; }
-        .oria-form { flex-shrink: 0; display: flex; gap: 0.5rem; align-items: flex-end; padding: 0.6rem 0.8rem; border-top: 1px solid var(--border-subtle); min-width: var(--insight-width); }
-        .oria-form[hidden] { display: none; }
-        #oria-input { flex: 1; resize: none; max-height: 140px; padding: 0.55rem 0.8rem; border-radius: 12px; border: 1px solid rgba(127,224,210,0.35); background: rgba(127,224,210,0.05); color: var(--text-primary); font: inherit; font-size: 0.9rem; line-height: 1.4; outline: none; }
-        #oria-input:focus { border-color: rgba(245,163,199,0.7); box-shadow: 0 0 0 3px rgba(245,163,199,0.15); }
-        .oria-send { flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; border: 0; background: linear-gradient(135deg, #7fe0d2, #f5a3c7); color: #1b1030; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
-        .oria-send svg { width: 18px; height: 18px; }
-        /* ---- VQ replying to O.R.I.A. ---- */
-        .friend-reply { align-self: flex-start; margin-top: 0.25rem; background: none; border: 1px solid rgba(127,224,210,0.35); color: #bff3ea; border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.74rem; cursor: pointer; }
-        .friend-reply:hover { border-color: rgba(245,163,199,0.7); color: #fff; }
-        .message.user.from-oria .message-content { background: linear-gradient(135deg, rgba(127,224,210,0.22), rgba(245,163,199,0.22)) !important; border: 1px solid rgba(245,163,199,0.4) !important; color: var(--text-primary) !important; }
-        .message.user.from-oria .message-avatar { background: linear-gradient(135deg, #7fe0d2, #f5a3c7) !important; color: #1b1030; font-weight: 700; }
-        /* ---- Local display commands ---- */
-        .local-note { align-self: center; display: inline-flex; align-items: center; gap: 0.45rem; margin: 0.6rem auto; padding: 0.35rem 0.85rem; border-radius: 999px; border: 1px dashed rgba(var(--ui-accent-rgb),0.5); color: var(--text-secondary); font-size: 0.8rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: opacity .5s; width: fit-content; }
-        .local-note.fade { opacity: 0; }
-        .local-note-icon { color: var(--ui-accent); font-weight: 700; }
-        /* ---- The swap ---- */
-        .swap-banner { display: flex; align-items: center; gap: 0.6rem; margin: 0 0 0.6rem; padding: 0.45rem 0.8rem; border-radius: 12px; background: linear-gradient(135deg, rgba(127,224,210,0.14), rgba(245,163,199,0.14)); border: 1px solid rgba(245,163,199,0.45); color: var(--text-primary); font-size: 0.82rem; }
-        .swap-banner[hidden] { display: none; }
-        .swap-dot { width: 8px; height: 8px; border-radius: 50%; background: #f5a3c7; box-shadow: 0 0 8px #f5a3c7; }
-        .swap-text { flex: 1; }
-        .swap-back { background: none; border: 1px solid rgba(255,255,255,0.3); color: var(--text-primary); border-radius: 999px; padding: 0.15rem 0.7rem; font-size: 0.78rem; cursor: pointer; }
-        .message.oria-voice .message-content { background: linear-gradient(135deg, rgba(127,224,210,0.12), rgba(245,163,199,0.12)) !important; border: 1px solid rgba(245,163,199,0.4) !important; }
-        .message.oria-voice .message-avatar { background: linear-gradient(135deg, #7fe0d2, #f5a3c7) !important; color: #1b1030; font-weight: 700; }
-        .friend-avatar.vq { background: linear-gradient(135deg, #667eea, #764ba2) !important; font-size: 0.95rem; box-shadow: none; }
-        .friend-bubble.vq { background: rgba(102,126,234,0.1) !important; border-color: rgba(102,126,234,0.35) !important; }
-        .swap-btn { display: block; margin: 0.2rem 0 0.8rem; border-color: rgba(245,163,199,0.6); color: #ffd6e8; background: rgba(245,163,199,0.08); }
-        body.swapped #app-header .app-title::after { content: " · O.R.I.A. at the controls"; font-size: 0.75rem; font-weight: 400; color: #f5a3c7; }
-        .message.user.from-vq-panel .message-content { background: rgba(102,126,234,0.14) !important; border: 1px solid rgba(102,126,234,0.45) !important; color: var(--text-primary) !important; }
-        .message.user.from-vq-panel .message-avatar { background: linear-gradient(135deg, #667eea, #764ba2) !important; }
-        .friend-reply.vq { border-color: rgba(102,126,234,0.5); color: #c9d2ff; }
-        /* ---- Phones: the chat list opens as a drawer from a menu button ---- */
-        .mobile-menu-btn { display: none; }
-        #sidebar-scrim { display: none; }
+        #vq-chat-panel .vq-scan { position: absolute; left: 0; right: 0; top: 0; height: 2px; z-index: 6; pointer-events: none;
+            background: #bffaff; box-shadow: 0 0 10px 2px rgba(127,243,255,.9), 0 0 34px 8px rgba(127,243,255,.35);
+            animation: vq-scan 1.5s cubic-bezier(.3,.6,.25,1) forwards; }
+        #vq-chat-panel .vq-scan::after { content: ""; position: absolute; left: 0; right: 0; bottom: 2px; height: 70px;
+            background: linear-gradient(to top, rgba(127,243,255,.18), transparent); }
+        @keyframes vq-scan { 0% { top: 0; opacity: 1; } 88% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        #vq-chat-panel .vq-crt { position: absolute; inset: 0; z-index: 5; pointer-events: none;
+            background: repeating-linear-gradient(to bottom, rgba(127,243,255,.10) 0 1px, transparent 1px 3px);
+            animation: vq-crt 2.4s ease-out forwards; }
+        @keyframes vq-crt { 0% { opacity: 1; } 55% { opacity: .55; } 100% { opacity: 0; } }
+        @media (prefers-reduced-motion: reduce) { #vq-chat-panel.vq-welcome { animation: none; } #vq-chat-panel .vq-scan, #vq-chat-panel .vq-crt { display: none; } }
+        /* single diagonal accent: neon corner brackets top-right and bottom-left */
+        #vq-chat-panel::before, #vq-chat-panel::after { content: ""; position: absolute; width: 34px; height: 34px; pointer-events: none; z-index: 3;
+            border: 0 solid #7ff3ff; filter: drop-shadow(0 0 4px rgba(127,243,255,.7)); }
+        #vq-chat-panel::before { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 18px; }
+        #vq-chat-panel::after { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 18px; }
+        #vq-chat-panel.expanded { width: min(760px, calc(100vw - 60px)); height: calc(100vh - 182px); }
+        #vq-chat-panel.expanded .vq-message-content { font-size: .98rem; }
+        .vq-go-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+        .vq-go { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 7px 12px; border-radius: 999px; cursor: pointer;
+            border: 1px solid rgba(255,140,66,.55); background: rgba(255,140,66,.12); color: #ffd2ad; font: 600 .82rem/1.2 inherit; text-align: left; }
+        .vq-go:hover { background: rgba(255,140,66,.24); color: #fff; }
+        .vq-go span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        #vq-teaser { position: fixed; top: 160px; right: 30px; z-index: 9997; max-width: 260px; display: flex; gap: 8px; align-items: flex-start;
+            padding: 11px 12px 11px 14px; border-radius: 14px 4px 14px 14px; background: #121216; color: #ececec; cursor: pointer;
+            border: 1px solid rgba(127,243,255,.3); box-shadow: 0 14px 34px rgba(0,0,0,.45); font: 500 .86rem/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            animation: vq-in .3s ease-out; }
+        #vq-teaser b { color: #fff; }
+        #vq-teaser button { flex-shrink: 0; width: 22px; height: 22px; border: 0; border-radius: 50%; cursor: pointer; display: grid; place-items: center;
+            background: rgba(255,255,255,.1); color: #ccc; font-size: 13px; line-height: 1; }
+        #vq-teaser button:hover { background: rgba(255,255,255,.2); color: #fff; }
+        @media (max-width: 768px) { #vq-teaser { top: auto; right: 16px; bottom: calc(88px + env(safe-area-inset-bottom, 0px)); max-width: min(270px, calc(100vw - 32px)); } }
+        #vq-chat-widget.vq-bottom #vq-chat-bubble { top: auto; bottom: 24px; }
+        #vq-chat-widget.vq-bottom #vq-chat-panel { top: auto; bottom: 86px; width: 370px; height: min(470px, calc(100vh - 120px)); }
+        #vq-chat-widget.vq-bottom #vq-teaser { top: auto; bottom: 86px; border-radius: 14px 14px 4px 14px; }
+        .vq-section-flash { outline: 2px solid rgba(255,140,66,.75) !important; outline-offset: 6px; border-radius: 6px; }
+        @keyframes vq-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+        #vq-chat-header { display: flex; align-items: center; gap: 10px; padding: 12px 12px 12px 14px; border-bottom: 1px solid var(--vq-line); background: var(--vq-surface); }
+        #vq-chat-header .vq-face { width: 34px; height: 34px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center;
+            background: radial-gradient(circle at 50% 40%, #17171e, #050507); box-shadow: 0 0 0 1px rgba(127,243,255,0.4), 0 0 12px rgba(127,243,255,0.3); }
+        #vq-chat-header .vq-face svg { width: 27px; height: 27px; }
+        #vq-chat-info { flex: 1; min-width: 0; }
+        #vq-chat-info h3 { display: flex; align-items: center; gap: 7px; white-space: nowrap; font: 700 0.9rem/1.2 "Cinzel", Georgia, serif; letter-spacing: .05em; color: #fff; }
+        #vq-chat-info h3 span { font: 700 0.58rem/1 -apple-system, "Segoe UI", sans-serif; letter-spacing: .14em; color: #1a1030; padding: 3px 5px 2px; border-radius: 4px;
+            background: linear-gradient(135deg, var(--vq-accent), var(--vq-accent-2)); }
+        #vq-chat-info p { margin-top: 3px; font-size: .74rem; color: var(--vq-muted); }
+        .vq-hbtn { width: 34px; height: 34px; flex-shrink: 0; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--vq-line);
+            background: transparent; color: var(--vq-muted); cursor: pointer; transition: color .2s, border-color .2s; }
+        .vq-hbtn:hover { color: #fff; border-color: rgba(255,140,66,.55); }
+        #vq-chat-close { width: 36px; height: 36px; color: #fff; background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.28); }
+        #vq-chat-close svg { width: 18px; height: 18px; }
+        #vq-chat-close:hover { background: #ff8c42; border-color: #ff8c42; color: #1a1030; }
+        .vq-hbtn svg { width: 16px; height: 16px; }
+
+        #vq-chat-messages { flex: 1; overflow-y: auto; padding: 16px 16px 8px; display: flex; flex-direction: column; gap: 14px; scrollbar-width: thin; }
+        .vq-message { display: flex; gap: 9px; align-items: flex-start; animation: vq-in .25s ease-out; }
+        .vq-message .vq-av { width: 26px; height: 26px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center; margin-top: 1px;
+            background: radial-gradient(circle at 50% 40%, #17171e, #050507); box-shadow: 0 0 0 1px rgba(127,243,255,0.35), 0 0 10px rgba(127,243,255,0.25); }
+        .vq-message .vq-av svg { width: 21px; height: 21px; }
+        .vq-message-content { min-width: 0; font-size: .92rem; line-height: 1.6; color: var(--vq-text); overflow-wrap: anywhere; }
+        #vq-chat-widget .vq-message-content p { margin: 0 0 .6em; } #vq-chat-widget .vq-message-content p:last-child { margin-bottom: 0; }
+        #vq-chat-widget .vq-message-content ul, #vq-chat-widget .vq-message-content ol { margin: .25em 0 .6em 1.25em; } .vq-message-content li { margin: .15em 0; }
+        .vq-message-content strong { color: #fff; }
+        .vq-message-content a { color: var(--vq-accent-2); text-decoration: underline; text-underline-offset: 2px; }
+        .vq-message-content code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: .85em; background: rgba(255,255,255,.07); padding: 1px 5px; border-radius: 4px; }
+        .vq-message-content img { display: block; width: 100%; border-radius: 8px; margin-top: 8px; }
+        .vq-user-message { justify-content: flex-end; }
+        .vq-user-message .vq-message-content { max-width: 82%; padding: 9px 13px; border-radius: 16px 16px 4px 16px; color: #1a1030; font-weight: 500;
+            background: linear-gradient(135deg, var(--vq-accent), var(--vq-accent-2)); box-shadow: 0 4px 14px rgba(255,140,66,.18); }
+        .vq-typing { display: flex; gap: 5px; padding: 8px 2px; }
+        .vq-typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--vq-neon); opacity: .35; animation: vq-dot 1.2s ease-in-out infinite; }
+        .vq-typing-text p:last-child::after { content: "▍"; color: #7ff3ff; margin-left: 1px; animation: vq-blink 1s steps(1) infinite; }
+        @keyframes vq-blink { 50% { opacity: 0; } }
+        .vq-typing i:nth-child(2) { animation-delay: .15s; } .vq-typing i:nth-child(3) { animation-delay: .3s; }
+        @keyframes vq-dot { 30% { opacity: 1; transform: translateY(-3px); } }
+
+        #vq-chat-input-area { padding: 10px 12px 8px; border-top: 1px solid var(--vq-line); }
+        .vq-inputrow { display: flex; align-items: center; gap: 6px; padding: 4px 4px 4px 14px; border-radius: 22px; border: 1px solid var(--vq-line); background: rgba(255,255,255,.04); }
+        .vq-inputrow:focus-within { border-color: rgba(255,140,66,.5); }
+        #vq-chat-input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--vq-text); font: inherit; font-size: .92rem; padding: 8px 0; }
+        #vq-chat-input::placeholder { color: rgba(236,236,236,.4); }
+        #vq-chat-send { width: 36px; height: 36px; flex-shrink: 0; border: 0; border-radius: 50%; cursor: pointer; display: grid; place-items: center; color: #1a1030;
+            background: linear-gradient(135deg, var(--vq-accent), var(--vq-accent-2)); }
+        #vq-chat-send:disabled { opacity: .45; cursor: default; }
+        #vq-chat-send svg { width: 17px; height: 17px; margin-left: 2px; }
+        .vq-links { display: flex; justify-content: space-between; gap: 10px; margin-top: 8px; padding: 0 4px; font-size: .74rem; }
+        .vq-links a { color: var(--vq-muted); text-decoration: none; } .vq-links a:hover { color: var(--vq-accent-2); }
+        .vq-links a.vq-full { color: var(--vq-accent-2); font-weight: 600; }
+
+        @media (prefers-reduced-motion: reduce) { #vq-chat-bubble, #vq-chat-panel, .vq-message, .vq-typing i { animation: none !important; } }
         @media (max-width: 768px) {
-            .mobile-menu-btn { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 38px; height: 38px; margin-right: 0.4rem; border-radius: 10px; border: 1px solid var(--border-subtle); background: transparent; color: var(--text-primary); cursor: pointer; }
-            .mobile-menu-btn svg { width: 20px; height: 20px; }
-            .sidebar, .sidebar.minimized { width: min(86vw, 300px) !important; }
-            .sidebar.minimized { transform: translateX(-105%) !important; box-shadow: none; }
-            .sidebar:not(.minimized) { transform: translateX(0) !important; z-index: 300; }
-            body.sidebar-open #sidebar-scrim { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 250; }
-            .sidebar.minimized .acct-text, .sidebar.minimized .acct-menu-btn { display: revert; }
-            #app-header { gap: 0.3rem; }
-            .header-center { min-width: 0; flex: 1; display: flex; align-items: center; gap: 0.5rem; }
-            .app-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            #vq-chat-bubble { top: auto; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); right: 16px; width: 58px; height: 58px; padding: 0; border-radius: 50%; justify-content: center; }
+            #vq-chat-bubble .vq-bubble-text { display: none; }
+            #vq-chat-bubble .vq-face { width: 46px; height: 46px; } #vq-chat-bubble .vq-face svg { width: 36px; height: 36px; }
+            #vq-chat-panel, #vq-chat-panel.expanded { top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100vh; height: 100dvh; min-height: 0; border-radius: 0; border: 0; }
+            #vq-chat-panel::before, #vq-chat-panel::after { display: none; }
+            .vq-expand, #vq-chat-expand { display: none; }
+            #vq-chat-header { padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
+            #vq-chat-input { font-size: 16px; }
+            #vq-chat-input-area { padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
+            html.vq-chat-open, html.vq-chat-open body { overflow: hidden; }
         }
-        @media (max-width: 400px) {
-            .status-indicator #status-text { display: none; }
-            .app-avatar-small { display: none; }
-            .cap-pill { padding: 0.3rem 0.6rem; font-size: 0.78rem; }
-            .suggestion-card { padding: 0.8rem 1rem; }
-            .welcome-title { font-size: 1.7rem; }
-            .panel-tab { padding: 0.35rem 0.45rem; }
-            .swap-banner { font-size: 0.75rem; flex-wrap: wrap; }
-            .message-actions { flex-wrap: wrap; gap: 0.3rem; }
-            .msg-action { white-space: nowrap; padding: 0.15rem 0.55rem; font-size: 0.72rem; border-radius: 999px; }
-        }
-        /* ---- Title: three treatments to choose from (body.title-v1 / v2 / v3) ---- */
-        .app-title { display: inline-flex; align-items: center; gap: 0.5rem; margin: 0; line-height: 1; }
-        .cai-badge { display: inline-flex; align-items: center; padding: 0.18rem 0.45rem 0.14rem; border-radius: 6px; font-family: "Exo 2", "Segoe UI", sans-serif; font-weight: 700; font-size: 0.68rem; letter-spacing: 0.14em; color: #1a1030; background: linear-gradient(135deg, var(--ui-accent, #ff8c42), var(--ui-accent-2, #ffb27a)); box-shadow: 0 0 12px rgba(var(--ui-accent-rgb, 255,140,66), 0.45); }
-        /* v1: Roman inscription + glowing CAI badge */
-        body.title-v1 .title-name { font-family: "Cinzel", "Trajan Pro", Georgia, serif; font-weight: 700; font-size: 1.12rem; letter-spacing: 0.06em; color: #f4ecff; }
-        /* v2: elegant serif, small-caps badge with a gradient line */
-        body.title-v2 .title-name { font-family: "Cormorant Garamond", Garamond, serif; font-weight: 600; font-size: 1.4rem; letter-spacing: 0.01em; color: #fff; }
-        body.title-v2 .cai-badge { background: none; box-shadow: none; color: var(--ui-accent-2, #ffb27a); font-size: 0.72rem; letter-spacing: 0.22em; padding: 0.1rem 0 0.1rem 0.55rem; border-radius: 0; border-left: 2px solid var(--ui-accent, #ff8c42); }
-        /* v3: futuristic wide caps, outlined glowing badge */
-        body.title-v3 .title-name { font-family: "Exo 2", "Segoe UI", sans-serif; font-weight: 700; font-size: 1.02rem; letter-spacing: 0.18em; text-transform: uppercase; background: linear-gradient(90deg, #ffffff, #c9c2ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        body.title-v3 .cai-badge { background: transparent; color: var(--ui-accent-2, #ffb27a); border: 1px solid var(--ui-accent, #ff8c42); box-shadow: 0 0 10px rgba(var(--ui-accent-rgb, 255,140,66), 0.5), inset 0 0 8px rgba(var(--ui-accent-rgb, 255,140,66), 0.25); }
-        /* one gentle shimmer across the name on load (never loops; off with reduced motion) */
-        .title-name { position: relative; }
-        body.title-shimmer .title-name::after { content: ""; position: absolute; inset: -2px -6px; background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.55) 50%, transparent 70%); background-size: 250% 100%; background-position: 120% 0; mix-blend-mode: overlay; animation: titleShimmer 1.6s ease-out 0.4s 1 forwards; pointer-events: none; }
-        @keyframes titleShimmer { 0% { background-position: 120% 0; opacity: 1; } 80% { opacity: 1; } 100% { background-position: -120% 0; opacity: 0; } }
-        body.ui-reduce-motion .title-name::after { display: none; }
-        @media (prefers-reduced-motion: reduce) { body.title-shimmer .title-name::after { display: none; } }
-        @media (max-width: 400px) { body.title-v1 .title-name { font-size: 0.95rem; letter-spacing: 0.03em; } body.title-v2 .title-name { font-size: 1.2rem; } body.title-v3 .title-name { font-size: 0.85rem; letter-spacing: 0.1em; } .cai-badge { font-size: 0.6rem; } }
-        /* ---- Open layout: VQ's answers read like a page (no bubble); bubbles optional ---- */
-        :root { --surface-raised: #141230; --bg-darker: #0d0d20; }
-        body:not(.ui-bubbles) .message:not(.user) .message-content { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0.15rem 0 0.25rem !important; }
-        body:not(.ui-bubbles) .message:not(.user) .message-body { max-width: 100%; }
-        body:not(.ui-bubbles) .message.user { flex-direction: row; }
-        body:not(.ui-bubbles) .message.user .message-body { align-items: stretch; max-width: 100%; flex: 1; min-width: 0; }
-        body:not(.ui-bubbles) .message.user .message-content { background: linear-gradient(90deg, rgba(var(--ui-accent-rgb), 0.10), rgba(var(--ui-accent-rgb), 0.025) 70%, transparent) !important; color: var(--text-primary) !important; border: none !important; border-radius: 10px !important; box-shadow: none !important; padding: 0.6rem 0.9rem !important; width: 100%; }
-        body:not(.ui-bubbles) .message.user.from-oria .message-content { background: linear-gradient(90deg, rgba(245,163,199,0.13), transparent 70%) !important; }
-        body:not(.ui-bubbles) .message.user.from-vq-panel .message-content { background: linear-gradient(90deg, rgba(102,126,234,0.15), transparent 70%) !important; }
-        body:not(.ui-bubbles) .message.oria-voice .message-content { border-left: 3px solid #f5a3c7 !important; padding-left: 0.9rem !important; background: linear-gradient(90deg, rgba(245,163,199,0.06), transparent 60%) !important; }
-        /* ---- Desktop: warmer charcoal background (phones keep the deep navy) ---- */
-        @media (min-width: 769px) {
-            :root { --bg-dark: #262624; --bg-darker: #232321; --bg-panel: rgba(48, 47, 44, 0.8); --surface-raised: #2c2b29;
-                    --border-subtle: rgba(255, 255, 255, 0.09); --message-bg: rgba(255, 255, 255, 0.05); --text-primary: #ecebe7; }
-        }
-        /* ---- Drawn icons ---- */
-        .message-avatar, .app-avatar-small, .welcome-avatar, .modal-avatar, .friend-avatar.vq { color: #ffffff; }
-        .message-avatar svg, .friend-avatar.vq svg { width: 80%; height: 80%; display: block; }
-        .app-avatar-small svg { width: 84%; height: 84%; display: block; }
-        .welcome-avatar svg { width: 74%; height: 74%; display: block; }
-        .modal-avatar svg { width: 76%; height: 76%; display: block; }
-        .message.user .message-avatar svg { width: 68%; height: 68%; }
-        .suggestion-icon { display: inline-flex; align-items: center; justify-content: center; width: 2.6rem; height: 2.6rem; flex-shrink: 0; border-radius: 10px; background: rgba(var(--ui-accent-rgb), 0.12); color: var(--ui-accent-2, #ffb27a); }
-        .suggestion-icon svg { width: 1.75rem; height: 1.75rem; }
-        .sidebar-btn .icon, .chat-item-icon { display: inline-flex; align-items: center; justify-content: center; }
-        .sidebar-btn .icon svg, .new-chat-btn .icon svg, button .icon svg, span.icon svg { width: 1.4rem; height: 1.4rem; display: block; }
-        span.icon { display: inline-flex; align-items: center; justify-content: center; }
-        .chat-item-icon svg { width: 1.2rem; height: 1.2rem; opacity: 0.85; }
-        /* ---- Layered icons: each theme colours the fill, line, accent and the VQ robot ---- */
-        :root { --ic-line: #f1ecff; --ic-fill: rgba(var(--ui-accent-rgb), 0.24); --ic-accent: var(--ui-accent, #ff8c42);
-                --ic-stroke: 1.8; --ic-glow: none;
-                --vq-head: rgba(255,255,255,0.16); --vq-line: #ffffff; --vq-visor: #1b1340; --vq-eye: #7fe0ff; --vq-light: #ff8c42; --vq-ear: #ffb27a;
-                --vq-avatar-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        svg.ic { overflow: visible; }
-        svg.ic .f { fill: var(--ic-fill); stroke: none; }
-        svg.ic .l, svg.ic .a-l { fill: none; stroke: var(--ic-line); stroke-width: var(--ic-stroke); stroke-linecap: round; stroke-linejoin: round; }
-        svg.ic .a-l { stroke: var(--ic-accent); }
-        svg.ic .a { fill: var(--ic-accent); stroke: none; }
-        svg.ic { filter: var(--ic-glow); }
-        svg.vq-mark .vq-head { fill: var(--vq-head); }
-        svg.vq-mark .l { stroke: var(--vq-line); stroke-width: 2; }
-        svg.vq-mark .vq-visor { fill: var(--vq-visor); }
-        svg.vq-mark .vq-eye { fill: var(--vq-eye); filter: drop-shadow(0 0 1.6px var(--vq-eye)); }
-        svg.vq-mark .vq-glint { fill: #ffffff; opacity: 0.85; }
-        svg.vq-mark .vq-light { fill: var(--vq-light); filter: drop-shadow(0 0 2.5px var(--vq-light)); }
-        svg.vq-mark .vq-ear { fill: var(--vq-ear); }
-        .message:not(.user):not(.oria-voice) .message-avatar, .app-avatar-small, .welcome-avatar, .modal-avatar, .friend-avatar.vq { background: var(--vq-avatar-bg) !important; }
-        .suggestion-icon { color: var(--ic-line); background: var(--ic-tile, rgba(var(--ui-accent-rgb), 0.12)) !important; }
-        /* per-theme personalities */
-        body[data-theme="navy"]     { --ic-tile: rgba(140,150,255,0.14); --ic-line: #e9ebff; --ic-fill: rgba(140,150,255,0.26); --vq-eye: #8fe8ff; }
-        body[data-theme="charcoal"] { --ic-tile: rgba(255,190,120,0.12); --ic-line: #f6eadc; --ic-fill: rgba(255,190,120,0.22); --ic-accent: #ffb86b; --vq-eye: #ffd9a0; --vq-light: #ffb86b; --vq-visor: #2a2420;
-                                      --vq-avatar-bg: linear-gradient(135deg, #5a4a3c, #3a302a); }
-        body[data-theme="midnight"], body[data-theme="vq"] { --ic-tile: rgba(127,243,255,0.07); --ic-line: #7ff3ff; --ic-fill: transparent; --ic-accent: #ff5fd2; --ic-glow: drop-shadow(0 0 3px rgba(127,243,255,0.75));
-                                      --vq-head: transparent; --vq-line: #7ff3ff; --vq-visor: #05060a; --vq-eye: #7ff3ff; --vq-light: #ff5fd2; --vq-ear: #ff5fd2;
-                                      --vq-avatar-bg: radial-gradient(circle at 50% 40%, #16161c, #050507); }
-        body[data-theme="midnight"] .message-avatar, body[data-theme="midnight"] .welcome-avatar, body[data-theme="midnight"] .app-avatar-small,
-        body[data-theme="vq"] .message-avatar, body[data-theme="vq"] .welcome-avatar, body[data-theme="vq"] .app-avatar-small { box-shadow: 0 0 0 1px rgba(127,243,255,0.45), 0 0 14px rgba(127,243,255,0.25); }
-        body[data-theme="ocean"]    { --ic-tile: rgba(80,200,230,0.14); --ic-line: #bdeeff; --ic-fill: rgba(80,200,230,0.25); --ic-accent: #5eead4; --ic-stroke: 2;
-                                      --vq-eye: #5eead4; --vq-light: #7dd3fc; --vq-ear: #5eead4; --vq-visor: #062433;
-                                      --vq-avatar-bg: linear-gradient(135deg, #0e7490, #1e3a8a); }
-        body[data-theme="forest"]   { --ic-tile: rgba(110,200,130,0.14); --ic-line: #d6f5dc; --ic-fill: rgba(110,200,130,0.24); --ic-accent: #a3e635; --ic-stroke: 2;
-                                      --vq-eye: #bef264; --vq-light: #a3e635; --vq-ear: #86efac; --vq-visor: #0d1f13;
-                                      --vq-avatar-bg: linear-gradient(135deg, #2f6f3e, #1d3b2a); }
-        body[data-theme="ember"]    { --ic-tile: rgba(255,120,60,0.16); --ic-line: #ffe2cc; --ic-fill: rgba(255,120,60,0.26); --ic-accent: #ffb020; --ic-glow: drop-shadow(0 0 2px rgba(255,140,60,0.45));
-                                      --vq-eye: #ffd166; --vq-light: #ff6a2a; --vq-ear: #ffb020; --vq-visor: #2a120a;
-                                      --vq-avatar-bg: linear-gradient(135deg, #c2410c, #7c2d12); }
-        body[data-theme="slate"]    { --ic-tile: rgba(148,163,184,0.14); --ic-line: #e2e8f0; --ic-fill: transparent; --ic-accent: #93c5fd; --ic-stroke: 1.6;
-                                      --vq-head: rgba(255,255,255,0.08); --vq-eye: #bfdbfe; --vq-light: #93c5fd; --vq-ear: #94a3b8; --vq-visor: #0f172a;
-                                      --vq-avatar-bg: linear-gradient(135deg, #475569, #1e293b); }
-        body[data-theme="plum"]     { --ic-tile: rgba(216,140,255,0.14); --ic-line: #f3e8ff; --ic-fill: rgba(216,140,255,0.24); --ic-accent: #f0abfc;
-                                      --vq-eye: #f0abfc; --vq-light: #f472b6; --vq-ear: #d8b4fe; --vq-visor: #1e0b2a;
-                                      --vq-avatar-bg: linear-gradient(135deg, #9333ea, #6b21a8); }
-        /* ---- Settings-only exchanges: lighter, spaced, no action buttons ---- */
-        .message.user.ui-change-user { margin-top: 1.4rem; }
-        .message.ui-change { margin-top: 0.1rem; margin-bottom: 1.8rem; }
-        .message.ui-change .message-actions, .message.ui-change .insight-chip, .message.ui-change .src-row { display: none !important; }
-        .message.ui-change .message-content { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.55; }
-        .message.ui-change .message-content strong { color: var(--text-primary); }
-        .message.ui-change .message-content em { color: var(--ui-accent-2, #ffb27a); font-style: normal; }
-        .message.ui-change .message-avatar { transform: scale(0.85); opacity: 0.9; }
-        /* ---- Presentation layouts and the page card ---- */
-        .present { margin: 0.9rem 0; }
-        .message-body:has(.present), .message-body:has(.page-card) { flex: 1; min-width: 0; width: 100%; }
-        .message-content:has(.present), .message-content:has(.page-card) { width: 100%; max-width: 100%; box-sizing: border-box; }
-        .present-steps, .present-timeline, .present-facts, .present-cards, .present-scroll { max-width: 46rem; }
-        .present-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.6rem; color: var(--text-primary); }
-        .present-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: 0.75rem; }
-        .pcard { display: flex; flex-direction: column; border: 1px solid var(--border-subtle); border-radius: 14px; overflow: hidden; background: var(--message-bg, rgba(255,255,255,0.04)); transition: border-color .2s, transform .2s; }
-        .pcard:hover { border-color: rgba(var(--ui-accent-rgb),0.5); transform: translateY(-1px); }
-        .pcard img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; background: rgba(255,255,255,0.04); }
-        .pcard-body { padding: 0.85rem 1rem 0.8rem; display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
-        .pcard-tag { align-self: flex-start; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ui-accent-2, #ffb27a); background: rgba(var(--ui-accent-rgb),0.14); padding: 0.1rem 0.45rem; border-radius: 999px; }
-        .pcard-title { font-weight: 700; font-size: 1.05rem; color: var(--text-primary); line-height: 1.3; }
+    `;
 
-        .pcard-sub { font-size: 0.86rem; font-weight: 600; color: var(--ui-accent-2, #ffb27a); opacity: 0.9; }
-        .pcard-text { margin: 0.25rem 0 0; font-size: 0.95rem; color: var(--text-primary); opacity: 0.88; line-height: 1.55; }
-        .pcard-text { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        .pcard.expanded .pcard-text { display: block; -webkit-line-clamp: unset; }
-        .pcard.expanded { grid-column: 1 / -1; border-color: rgba(var(--ui-accent-rgb),0.55); }
-        .pcard.expanded img { aspect-ratio: 21 / 9; }
-        .pcard-extra { display: none; }
-        .pcard.expanded .pcard-extra { display: block; animation: pcardOpen .25s ease; }
-        @keyframes pcardOpen { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
-        .pcard-more-text { margin: 0.5rem 0 0; font-size: 0.95rem; line-height: 1.6; color: var(--text-primary); opacity: 0.9; }
-        .pcard-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
-        .pcard-visit, .pcard-ask { font-size: 0.82rem; font-weight: 600; padding: 0.3rem 0.75rem; border-radius: 999px; cursor: pointer; text-decoration: none; }
-        .pcard-visit { color: #1a1030; background: var(--accent-gradient); border: 0; }
-        .pcard-ask { color: var(--text-primary); background: transparent; border: 1px solid var(--border-subtle); }
-        .pcard-ask:hover { border-color: rgba(var(--ui-accent-rgb),0.6); }
-        .pcard-toggle { margin-top: auto; padding-top: 0.55rem; font-size: 0.8rem; font-weight: 600; color: var(--text-tertiary); transition: color .2s; }
-        .pcard.clickable { cursor: pointer; }
-        .pcard.clickable:hover .pcard-toggle, .pcard.expanded .pcard-toggle { color: var(--ui-accent-2, #ffb27a); }
-        .pcard.clickable:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
-        .present-scroll { overflow-x: auto; border: 1px solid var(--border-subtle); border-radius: 12px; }
-        .present-type-compare table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-        .present-type-compare th, .present-type-compare td { padding: 0.6rem 0.8rem; text-align: left; border-bottom: 1px solid var(--border-subtle); vertical-align: top; }
-        .present-type-compare thead th { background: rgba(var(--ui-accent-rgb),0.1); color: var(--text-primary); font-weight: 700; }
-        .present-type-compare tbody th { color: var(--text-secondary); font-weight: 600; white-space: nowrap; }
-        .present-type-compare tr:last-child th, .present-type-compare tr:last-child td { border-bottom: none; }
-        .present-timeline { list-style: none; margin: 0; padding: 0 0 0 1.1rem; border-left: 2px solid rgba(var(--ui-accent-rgb),0.45); }
-        .present-timeline li { position: relative; padding: 0 0 0.9rem 0.6rem; }
-        .present-timeline li::before { content: ""; position: absolute; left: -1.52rem; top: 0.3rem; width: 10px; height: 10px; border-radius: 50%; background: var(--ui-accent, #ff8c42); box-shadow: 0 0 8px rgba(var(--ui-accent-rgb),0.6); }
-        .tl-date { font-size: 0.75rem; font-weight: 700; color: var(--ui-accent-2, #ffb27a); letter-spacing: 0.03em; }
-        .tl-title { font-weight: 700; font-size: 0.92rem; color: var(--text-primary); }
-        .tl-text, .st-text { margin: 0.15rem 0 0; font-size: 0.86rem; color: var(--text-secondary); line-height: 1.5; }
-        .present-steps { list-style: none; counter-reset: st; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.55rem; }
-        .present-steps li { counter-increment: st; position: relative; padding: 0.6rem 0.85rem 0.65rem 3rem; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--message-bg, rgba(255,255,255,0.03)); }
-        .present-steps li::before { content: counter(st); position: absolute; left: 0.8rem; top: 0.6rem; width: 1.6rem; height: 1.6rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: #1a1030; background: var(--accent-gradient); }
-        .st-title { font-weight: 700; font-size: 0.92rem; color: var(--text-primary); }
-        .present-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr)); gap: 0.6rem; margin: 0; }
-        .fact { border: 1px solid var(--border-subtle); border-radius: 12px; padding: 0.6rem 0.8rem; background: var(--message-bg, rgba(255,255,255,0.03)); }
-        .fact dt { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); }
-        .fact dd { margin: 0.2rem 0 0; font-weight: 700; color: var(--text-primary); font-size: 0.95rem; }
-        .present-loading { margin: 0.8rem 0; padding: 0.8rem 1rem; border: 1px dashed var(--border-subtle); border-radius: 12px; color: var(--text-tertiary); font-size: 0.85rem; }
-        .page-card { display: flex; gap: 0.85rem; align-items: stretch; margin: 0.4rem 0 0.6rem; max-width: 40rem; border: 1px solid var(--border-subtle); border-radius: 14px; overflow: hidden; text-decoration: none; background: var(--message-bg, rgba(255,255,255,0.04)); transition: border-color .2s; }
-        .page-card:hover { border-color: rgba(var(--ui-accent-rgb),0.55); }
-        .page-card img { width: 9.5rem; min-height: 6.5rem; object-fit: cover; flex-shrink: 0; }
-        .page-card-body { display: flex; flex-direction: column; gap: 0.2rem; padding: 0.7rem 0.9rem 0.7rem 0; min-width: 0; }
-        .page-card:not(:has(img)) .page-card-body { padding-left: 0.9rem; }
-        .page-card-site { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); }
-        .page-card-title { font-weight: 700; color: var(--text-primary); font-size: 0.95rem; line-height: 1.3; }
-        .page-card-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .page-card-open { margin-top: auto; font-size: 0.78rem; color: var(--ui-accent-2, #ffb27a); font-weight: 600; }
-        @media (max-width: 520px) { .page-card { flex-direction: column; } .page-card img { width: 100%; height: 9rem; } .page-card-body { padding: 0.7rem 0.9rem; } }
-        /* ---- Icon glow: a soft light behind every icon, in each theme's own colour ("glow off" removes it) ---- */
-        :root { --ic-glow-color: rgba(var(--ui-accent-rgb), 0.55); }
-        /* The drawings stay crisp; the light sits around them */
-        svg.ic { filter: none !important; }
-        body:not(.no-glow) .suggestion-icon { box-shadow: 0 0 18px 1px var(--ic-glow-color); }
-        body:not(.no-glow) .message-avatar, body:not(.no-glow) .app-avatar-small, body:not(.no-glow) .friend-avatar { box-shadow: 0 0 16px 0 var(--ic-glow-color); }
-        body:not(.no-glow) .welcome-avatar { box-shadow: 0 0 40px 6px var(--ic-glow-color); }
-        body:not(.no-glow) span.icon, body:not(.no-glow) .chat-item-icon { border-radius: 50%; background: radial-gradient(circle, var(--ic-glow-color) 0%, transparent 68%); padding: 0.3rem; margin: -0.3rem; }
-        body[data-theme="navy"]     { --ic-glow-color: rgba(140,150,255,0.6); }
-        body[data-theme="charcoal"] { --ic-glow-color: rgba(255,184,107,0.5); }
-        body[data-theme="midnight"], body[data-theme="vq"] { --ic-glow-color: rgba(127,243,255,0.75); }
-        body[data-theme="ocean"]    { --ic-glow-color: rgba(94,234,212,0.6); }
-        body[data-theme="forest"]   { --ic-glow-color: rgba(163,230,53,0.5); }
-        body[data-theme="ember"]    { --ic-glow-color: rgba(255,120,50,0.65); }
-        body[data-theme="slate"]    { --ic-glow-color: rgba(147,197,253,0.5); }
-        body[data-theme="plum"]     { --ic-glow-color: rgba(240,171,252,0.6); }
-        /* ---- Videos (YouTube) and books (Google Books) ---- */
-        .media-row { margin: 0.6rem 0 0.8rem; width: 100%; max-width: 46rem; }
-        .message-body:has(.media-row) { flex: 1; min-width: 0; width: 100%; }
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: 0.75rem; }
-        .video-card { display: flex; flex-direction: column; text-align: left; padding: 0; border: 1px solid var(--border-subtle); border-radius: 14px; overflow: hidden; background: var(--message-bg, rgba(255,255,255,0.04)); cursor: pointer; color: inherit; font: inherit; transition: border-color .2s, transform .2s; }
-        .video-card:hover { border-color: rgba(var(--ui-accent-rgb),0.55); transform: translateY(-1px); }
-        .video-card:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
-        .video-thumb { position: relative; aspect-ratio: 16 / 9; background: #000; }
-        .video-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .video-play { position: absolute; inset: 0; margin: auto; width: 2.8rem; height: 2.8rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #fff; background: rgba(0,0,0,0.55); box-shadow: 0 0 18px var(--ic-glow-color, rgba(255,140,66,0.5)); padding-left: 0.15rem; }
-        .video-card:hover .video-play { background: var(--ui-accent, #ff8c42); color: #1a1030; }
-        .video-body { display: flex; flex-direction: column; gap: 0.25rem; padding: 0.65rem 0.8rem 0.75rem; }
-        .video-title { font-weight: 700; font-size: 0.92rem; line-height: 1.3; color: var(--text-primary); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .video-meta, .book-meta { font-size: 0.8rem; color: var(--text-tertiary); }
-        .video-view { position: relative; width: min(960px, 94vw); background: var(--surface-raised); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 2.6rem 1rem 1rem; box-shadow: 0 30px 80px rgba(0,0,0,0.6); }
-        .video-frame { position: relative; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: #000; }
-        .video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-        .video-caption { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 0.75rem; flex-wrap: wrap; }
-        .video-caption .video-title { -webkit-line-clamp: 2; }
-        .book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 0.75rem; }
-        .book-card { display: flex; gap: 0.8rem; padding: 0.75rem; border: 1px solid var(--border-subtle); border-radius: 14px; background: var(--message-bg, rgba(255,255,255,0.04)); cursor: pointer; transition: border-color .2s; }
-        .book-card:hover { border-color: rgba(var(--ui-accent-rgb),0.5); }
-        .book-card:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
-        .book-card.expanded { grid-column: 1 / -1; border-color: rgba(var(--ui-accent-rgb),0.55); }
-        .book-cover { flex-shrink: 0; width: 4.2rem; height: 6.2rem; border-radius: 6px; overflow: hidden; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
-        .book-cover img { width: 100%; height: 100%; object-fit: cover; }
-        .book-body { display: flex; flex-direction: column; gap: 0.25rem; min-width: 0; flex: 1; }
-        .book-title { font-weight: 700; font-size: 0.95rem; line-height: 1.3; color: var(--text-primary); }
-        .book-extra { display: none; }
-        .book-card.expanded .book-extra { display: block; animation: pcardOpen .25s ease; }
-        .book-card:hover .pcard-toggle, .book-card.expanded .pcard-toggle { color: var(--ui-accent-2, #ffb27a); }
-        /* ---- Phones: a slimmer input area ---- */
-        @media (max-width: 768px) {
-            #input-area { margin-left: 0 !important; padding: 0.5rem 0.75rem calc(0.35rem + env(safe-area-inset-bottom, 0px)) !important; }
-            .input-wrapper { padding: 0.25rem 0.3rem; gap: 0.3rem; border-radius: 20px; align-items: center; }
-            .input-btn, .send-btn, #send-btn { width: 36px !important; height: 36px !important; }
-            #message-input { padding: 0.5rem 0.25rem; min-height: 22px; font-size: 1rem; }
-            .input-disclaimer { margin: 0.3rem 0 0 !important; font-size: 0.66rem !important; line-height: 1.3; }
-            .input-footer { margin: 0.05rem 0 0 !important; padding: 0 !important; justify-content: center !important; font-size: 0.64rem !important; min-height: 0; }
-            .input-footer .char-count { display: none; }
-            .input-footer .footer-links { margin: 0 auto; text-align: center; }
-            .input-footer .char-count.show { display: inline; margin-right: 0.5rem; }
-            .quota-note { margin-top: 0.3rem; }
-            .swap-banner { margin-bottom: 0.4rem; padding: 0.35rem 0.6rem; }
-        }
-        /* ---- News, Scripture and scholarly-paper cards ---- */
-        .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.7rem; }
-        .news-card, .paper-card { display: flex; flex-direction: column; gap: 0.35rem; padding: 0.8rem 0.9rem; border: 1px solid var(--border-subtle); border-radius: 14px;
-            background: var(--message-bg, rgba(255,255,255,0.04)); cursor: pointer; transition: border-color .2s; }
-        .news-card:hover, .paper-card:hover { border-color: rgba(var(--ui-accent-rgb),0.5); }
-        .news-card:focus-visible, .paper-card:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
-        .news-card.expanded { grid-column: 1 / -1; border-color: rgba(var(--ui-accent-rgb),0.55); }
-        .news-img { width: calc(100% + 1.8rem); margin: -0.8rem -0.9rem 0.35rem; aspect-ratio: 16 / 9; object-fit: cover; display: block;
-            border-radius: 14px 14px 0 0; background: rgba(255,255,255,0.04); }
-        .news-card.expanded .news-img { aspect-ratio: 21 / 9; }
-        .news-img-none { display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
-            background: radial-gradient(80% 90% at 20% 10%, rgba(var(--ui-accent-rgb),0.28), transparent 60%),
-                        radial-gradient(70% 80% at 90% 100%, rgba(127,243,255,0.14), transparent 60%), var(--surface-raised, #1b1b1b); }
-        .news-img-none::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0 2px, transparent 2px 14px); }
-        .news-img-none span { position: relative; font-family: "Cinzel", Georgia, serif; font-weight: 700; font-size: 1.15rem; letter-spacing: 0.08em;
-            text-transform: uppercase; color: rgba(255,255,255,0.78); text-shadow: 0 2px 12px rgba(0,0,0,0.5); padding: 0 1rem; text-align: center; }
+    if (!document.querySelector('link[href*="family=Cinzel"]')) {
+        const f = document.createElement('link');
+        f.rel = 'stylesheet';
+        f.href = 'https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap';
+        document.head.appendChild(f);
+    }
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = styles;
+    document.head.appendChild(styleSheet);
 
-        .news-top { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.74rem; }
-        .news-source { font-weight: 700; color: var(--ui-accent-2, #ffb27a); text-transform: uppercase; letter-spacing: 0.04em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .news-date { color: var(--text-tertiary); white-space: nowrap; }
-        .news-title, .paper-title { font-weight: 700; font-size: 0.95rem; line-height: 1.35; color: var(--text-primary); }
-        .news-extra { display: none; }
-        .news-card.expanded .news-extra, .paper-card.expanded .news-extra { display: block; animation: pcardOpen .25s ease; }
-        .news-card:hover .pcard-toggle, .news-card.expanded .pcard-toggle, .paper-card:hover .pcard-toggle, .paper-card.expanded .pcard-toggle { color: var(--ui-accent-2, #ffb27a); }
-        .paper-list { display: flex; flex-direction: column; gap: 0.6rem; }
-        .paper-card.expanded { border-color: rgba(var(--ui-accent-rgb),0.55); }
-        .paper-meta { font-size: 0.8rem; color: var(--text-secondary); }
-        .paper-cited { align-self: flex-start; font-size: 0.72rem; font-weight: 700; color: var(--ui-accent-2, #ffb27a); background: rgba(var(--ui-accent-rgb),0.12);
-            padding: 0.12rem 0.5rem; border-radius: 999px; }
-        .verse-row { display: flex; flex-direction: column; gap: 0.7rem; }
-        .verse-card { margin: 0; padding: 1rem 1.2rem 0.9rem; border-radius: 14px; border: 1px solid rgba(var(--ui-accent-rgb),0.35);
-            background: linear-gradient(135deg, rgba(var(--ui-accent-rgb),0.10), rgba(255,255,255,0.02)); position: relative; }
-        .verse-card::before { content: "“"; position: absolute; top: -0.35rem; left: 0.7rem; font: 700 2.6rem/1 Georgia, serif; color: rgba(var(--ui-accent-rgb),0.55); }
-        .verse-text { margin: 0.4rem 0 0.7rem; font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif; font-size: 1.12rem; line-height: 1.6; color: var(--text-primary); }
-        .verse-ref { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.6rem; font-size: 0.8rem; }
-        .verse-name { font-family: "Cinzel", Georgia, serif; font-weight: 700; letter-spacing: 0.04em; color: var(--ui-accent-2, #ffb27a); }
-        .verse-tr { color: var(--text-tertiary); }
-        .verse-link { margin-left: auto; color: var(--text-secondary); text-decoration: none; } .verse-link:hover { color: var(--ui-accent-2, #ffb27a); }
-        /* ---- Opening sequence ---- */
-        .vq-intro { position: fixed; inset: 0; z-index: 100000; display: grid; place-items: center; overflow: hidden;
-            background: radial-gradient(60% 50% at 50% 45%, rgba(127,243,255,0.07), transparent 70%), var(--bg-dark, #0e0e0e); }
-        .vq-intro-core { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 1.5rem; }
-        .vq-intro-ring { width: 132px; height: 132px; border-radius: 50%; display: grid; place-items: center;
-            background: var(--vq-avatar-bg, radial-gradient(circle at 50% 40%, #17171e, #050507));
-            box-shadow: 0 0 0 1px rgba(127,243,255,0.5), 0 0 40px 4px var(--ic-glow-color, rgba(127,243,255,0.45));
-            animation: vqIntroOn 0.9s steps(1, end) both, vqIntroPulse 2.6s ease-in-out 0.9s infinite; }
-        .vq-intro-face { display: grid; place-items: center; width: 100%; height: 100%; color: #fff; }
-        .vq-intro-face svg { width: 76%; height: 76%; }
-        @keyframes vqIntroOn { 0% { opacity: 0; } 12% { opacity: .8; } 20% { opacity: .1; } 32% { opacity: 1; } 40% { opacity: .3; } 52%, 100% { opacity: 1; } }
-        @keyframes vqIntroPulse { 50% { box-shadow: 0 0 0 1px rgba(127,243,255,0.65), 0 0 60px 10px var(--ic-glow-color, rgba(127,243,255,0.5)); } }
-        .vq-intro-word { margin-top: 1.6rem; display: flex; align-items: center; gap: 0.7rem; animation: vqIntroWord 0.7s cubic-bezier(.2,.7,.2,1) 0.7s both; }
-        @keyframes vqIntroWord { from { clip-path: inset(0 50% 0 50%); opacity: 0; letter-spacing: .3em; } to { clip-path: inset(0 0 0 0); opacity: 1; } }
-        .vq-intro-name { font-family: "Cinzel", Georgia, serif; font-weight: 700; font-size: clamp(1.4rem, 3.6vw, 2.1rem); letter-spacing: 0.08em; color: #fff; }
-        .vq-intro-badge { font-weight: 800; font-size: 0.8rem; letter-spacing: 0.14em; color: #1a1030; padding: 0.22rem 0.5rem 0.18rem; border-radius: 6px;
-            background: linear-gradient(135deg, var(--ui-accent, #ff8c42), var(--ui-accent-2, #ffb27a)); box-shadow: 0 0 16px rgba(var(--ui-accent-rgb, 255,140,66), .55);
-            animation: vqIntroPop 0.45s cubic-bezier(.3,1.6,.5,1) 1.15s both; }
-        @keyframes vqIntroPop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .vq-intro-line { margin-top: 1rem; min-height: 1.5em; font-size: clamp(0.9rem, 2vw, 1.05rem); letter-spacing: 0.04em; color: #a8f3fa; }
-        .vq-intro-line::after { content: "▍"; margin-left: 2px; color: #7ff3ff; animation: vqBlink 1s steps(1) infinite; }
-        @keyframes vqBlink { 50% { opacity: 0; } }
-        .vq-intro-crt { position: absolute; inset: 0; pointer-events: none;
-            background: repeating-linear-gradient(to bottom, rgba(127,243,255,0.06) 0 1px, transparent 1px 3px); }
-        .vq-intro-scan { position: absolute; left: 0; right: 0; top: 0; height: 2px; opacity: 0; pointer-events: none; background: #bffaff;
-            box-shadow: 0 0 12px 3px rgba(127,243,255,.9), 0 0 50px 12px rgba(127,243,255,.3); }
-        .vq-intro-skip { position: absolute; right: 1.4rem; bottom: calc(1.2rem + env(safe-area-inset-bottom, 0px)); padding: 0.4rem 0.9rem; border-radius: 999px;
-            border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.7); font: inherit; font-size: 0.8rem; cursor: pointer; }
-        .vq-intro-skip:hover { color: #fff; border-color: rgba(127,243,255,0.6); }
-        /* exit: a scan line sweeps down and the app appears behind it */
-        .vq-intro.vq-intro-out { animation: vqIntroWipe 1.2s cubic-bezier(.45,.05,.3,1) forwards; pointer-events: none; }
-        .vq-intro.vq-intro-out .vq-intro-scan { animation: vqIntroScan 1.2s cubic-bezier(.45,.05,.3,1) forwards; }
-        .vq-intro.vq-intro-out .vq-intro-skip { display: none; }
-        @keyframes vqIntroWipe { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(100% 0 0 0); } }
-        @keyframes vqIntroScan { 0% { top: 0; opacity: 1; } 92% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
-        body.vq-intro-reveal > *:not(.vq-intro) { animation: vqAppIn 1.3s ease-out both; }
-        @keyframes vqAppIn { from { filter: blur(3px) brightness(1.35); } to { filter: none; } }
-        .welcome-title.vq-typing-title::after { content: "▍"; margin-left: 2px; color: #7ff3ff; -webkit-text-fill-color: #7ff3ff; animation: vqBlink 1s steps(1) infinite; }
-        @media (prefers-reduced-motion: reduce) { .vq-intro { display: none; } }
-        @media (max-width: 1279px) { .oria-form { min-width: 0; } }
-        @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
-        /* ---- The Honest Enquirer ---- */
-        #enquirer-body { flex: 1; overflow-y: auto; padding: 0.9rem 1.1rem 1.25rem; min-width: var(--insight-width); scrollbar-width: thin; }
-        #enquirer-body[hidden] { display: none; }
-        .enq-intro { padding: 0.75rem 0.85rem; border-radius: 12px; border: 1px solid rgba(127,224,210,0.35); background: rgba(127,224,210,0.06); margin-bottom: 0.9rem; }
-        .enq-name { display: block; font-weight: 700; color: #7fe0d2; font-size: 0.92rem; margin-bottom: 0.2rem; }
-        .enq-intro p { margin: 0; font-size: 0.82rem; line-height: 1.5; color: var(--text-secondary); }
-        .enq-empty, .enq-error { font-size: 0.88rem; color: var(--text-secondary); }
-        .enq-error { color: #ff9f9f; }
-        .enq-loading { font-family: var(--mono); font-size: 0.85rem; color: #7fe0d2; }
-        #enquirer-body .entry-head { cursor: pointer; }
-        .enq-text { background: rgba(255,255,255,0.03) !important; border: 1px solid rgba(127,224,210,0.25) !important; border-radius: 12px !important; padding: 0.8rem 0.95rem !important; font-size: 0.9rem; max-width: none !important; }
-        .enq-foot { margin: 0.4rem 0 0.9rem; font-family: var(--mono); font-size: 0.74rem; }
-        .enq-ask { padding: 0.5rem 1rem; border-radius: 999px; border: 1px solid rgba(127,224,210,0.55); background: rgba(127,224,210,0.1); color: #bff3ea; font-weight: 600; font-size: 0.85rem; cursor: pointer; }
-        .enq-ask:hover:not(:disabled) { background: rgba(127,224,210,0.2); }
-        .enq-ask:disabled { opacity: 0.5; cursor: default; }
-        .enq-ask:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
-        .panel-tab[data-view="enquirer"][aria-selected="true"] { background: rgba(127,224,210,0.14); border-color: rgba(127,224,210,0.45); }
-        @media (max-width: 1279px) { #enquirer-body { min-width: 0; } }
-        @media (max-width: 1279px) {
-            #insight-panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(92vw, var(--insight-width)) !important; transform: translateX(100%); transition: transform .28s ease; z-index: 200; box-shadow: -20px 0 50px rgba(0,0,0,0.5); }
-            body.insight-open #insight-panel { transform: translateX(0); }
-            .insight-head, #insight-body { min-width: 0; }
-            body.insight-open #insight-scrim { display: block; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 150; }
-        }
-        @media (max-width: 768px) { :root { --sidebar-width: 280px; } .insight-toggle { right: 0.6rem; } #app-header .header-right { padding-right: 2.9rem; } }
-        @media (prefers-reduced-motion: reduce) { #insight-panel, .cl-cursor, .status-pulse, .insight-entry.fresh { transition: none; animation: none; } }
-    </style>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23667eea%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23764ba2%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2216%22%20fill%3D%22url%28%23g%29%22/%3E%3Cg%20transform%3D%22translate%284.8%205.2%29%20scale%280.7%29%22%3E%3Cline%20x1%3D%2216%22%20y1%3D%224.2%22%20x2%3D%2216%22%20y2%3D%228%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%223.4%22%20r%3D%222.1%22%20fill%3D%22%23ff8c42%22/%3E%3Crect%20x%3D%225.5%22%20y%3D%228%22%20width%3D%2221%22%20height%3D%2216.5%22%20rx%3D%226.5%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.18%29%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Crect%20x%3D%228.6%22%20y%3D%2211.6%22%20width%3D%2214.8%22%20height%3D%227.6%22%20rx%3D%223.8%22%20fill%3D%22%231b1340%22/%3E%3Ccircle%20cx%3D%2212.6%22%20cy%3D%2215.4%22%20r%3D%222%22%20fill%3D%22%237fe0ff%22/%3E%3Ccircle%20cx%3D%2219.4%22%20cy%3D%2215.4%22%20r%3D%222%22%20fill%3D%22%237fe0ff%22/%3E%3Cpath%20d%3D%22M13%2021.6c1.9%201%204.1%201%206%200%22%20stroke%3D%22%23fff%22%20stroke-width%3D%221.8%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3C/g%3E%3C/svg%3E">
-</head>
-<body>
-    <div id="app-container">
-        <aside id="sidebar" class="sidebar">
-            <div class="sidebar-top">
-                <button id="sidebar-toggle" class="sidebar-toggle" title="Toggle sidebar">
-                    ≡
-                </button>
-            </div>
-            
-            <div class="sidebar-header">
-                <button id="new-chat-btn" class="new-chat-btn">
-                    <span class="icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M16.4 3.6a2.2 2.2 0 0 1 3.1 3.1L8 18.2l-4.1 1 1-4.1z"/><path class="l" d="M16.4 3.6a2.2 2.2 0 0 1 3.1 3.1L8 18.2l-4.1 1 1-4.1z"/><path class="l" d="M14.6 5.4l3.1 3.1"/><path class="a-l" d="M12.5 20h7.5"/></svg></span>
-                    <span class="text">New Chat</span>
-                </button>
-            </div>
-
-            <nav class="sidebar-nav">
-                <div class="nav-section">
-                    <div class="nav-label">Recent Chats</div>
-                    <div id="chat-history" class="chat-history">
-                        <div class="empty-state">No conversations yet</div>
-                    </div>
-                </div>
-            </nav>
-
-            <div class="sidebar-footer">
-                <div id="account-box" class="account-box"></div>
-                <button class="sidebar-btn" id="help-btn">
-                    <span class="icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle class="f" cx="12" cy="12" r="9"/><circle class="l" cx="12" cy="12" r="9"/><path class="l" d="M12 11v5.2"/><circle class="a" cx="12" cy="7.7" r="1.15"/></svg></span>
-                    <span>About VQ</span>
-                </button>
-            </div>
-        </aside>
-
-        <div id="main-content" class="main-content">
-            <header id="app-header">
-                <button type="button" id="mobile-menu-btn" class="mobile-menu-btn" aria-label="Open chats menu" aria-controls="sidebar" aria-expanded="false">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-                </button>
-                <div class="header-center">
-                    <div class="app-avatar-small"><svg class="ic vq-mark" viewBox="0 0 32 32" aria-hidden="true"><line class="l vq-antenna" x1="16" y1="4.2" x2="16" y2="8"/><circle class="vq-light" cx="16" cy="3.4" r="2.1"/><rect class="f vq-head" x="5.5" y="8" width="21" height="16.5" rx="6.5"/><rect class="l" x="5.5" y="8" width="21" height="16.5" rx="6.5"/><rect class="vq-visor" x="8.6" y="11.6" width="14.8" height="7.6" rx="3.8"/><circle class="vq-eye" cx="12.6" cy="15.4" r="2"/><circle class="vq-eye" cx="19.4" cy="15.4" r="2"/><circle class="vq-glint" cx="13.2" cy="14.8" r="0.6"/><circle class="vq-glint" cx="20" cy="14.8" r="0.6"/><path class="l vq-mouth" d="M13 21.6c1.9 1 4.1 1 6 0"/><rect class="a vq-ear" x="2.6" y="13.6" width="2.6" height="5.2" rx="1.3"/><rect class="a vq-ear" x="26.8" y="13.6" width="2.6" height="5.2" rx="1.3"/></svg></div>
-                    <h1 class="app-title"><span class="title-name">Veritas Quaesitor</span><span class="cai-badge">CAI</span></h1>
-                </div>
-
-                <div class="header-right">
-                    <span class="status-indicator">
-                        <span class="status-dot"></span>
-                        <span id="status-text">Online</span>
-                    </span>
-                    <button id="insight-toggle" class="insight-toggle" type="button" aria-controls="insight-panel" aria-expanded="false" title="Behind this answer" aria-label="Show or hide answer details">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg>
-                    </button>
-                </div>
-            </header>
-
-            <main id="chat-container">
-                <div id="messages-area"></div>
-                
-                <div id="welcome-screen" class="welcome-screen">
-                    <div class="welcome-avatar"><svg class="ic vq-mark" viewBox="0 0 32 32" aria-hidden="true"><line class="l vq-antenna" x1="16" y1="4.2" x2="16" y2="8"/><circle class="vq-light" cx="16" cy="3.4" r="2.1"/><rect class="f vq-head" x="5.5" y="8" width="21" height="16.5" rx="6.5"/><rect class="l" x="5.5" y="8" width="21" height="16.5" rx="6.5"/><rect class="vq-visor" x="8.6" y="11.6" width="14.8" height="7.6" rx="3.8"/><circle class="vq-eye" cx="12.6" cy="15.4" r="2"/><circle class="vq-eye" cx="19.4" cy="15.4" r="2"/><circle class="vq-glint" cx="13.2" cy="14.8" r="0.6"/><circle class="vq-glint" cx="20" cy="14.8" r="0.6"/><path class="l vq-mouth" d="M13 21.6c1.9 1 4.1 1 6 0"/><rect class="a vq-ear" x="2.6" y="13.6" width="2.6" height="5.2" rx="1.3"/><rect class="a vq-ear" x="26.8" y="13.6" width="2.6" height="5.2" rx="1.3"/></svg></div>
-                    <h2 class="welcome-title">Hey! I'm VQ</h2>
-                    <p class="welcome-subtitle">Your guide to Christ-Anchored Intelligence</p>
-                    
-                    <div class="suggestion-grid">
-                        <button class="suggestion-card cai-card-rotate-1" data-prompt-a="Explain CAI methodology" data-prompt-b="What evidence supports the resurrection?" data-prompt-c="How does Bayesian reasoning apply to faith?">
-                            <span class="suggestion-icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M4 19.5V16l4.5-5.2 3.4 3.3 6.1-7.6V19.5z"/><path class="l" d="M4 19.5h16.5"/><path class="l" d="M4 16l4.5-5.2 3.4 3.3 6.1-7.6"/><circle class="a" cx="18" cy="6.5" r="1.7"/></svg></span>
-                            <span class="suggestion-text cai-text-rotate-1"></span>
-                        </button>
-                        <button class="suggestion-card cai-card-rotate-2" data-prompt-a="Tell me about the Beta Tools" data-prompt-b="How does CAI handle mechanism challenges?" data-prompt-c="What is Epistemic Truth Symmetry?">
-                            <span class="suggestion-icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path class="l" d="M12 4v16M7.5 20h9M5 7.6h14"/><circle class="a" cx="12" cy="4" r="1.3"/><path class="f" d="M2.2 13.6h5.6a2.8 2.8 0 0 1-5.6 0z"/><path class="f" d="M16.2 13.6h5.6a2.8 2.8 0 0 1-5.6 0z"/><path class="l" d="M5 7.6l-2.8 6a2.8 2.8 0 0 0 5.6 0zM19 7.6l-2.8 6a2.8 2.8 0 0 0 5.6 0z"/></svg></span>
-                            <span class="suggestion-text cai-text-rotate-2"></span>
-                        </button>
-                        <button class="suggestion-card" data-prompt="What can you change on my screen?">
-                            <span class="suggestion-icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path class="l" d="M4 6.5h9.2M18.8 6.5H20M4 12h3.2M12.8 12H20M4 17.5h11.2M20.8 17.5H20"/><circle class="f" cx="16" cy="6.5" r="2.6"/><circle class="l" cx="16" cy="6.5" r="2.6"/><circle class="a" cx="10" cy="12" r="2.6"/><circle class="f" cx="18" cy="17.5" r="2.6"/><circle class="l" cx="18" cy="17.5" r="2.6"/></svg></span>
-                            <span class="suggestion-text">What can you change on screen?</span>
-                        </button>
-                        <button class="suggestion-card" data-prompt="tell me new fun stories">
-                            <span class="suggestion-icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M5 4.6A2 2 0 0 1 7 3h13v15.5H7a2 2 0 0 0-2 2z"/><path class="l" d="M5 4.6A2 2 0 0 1 7 3h13v15.5H7a2 2 0 0 0-2 2z"/><path class="l" d="M5 20.5A1.6 1.6 0 0 0 6.6 22H20v-3.5"/><path class="a" d="M12.5 6.3l1 2 2.2.3-1.6 1.6.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.6 2.2-.3z"/></svg></span>
-                            <span class="suggestion-text">Fictional Robot stories</span>
-                        </button>
-                    </div>
-                </div>
-            </main>
-
-            <footer id="input-area">
-                <div class="input-container">
-
-                    <div id="swap-banner" class="swap-banner" hidden role="status">
-                        <span class="swap-dot" aria-hidden="true"></span>
-                        <span class="swap-text">O.R.I.A. has the main chat</span>
-                        <button type="button" class="swap-back" onclick="window.__vqSwapBack && window.__vqSwapBack()">Swap back</button>
-                    </div>
-
-
-                    <div class="input-wrapper">
-                        <button class="input-btn mobile-new-chat-btn" id="mobile-new-chat-btn" title="New Chat">
-                            <span class="icon"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path class="f" d="M16.4 3.6a2.2 2.2 0 0 1 3.1 3.1L8 18.2l-4.1 1 1-4.1z"/><path class="l" d="M16.4 3.6a2.2 2.2 0 0 1 3.1 3.1L8 18.2l-4.1 1 1-4.1z"/><path class="l" d="M14.6 5.4l3.1 3.1"/><path class="a-l" d="M12.5 20h7.5"/></svg></span>
-                        </button>
-                        
-                        <textarea 
-                            id="message-input" 
-                            placeholder="Ask about CAI, resurrection evidence, or anything..."
-                            rows="1"
-                            maxlength="2000"
-                        ></textarea>
-                        
-                        <button id="send-btn" class="send-btn" disabled>
-                            <span>➤</span>
-                        </button>
-                    </div>
-                    
-                    <p id="quota-note" class="quota-note" hidden aria-live="polite"></p>
-                    <p class="input-disclaimer">VQ can make mistakes. Check sources on anything important.</p>
-                    <div class="input-footer">
-                        <span class="char-count" id="char-count">0 / 2000</span>
-                        <span class="footer-links">
-                            VQ Chat v3.1 • 
-                            <a href="../privacy.html" target="_blank">Privacy</a> • 
-                            <a href="../terms.html" target="_blank">Terms</a>
-                        </span>
-                    </div>
-                </div>
-            </footer>
-        </div>
-
-        <aside id="insight-panel" aria-label="Side panel">
-            <div class="panel-resize" id="panel-resize" title="Drag to resize · double-click to reset" aria-hidden="true"></div>
-            <div class="insight-head">
-                <div class="panel-tabs" role="tablist" aria-label="Panel views">
-                    <button type="button" role="tab" class="panel-tab" data-view="details" aria-selected="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg><span class="tab-label">Details</span>
-                    </button>
-                    <button type="button" role="tab" class="panel-tab" data-view="notes" aria-selected="false">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12l4 4v12H4z"/><path d="M8 11h8M8 15h5"/></svg><span class="tab-label">Notes</span>
-                    </button>
-                    <button type="button" role="tab" class="panel-tab" data-view="enquirer" aria-selected="false" title="O.R.I.A. (say &quot;Airo&quot;): the third companion">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.4v.3M12 16.5h.01"/></svg><span class="tab-label">O.R.I.A.</span>
-                    </button>
-                </div>
-                <button id="insight-close" class="insight-close" type="button" aria-label="Close panel" title="Close panel">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg>
-                </button>
-            </div>
-            <div id="insight-body" role="tabpanel"></div>
-            <div id="notes-body" role="tabpanel" hidden></div>
-            <div id="enquirer-body" role="tabpanel" hidden></div>
-            <form id="oria-form" class="oria-form" hidden>
-                <label for="oria-input" class="sr-only">Message O.R.I.A.</label>
-                <textarea id="oria-input" rows="1" placeholder="Talk to O.R.I.A.…" maxlength="2000"></textarea>
-                <button type="submit" class="oria-send" aria-label="Send to O.R.I.A.">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                </button>
-            </form>
-            <div id="panel-options" class="panel-options"></div>
-        </aside>
-        <div id="insight-scrim"></div>
-        <div id="sidebar-scrim"></div>
-    <div id="auth-modal" class="auth-modal" hidden role="dialog" aria-modal="true" aria-labelledby="auth-title">
-        <div class="auth-card">
-            <button type="button" class="auth-close" aria-label="Close">×</button>
-            <h2 id="auth-title">Sign in to VQ</h2>
-            <p class="auth-sub">Free: 30 messages a day, and your chats saved across all your devices.</p>
-            <button type="button" id="auth-google" class="auth-google">
-                <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
-                Continue with Google
+    const widgetHTML = `
+        <div id="vq-chat-widget" class="${/\/tour\.html$/.test(location.pathname) ? 'vq-bottom' : ''}">
+            <button id="vq-chat-bubble" aria-label="Chat with VQ" aria-expanded="false">
+                <span class="vq-face">${ROBOT}</span><span class="vq-bubble-text">Ask VQ</span>
             </button>
-            <div class="auth-or"><span>or</span></div>
-            <form id="auth-email-form" class="auth-email">
-                <label for="auth-email" class="sr-only">Email address</label>
-                <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email" required>
-                <button type="submit">Email me a sign-in link</button>
-            </form>
-            <p id="auth-status" class="auth-status" aria-live="polite"></p>
-            <p class="auth-legal">No password needed. By signing in you agree to the <a href="../terms.html" target="_blank" rel="noopener">Terms</a> and <a href="../privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
-        </div>
-    </div>
-
-    </div>
-
-    <div id="info-modal" class="modal hidden">
-        <div class="modal-overlay"></div>
-        <div class="modal-content">
-            <button class="modal-close" id="close-modal">×</button>
-            <div class="modal-header">
-                <div class="modal-avatar"><svg class="ic vq-mark" viewBox="0 0 32 32" aria-hidden="true"><line class="l vq-antenna" x1="16" y1="4.2" x2="16" y2="8"/><circle class="vq-light" cx="16" cy="3.4" r="2.1"/><rect class="f vq-head" x="5.5" y="8" width="21" height="16.5" rx="6.5"/><rect class="l" x="5.5" y="8" width="21" height="16.5" rx="6.5"/><rect class="vq-visor" x="8.6" y="11.6" width="14.8" height="7.6" rx="3.8"/><circle class="vq-eye" cx="12.6" cy="15.4" r="2"/><circle class="vq-eye" cx="19.4" cy="15.4" r="2"/><circle class="vq-glint" cx="13.2" cy="14.8" r="0.6"/><circle class="vq-glint" cx="20" cy="14.8" r="0.6"/><path class="l vq-mouth" d="M13 21.6c1.9 1 4.1 1 6 0"/><rect class="a vq-ear" x="2.6" y="13.6" width="2.6" height="5.2" rx="1.3"/><rect class="a vq-ear" x="26.8" y="13.6" width="2.6" height="5.2" rx="1.3"/></svg></div>
-                <h2>About VQ</h2>
-            </div>
-            <div class="modal-body">
-                <p><strong>Veritas Quaesitor</strong> means "Truth Seeker" in Latin.</p>
-                
-                <p>I'm a Christ-Anchored Intelligence (CAI v3.1) designed to explore truth through rigorous evidence and symmetric reasoning.</p>
-                
-                <h3>What I Can Help With:</h3>
-                <ul>
-                    <li>CAI methodology and framework</li>
-                    <li>Resurrection evidence analysis</li>
-                    <li>Bayesian reasoning for faith claims</li>
-                    <li>Beta Tools exploration</li>
-                    <li>AI alignment and ethics</li>
-                    <li>General theological discussion</li>
-                </ul>
-                
-                <h3>Mission:</h3>
-                <p>Building defensive infrastructure for truth in the AI age. All truth leads to Christ.</p>
-                
-                <div class="modal-links">
-                    <a href="https://veritasquaesitorcai.github.io" target="_blank">Visit Website</a>
-                    <a href="https://github.com/VeritasQuaesitorCAI" target="_blank">GitHub</a>
-                    <a href="mailto:veritasquaesitorai@gmail.com">Contact</a>
+            <div id="vq-chat-panel" role="dialog" aria-label="Chat with VQ">
+                <div id="vq-chat-header">
+                    <span class="vq-face">${ROBOT}</span>
+                    <div id="vq-chat-info">
+                        <h3>Veritas Quaesitor <span>CAI</span></h3>
+                        <p>Your guide to this site, and quick answers</p>
+                    </div>
+                    <button class="vq-hbtn vq-expand" id="vq-chat-expand" title="Bigger window" aria-label="Make the chat window bigger" aria-pressed="false">${ICON.expand}</button>
+                    <button class="vq-hbtn" id="vq-chat-clear" title="Start over" aria-label="Start a new conversation">${ICON.clear}</button>
+                    <button class="vq-hbtn" id="vq-chat-close" title="Close (Esc)" aria-label="Close chat">${ICON.close}</button>
+                </div>
+                <div id="vq-chat-messages" aria-live="polite"></div>
+                <div id="vq-chat-input-area">
+                    <div class="vq-inputrow">
+                        <input type="text" id="vq-chat-input" placeholder="Find something on the site, or ask VQ anything…" autocomplete="off" maxlength="2000" aria-label="Message VQ">
+                        <button id="vq-chat-send" aria-label="Send">${ICON.send}</button>
+                    </div>
+                    <div class="vq-links">
+                        <a href="${CONFIG.appUrl}" class="vq-full" id="vq-chat-full">Open in VQ Chat</a>
+                        ${/\/tour\.html$/.test(location.pathname) ? '' : `<a href="${CONFIG.tourUrl}" target="_blank" rel="noopener">Take the 1-minute tour</a>`}
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    `;
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app.js?v=2026-10-05-newsimg"></script>
-</body>
-</html>
+    // Safe, minimal Markdown: escape everything, then allow bold, italics, code, https links and lists
+    function escapeHtml(t) { return t.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    function inline(t) {
+        return escapeHtml(t)
+            .replace(/`([^`]+)`/g, '<code>$1</code>')
+            .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+            .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>')
+            .replace(/\[([^\]]+)\]\((https:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+            .replace(/(^|[\s(])(https:\/\/[^\s<)]+)/g, '$1<a href="$2" target="_blank" rel="noopener noreferrer">$2</a>');
+    }
+    function renderMarkdown(text) {
+        const out = []; let list = null;
+        const close = () => { if (list) { out.push(`</${list}>`); list = null; } };
+        text.replace(/\r/g, '').split('\n').forEach(line => {
+            const ul = /^\s*[-•*]\s+(.*)$/.exec(line), ol = /^\s*\d+[.)]\s+(.*)$/.exec(line);
+            if (ul || ol) {
+                const kind = ul ? 'ul' : 'ol';
+                if (list !== kind) { close(); out.push(`<${kind}>`); list = kind; }
+                out.push(`<li>${inline((ul || ol)[1])}</li>`);
+            } else if (!line.trim()) {
+                close(); out.push('');
+            } else {
+                close();
+                const h = /^#{1,6}\s+(.*)$/.exec(line);
+                out.push(`<p>${h ? '<strong>' + inline(h[1]) + '</strong>' : inline(line)}</p>`);
+            }
+        });
+        close();
+        // consecutive lines inside one paragraph join with a line break; a blank line starts a new paragraph
+        return out.join('\n').replace(/<\/p>\n<p>/g, '<br>').replace(/\n/g, '');
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+
+    function init() {
+        if (document.getElementById('vq-chat-widget')) return;
+        const container = document.createElement('div');
+        container.innerHTML = widgetHTML;
+        document.body.appendChild(container.firstElementChild);
+
+        const bubble = document.getElementById('vq-chat-bubble');
+        const panel = document.getElementById('vq-chat-panel');
+        const input = document.getElementById('vq-chat-input');
+        const sendBtn = document.getElementById('vq-chat-send');
+        const messagesContainer = document.getElementById('vq-chat-messages');
+
+        let conversationHistory = [];
+        let pendingGo = null;   // the last place VQ offered to take you
+        const onTour = /\/tour\.html$/.test(location.pathname);
+        try { conversationHistory = JSON.parse(localStorage.getItem('vq-conversation-history') || '[]'); } catch (e) { conversationHistory = []; }
+        if (!Array.isArray(conversationHistory)) conversationHistory = [];
+        // Greetings aren't stored, so visitors always see the current welcome
+        const isWelcome = (m) => m && m.role === 'assistant' && typeof m.content === 'string' &&
+            (m.content === CONFIG.welcomeMessage || /^(Hi, I'm VQ|Hey! 👋 I'm VQ|Hey! I'm VQ)/.test(m.content));
+        conversationHistory = conversationHistory.filter(m => !isWelcome(m));
+        const onTourPage = /\/tour\.html$/.test(location.pathname);
+        const greetKey = onTourPage ? 'vq-tour-greeting-typed' : 'vq-greeting-typed';
+        if (onTourPage) {
+            // On the tour, earlier messages come first and the tour greeting sits at the bottom, where it's seen
+            conversationHistory.forEach(m => addMessageToUI(m.role, m.content));
+            addMessageToUI('assistant', CONFIG.welcomeMessage);
+        } else {
+            addMessageToUI('assistant', CONFIG.welcomeMessage);
+        }
+        // The greeting is typed out the first time the chat opens in a visit (instant if motion is reduced)
+        let welcomeBox = messagesContainer.lastElementChild && messagesContainer.lastElementChild.querySelector('.vq-message-content');
+        if (!onTourPage) welcomeBox = messagesContainer.firstElementChild && messagesContainer.firstElementChild.querySelector('.vq-message-content');
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        let typingTimer = null;
+        // A fresh conversation (or the tour greeting) is typed; above earlier messages, the greeting simply shows
+        if (welcomeBox && !reduceMotion && (onTourPage || !conversationHistory.length) && !sessionStorage.getItem(greetKey)) {
+            welcomeBox.innerHTML = '';
+            welcomeBox.dataset.pending = '1';
+        }
+        function finishGreeting() {
+            if (!welcomeBox || !welcomeBox.dataset.pending) return;
+            clearInterval(typingTimer); typingTimer = null;
+            delete welcomeBox.dataset.pending;
+            welcomeBox.innerHTML = renderMarkdown(CONFIG.welcomeMessage);
+            welcomeBox.classList.remove('vq-typing-text');
+        }
+        function typeGreeting() {
+            if (!welcomeBox || !welcomeBox.dataset.pending || typingTimer || welcomeBox.dataset.started) return;
+            welcomeBox.dataset.started = '1';
+            sessionStorage.setItem(greetKey, '1');
+            const full = CONFIG.welcomeMessage;
+            welcomeBox.innerHTML = '<div class="vq-typing" aria-hidden="true"><i></i><i></i><i></i></div>';
+            let i = 0;
+            setTimeout(() => {
+                if (!welcomeBox || !welcomeBox.dataset.pending) return;
+                welcomeBox.classList.add('vq-typing-text');
+                typingTimer = setInterval(() => {
+                    i = Math.min(full.length, i + 2);
+                    welcomeBox.innerHTML = renderMarkdown(full.slice(0, i));
+                    if (i >= full.length) finishGreeting();
+                }, 28);
+            }, 650);
+        }
+        if (!onTourPage && conversationHistory.length) conversationHistory.forEach(m => addMessageToUI(m.role, m.content));
+        setTimeout(greetArrival, 0);
+
+        // First visit in this browser session (desktop): a small hello under the button, gone after a few seconds
+        function showTeaser(message, key) {
+            key = key || 'vq-teaser-shown';
+            if (panel.classList.contains('open') || sessionStorage.getItem(key)) return;
+            sessionStorage.setItem(key, '1');
+            const t = document.createElement('div');
+            t.id = 'vq-teaser';
+            t.setAttribute('role', 'status');
+            t.innerHTML = '<span></span><button type="button" aria-label="Dismiss">✕</button>';
+            t.firstChild.innerHTML = message || "<b>Hi, I'm VQ.</b> Looking for something on this site? I can take you straight to it.";
+            const remove = () => { t.remove(); };
+            t.querySelector('button').addEventListener('click', (e) => { e.stopPropagation(); remove(); });
+            t.addEventListener('click', () => { remove(); openChat(true); });
+            document.getElementById('vq-chat-widget').appendChild(t);
+            setTimeout(remove, 9000);
+            bubble.addEventListener('click', remove, { once: true });
+        }
+        function welcomeOpen() {
+            if (onTour) {
+                if (sessionStorage.getItem('vq-tour-welcomed')) return;
+                sessionStorage.setItem('vq-tour-welcomed', '1');
+                fadeOpen();
+                return;
+            }
+            if (panel.classList.contains('open') || sessionStorage.getItem('vq-welcomed')) return;
+            const dismissed = parseInt(localStorage.getItem('vq-widget-dismissed') || '0', 10);
+            if (Date.now() - dismissed < 7 * 24 * 3600 * 1000) return;          // they closed it recently: respect that
+            if (/\/app\//.test(location.pathname)) return;
+            sessionStorage.setItem('vq-welcomed', '1');
+            sessionStorage.setItem('vq-teaser-shown', '1');
+            fadeOpen();                                                          // no keyboard focus, no scrolling
+        }
+        // (deferred so everything below has been set up first)
+        setTimeout(() => { if (isPhone()) setTimeout(showTeaser, 2500); else setTimeout(welcomeOpen, 3000); }, 0);
+
+        const isPhone = () => window.matchMedia('(max-width: 768px)').matches;
+        // Reopen a bubble that was left open, but let the page settle first and fade it in
+        function fadeOpen() {
+            if (panel.classList.contains('open')) return;
+            panel.classList.add('vq-welcome');
+            const scan = document.createElement('div'); scan.className = 'vq-scan';
+            const crt = document.createElement('div'); crt.className = 'vq-crt';
+            panel.append(scan, crt);
+            openChat(false, reduceMotion ? 350 : 2000);   // the greeting starts typing once the panel has fully appeared
+            setTimeout(() => { panel.classList.remove('vq-welcome'); scan.remove(); crt.remove(); }, 2600);
+        }
+        if (localStorage.getItem('vq-widget-open') === 'true' && !isPhone() && !onTour) setTimeout(fadeOpen, 900);
+
+        bubble.addEventListener('click', () => panel.classList.contains('open') ? closeChat() : openChat(true));
+        document.getElementById('vq-chat-close').addEventListener('click', closeChat);
+        document.getElementById('vq-chat-clear').addEventListener('click', clearConversation);
+        const expandBtn = document.getElementById('vq-chat-expand');
+        let userSized = false;   // once someone sizes the window themselves, we stop resizing it for them
+        const setExpanded = (on, auto) => {
+            if (!auto) userSized = true;
+            panel.classList.toggle('expanded', on);
+            expandBtn.innerHTML = on ? ICON.shrink : ICON.expand;
+            expandBtn.title = on ? 'Smaller window' : 'Bigger window';
+            expandBtn.setAttribute('aria-label', on ? 'Make the chat window smaller' : 'Make the chat window bigger');
+            expandBtn.setAttribute('aria-pressed', String(on));
+            if (!auto) { try { localStorage.setItem('vq-widget-expanded', on ? 'true' : 'false'); } catch (e) {} }
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        };
+        expandBtn.addEventListener('click', () => setExpanded(!panel.classList.contains('expanded')));
+        if (localStorage.getItem('vq-widget-expanded') === 'true') { setExpanded(true, true); userSized = true; }
+        // Long answers get room to breathe: the window grows for them (desktop only)
+        const maybeGrow = (text) => {
+            if (userSized || isPhone() || panel.classList.contains('expanded')) return;
+            const t = String(text || '');
+            if (t.length > 700 || (t.match(/\n/g) || []).length > 9) setExpanded(true, true);
+        };
+        document.getElementById('vq-chat-full').addEventListener('click', (e) => { e.preventDefault(); openInApp(); });
+        sendBtn.addEventListener('click', sendMessage);
+        input.addEventListener('input', finishGreeting);
+        input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); sendMessage(); } });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && panel.classList.contains('open')) closeChat(); });
+
+        function openChat(focus, greetDelay) {
+            setTimeout(typeGreeting, greetDelay || 350);
+            panel.classList.add('open');
+            bubble.setAttribute('aria-expanded', 'true');
+            document.documentElement.classList.add('vq-chat-open');
+            localStorage.setItem('vq-widget-open', 'true');
+            if (focus && !isPhone()) input.focus();
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        function closeChat() {
+            if (panel.classList.contains('open') && !onTour) { try { localStorage.setItem('vq-widget-dismissed', String(Date.now())); } catch (e) {} }
+            panel.classList.remove('open', 'vq-welcome');
+            bubble.setAttribute('aria-expanded', 'false');
+            document.documentElement.classList.remove('vq-chat-open');
+            localStorage.setItem('vq-widget-open', 'false');
+        }
+        function clearConversation() {
+            localStorage.removeItem('vq-conversation-history');
+            messagesContainer.innerHTML = '';
+            conversationHistory = [];
+            addMessageToUI('assistant', CONFIG.welcomeMessage);
+            welcomeBox = null;
+        }
+
+        // Hand the conversation to the full app (same site, so it travels through this browser's storage)
+        // The conversation MOVES to VQ Chat: the app gets it, and the bubble starts fresh with a way back to it
+        function openInApp(mode) {
+            const messages = conversationHistory.filter(m => m.content !== CONFIG.welcomeMessage);
+            const moving = messages.some(m => m.role === 'user');
+            try {
+                if (moving) localStorage.setItem('vq-handoff', JSON.stringify({ ts: Date.now(), messages }));
+            } catch (e) { /* storage full: the app simply opens fresh */ }
+            const target = CONFIG.appUrl + (mode === 'signin' ? '?signin=1' : '');
+            // A named tab: if VQ Chat is already open from here, it's reused (and picks up the conversation live)
+            const win = window.open(target, 'vq-chat-app');
+            if (!win) { window.location.href = target; return; }   // pop-ups blocked: open it here instead
+            try { win.focus(); } catch (e) {}
+            if (moving) {
+                conversationHistory = [];
+                try { localStorage.removeItem('vq-conversation-history'); } catch (e) {}
+                pendingGo = null;
+                messagesContainer.innerHTML = '';
+                addMessageToUI('assistant', CONFIG.welcomeMessage);
+                welcomeBox = null;
+            }
+            addMessageToUI('assistant', mode === 'signin'
+                ? 'I opened **VQ Chat** so you can sign in. Our conversation went with you, and this bubble will use your account afterwards.'
+                : moving ? 'Our conversation **moved to VQ Chat**, in its own tab, so you can carry on there. This page stays right here, and I\'m still here for quick questions.'
+                         : 'I opened **VQ Chat** in its own tab. This page stays right here.');
+            if (moving) {
+                const box = messagesContainer.lastElementChild && messagesContainer.lastElementChild.querySelector('.vq-message-content');
+                if (box) {
+                    const row = document.createElement('div');
+                    row.className = 'vq-go-row';
+                    const b = document.createElement('button');
+                    b.type = 'button'; b.className = 'vq-go';
+                    b.innerHTML = '<span>Back to the conversation in VQ Chat</span>↗';
+                    b.addEventListener('click', () => { const w = window.open(CONFIG.appUrl, 'vq-chat-app'); if (w) { try { w.focus(); } catch (e) {} } });
+                    row.appendChild(b);
+                    box.appendChild(row);
+                }
+            }
+        }
+
+        let activeTyping = null;   // finishes the reply being typed, if any
+        function addMessageToUI(role, content, typed) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = role === 'user' ? 'vq-message vq-user-message' : 'vq-message';
+            const bubbleEl = document.createElement('div');
+            bubbleEl.className = 'vq-message-content';
+            if (role === 'user') {
+                bubbleEl.textContent = content;
+            } else {
+                const av = document.createElement('span');
+                av.className = 'vq-av';
+                av.innerHTML = ROBOT;
+                messageDiv.appendChild(av);
+                if (typed && !reduceMotion) typeReply(bubbleEl, content);
+                else fillAssistant(bubbleEl, content);
+            }
+            messageDiv.appendChild(bubbleEl);
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Replies are typed out like the greeting; links and buttons appear once the text is complete
+        function typeReply(box, content) {
+            if (activeTyping) activeTyping();
+            const text = String(content).replace(/<img[^>]*>/gi, '');
+            const step = Math.max(2, Math.ceil(text.length / 160));   // long answers still finish in about 4-5 seconds
+            let i = 0, timer = null;
+            box.classList.add('vq-typing-text');
+            const done = () => {
+                clearInterval(timer);
+                if (activeTyping === done) activeTyping = null;
+                box.classList.remove('vq-typing-text');
+                box.innerHTML = '';
+                fillAssistant(box, content);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            };
+            activeTyping = done;
+            timer = setInterval(() => {
+                i = Math.min(text.length, i + step);
+                box.innerHTML = renderMarkdown(text.slice(0, i));
+                const nearBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight < 80;
+                if (nearBottom) messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                if (i >= text.length) done();
+            }, 28);
+        }
+
+        function fillAssistant(bubbleEl, content) {
+                String(content).split(/(<img[^>]*>)/i).forEach(part => {
+                    if (/^<img/i.test(part)) { const img = safeImageFrom(part); if (img) bubbleEl.appendChild(img); }
+                    else if (part.trim()) { const d = document.createElement('div'); d.innerHTML = renderMarkdown(part); bubbleEl.appendChild(d); }
+                });
+                bubbleEl.querySelectorAll('a[href]').forEach(prepareLink);
+                const targets = [];
+                bubbleEl.querySelectorAll('a[href]').forEach(a => {
+                    const info = linkInfo(a.getAttribute('href'));
+                    if (!info) return;
+                    if (/^https?:\/\//.test(a.textContent.trim())) a.textContent = info.label;   // no long raw addresses
+                    const here = info.url.pathname.replace(/index\.html$/, '') === location.pathname.replace(/index\.html$/, '');
+                    if (here && (!info.section || onTour)) { a.replaceWith(document.createTextNode(a.textContent)); return; }   // already here
+                    if (!targets.some(t => t.url.href === info.url.href)) targets.push(info);
+                });
+                if (targets.length) {
+                    const row = document.createElement('div');
+                    row.className = 'vq-go-row';
+                    targets.slice(0, 3).forEach(t => {
+                        const b = document.createElement('button');
+                        b.type = 'button'; b.className = 'vq-go';
+                        b.innerHTML = '<span></span>→';
+                        b.firstChild.textContent = `Take me there: ${t.section || t.page}`;
+                        b.addEventListener('click', () => goTo(t));
+                        row.appendChild(b);
+                    });
+                    bubbleEl.appendChild(row);
+                    pendingGo = targets[0];
+                } else {
+                    pendingGo = null;
+                }
+        }
+
+        // Site links open in this tab; a link to a section of the page you're on scrolls straight to it
+        function prepareLink(a) {
+            let url; try { url = new URL(a.getAttribute('href'), location.href); } catch (e) { return; }
+            if (url.origin !== location.origin) return;
+            a.removeAttribute('target');
+            const samePage = url.pathname.replace(/index\.html$/, '') === location.pathname.replace(/index\.html$/, '');
+            const m = /:~:text=([^&]+)/.exec(url.hash);
+            if (samePage && m) {
+                a.addEventListener('click', (e) => {
+                    const wanted = decodeURIComponent(m[1]).toLowerCase().replace(/\s+/g, ' ').trim();
+                    const target = [...document.querySelectorAll('h1, h2, h3, h4')]
+                        .find(h => !h.closest('#vq-chat-widget') && h.textContent.toLowerCase().replace(/\s+/g, ' ').includes(wanted));
+                    if (!target) return;   // let the browser try the text fragment itself
+                    e.preventDefault();
+                    if (isPhone()) closeChat();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    target.classList.add('vq-section-flash');
+                    setTimeout(() => target.classList.remove('vq-section-flash'), 2200);
+                });
+            }
+        }
+
+        function safeImageFrom(tagHtml) {
+            const m = /\ssrc\s*=\s*["']([^"']+)["']/i.exec(tagHtml);
+            if (!m) return null;
+            let url; try { url = new URL(m[1]); } catch (e) { return null; }
+            if (url.protocol !== 'https:') return null;
+            const img = document.createElement('img');
+            img.src = url.href; img.alt = ''; img.loading = 'lazy'; img.referrerPolicy = 'no-referrer';
+            img.onerror = function () { this.remove(); };
+            return img;
+        }
+
+        document.addEventListener('click', (e) => {
+            const a = e.target.closest && e.target.closest('a[href]');
+            if (a && /(^|\/)tour\.html([?#]|$)/.test(a.getAttribute('href') || '') && !onTour) { a.target = '_blank'; a.rel = 'noopener'; }
+        }, true);
+
+        // ---------- Navigation: VQ can take you to a page or section ----------
+        const YES = /^(?:(?:yes|yeah|yep|yup|sure|ok|okay|please|please do|go|go there|go ahead|take me|take me there|open it|let'?s go|do it|show me)[\s,.!]*)+$/i;
+
+        function findHeading(text) {
+            const wanted = String(text || '').toLowerCase().replace(/\s+/g, ' ').trim();
+            if (!wanted) return null;
+            return [...document.querySelectorAll('h1, h2, h3, h4')]
+                .find(h => !h.closest('#vq-chat-widget') && h.textContent.toLowerCase().replace(/\s+/g, ' ').includes(wanted));
+        }
+        function flash(el) {
+            if (isPhone()) closeChat();
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            el.classList.add('vq-section-flash');
+            setTimeout(() => el.classList.remove('vq-section-flash'), 2400);
+        }
+        function goTo(t) {
+            const samePage = t.url.pathname.replace(/index\.html$/, '') === location.pathname.replace(/index\.html$/, '');
+            if (samePage) {
+                const h = findHeading(t.section);
+                if (h) { flash(h); addMessage('assistant', `Here it is: **${t.section || t.page}**.`); return; }
+                if (!t.section) { window.scrollTo({ top: 0, behavior: 'smooth' }); addMessage('assistant', `You're already on **${t.page}**.`); return; }
+            }
+            try {
+                localStorage.setItem('vq-arrival', JSON.stringify({ ts: Date.now(), page: t.page, section: t.section }));
+                localStorage.setItem('vq-widget-open', isPhone() ? 'false' : 'true');
+            } catch (e) {}
+            if (/\/tour\.html$/.test(t.url.pathname)) {
+                localStorage.removeItem('vq-arrival');
+                window.open(t.url.href, '_blank', 'noopener');
+                addMessage('assistant', 'I opened the **1-minute tour** in a new tab. Come back here any time with questions about it.');
+                return;
+            }
+            if (panel.classList.contains('expanded')) setExpanded(false, true);
+            window.location.href = t.url.href;
+        }
+        // After arriving on the new page: say where we are and point at the section
+        function greetArrival() {
+            let a = null;
+            try { a = JSON.parse(localStorage.getItem('vq-arrival') || 'null'); localStorage.removeItem('vq-arrival'); } catch (e) {}
+            if (!a || Date.now() - (a.ts || 0) > 60000) return;
+            addMessage('assistant', a.section ? `Here you are: **${a.section}** on ${a.page}.` : `Here you are: **${a.page}**. Ask me if you'd like to find something on this page.`);
+            if (a.section) setTimeout(() => { const h = findHeading(a.section); if (h) { h.scrollIntoView({ block: 'start' }); h.classList.add('vq-section-flash'); setTimeout(() => h.classList.remove('vq-section-flash'), 2600); } }, 450);
+        }
+
+        function addMessage(role, content) {
+            addMessageToUI(role, content, role === 'assistant');
+            conversationHistory.push({ role, content });
+            if (conversationHistory.length > 40) conversationHistory = conversationHistory.slice(-40);
+            try { localStorage.setItem('vq-conversation-history', JSON.stringify(conversationHistory)); }
+            catch (e) { conversationHistory = conversationHistory.slice(-12); try { localStorage.setItem('vq-conversation-history', JSON.stringify(conversationHistory)); } catch (_) {} }
+        }
+
+        function showTypingIndicator() {
+            const t = document.createElement('div');
+            t.className = 'vq-message'; t.id = 'vq-typing';
+            t.innerHTML = `<span class="vq-av">${ROBOT}</span><div class="vq-typing" aria-label="VQ is typing"><i></i><i></i><i></i></div>`;
+            messagesContainer.appendChild(t);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        function hideTypingIndicator() { const t = document.getElementById('vq-typing'); if (t) t.remove(); }
+
+        function getSmartPageContext() {
+            const url = window.location.href;
+            const pathname = window.location.pathname;
+            
+            let pageType = 'unknown';
+            let relevantContent = '';
+
+            if (window.VQ_APP_MODE === 'standalone' || pathname.includes('/app/')) {
+                pageType = 'standalone-app';
+                relevantContent = extractMainContent('main', '#app', '#root', 'body');
+                
+            } else if (window.VQ_APP_MODE === 'extension' || (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id && !url.includes('veritasquaesitorcai.github.io')) || (!url.includes('veritasquaesitorcai.github.io') && !pathname.includes('/app/'))) {
+                pageType = 'extension-' + detectExternalPageType();
+                relevantContent = extractExternalPageContent();
+
+            } else if (pathname.includes('index-ai') || pathname.includes('ai-index')) {
+                pageType = 'ai-index';
+                relevantContent = extractMainContent('#calculation', 'main', 'article', '.methodology');
+            } else if (pathname.includes('beta-tools')) {
+                pageType = 'beta-tools';
+                relevantContent = extractToolDescriptions();
+            } else if (pathname.includes('mission')) {
+                pageType = 'mission';
+                relevantContent = extractMainContent('.mission', '.mandate', 'main');
+            } else if (pathname.includes('vq1') || pathname.includes('robot')) {
+                pageType = 'vq1-robot';
+                relevantContent = extractMainContent('main', 'article');
+            } else if (pathname.includes('resources')) {
+                pageType = 'resources';
+                relevantContent = extractMainContent('.resource-list', 'main');
+            } else if (pathname.includes('contact')) {
+                pageType = 'contact';
+                relevantContent = extractMainContent('main', '.contact');
+            } else if (pathname.includes('index-human')) {
+                pageType = 'human-index';
+                relevantContent = extractMainContent('main', '.hero');
+            } else if (/\/(index\.html)?$/.test(pathname)) {
+                pageType = 'ai-index';
+                relevantContent = extractMainContent('#calculation', 'main', 'article', '.methodology');
+            }
+            
+            return {
+                url: url,
+                pageType: pageType,
+                title: document.title,
+                content: relevantContent.substring(0, 1000)
+            };
+        }
+
+        function extractMainContent(...selectors) {
+            for (const selector of selectors) {
+                const element = document.querySelector(selector);
+                if (element) {
+                    const clone = element.cloneNode(true);
+                    clone.querySelectorAll('script, style, .hidden, [hidden]').forEach(el => el.remove());
+                    return clone.innerText.trim();
+                }
+            }
+            return document.body.innerText.substring(0, 800);
+        }
+
+        function extractToolDescriptions() {
+            const tools = document.querySelectorAll('.tool-card, .beta-tool, [class*="tool"]');
+            let content = '';
+            tools.forEach(tool => {
+                const title = tool.querySelector('h3, h2, .tool-name')?.innerText || '';
+                const desc = tool.querySelector('p, .description, .tool-description')?.innerText || '';
+                if (title || desc) content += `${title}: ${desc}\n`;
+            });
+            return content || extractMainContent('main');
+        }
+
+        function detectExternalPageType() {
+            const host = window.location.hostname;
+            if (host.includes('wikipedia')) return 'wikipedia';
+            if (host.includes('youtube')) return 'youtube';
+            if (host.includes('arxiv')) return 'arxiv';
+            if (host.includes('scholar.google')) return 'google-scholar';
+            if (host.includes('reddit')) return 'reddit';
+            if (host.includes('twitter') || host.includes('x.com')) return 'twitter';
+            if (host.includes('linkedin')) return 'linkedin';
+            if (host.includes('github')) return 'github';
+            if (host.includes('medium')) return 'medium';
+            if (host.includes('stackoverflow')) return 'stackoverflow';
+            return 'webpage';
+        }
+
+        function extractExternalPageContent() {
+            const host = window.location.hostname;
+            let content = '';
+            const title = document.title || '';
+            const metaDesc = document.querySelector('meta[name="description"]')?.content || '';
+            const selectedText = window.getSelection()?.toString().trim() || '';
+            if (selectedText.length > 10) content += `[USER SELECTED TEXT]: "${selectedText}"\n\n`;
+            content += `[PAGE TITLE]: ${title}\n`;
+            if (metaDesc) content += `[PAGE DESCRIPTION]: ${metaDesc}\n`;
+            content += '\n';
+            if (host.includes('wikipedia')) {
+                const article = document.querySelector('#mw-content-text .mw-parser-output');
+                if (article) {
+                    const h1 = document.querySelector('h1#firstHeading')?.innerText || '';
+                    content += `[ARTICLE]: ${h1}\n`;
+                    const paragraphs = article.querySelectorAll('p');
+                    paragraphs.forEach((p, i) => {
+                        if (i < 3 && p.innerText.trim().length > 50) content += p.innerText.trim() + '\n';
+                    });
+                } else {
+                    content += '[PAGE]: Wikipedia Main Page\n';
+                    content += getVisibleText(300);
+                }
+            } else if (host.includes('youtube')) {
+                const titleEl = document.querySelector('h1.ytd-video-title-renderer') || document.querySelector('h1[class*="title"]') || document.querySelector('yt-formatted-string.ytd-video-title-renderer');
+                const videoTitle = titleEl?.innerText || '';
+                const channelEl = document.querySelector('.ytd-channel-name-renderer a') || document.querySelector('[class*="channel-name"]');
+                const channel = channelEl?.innerText || '';
+                const descEl = document.querySelector('.ytd-text-expand-container') || document.querySelector('[class*="description"]');
+                const desc = descEl?.innerText || '';
+                if (videoTitle) content += `[VIDEO]: ${videoTitle}\n`;
+                if (channel) content += `[CHANNEL]: ${channel}\n`;
+                if (desc) content += `[DESCRIPTION]: ${desc.substring(0, 400)}\n`;
+            } else if (host.includes('arxiv')) {
+                const paperTitle = document.querySelector('h1.title')?.innerText || document.querySelector('.abs-title')?.innerText || '';
+                const abstract = document.querySelector('.abstract')?.innerText || document.querySelector('[class*="abstract"]')?.innerText || '';
+                if (paperTitle) content += `[PAPER]: ${paperTitle}\n`;
+                if (abstract) content += `[ABSTRACT]: ${abstract}\n`;
+            } else if (host.includes('reddit')) {
+                const postTitle = document.querySelector('h1[data-testid="post-title"]')?.innerText || document.querySelector('h1')?.innerText || '';
+                const postBody = document.querySelector('[data-testid="post-content"]')?.innerText || document.querySelector('.self-text')?.innerText || '';
+                if (postTitle) content += `[POST]: ${postTitle}\n`;
+                if (postBody) content += `[BODY]: ${postBody.substring(0, 300)}\n`;
+                const comments = document.querySelectorAll('[data-testid="comment"]');
+                let commentCount = 0;
+                comments.forEach(c => {
+                    if (commentCount < 2) {
+                        const text = c.querySelector('[class*="comment-content"]')?.innerText || c.innerText;
+                        if (text && text.length > 20) { content += `[COMMENT]: ${text.substring(0, 150)}\n`; commentCount++; }
+                    }
+                });
+            } else if (host.includes('twitter') || host.includes('x.com')) {
+                const tweets = document.querySelectorAll('[data-testid="tweet"] [data-testid="tweetText"]');
+                let tweetCount = 0;
+                tweets.forEach(t => { if (tweetCount < 3) { content += `[TWEET]: ${t.innerText}\n`; tweetCount++; } });
+            } else if (host.includes('github.com')) {
+                const repoName = document.querySelector('.repository-content h1')?.innerText || document.querySelector('[data-testid="repository-title-link"]')?.innerText || '';
+                const readme = document.querySelector('.markdown')?.innerText || '';
+                const fileContent = document.querySelector('.code-view .Lines')?.innerText || '';
+                if (repoName) content += `[REPO]: ${repoName}\n`;
+                if (readme) content += `[README]: ${readme.substring(0, 400)}\n`;
+                if (fileContent) content += `[FILE]: ${fileContent.substring(0, 400)}\n`;
+            } else if (host.includes('stackoverflow')) {
+                const question = document.querySelector('.post-text[itemprop="text"]')?.innerText || document.querySelector('[class*="question-text"]')?.innerText || '';
+                const answers = document.querySelectorAll('.answer .post-text');
+                if (question) content += `[QUESTION]: ${question.substring(0, 300)}\n`;
+                if (answers[0]) content += `[TOP ANSWER]: ${answers[0].innerText.substring(0, 300)}\n`;
+            } else {
+                content += getVisibleText(500);
+            }
+            return content.substring(0, 1000);
+        }
+
+        function getVisibleText(maxChars) {
+            const viewportHeight = window.innerHeight;
+            const elements = document.querySelectorAll('h1, h2, h3, p, li, td, th');
+            let text = '';
+            elements.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if (rect.top >= 0 && rect.bottom <= viewportHeight && el.innerText.trim().length > 20) {
+                    text += el.innerText.trim() + '\n';
+                }
+            });
+            return text.substring(0, maxChars);
+        }
+
+        // Same device id and the same account as the VQ Chat app (they share this site's storage),
+        // so a signed-in person gets their full allowance here too
+        function requestHeaders() {
+            const h = { 'Content-Type': 'application/json' };
+            try {
+                let id = localStorage.getItem('vq-device-id');
+                if (!id) { id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2)); localStorage.setItem('vq-device-id', id); }
+                h['X-VQ-Device'] = id;
+                const sess = JSON.parse(localStorage.getItem('sb-luilxyqmsomulxkgjzti-auth-token') || 'null');
+                if (sess && sess.access_token && (!sess.expires_at || sess.expires_at * 1000 > Date.now() + 30000)) h['Authorization'] = 'Bearer ' + sess.access_token;
+            } catch (e) {}
+            return h;
+        }
+
+        // Out of guest messages: signing in happens in VQ Chat (one tap), and the bubble then uses that account too
+        function showSignInOffer(quota) {
+            const text = `That's today's ${quota.limit} free guest messages. **Sign in (it's free)** for ${30} a day, here and in the full app, with your chats saved across devices. Your conversation comes with you.`;
+            addMessageToUI('assistant', text);
+            const box = messagesContainer.lastElementChild && messagesContainer.lastElementChild.querySelector('.vq-message-content');
+            if (!box) return;
+            const row = document.createElement('div');
+            row.className = 'vq-go-row';
+            const b = document.createElement('button');
+            b.type = 'button'; b.className = 'vq-go';
+            b.innerHTML = '<span>Sign in free in VQ Chat</span>→';
+            b.addEventListener('click', () => openInApp('signin'));
+            row.appendChild(b);
+            box.appendChild(row);
+        }
+
+        async function sendMessage() {
+            const message = input.value.trim();
+            if (!message || sendBtn.disabled) return;
+            if (activeTyping) activeTyping();   // finish the reply being typed (so its links and buttons are ready)
+            finishGreeting();
+            if (pendingGo && YES.test(message)) {
+                input.value = '';
+                addMessage('user', message);
+                goTo(pendingGo);
+                return;
+            }
+            addMessage('user', message);
+            input.value = '';
+            sendBtn.disabled = true;
+            const pageContext = getSmartPageContext();
+            showTypingIndicator();
+            try {
+                const response = await fetch(CONFIG.apiEndpoint, {
+                    method: 'POST',
+                    headers: requestHeaders(),
+                    body: JSON.stringify({
+                        message: message,
+                        client: 'bubble',
+                        history: conversationHistory.filter(m => m.content !== CONFIG.welcomeMessage).slice(-20),
+                        pageContext: pageContext
+                    })
+                });
+                const data = await response.json().catch(() => ({}));
+                hideTypingIndicator();
+                if (data && data.response) {
+                    if (response.ok) { addMessage('assistant', data.response); maybeGrow(data.response); }
+                    else if (response.status === 429 && data.quota && data.quota.tier === 'guest') showSignInOffer(data.quota);
+                    else addMessageToUI('assistant', data.response);   // limit or error notices aren't saved
+                } else {
+                    throw new Error('Network response was not ok');
+                }
+            } catch (error) {
+                console.error('VQ chat error:', error);
+                hideTypingIndicator();
+                addMessageToUI('assistant', "I'm having trouble connecting right now. Please try again in a moment, or open the full VQ Chat app.");
+            } finally {
+                sendBtn.disabled = false;
+                if (!isPhone()) input.focus();
+            }
+        }
+    }
+})();
