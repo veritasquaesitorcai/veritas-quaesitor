@@ -1456,7 +1456,8 @@ UI_TOOL = {
                         "title": {"type": "string", "description": "style of the app's title: inscription (Roman capitals), elegant (book serif) or futuristic (wide sci-fi capitals)"},
                         "bubbles": {"type": "string", "description": "on: show VQ's answers in chat bubbles; off: open page-style answers (default)"},
                         "theme": {"type": "string", "description": "background theme: vq (default, near-black with neon icons), classic (warm charcoal on desktop, navy on phones), navy, charcoal, midnight, ocean, forest, ember, slate or plum"},
-                        "glow": {"type": "string", "description": "on (default) or off: the soft glow behind icons"}
+                        "glow": {"type": "string", "description": "on (default) or off: the soft glow behind icons"},
+                        "mist": {"type": "string", "description": "on (default) or off: the warm mist drifting through the default VQ theme"}
                     }
                 },
                 "note": {"type": "string", "description": "A few words describing the change, e.g. 'warmer, easier to read'"}
@@ -1475,6 +1476,7 @@ _STYLE_CHOICES = {
     "bubbles": ["on", "off"],
     "theme": ["vq", "classic", "navy", "charcoal", "midnight", "ocean", "forest", "ember", "slate", "plum"],
     "glow": ["on", "off"],
+    "mist": ["on", "off"],
 }
 _TITLE_SYNONYMS = {"roman": "inscription", "classic": "inscription", "latin": "inscription", "1": "inscription",
                    "serif": "elegant", "fancy": "elegant", "refined": "elegant", "2": "elegant",
@@ -1512,7 +1514,7 @@ def validate_ui_action(args: dict):
                     style[key] = round(min(hi, max(lo, float(st[key]))), 2)
             except (TypeError, ValueError):
                 pass
-        for key in ("accent", "contrast", "font", "motion", "width", "title", "bubbles", "theme", "glow"):
+        for key in ("accent", "contrast", "font", "motion", "width", "title", "bubbles", "theme", "glow", "mist"):
             val = str(st.get(key) or "").strip().lower()
             if key == "accent":
                 val = _ACCENT_SYNONYMS.get(val, val)
@@ -1526,6 +1528,8 @@ def validate_ui_action(args: dict):
                        "blue": "navy", "deep blue": "navy", "warm": "charcoal", "grey": "slate", "gray": "slate", "sea": "ocean",
                        "teal": "ocean", "green": "forest", "nature": "forest", "fire": "ember", "red": "ember", "cozy": "ember",
                        "purple": "plum", "violet": "plum"}.get(val, val)
+            if key == "mist":
+                val = {"true": "on", "yes": "on", "fog": "on", "haze": "on", "false": "off", "no": "off", "none": "off", "still": "off"}.get(val, val)
             if key == "glow":
                 val = {"true": "on", "yes": "on", "more": "on", "false": "off", "no": "off", "none": "off", "flat": "off"}.get(val, val)
             if key == "bubbles":
@@ -1586,7 +1590,7 @@ UI_SYSTEM_NOTE = (
     "LOOK: nine themes (VQ, Classic, Navy, Charcoal, Midnight, Ocean, Forest, Ember, Slate, Plum), each with matching icons and accent; "
     "accent colours (orange, gold, teal, rose, violet, green, blue, grey); thirteen fonts (default, readable, serif, mono, script, "
     "handwriting, elegant, classic, inscription, futuristic, retro, playful, rounded); text size ('bigger'/'smaller', free); line spacing; "
-    "chat width; bubbles on/off; icon glow on/off; higher contrast; reduced motion; focus mode ('focus'/'unfocus').\n"
+    "chat width; bubbles on/off; icon glow on/off; the warm mist in the VQ theme on/off; higher contrast; reduced motion; focus mode ('focus'/'unfocus').\n"
     "PANEL: open or close it; Details, Notes; Standard or Wide, or drag its edge; Plain or Technical detail.\n"
     "USING VQ: answers that show their work; news, books, videos, scholarly papers and Bible verses as cards; layouts for comparisons, "
     "timelines, steps and quick facts; paste a link to have a page read; notes ('note that down', highlight text, export); "
