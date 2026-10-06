@@ -753,50 +753,95 @@
     }
 
 
-    // ---------- Feature tour: a 60-second spotlight on what the app can do (changes are previewed, then undone) ----------
-    const FT_STEPS = [
-        { sel: '#message-input', title: 'Ask anything',
-          text: 'Questions, writing, planning, research. Short commands like “bigger”, “focus” or “reset” work instantly and use no messages.' },
-        { sel: '#insight-panel', title: 'Every answer shows its work',
-          text: 'The Details panel records what VQ drew on, what it searched and the standard it applied. Plain or technical, your choice.',
-          before: () => { if (!document.body.classList.contains('insight-open')) openPanel(false); } },
-        { sel: '#app-header', title: 'Change the look by asking',
-          text: 'Nine themes, each with matching icons and accent. Try saying “ocean theme”, “ember” or “midnight”.',
-          preview: () => { applyTheme('ocean'); setAccentPreview('orange'); } },
-        { sel: '.app-title', title: 'Three title styles',
-          text: 'Inscription, Elegant or Futuristic. Say “futuristic title”. Fonts too: “cursive font”, “typewriter font”.',
-          preview: () => { document.body.classList.remove('title-v1', 'title-v2', 'title-v3'); document.body.classList.add('title-v3'); } },
-        { sel: '.suggestion-grid', title: 'Answers in the right shape',
-          text: 'Ask for news, books, videos, scholarly papers or a Bible verse and they arrive as cards. Comparisons, timelines and steps get layouts.' },
-        { sel: '.panel-tab[data-view="notes"]', title: 'Your notes',
-          text: 'Save any answer, or ask VQ to “note that down”. Notes sync to your account.' },
-        { sel: '.panel-tab[data-view="enquirer"]', title: 'Meet O.R.I.A.',
-          text: 'A second AI companion with her own personality. Ask her for an honest take, or say “swap” to let her take over the chat for a while.' },
-        { sel: '#account-box', title: 'Keep everything',
-          text: 'Sign in free for 30 messages a day, with your chats, notes and settings saved across devices.' },
-        { sel: null, title: 'That’s the tour',
-          text: 'Everything is back the way it was. Say “what can you change?” any time, or “feature tour” to see this again.' }
-    ];
-    let ftIndex = -1, ftLayer = null, ftSnapshot = null;
+    // ---------- Two guided tours: "Using VQ Chat" and "Customise your screen" ----------
+    // Previews change the look for a moment only; the person's own settings are never saved over.
+    const FT_TOURS = {
+        use: { name: 'Using VQ Chat', other: 'custom', otherLabel: 'Customise tour', steps: [
+            { sel: '#message-input', title: 'Ask anything',
+              text: 'Everyday questions, writing, planning and research, or the biggest questions. Short commands such as “focus”, “bigger” or “reset” work instantly and never use a message.' },
+            { sel: '#insight-panel', title: 'Every answer shows its work', panel: true,
+              text: 'The Details panel records each answer: what VQ drew on, what it searched, how many results the content filter hid, and the standard it applied. Switch between Plain and Technical at the bottom.' },
+            { sel: '.suggestion-grid', title: 'Answers in the right shape',
+              text: 'Ask for news, books, videos, scholarly papers or a Bible verse and they arrive as cards you can open. Comparisons, timelines, steps and quick facts get their own layouts.' },
+            { sel: '#input-area', title: 'Paste a link',
+              text: 'Paste any web address and VQ reads the page for you, explains it in its own words, and shows a card linking to the original.' },
+            { sel: '.panel-tab[data-view="notes"]', title: 'Your notes', panel: true,
+              text: 'Save any answer with “Save to notes”, highlight text to add just that part, or ask VQ to “note that down”. Notes can be edited and exported.' },
+            { sel: '#chat-history', title: 'Your chats',
+              text: 'Every conversation is kept here. Start a fresh one with New Chat; the ⋯ menu lets you export or delete your chats.' },
+            { sel: '#account-box', title: 'Keep everything',
+              text: 'Sign in free for 30 messages a day, with your chats, notes and settings saved across your devices.' },
+            { sel: null, title: 'VQ on the website too',
+              text: 'On every page of the site, the “Ask VQ” bubble finds things for you and takes you straight there. “Open in VQ Chat” carries a conversation over to here.' },
+            { sel: null, title: 'That’s how it works', end: true,
+              text: 'Ask “what can you do?” any time. Want to make it look your own?' }
+        ]},
+        custom: { name: 'Customise your screen', other: 'use', otherLabel: 'Using VQ Chat tour', demo: true, steps: [
+            { sel: null, title: 'Make it yours', pos: 'top',
+              text: 'Everything in this tour works by simply asking, in your own words. No settings menus. Here’s a sample conversation to show each change.' },
+            { sel: null, title: 'Nine themes', pos: 'top', cycle: [['theme', 'ocean'], ['theme', 'ember'], ['theme', 'forest'], ['theme', 'plum'], ['theme', 'navy']],
+              text: 'Each theme brings its own background, icons and matching accent colour. Say “ocean theme”, “ember”, “forest”, “plum”, “slate”, “midnight”…' },
+            { sel: '.ft-demo', title: 'Accent colours', cycle: [['accent', 'teal'], ['accent', 'rose'], ['accent', 'gold'], ['accent', 'violet']],
+              text: 'The accent colours your messages, buttons and highlights. Say “teal accent”, “rose”, “gold”, “violet”, “green”, “blue” or “grey”.' },
+            { sel: '.ft-demo', title: 'Fonts', cycle: [['font', 'script'], ['font', 'retro'], ['font', 'rounded'], ['font', 'classic']],
+              text: 'Thirteen fonts, from easy-reading to playful. Say “cursive font”, “typewriter font”, “rounded font” or “readable font”.' },
+            { sel: '.ft-demo', title: 'Text size and spacing', cycle: [['scale', 1.25], ['scale', 0.9], ['scale', 1.1]],
+              text: 'Say “bigger” or “smaller” (free, no message used), or ask for more line spacing or a wider chat column.' },
+            { sel: '.ft-demo', title: 'Bubbles or open layout', set: [['bubbles', true]],
+              text: 'Answers read like a page by default. Prefer chat bubbles? Say “bubbles on”; “bubbles off” switches back.' },
+            { sel: '.ft-demo', title: 'Icon glow', cycle: [['glow', false], ['glow', true]],
+              text: 'The soft glow around icons follows each theme. Say “glow off” for clean, flat icons.' },
+            { sel: null, title: 'Focus mode', pos: 'top', set: [['focus', true]],
+              text: 'Just the conversation, nothing else on screen. Say “focus”, and “unfocus” to bring everything back.' },
+            { sel: '#panel-options', title: 'The side panel', panel: true,
+              text: 'Make the panel Standard or Wide, or drag its edge to any width. Choose Plain or Technical detail.' },
+            { sel: '#message-input', title: 'Undo and reset',
+              text: 'Changed your mind? Say “undo”. Say “reset” to return to the standard look. Your settings sync to your account when you’re signed in.' },
+            { sel: null, title: 'Back to your own look', end: true,
+              text: 'Everything is exactly as it was. Ask “what can you change?” any time.' }
+        ]}
+    };
+    let ftKind = null, ftIndex = -1, ftLayer = null, ftSnapshot = null, ftCycle = null;
 
-    function setAccentPreview(name) {
-        const a = ACCENTS[name]; if (!a) return;
-        document.documentElement.style.setProperty('--ui-accent', a[0]);
-        document.documentElement.style.setProperty('--ui-accent-2', a[1]);
+    function ftApply(pairs) {
+        pairs.forEach(([k, v]) => { uiPrefs[k] = v; if (k === 'theme' && THEME_ACCENT[v]) uiPrefs.accent = THEME_ACCENT[v]; });
+        applyUIPrefs();
     }
 
-    function startFeatureTour() {
-        if (ftLayer) return;
+    function ftDemo(on) {
+        const area = elements.messagesArea;
+        const old = area.querySelector('.ft-demo');
+        if (old) old.remove();
+        if (!on) { if (!conversationHistory.length) showWelcomeScreen(); return; }
+        hideWelcomeScreen();
+        const box = el('div', 'ft-demo');
+        const mk = (role, text) => {
+            const m = el('div', role === 'user' ? 'message user' : 'message');
+            const av = el('div', 'message-avatar'); av.innerHTML = role === 'user' ? ICONS.user : ICONS.vq;
+            const body = el('div', 'message-body');
+            const c = el('div', 'message-content rich');
+            if (role === 'user') c.textContent = text; else c.innerHTML = text;
+            body.appendChild(c); m.append(av, body); return m;
+        };
+        box.appendChild(mk('user', 'What is hope?'));
+        box.appendChild(mk('assistant', '<p>Hope is confident expectation: trusting that the dark never gets the last word.</p><ul><li>It looks forward</li><li>It holds steady under pressure</li></ul>'));
+        area.appendChild(box);
+    }
+
+    function startFeatureTour(kind) {
+        if (ftLayer) endFeatureTour(true);
+        ftKind = FT_TOURS[kind] ? kind : 'use';
         hideFeaturePrompt();
         try { localStorage.setItem('vq-feature-tour-seen', '1'); } catch (e) {}
-        ftSnapshot = { classes: document.body.className, inlineStyle: document.documentElement.getAttribute('style') || '', panelOpen: document.body.classList.contains('insight-open') };
+        ftSnapshot = { prefs: JSON.parse(JSON.stringify(uiPrefs)), panelOpen: document.body.classList.contains('insight-open') };
+        if (FT_TOURS[ftKind].demo) ftDemo(true);
         ftLayer = el('div', 'ft-layer');
         ftLayer.innerHTML = '<div class="ft-spot"></div><div class="ft-card" role="dialog" aria-live="polite"><div class="ft-step"></div><h3 class="ft-title"></h3><p class="ft-text"></p>' +
-            '<div class="ft-dots"></div><div class="ft-nav"><button type="button" class="ft-skip">Skip</button><span></span><button type="button" class="ft-back">Back</button><button type="button" class="ft-next">Next</button></div></div>';
+            '<div class="ft-extra"></div><div class="ft-dots"></div><div class="ft-nav"><button type="button" class="ft-skip">Skip</button><span></span><button type="button" class="ft-back">Back</button><button type="button" class="ft-next">Next</button></div></div>';
         document.body.appendChild(ftLayer);
-        ftLayer.querySelector('.ft-skip').addEventListener('click', endFeatureTour);
+        ftLayer.querySelector('.ft-skip').addEventListener('click', () => endFeatureTour());
         ftLayer.querySelector('.ft-back').addEventListener('click', () => showFtStep(ftIndex - 1));
-        ftLayer.querySelector('.ft-next').addEventListener('click', () => ftIndex >= FT_STEPS.length - 1 ? endFeatureTour() : showFtStep(ftIndex + 1));
+        ftLayer.querySelector('.ft-next').addEventListener('click', () => ftIndex >= FT_TOURS[ftKind].steps.length - 1 ? endFeatureTour() : showFtStep(ftIndex + 1));
         document.addEventListener('keydown', ftKeys);
         window.addEventListener('resize', ftPlace);
         showFtStep(0);
@@ -810,46 +855,61 @@
     }
 
     function restoreLook() {
-        const panelNow = document.body.classList.contains('insight-open');
-        document.body.className = ftSnapshot.classes;
-        document.body.classList.toggle('insight-open', panelNow);   // the panel keeps whatever state the tour put it in
-        if (ftSnapshot.inlineStyle) document.documentElement.setAttribute('style', ftSnapshot.inlineStyle);
-        else document.documentElement.removeAttribute('style');
+        clearInterval(ftCycle); ftCycle = null;
+        Object.keys(uiPrefs).forEach(k => { if (!(k in ftSnapshot.prefs)) delete uiPrefs[k]; });
+        Object.assign(uiPrefs, JSON.parse(JSON.stringify(ftSnapshot.prefs)));
         applyUIPrefs();
     }
 
     function showFtStep(i) {
-        if (i < 0 || i >= FT_STEPS.length) return;
+        const tour = FT_TOURS[ftKind];
+        if (i < 0 || i >= tour.steps.length) return;
         ftIndex = i;
-        const step = FT_STEPS[i];
-        restoreLook();                                  // each preview starts from the person's own look
-        document.body.classList.add('ft-on');
-        if (step.before) step.before();
-        if (step.preview) step.preview();
-        ftLayer.querySelector('.ft-step').textContent = `${i + 1} of ${FT_STEPS.length}`;
+        const step = tour.steps[i];
+        restoreLook();                                   // every preview starts from the person's own look
+        if (step.panel && !document.body.classList.contains('insight-open')) openPanel(false);
+        if (!step.panel && !ftSnapshot.panelOpen && document.body.classList.contains('insight-open') && step.sel !== '#panel-options') closePanel(false);
+        if (step.set) ftApply(step.set);
+        if (step.cycle) {
+            let k = 0;
+            ftApply([step.cycle[0]]);
+            ftCycle = setInterval(() => { k = (k + 1) % step.cycle.length; restoreLookKeepCycle(); ftApply([step.cycle[k]]); }, 1500);
+        }
+        ftLayer.querySelector('.ft-step').textContent = `${tour.name} · ${i + 1} of ${tour.steps.length}`;
         ftLayer.querySelector('.ft-title').textContent = step.title;
         ftLayer.querySelector('.ft-text').textContent = step.text;
+        const extra = ftLayer.querySelector('.ft-extra');
+        extra.innerHTML = '';
+        if (step.end) {
+            const b = el('button', 'ft-other', `${tour.otherLabel} →`);
+            b.type = 'button';
+            b.addEventListener('click', () => startFeatureTour(tour.other));
+            extra.appendChild(b);
+        }
         ftLayer.querySelector('.ft-back').style.visibility = i === 0 ? 'hidden' : 'visible';
-        ftLayer.querySelector('.ft-next').textContent = i === FT_STEPS.length - 1 ? 'Done' : 'Next';
-        const dots = ftLayer.querySelector('.ft-dots');
-        dots.innerHTML = FT_STEPS.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('');
+        ftLayer.querySelector('.ft-next').textContent = i === tour.steps.length - 1 ? 'Done' : 'Next';
+        ftLayer.querySelector('.ft-dots').innerHTML = tour.steps.map((_, k) => `<i class="${k === i ? 'on' : ''}"></i>`).join('');
         setTimeout(ftPlace, 60);
         setTimeout(ftPlace, 520);          // again once a panel has finished sliding in
         ftLayer.querySelector('.ft-next').focus();
     }
+    function restoreLookKeepCycle() {
+        Object.assign(uiPrefs, JSON.parse(JSON.stringify(ftSnapshot.prefs)));
+    }
 
     function ftPlace() {
         if (!ftLayer) return;
-        const step = FT_STEPS[ftIndex];
+        const step = FT_TOURS[ftKind].steps[ftIndex];
         const spot = ftLayer.querySelector('.ft-spot'), card = ftLayer.querySelector('.ft-card');
-        let target = step.sel ? [...document.querySelectorAll(step.sel)].find(n => n.offsetParent !== null && n.getBoundingClientRect().width > 0) : null;
+        const target = step.sel ? [...document.querySelectorAll(step.sel)].find(n => n.offsetParent !== null && n.getBoundingClientRect().width > 0) : null;
         const vw = window.innerWidth, vh = window.innerHeight;
-        const cw = Math.min(340, vw - 32);
+        const cw = Math.min(360, vw - 32);
         card.style.width = cw + 'px';
+        ftLayer.classList.toggle('ft-open', !target);
         if (!target) {
             spot.style.cssText = `left:${vw / 2}px;top:${vh / 2}px;width:0;height:0;`;
             card.style.left = (vw - cw) / 2 + 'px';
-            card.style.top = Math.max(16, vh / 2 - card.offsetHeight / 2) + 'px';
+            card.style.top = (step.pos === 'top' ? 24 : Math.max(16, vh / 2 - card.offsetHeight / 2)) + 'px';
             return;
         }
         const r = target.getBoundingClientRect(), pad = 8;
@@ -858,31 +918,32 @@
         spot.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${h}px;`;
         const ch = card.offsetHeight;
         let top = y + h + 14;
-        if (top + ch > vh - 12) top = y - ch - 14;                 // above, if there's no room below
-        if (top < 12) top = Math.min(vh - ch - 12, Math.max(12, y + 12));   // overlap if the target is tall
+        if (top + ch > vh - 12) top = y - ch - 14;
+        if (top < 12) top = Math.min(vh - ch - 12, Math.max(12, y + 12));
         let left = Math.min(vw - cw - 16, Math.max(16, x + w / 2 - cw / 2));
-        if (h > vh * 0.6 && w < vw * 0.45) left = x > vw / 2 ? Math.max(16, x - cw - 16) : Math.min(vw - cw - 16, x + w + 16);   // beside a tall panel
+        if (h > vh * 0.6 && w < vw * 0.45) left = x > vw / 2 ? Math.max(16, x - cw - 16) : Math.min(vw - cw - 16, x + w + 16);
         card.style.left = left + 'px';
         card.style.top = top + 'px';
     }
 
-    function endFeatureTour() {
+    function endFeatureTour(switching) {
         if (!ftLayer) return;
         restoreLook();
-        document.body.classList.remove('ft-on');
+        ftDemo(false);
         if (!ftSnapshot.panelOpen && document.body.classList.contains('insight-open')) closePanel(false);
         ftLayer.remove(); ftLayer = null; ftIndex = -1;
         document.removeEventListener('keydown', ftKeys);
         window.removeEventListener('resize', ftPlace);
     }
 
-    // First visit: a small invitation (once per device)
+    // First visit: a small invitation offering both tours (once per device)
     function showFeaturePrompt() {
         if (localStorage.getItem('vq-feature-tour-seen') || document.querySelector('.ft-prompt')) return;
         const p = el('div', 'ft-prompt');
         p.setAttribute('role', 'status');
-        p.innerHTML = '<span><b>New here?</b> See what VQ Chat can do in 60 seconds.</span><button type="button" class="ft-go">Show me</button><button type="button" class="ft-no" aria-label="Not now">✕</button>';
-        p.querySelector('.ft-go').addEventListener('click', startFeatureTour);
+        p.innerHTML = '<span><b>New here?</b> Two quick tours:</span><button type="button" class="ft-go" data-k="use">Using VQ Chat</button>' +
+            '<button type="button" class="ft-go ft-go-alt" data-k="custom">Customise</button><button type="button" class="ft-no" aria-label="Not now">✕</button>';
+        p.querySelectorAll('.ft-go').forEach(b => b.addEventListener('click', () => startFeatureTour(b.dataset.k)));
         p.querySelector('.ft-no').addEventListener('click', () => { hideFeaturePrompt(); try { localStorage.setItem('vq-feature-tour-seen', '1'); } catch (e) {} });
         document.body.appendChild(p);
     }
@@ -3517,9 +3578,11 @@
         if (!rawMessage || isTyping) return;
 
         // Simple display commands run on this device: instant, free, and they work even after the daily limit
-        if (/^\s*(feature tour|show me (the )?features|tour( the)? (app|features)|what can (this app|vq chat) do\??)\s*$/i.test(rawMessage)) {
+        const tourAsk = /^\s*(customi[sz](e|ation)( tour)?|personali[sz]e( tour)?|style tour|how (do|can) i change the look\??)\s*$/i.test(rawMessage) ? 'custom'
+            : /^\s*(feature tour|usage tour|how (do i|to) use (this|vq chat|the app)\??|show me (the )?features|tour( the)? (app|features)|what can (this app|vq chat) do\??)\s*$/i.test(rawMessage) ? 'use' : null;
+        if (tourAsk) {
             elements.messageInput.value = '';
-            startFeatureTour();
+            startFeatureTour(tourAsk);
             return;
         }
         const local = localCommand(rawMessage);
