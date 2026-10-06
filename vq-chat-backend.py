@@ -2368,7 +2368,8 @@ def movie_search(query: str) -> dict:
         if re.search(r"\b(upcoming|coming soon|next month|releasing soon)\b", ql) and not tv:
             res = _tmdb("/movie/upcoming", region="US", language="en-US")
             kind = "upcoming"
-        elif re.search(r"\b(latest|new|now playing|in (?:cinemas?|theat(?:er|re)s)|this week|out now|recent|current)\b", ql) or family or \
+        elif re.search(r"\b(latest|new|newest|now playing|playing|showing|on now|what'?s on|in (?:cinemas?|theat(?:er|re)s)|at the (?:cinema|movies)|"
+                       r"this (?:week|weekend|month)|tonight|out now|recent|current(?:ly)?|popular|trending|good|best)\b", ql) or family or \
                 not re.sub(r"\b(movies?|films?|tv|series|shows?|to watch|watch|good|best|some|any|recommend|suggest|for|a|the|me|tonight|night)\b", "", ql).strip():
             if tv:
                 res = _tmdb("/discover/tv", sort_by="popularity.desc", language="en-US", **{"with_original_language": "en", "first_air_date.lte": today})
@@ -2383,6 +2384,13 @@ def movie_search(query: str) -> dict:
             res = _tmdb("/search/tv" if tv else "/search/movie", query=title[:100], include_adult="false", language="en-US")
             kind, named = "search", True
         base = [r for r in (res.get("results") or []) if not r.get("adult")][:10]
+        if not base and kind == "search":
+            start = _time.strftime("%Y-%m-%d", _time.gmtime(_time.time() - 75 * 86400))
+            res = _tmdb("/discover/tv" if tv else "/discover/movie", region="US", language="en-US", sort_by="popularity.desc", include_adult="false",
+                        **({} if tv else {"certification_country": "US", "certification.lte": "PG-13", "primary_release_date.gte": start,
+                                          "primary_release_date.lte": today, "with_release_type": "2|3"}))
+            base = [r for r in (res.get("results") or []) if not r.get("adult")][:10]
+            kind, named = "latest", False
     except Exception as e:
         print(f"[TMDB] list failed: {e}", flush=True)
         return {"items": [], "hidden": 0, "kind": "error", "ms": int((_time.time() - t0) * 1000), "error": str(e)}
