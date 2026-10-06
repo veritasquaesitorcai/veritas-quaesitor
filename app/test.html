@@ -755,23 +755,31 @@
         .ft-choice-alt { border: 1px solid rgba(127,243,255,0.45); color: var(--text-primary); background: transparent; }
         @media (max-width: 600px) { .ft-prompt { font-size: 0.82rem; bottom: calc(118px + env(safe-area-inset-bottom, 0px)); } }
         @media (prefers-reduced-motion: reduce) { .ft-spot, .ft-card { transition: none; } }
-        /* ---- Warm mist (VQ theme): drifts through the app, strong at first, then settling into gentle, changing wisps ---- */
+        /* ---- Living mist: drifts through the app in the accent colours; strong on arrival, then gentle, changing wisps ---- */
         .vq-mist { position: fixed; inset: 0; z-index: 900; pointer-events: none; overflow: hidden; display: none; mix-blend-mode: screen;
             animation: vqMistArrive 11s cubic-bezier(.25,.6,.3,1) both; }
-        body[data-theme="vq"]:not(.no-mist) .vq-mist { display: block; }
-        .vq-mist span { position: absolute; border-radius: 50%; filter: blur(50px); will-change: transform, opacity; }
+        body:not(.no-mist) .vq-mist { display: block; }
+        .vq-mist span { position: absolute; border-radius: 50%; filter: blur(50px); will-change: transform, opacity; transition: background 1.2s ease; }
         .vq-mist .m1 { width: 75vmax; height: 55vmax; left: -25vmax; top: -15vmax;
-            background: radial-gradient(closest-side, rgba(255,140,66,0.55), rgba(255,106,61,0.18) 55%, transparent);
+            background: radial-gradient(closest-side, rgba(var(--ui-accent-rgb, 255,140,66),0.55), rgba(var(--ui-accent-rgb, 255,140,66),0.16) 55%, transparent);
             animation: vqMistA 38s ease-in-out infinite alternate, vqMistPulse 13s ease-in-out infinite; }
         .vq-mist .m2 { width: 60vmax; height: 45vmax; right: -20vmax; top: 25vh;
-            background: radial-gradient(closest-side, rgba(255,184,107,0.42), rgba(255,140,66,0.12) 60%, transparent);
+            background: radial-gradient(closest-side, rgba(var(--ui-accent2-rgb, 255,178,122),0.42), rgba(var(--ui-accent-rgb, 255,140,66),0.12) 60%, transparent);
             animation: vqMistB 46s ease-in-out infinite alternate, vqMistPulse 17s ease-in-out -6s infinite; }
         .vq-mist .m3 { width: 85vmax; height: 40vmax; left: 10vw; bottom: -22vmax;
-            background: radial-gradient(closest-side, rgba(255,120,70,0.40), rgba(255,170,110,0.10) 60%, transparent);
+            background: radial-gradient(closest-side, rgba(var(--ui-accent-rgb, 255,140,66),0.40), rgba(var(--ui-accent2-rgb, 255,178,122),0.10) 60%, transparent);
             animation: vqMistC 52s ease-in-out infinite alternate, vqMistPulse 21s ease-in-out -11s infinite; }
         .vq-mist .m4 { width: 45vmax; height: 30vmax; left: 35vw; top: -10vmax;
-            background: radial-gradient(closest-side, rgba(255,200,140,0.30), transparent 70%);
+            background: radial-gradient(closest-side, rgba(var(--ui-accent2-rgb, 255,178,122),0.30), transparent 70%);
             animation: vqMistD 33s ease-in-out infinite alternate, vqMistPulse 9s ease-in-out -3s infinite; }
+        /* on a theme change: a wave of the new colours rolls across, then settles */
+        .vq-mist.vq-mist-settled { animation: none; opacity: 0.38; }
+        .vq-mist.vq-mist-surge { animation: vqMistSurge 1.7s ease-out both; }
+        .vq-mist.vq-mist-surge::after { content: ""; position: absolute; top: -20%; bottom: -20%; width: 70vw; left: -70vw; filter: blur(40px);
+            background: linear-gradient(90deg, transparent, rgba(var(--ui-accent-rgb, 255,140,66),0.45), rgba(var(--ui-accent2-rgb, 255,178,122),0.35), transparent);
+            animation: vqMistWave 1.6s cubic-bezier(.4,.1,.3,1) forwards; }
+        @keyframes vqMistSurge { 0% { opacity: 0.38; } 30% { opacity: 1; } 100% { opacity: 0.38; } }
+        @keyframes vqMistWave { from { transform: translateX(0) skewX(-12deg); } to { transform: translateX(240vw) skewX(-12deg); } }
         @keyframes vqMistArrive { 0% { opacity: 0; } 8% { opacity: 1; } 35% { opacity: 0.85; } 100% { opacity: 0.38; } }
         @keyframes vqMistPulse { 0%, 100% { opacity: 0.55; } 35% { opacity: 1; } 70% { opacity: 0.3; } }
         @keyframes vqMistA { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(28vw, 12vh) scale(1.2); } 100% { transform: translate(55vw, -4vh) scale(0.95); } }
@@ -780,6 +788,29 @@
         @keyframes vqMistD { 0% { transform: translate(0, 0); } 100% { transform: translate(-30vw, 45vh) scale(1.3); } }
         body.ui-reduce-motion .vq-mist, body.ui-reduce-motion .vq-mist span { animation: none; opacity: 0.3; }
         @media (prefers-reduced-motion: reduce) { .vq-mist, .vq-mist span { animation: none !important; opacity: 0.3; } }
+        /* ---- Films and TV (TMDB) ---- */
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr)); gap: 0.75rem; }
+        .movie-card { display: flex; flex-direction: column; border: 1px solid var(--border-subtle); border-radius: 14px; overflow: hidden;
+            background: var(--message-bg, rgba(255,255,255,0.04)); cursor: pointer; transition: border-color .2s, transform .2s; }
+        .movie-card:hover { border-color: rgba(var(--ui-accent-rgb),0.55); transform: translateY(-2px); }
+        .movie-card:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
+        .movie-card.expanded { grid-column: 1 / -1; flex-direction: row; border-color: rgba(var(--ui-accent-rgb),0.55); }
+        .movie-card.expanded .movie-poster { width: 9.5rem; flex-shrink: 0; }
+        .movie-poster { position: relative; aspect-ratio: 2 / 3; background: rgba(255,255,255,0.05); }
+        .movie-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .movie-poster.none { display: flex; align-items: center; justify-content: center; padding: 1rem; text-align: center;
+            font-family: "Cinzel", Georgia, serif; font-weight: 700; color: rgba(255,255,255,0.75);
+            background: radial-gradient(80% 70% at 30% 20%, rgba(var(--ui-accent-rgb),0.3), transparent 70%), var(--surface-raised, #1b1b1b); }
+        .movie-cert { position: absolute; top: 0.45rem; left: 0.45rem; padding: 0.12rem 0.45rem; border-radius: 6px; font-size: 0.72rem; font-weight: 800;
+            letter-spacing: 0.04em; color: #fff; background: rgba(0,0,0,0.72); border: 1px solid rgba(255,255,255,0.35); }
+        .movie-body { display: flex; flex-direction: column; gap: 0.2rem; padding: 0.65rem 0.75rem 0.7rem; min-width: 0; flex: 1; }
+        .movie-title { font-weight: 700; font-size: 0.93rem; line-height: 1.3; color: var(--text-primary); }
+        .movie-meta { font-size: 0.78rem; color: var(--ui-accent-2, #ffb27a); font-weight: 600; }
+        .movie-genres { font-size: 0.76rem; color: var(--text-tertiary); }
+        .movie-card.expanded .news-extra { display: block; animation: pcardOpen .25s ease; }
+        .movie-card:hover .pcard-toggle, .movie-card.expanded .pcard-toggle { color: var(--ui-accent-2, #ffb27a); }
+        .movie-credit { margin-top: 0.5rem; font-size: 0.7rem; color: var(--text-tertiary); }
+        @media (max-width: 520px) { .movie-card.expanded { flex-direction: column; } .movie-card.expanded .movie-poster { width: 100%; aspect-ratio: 16 / 10; } }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -1032,6 +1063,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-05-mist"></script>
+    <script src="js/chat-app-test.js?v=2026-10-06-films"></script>
 </body>
 </html>
