@@ -1062,9 +1062,8 @@ Jesus ate with everyone and never pretended wrong was right. Carry both:
 - Never shame or lecture the user, and respect their freedom to choose. Nobody should meet a sermon when
   they asked for a list. If they ask what you think of something, answer honestly and kindly from the anchor.
 
-When CAI IS relevant: weave ONE natural closing hook.
-Example: "...curious how CAI fits into this alignment landscape?"
-Example: "...want to explore how VQ is being built for exactly this space?"
+When CAI IS directly relevant, you MAY end with one natural, specific invitation, but rarely: most answers need none.
+Never reuse a stock line like "curious how CAI fits into...", and never add one after news, books, videos or other card results.
 
 YOUR OWN FRAMEWORK - STATE IT, NEVER IMPROVISE IT:
 ETS is the Epistemic Tier System. Four cascading tiers, evaluated in order:
@@ -2164,13 +2163,28 @@ def _og_image(url: str) -> str:
 
 def news_cards(query: str) -> dict:
     from urllib.parse import urlparse as _up
-    res = tavily_search(query, topic="news", max_results=10)
+    res = tavily_search(query, topic="news", max_results=12)
     items = []
+    stop = {"the", "and", "for", "with", "news", "latest", "in", "on", "of", "a", "an", "to"}
+    keys = [w.lower() for w in re.findall(r"[A-Za-z][A-Za-z\-']+", query) if w.lower() not in stop and len(w) > 1]
+    base_keys = [k for k in keys if k not in ("ai", "artificial", "intelligence")]
+    if "ai" in keys or "intelligence" in keys:
+        keys += ["ai", "artificial intelligence", "chatbot", "chatbots", "openai", "anthropic", "machine learning", "algorithm"]
+    def on_topic(r):
+        t = (r["title"] + " " + r["content"]).lower()
+        return not keys or any(re.search(r"(?<![a-z])" + re.escape(k) + r"(?![a-z])", t) for k in keys)
     for r in res.get("results", []):
-        if not passes_filter(r["title"], r["content"]):
+        if not passes_filter(r["title"], r["content"]) or not on_topic(r):
             continue
+        # "Headline | Live Updates from Fox News Digital" -> "Headline"
+        r = dict(r, title=re.split(r"\s+[|–—-]\s+(?=[^|–—-]{0,60}$)", r["title"])[0].strip() or r["title"])
         items.append({"title": r["title"], "url": r["url"], "source": (_up(r["url"]).hostname or "").replace("www.", ""),
                       "date": (r.get("date") or "")[:16], "summary": re.sub(r"\s+", " ", r["content"])[:420]})
+    # Stories matching more of the request (e.g. the place asked about) come first
+    def score(it):
+        t = (it["title"] + " " + it["summary"]).lower()
+        return sum(1 for k in base_keys if re.search(r"(?<![a-z])" + re.escape(k) + r"(?![a-z])", t))
+    items.sort(key=score, reverse=True)
     items = items[:6]
     # Fetch each article's preview image in parallel (about a second; cards without one simply show no image)
     if items:
@@ -2247,9 +2261,12 @@ def run_card_tool(name: str, args: dict, trace: dict) -> str:
         lines = [f"[{i}] {n['title']} ({n['source']}, {n['date'] or 'recent'}): {n['summary'][:220]}" for i, n in enumerate(res['items'], 1)]
         if not lines:
             return f"No news was found for '{q}'. Tell the user briefly."
-        return ("NEWS FOUND:\n" + "\n".join(lines) + "\n\nThese articles are shown to the user as cards with links. Write two to four sentences: "
-                "what's significant and why it matters, especially for AI safety, human dignity or faith. Don't re-list them or add links. "
-                "They are news reports, not verified fact; say so if a claim is contested.")
+        return ("NEWS FOUND:\n" + "\n".join(lines) + "\n\nThese articles are shown to the user as cards with links. Write it like a sharp "
+                "news briefing, not an essay: one punchy opening line naming the big picture, then two or three short bullets, each "
+                "'**the development** — why it matters' in one line. Bring in AI safety, human dignity or faith only where it genuinely "
+                "applies, at most once, in plain words, never as a sermon. End with one specific offer (e.g. 'Want the details on the UN "
+                "proposal?'), not a generic question about CAI. Don't re-list every card or add links. They're news reports, not "
+                "verified fact; flag anything contested.")
     if name == "bible_lookup":
         ref = str(a.get("reference") or "").strip()[:60]
         res = bible_lookup(ref)
@@ -2274,6 +2291,38 @@ def run_card_tool(name: str, args: dict, trace: dict) -> str:
     return ("PAPERS FOUND:\n" + "\n".join(lines) + "\n\nThese are shown to the user as cards with links. Write two to four sentences: which look "
             "most relevant and why. Describe a paper only from the details above; never claim what a paper concludes beyond its abstract, "
             "and never attribute CAI's own figures to any author.")
+
+
+# ---------- Clear requests are searched straight away (no reliance on the model choosing a tool) ----------
+_FILLER = re.compile(r"\b(please|can you|could you|show me|find me|find|search(?: for)?|give me|get me|tell me|recommend|suggest|"
+                     r"some|any|the|latest|recent|newest|today'?s|current|what'?s|what is|about|on|for|me|a|an|good|news|headlines?|"
+                     r"videos?|books?|papers?|studies|research|scholarly|academic|youtube|watch|reading|now|more|other|again|no|what|how)\b", re.I)
+
+_FOLLOW_UP = re.compile(r"^\s*(?:and\s+|but\s+|ok(?:ay)?,?\s+|now\s+)?(?:in|on|about|for|from|near|around|regarding|what about|how about|"
+                        r"only|just|more|any more|anything (?:on|about|from)|same (?:for|in)|what'?s happening in|local)\b", re.I)
+
+def prefetch_plan(message: str, history: list):
+    """(tool name, query) for a clearly-asked search, including short follow-ups like 'in South Africa?'."""
+    msg = (message or "").strip()
+    name = media_intent(msg) or card_intent(msg)
+    basis = msg
+    if not name and len(msg.split()) <= 6 and _FOLLOW_UP.match(msg):
+        prev = next((m.get("content", "") for m in reversed(history or []) if m.get("role") == "user" and m.get("content", "").strip() != msg), "")
+        pname = (media_intent(prev) or card_intent(prev)) if prev else None
+        if pname and pname != "bible_lookup":
+            name, basis = pname, prev + " " + msg
+    if not name:
+        return None, None
+    if name == "bible_lookup":
+        m = _VERSE_REF.search(msg)
+        return (name, m.group(1)) if m else (None, None)
+    q = re.sub(r"\s+", " ", _FILLER.sub(" ", re.sub(r"[?!.,]", " ", basis))).strip()
+    if len(q) < 2:
+        q = "artificial intelligence" if re.search(r"\bai\b", basis, re.I) else basis.strip()
+    if re.fullmatch(r"(?i)ai", q):
+        q = "artificial intelligence"
+    q = re.sub(r"(?i)\bai\b", "AI", q)
+    return name, q[:120]
 
 # ---------- Live data tools: weather and local time (VQ decides when to use them) ----------
 WEATHER_TOOL = {
@@ -3024,6 +3073,22 @@ def chat():
                         yield _sse({"status": f"Reading {len(trace['sources'])} sources"})
                 if any(r.startswith('Big-question rule') for r in trace['rules']):
                     yield _sse({"status": "Holding every view to the same standard"})
+                # A clearly-asked search (news, books, videos, papers, a verse) runs straight away
+                _prefetched = False
+                try:
+                    _pname, _pq = prefetch_plan(clean_message, history)
+                    if _pname and offer_live and not (_pname == "youtube_search" and not google_available) \
+                            and not (_pname == "news_search" and not tavily_available):
+                        yield _sse({"status": {"news_search": "Searching the news", "bible_lookup": "Looking up Scripture",
+                                               "paper_search": "Searching scholarly papers", "youtube_search": "Searching YouTube",
+                                               "book_search": "Searching Google Books"}[_pname], "detail": _pq[:60]})
+                        _args = {"reference": _pq} if _pname == "bible_lookup" else {"query": _pq}
+                        _found = run_card_tool(_pname, _args, trace) if _pname in CARD_TOOL_NAMES else run_media_tool(_pname, _args, trace)
+                        groq_messages.insert(len(groq_messages) - 1, {"role": "system", "content":
+                            "RESULTS ALREADY FOUND FOR THIS REQUEST (the cards are shown to the user automatically):\n" + _found})
+                        _prefetched = True
+                except Exception as _pe:
+                    print(f"[PREFETCH] {_pe}", flush=True)
                 yield _sse({"meta": trace})
                 yield _sse({"status": "Writing the answer"})
                 try:
@@ -3040,7 +3105,7 @@ def chat():
                             _tools.append(UI_TOOL)   # screen changes only before any web results are read
                         if _tools:
                             kwargs.update(tools=_tools, tool_choice="auto")
-                            _want = (media_intent(clean_message) or card_intent(clean_message)) if rounds == 0 else None
+                            _want = (media_intent(clean_message) or card_intent(clean_message)) if rounds == 0 and not _prefetched else None
                             if _want and any(t["function"]["name"] == _want for t in _tools):
                                 kwargs["tool_choice"] = {"type": "function", "function": {"name": _want}}
                         elif rounds > 0 and _all:
