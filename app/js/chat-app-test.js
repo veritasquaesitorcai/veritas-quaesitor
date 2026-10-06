@@ -642,6 +642,7 @@
                 };
                 card.addEventListener('click', flip);
                 card.addEventListener('keydown', (e) => { if (e.target === card && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); flip(); } });
+                addCardCast(card, title);
                 grid.appendChild(card);
             });
             wrap.appendChild(grid);
@@ -1020,6 +1021,123 @@
         box.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
 
+
+    // ---------- Cast to panel: watch a video, browse pictures or keep a card open beside the chat ----------
+    const CAST_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-6"/><path d="M3 13a6 6 0 0 1 6 6M3 17a2 2 0 0 1 2 2"/></svg>';
+    function castButton(onCast, label) {
+        const b = el('button', 'cast-btn');
+        b.type = 'button';
+        b.innerHTML = CAST_ICON;
+        b.title = label || 'Show in the side panel';
+        b.setAttribute('aria-label', label || 'Show in the side panel');
+        b.addEventListener('click', (e) => { e.stopPropagation(); onCast(); });
+        return b;
+    }
+
+    function castInto(title, buildContent) {
+        const body = document.getElementById('cast-body');
+        const tab = document.querySelector('.cast-tab');
+        if (!body || !tab) return;
+        body.innerHTML = '';
+        const head = el('div', 'cast-head');
+        head.appendChild(el('span', 'cast-title', title));
+        const stop = el('button', 'cast-stop', 'Stop showing');
+        stop.type = 'button';
+        stop.addEventListener('click', stopCasting);
+        head.appendChild(stop);
+        body.appendChild(head);
+        const stage = el('div', 'cast-stage');
+        body.appendChild(stage);
+        buildContent(stage);
+        tab.hidden = false;
+        document.body.classList.add('casting');
+        if (!document.body.classList.contains('insight-open')) openPanel(false);
+        setPanelView('cast', false);
+    }
+
+    function stopCasting() {
+        const body = document.getElementById('cast-body');
+        if (body) body.innerHTML = '';                   // also stops any playing video
+        const tab = document.querySelector('.cast-tab');
+        if (tab) tab.hidden = true;
+        document.body.classList.remove('casting', 'casting-view');
+        setPanelView('details', false);
+    }
+
+    function castVideo(v) {
+        castInto(str(v.title, 120), (stage) => {
+            const frame = el('div', 'cast-video');
+            const iframe = document.createElement('iframe');
+            iframe.src = `https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0`;
+            iframe.title = str(v.title, 120);
+            iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+            iframe.allowFullscreen = true;
+            iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+            frame.appendChild(iframe);
+            stage.appendChild(frame);
+            const meta = el('div', 'cast-meta');
+            meta.appendChild(el('div', 'cast-sub', [str(v.channel, 60), str(v.published, 10)].filter(Boolean).join(' · ')));
+            if (v.description) meta.appendChild(el('p', 'cast-text', str(v.description, 300)));
+            const a = el('a', 'pcard-visit', 'Watch on YouTube ↗');
+            a.href = `https://www.youtube.com/watch?v=${v.id}`; a.target = '_blank'; a.rel = 'noopener noreferrer';
+            meta.appendChild(a);
+            stage.appendChild(meta);
+        });
+    }
+
+    function castGallery(images, start) {
+        const list = images.filter(im => { try { return new URL(im.url).protocol === 'https:'; } catch (e) { return false; } });
+        if (!list.length) return;
+        castInto('Pictures', (stage) => {
+            let i = Math.min(start || 0, list.length - 1);
+            const view = el('div', 'cast-photo');
+            const img = document.createElement('img');
+            img.referrerPolicy = 'no-referrer';
+            const cap = el('div', 'cast-sub');
+            const prev = el('button', 'cast-nav prev', '‹'), next = el('button', 'cast-nav next', '›');
+            prev.type = next.type = 'button';
+            prev.setAttribute('aria-label', 'Previous picture'); next.setAttribute('aria-label', 'Next picture');
+            const strip = el('div', 'cast-strip');
+            const show = (k) => {
+                i = (k + list.length) % list.length;
+                img.src = list[i].url; img.alt = list[i].description || '';
+                cap.textContent = [list[i].description, hostOf(list[i].url)].filter(Boolean).join(' · ');
+                strip.querySelectorAll('button').forEach((b, n) => b.classList.toggle('on', n === i));
+            };
+            prev.addEventListener('click', () => show(i - 1));
+            next.addEventListener('click', () => show(i + 1));
+            list.forEach((im, n) => {
+                const t = el('button', 'cast-thumb'); t.type = 'button';
+                const ti = document.createElement('img'); ti.src = im.url; ti.alt = ''; ti.loading = 'lazy'; ti.referrerPolicy = 'no-referrer';
+                ti.onerror = () => t.remove();
+                t.appendChild(ti); t.addEventListener('click', () => show(n));
+                strip.appendChild(t);
+            });
+            view.append(img, prev, next);
+            stage.append(view, cap, strip);
+            show(i);
+        });
+    }
+
+    // Any card (film, book, news, paper, layout card) can be pinned open in the panel
+    function castCard(card, title) {
+        castInto(title || 'Pinned card', (stage) => {
+            const copy = card.cloneNode(true);
+            copy.classList.add('expanded', 'cast-card');
+            copy.querySelectorAll('.cast-btn, .pcard-toggle').forEach(n => n.remove());
+            copy.removeAttribute('tabindex'); copy.removeAttribute('role');
+            // cloned buttons lose their handlers: re-attach the ones that matter
+            copy.querySelectorAll('.pcard-ask').forEach(b => {
+                if (b.tagName === 'BUTTON') b.addEventListener('click', () => askAbout(title || '', ''));
+            });
+            copy.querySelectorAll('button.pcard-visit').forEach(b => b.addEventListener('click', () => askAbout(`the trailer for ${title}`, '')));
+            stage.appendChild(copy);
+        });
+    }
+    function addCardCast(card, titleText) {
+        card.appendChild(castButton(() => castCard(card, titleText), 'Pin this card in the side panel'));
+    }
+
     // ---------- News, Scripture and scholarly-paper cards ----------
     function expandable(card, toggleEl) {
         card.tabIndex = 0;
@@ -1089,6 +1207,7 @@
             const toggle = el('span', 'pcard-toggle', 'More ▾');
             card.appendChild(toggle);
             expandable(card, toggle);
+            addCardCast(card, str(n.title, 120));
             grid.appendChild(card);
         });
         wrap.appendChild(grid);
@@ -1134,6 +1253,7 @@
             const toggle = el('span', 'pcard-toggle', 'More ▾');
             card.appendChild(toggle);
             expandable(card, toggle);
+            addCardCast(card, str(p.title, 120));
             list.appendChild(card);
         });
         wrap.appendChild(list);
@@ -1184,6 +1304,7 @@
             body.appendChild(toggle);
             card.appendChild(body);
             expandable(card, toggle);
+            addCardCast(card, str(m.title, 120));
             grid.appendChild(card);
         });
         wrap.appendChild(grid);
@@ -1230,7 +1351,8 @@
             b.appendChild(el('span', 'video-title', str(v.title, 120)));
             b.appendChild(el('span', 'video-meta', [str(v.channel, 60), str(v.published, 10)].filter(Boolean).join(' · ')));
             card.appendChild(b);
-            card.addEventListener('click', () => openVideo(v));
+            card.addEventListener('click', () => (window.innerWidth >= 1100 ? castVideo(v) : openVideo(v)));
+            th.appendChild(castButton(() => castVideo(v), 'Play in the side panel'));
             grid.appendChild(card);
         });
         wrap.appendChild(grid);
@@ -1317,6 +1439,7 @@
             };
             card.addEventListener('click', flip);
             card.addEventListener('keydown', (e) => { if (e.target === card && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); flip(); } });
+            addCardCast(card, str(bk.title, 120));
             grid.appendChild(card);
         });
         wrap.appendChild(grid);
@@ -1868,6 +1991,7 @@
             btn.addEventListener('click', () => openImageView(images, i));
             wrap.appendChild(btn);
         });
+        if (wrap.childElementCount) wrap.appendChild(castButton(() => castGallery(images, 0), 'Show these pictures in the side panel'));
         return wrap;
     }
 
@@ -2511,7 +2635,7 @@
 
     // ---------- Panel views: Details / Notes, options bar, width ----------
 
-    const PANEL_VIEWS = ['details', 'notes', 'enquirer'];
+    const PANEL_VIEWS = ['details', 'notes', 'enquirer', 'cast'];
 
     function setupPanelViews() {
         document.querySelectorAll('.panel-tab').forEach(tab => {
@@ -2521,7 +2645,7 @@
         setupSelectionNotes();
         setupOriaComposer();
         loadNotes();
-        setPanelView(PANEL_VIEWS.includes(uiPrefs.panelView) ? uiPrefs.panelView : 'details', false);
+        setPanelView(PANEL_VIEWS.includes(uiPrefs.panelView) && uiPrefs.panelView !== 'cast' ? uiPrefs.panelView : 'details', false);
     }
 
     function setPanelView(view, remember) {
@@ -2534,6 +2658,9 @@
         if (eb) eb.hidden = view !== 'enquirer';
         const of = document.getElementById('oria-form');
         if (of) of.hidden = view !== 'enquirer';
+        const cb = document.getElementById('cast-body');
+        if (cb) cb.hidden = view !== 'cast';
+        document.body.classList.toggle('casting-view', view === 'cast' && document.body.classList.contains('casting'));
         if (view === 'notes') renderNotes();
         if (view === 'enquirer') renderEnquirer();
         if (remember && uiPrefs.panelView !== view) { uiPrefs.panelView = view; saveUIPrefs(); }
@@ -3812,6 +3939,12 @@
         // Simple display commands run on this device: instant, free, and they work even after the daily limit
         const tourAsk = /^\s*(customi[sz](e|ation)( tour)?|personali[sz]e( tour)?|style tour|how (do|can) i change the look\??)\s*$/i.test(rawMessage) ? 'custom'
             : /^\s*(feature tour|usage tour|how (do i|to) use (this|vq chat|the app)\??|show me (the )?features|tour( the)? (app|features)|what can (this app|vq chat) do\??)\s*$/i.test(rawMessage) ? 'use' : null;
+        if (/^\s*(stop (casting|showing)|close (the )?(video|player|pictures)|stop the video)\s*$/i.test(rawMessage) && document.body.classList.contains('casting')) {
+            elements.messageInput.value = '';
+            stopCasting();
+            showLocalNote('Stopped showing in the panel');
+            return;
+        }
         if (tourAsk) {
             elements.messageInput.value = '';
             offerTours(tourAsk);
