@@ -67,6 +67,15 @@
         }
         if (window.innerWidth > 768) elements.messageInput.focus();
         if (continued) setTimeout(() => showLocalNote('Continued from the website chat'), 700);
+        // If this tab is already open, a conversation sent from the website bubble arrives live
+        window.addEventListener('storage', (e) => {
+            if (e.key !== 'vq-handoff' || !e.newValue) return;
+            if (importHandoff()) {
+                renderSidebar();
+                renderActiveChat();
+                showLocalNote('Continued from the website chat');
+            }
+        });
     }
 
     // A conversation handed over from the website chat bubble ("Open in VQ Chat") becomes a new chat here
