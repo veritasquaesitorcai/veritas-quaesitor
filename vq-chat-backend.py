@@ -89,6 +89,7 @@ def health():
         "groq_configured": bool(os.environ.get("GROQ_API_KEY")),
         "web_search": "enabled (Tavily)" if tavily_available else "enabled (DuckDuckGo)",
         "youtube_and_books": "enabled (Google API key set)" if google_available else "books only, no key (set GOOGLE_API_KEY)",
+        "films": "enabled (TMDB)" if tmdb_available else "not configured (set TMDB_API_KEY)",
         "image_search": "enabled (DuckDuckGo Images)"
     }), 200
 
@@ -1457,7 +1458,7 @@ UI_TOOL = {
                         "bubbles": {"type": "string", "description": "on: show VQ's answers in chat bubbles; off: open page-style answers (default)"},
                         "theme": {"type": "string", "description": "background theme: vq (default, near-black with neon icons), classic (warm charcoal on desktop, navy on phones), navy, charcoal, midnight, ocean, forest, ember, slate or plum"},
                         "glow": {"type": "string", "description": "on (default) or off: the soft glow behind icons"},
-                        "mist": {"type": "string", "description": "on (default) or off: the warm mist drifting through the default VQ theme"}
+                        "mist": {"type": "string", "description": "on (default) or off: the soft mist drifting through the background, in the accent colour"}
                     }
                 },
                 "note": {"type": "string", "description": "A few words describing the change, e.g. 'warmer, easier to read'"}
@@ -1590,7 +1591,7 @@ UI_SYSTEM_NOTE = (
     "LOOK: nine themes (VQ, Classic, Navy, Charcoal, Midnight, Ocean, Forest, Ember, Slate, Plum), each with matching icons and accent; "
     "accent colours (orange, gold, teal, rose, violet, green, blue, grey); thirteen fonts (default, readable, serif, mono, script, "
     "handwriting, elegant, classic, inscription, futuristic, retro, playful, rounded); text size ('bigger'/'smaller', free); line spacing; "
-    "chat width; bubbles on/off; icon glow on/off; the warm mist in the VQ theme on/off; higher contrast; reduced motion; focus mode ('focus'/'unfocus').\n"
+    "chat width; bubbles on/off; icon glow on/off; the living mist in the accent colour on/off; higher contrast; reduced motion; focus mode ('focus'/'unfocus').\n"
     "PANEL: open or close it; Details, Notes; Standard or Wide, or drag its edge; Plain or Technical detail.\n"
     "USING VQ: answers that show their work; news, books, videos, scholarly papers and Bible verses as cards; layouts for comparisons, "
     "timelines, steps and quick facts; paste a link to have a page read; notes ('note that down', highlight text, export); "
@@ -2032,12 +2033,14 @@ BOOK_TOOL = {
 }
 MEDIA_TOOL_NAMES = ("youtube_search", "book_search")
 
-_VIDEO_INTENT = re.compile(r"\b(videos?|youtube|lectures?|documentar(?:y|ies)|sermons?|something to watch|watch (?:a|some)|talks (?:on|about|by)|a talk (?:on|about|by))\b", re.I)
+_VIDEO_INTENT = re.compile(r"\b(trailers?|videos?|youtube|lectures?|documentar(?:y|ies)|sermons?|something to watch|watch (?:a|some)|talks (?:on|about|by)|a talk (?:on|about|by))\b", re.I)
 _BOOK_INTENT = re.compile(r"\b(books|a book (?:on|about|by)|reading (?:list|suggestions?|recommendations?)|what (?:should|can) i read|recommend (?:a )?(?:book|reading))\b", re.I)
 
 def media_intent(message: str):
     """Which media search a request clearly asks for (so VQ uses the tool instead of answering from memory)."""
     m = message or ""
+    if tmdb_available and _MOVIE_INTENT.search(m) and not re.search(r"\btrailer\b", m, re.I):
+        return "movie_search"
     if google_available and _VIDEO_INTENT.search(m):
         return "youtube_search"
     if _BOOK_INTENT.search(m):
@@ -2310,6 +2313,153 @@ def run_card_tool(name: str, args: dict, trace: dict) -> str:
             "and never attribute CAI's own figures to any author.")
 
 
+
+# ---------- Films and TV from The Movie Database (TMDB): real posters, official age ratings, current listings ----------
+TMDB_API_KEY = os.environ.get("TMDB_API_KEY", "").strip()
+TMDB_READ_TOKEN = os.environ.get("TMDB_READ_TOKEN", "").strip()
+tmdb_available = bool(TMDB_API_KEY or TMDB_READ_TOKEN)
+print(f"{'✓' if tmdb_available else '⚠'} TMDB films {'ready' if tmdb_available else 'not configured'}", flush=True)
+
+MOVIE_TOOL = {"type": "function", "function": {
+    "name": "movie_search",
+    "description": ("Find films or TV series with real posters, official age ratings and summaries (TMDB). Use for anything about "
+                    "movies or shows: what's out now, upcoming, family picks, or a specific title."),
+    "parameters": {"type": "object", "properties": {"query": {"type": "string", "description": "What the user asked for"}}, "required": ["query"]}}}
+_MOVIE_INTENT = re.compile(r"\b(movies?|films?|cinemas?|in theat(?:er|re)s|now playing|box office|tv (?:shows?|series)|series to watch|"
+                           r"something to watch tonight|movie night|what to watch|netflix|trailer for)\b", re.I)
+_MOVIE_BLOCKED = {"R", "NC-17", "TV-MA", "X", "18", "X18"}
+
+def _tmdb(path: str, **params) -> dict:
+    import urllib.request, urllib.parse as _upr
+    params = {k: v for k, v in params.items() if v is not None}
+    if TMDB_API_KEY and not TMDB_READ_TOKEN:
+        params["api_key"] = TMDB_API_KEY
+    url = "https://api.themoviedb.org/3" + path + ("?" + _upr.urlencode(params) if params else "")
+    headers = {"Accept": "application/json", "User-Agent": "VQChat/1.0"}
+    if TMDB_READ_TOKEN:
+        headers["Authorization"] = "Bearer " + TMDB_READ_TOKEN
+    with urllib.request.urlopen(urllib.request.Request(url, headers=headers), timeout=10) as r:
+        return json.loads(r.read().decode())
+
+def _cert_movie(details: dict) -> str:
+    for c in (details.get("release_dates") or {}).get("results", []):
+        if c.get("iso_3166_1") == "US":
+            certs = [d.get("certification") for d in c.get("release_dates", []) if d.get("certification")]
+            if certs:
+                return certs[0]
+    return ""
+
+def _cert_tv(details: dict) -> str:
+    for c in (details.get("content_ratings") or {}).get("results", []):
+        if c.get("iso_3166_1") == "US" and c.get("rating"):
+            return c["rating"]
+    return ""
+
+def movie_search(query: str) -> dict:
+    """Pick the right TMDB list for the request, then fetch each title's details and US age rating."""
+    t0 = _time.time()
+    q = (query or "").strip()
+    ql = q.lower()
+    tv = bool(re.search(r"\b(tv|series|season|sitcoms?|shows)\b", ql))   # "show me…" is not a TV request
+    today = _time.strftime("%Y-%m-%d")
+    family = bool(re.search(r"\b(family|kids?|children|child-friendly|clean|wholesome)\b", ql))
+    named = False
+    try:
+        if re.search(r"\b(upcoming|coming soon|next month|releasing soon)\b", ql) and not tv:
+            res = _tmdb("/movie/upcoming", region="US", language="en-US")
+            kind = "upcoming"
+        elif re.search(r"\b(latest|new|now playing|in (?:cinemas?|theat(?:er|re)s)|this week|out now|recent|current)\b", ql) or family or \
+                not re.sub(r"\b(movies?|films?|tv|series|shows?|to watch|watch|good|best|some|any|recommend|suggest|for|a|the|me|tonight|night)\b", "", ql).strip():
+            if tv:
+                res = _tmdb("/discover/tv", sort_by="popularity.desc", language="en-US", **{"with_original_language": "en", "first_air_date.lte": today})
+            else:
+                start = _time.strftime("%Y-%m-%d", _time.gmtime(_time.time() - (400 if family else 75) * 86400))
+                res = _tmdb("/discover/movie", region="US", language="en-US", sort_by="popularity.desc", include_adult="false",
+                            certification_country="US", **{"certification.lte": "PG" if family else "PG-13",
+                            "primary_release_date.gte": start, "primary_release_date.lte": today, "with_release_type": "2|3"})
+            kind = "family" if family else "latest"
+        else:
+            title = re.sub(r"\b(trailer for|the movie|the film|movie|film|tv show|series|about|tell me|info on)\b", "", q, flags=re.I).strip() or q
+            res = _tmdb("/search/tv" if tv else "/search/movie", query=title[:100], include_adult="false", language="en-US")
+            kind, named = "search", True
+        base = [r for r in (res.get("results") or []) if not r.get("adult")][:10]
+    except Exception as e:
+        print(f"[TMDB] list failed: {e}", flush=True)
+        return {"items": [], "hidden": 0, "kind": "error", "ms": int((_time.time() - t0) * 1000), "error": str(e)}
+
+    from concurrent.futures import ThreadPoolExecutor
+    def details(r):
+        try:
+            if tv:
+                d = _tmdb(f"/tv/{r['id']}", append_to_response="content_ratings", language="en-US")
+                cert = _cert_tv(d)
+                runtime = (d.get("episode_run_time") or [None])[0]
+                date = d.get("first_air_date") or ""
+                title = d.get("name") or r.get("name") or ""
+            else:
+                d = _tmdb(f"/movie/{r['id']}", append_to_response="release_dates", language="en-US")
+                cert = _cert_movie(d)
+                runtime = d.get("runtime")
+                date = d.get("release_date") or ""
+                title = d.get("title") or r.get("title") or ""
+            poster = d.get("poster_path") or r.get("poster_path")
+            return {"id": r["id"], "kind": "tv" if tv else "movie", "title": title[:120], "year": date[:4], "date": date,
+                    "cert": cert, "runtime": runtime, "genres": ", ".join(g["name"] for g in (d.get("genres") or [])[:3]),
+                    "overview": (d.get("overview") or r.get("overview") or "")[:700], "rating": round(float(d.get("vote_average") or 0), 1),
+                    "poster": f"https://image.tmdb.org/t/p/w342{poster}" if poster else "",
+                    "url": f"https://www.themoviedb.org/{'tv' if tv else 'movie'}/{r['id']}"}
+        except Exception as e:
+            print(f"[TMDB] details failed: {e}", flush=True)
+            return None
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        full = [x for x in pool.map(details, base) if x]
+    kept, hidden = [], []
+    for m in full:
+        blocked = (m["cert"] in _MOVIE_BLOCKED) or not passes_filter(m["title"], m["overview"])
+        asked_by_name = named and m["title"].lower() in ql
+        if blocked and not asked_by_name:
+            hidden.append({"title": m["title"], "cert": m["cert"] or "unrated"})
+            continue
+        kept.append(m)
+    return {"items": kept[:6], "hidden": hidden[:4], "kind": kind, "ms": int((_time.time() - t0) * 1000), "error": None}
+
+def run_movie_tool(args: dict, trace: dict) -> str:
+    q = str((args or {}).get("query") or "").strip()[:150]
+    res = movie_search(q)
+    trace.setdefault('steps', []).append({'label': 'Searched films (TMDB)', 'query': q, 'found': len(res['items']), 'ms': res['ms'],
+                                          'filtered': len(res.get('hidden') or [])})
+    if res['items']:
+        trace['movies'] = res['items']
+    if not res['items']:
+        return f"No suitable titles were found for '{q}'" + (f" ({res['error']})" if res['error'] else "") + ". Tell the user briefly; don't name films from memory."
+    lines = [f"[{i}] {m['title']} ({m['year']}), rated {m['cert'] or 'not rated'}, {m['genres']}: {m['overview'][:220]}" for i, m in enumerate(res['items'], 1)]
+    hid = res.get('hidden') or []
+    note = ""
+    if hid:
+        note = ("\nLEFT OUT FOR CONTENT (popular, but rated for adults or flagged): " + "; ".join(f"{h['title']} ({h['cert']})" for h in hid) +
+                ". Mention honestly, in one short clause, that some popular titles are rated R or for adults and weren't included.")
+    return (f"FILMS AND SHOWS FROM TMDB ({res['kind']}):\n" + "\n".join(lines) + note +
+            "\n\nThese are shown to the user as poster cards with the official US age rating. Write two to four sentences: highlight one or "
+            "two picks and why they're worth watching, mention anything a parent should know if the rating suggests it, and offer a "
+            "trailer (the user can ask for it). Describe titles only from the details above; never invent a plot or a rating.")
+
+# ---------- Preview images for web cards (used by the app to fill in cards without a picture) ----------
+_preview_cache = {}
+
+@app.route('/preview-image', methods=['GET'])
+def preview_image():
+    url = (request.args.get('url') or '').strip()[:500]
+    if not url.startswith("https://"):
+        return jsonify({"image": ""})
+    hit = _preview_cache.get(url)
+    if hit is not None:
+        return jsonify({"image": hit})
+    img = _og_image(url)
+    if len(_preview_cache) > 2000:
+        _preview_cache.clear()
+    _preview_cache[url] = img
+    return jsonify({"image": img})
+
 # ---------- Clear requests are searched straight away (no reliance on the model choosing a tool) ----------
 _FILLER = re.compile(r"\b(please|can you|could you|show me|find me|find|search(?: for)?|give me|get me|tell me|recommend|suggest|"
                      r"some|any|the|latest|recent|newest|today'?s|current|what'?s|what is|about|on|for|me|a|an|good|news|headlines?|"
@@ -2330,6 +2480,8 @@ def prefetch_plan(message: str, history: list):
             name, basis = pname, prev + " " + msg
     if not name:
         return None, None
+    if name == "movie_search":
+        return name, basis[:150]          # the film tool reads words like "latest", "upcoming" or "family" itself
     if name == "bible_lookup":
         m = _VERSE_REF.search(msg)
         return (name, m.group(1)) if m else (None, None)
@@ -3098,9 +3250,10 @@ def chat():
                             and not (_pname == "news_search" and not tavily_available):
                         yield _sse({"status": {"news_search": "Searching the news", "bible_lookup": "Looking up Scripture",
                                                "paper_search": "Searching scholarly papers", "youtube_search": "Searching YouTube",
-                                               "book_search": "Searching Google Books"}[_pname], "detail": _pq[:60]})
+                                               "book_search": "Searching Google Books", "movie_search": "Finding films"}[_pname], "detail": _pq[:60]})
                         _args = {"reference": _pq} if _pname == "bible_lookup" else {"query": _pq}
-                        _found = run_card_tool(_pname, _args, trace) if _pname in CARD_TOOL_NAMES else run_media_tool(_pname, _args, trace)
+                        _found = (run_movie_tool(_args, trace) if _pname == "movie_search" else
+                                  run_card_tool(_pname, _args, trace) if _pname in CARD_TOOL_NAMES else run_media_tool(_pname, _args, trace))
                         groq_messages.insert(len(groq_messages) - 1, {"role": "system", "content":
                             "RESULTS ALREADY FOUND FOR THIS REQUEST (the cards are shown to the user automatically):\n" + _found})
                         _prefetched = True
@@ -3116,7 +3269,8 @@ def chat():
                         kwargs = dict(model="openai/gpt-oss-120b", messages=msgs, temperature=0.7, max_tokens=1200, stream=True)
                         _all = [] if tools_disabled else ([WEB_TOOL] if offer_tool else []) + ([WEATHER_TOOL, TIME_TOOL, PAGE_TOOL] if offer_live else []) \
                                + ([VIDEO_TOOL] if offer_live and google_available else []) + ([BOOK_TOOL] if offer_live else []) \
-                               + (([NEWS_TOOL] if tavily_available else []) + [VERSE_TOOL, PAPER_TOOL] if offer_live else [])
+                               + (([NEWS_TOOL] if tavily_available else []) + [VERSE_TOOL, PAPER_TOOL] if offer_live else []) \
+                               + ([MOVIE_TOOL] if offer_live and tmdb_available else [])
                         _tools = list(_all) if rounds < 2 else []
                         if offer_ui and rounds == 0 and not tools_disabled:
                             _tools.append(UI_TOOL)   # screen changes only before any web results are read
@@ -3188,6 +3342,10 @@ def chat():
                                 args = json.loads(c["args"] or "{}")
                             except Exception:
                                 args = {}
+                            if c["name"] == "movie_search":
+                                yield _sse({"status": "Finding films", "detail": str(args.get("query") or "")[:60]})
+                                msgs.append({"role": "tool", "tool_call_id": c["id"] or f"call_{i}", "content": run_movie_tool(args, trace)})
+                                continue
                             if c["name"] in CARD_TOOL_NAMES:
                                 yield _sse({"status": {"news_search": "Searching the news", "bible_lookup": "Looking up Scripture",
                                                        "paper_search": "Searching scholarly papers"}[c["name"]],
