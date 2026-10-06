@@ -436,18 +436,43 @@
         }
 
         // Hand the conversation to the full app (same site, so it travels through this browser's storage)
+        // The conversation MOVES to VQ Chat: the app gets it, and the bubble starts fresh with a way back to it
         function openInApp(mode) {
             const messages = conversationHistory.filter(m => m.content !== CONFIG.welcomeMessage);
+            const moving = messages.some(m => m.role === 'user');
             try {
-                if (messages.some(m => m.role === 'user')) localStorage.setItem('vq-handoff', JSON.stringify({ ts: Date.now(), messages }));
+                if (moving) localStorage.setItem('vq-handoff', JSON.stringify({ ts: Date.now(), messages }));
             } catch (e) { /* storage full: the app simply opens fresh */ }
             const target = CONFIG.appUrl + (mode === 'signin' ? '?signin=1' : '');
-            const win = window.open(target, '_blank');
+            // A named tab: if VQ Chat is already open from here, it's reused (and picks up the conversation live)
+            const win = window.open(target, 'vq-chat-app');
             if (!win) { window.location.href = target; return; }   // pop-ups blocked: open it here instead
-            try { win.opener = null; } catch (e) {}
+            try { win.focus(); } catch (e) {}
+            if (moving) {
+                conversationHistory = [];
+                try { localStorage.removeItem('vq-conversation-history'); } catch (e) {}
+                pendingGo = null;
+                messagesContainer.innerHTML = '';
+                addMessageToUI('assistant', CONFIG.welcomeMessage);
+                welcomeBox = null;
+            }
             addMessageToUI('assistant', mode === 'signin'
-                ? 'I opened **VQ Chat** in a new tab so you can sign in. Our conversation is there too, and this bubble will use your account afterwards.'
-                : 'I opened **VQ Chat** in a new tab, with our conversation carried over. This page stays right here.');
+                ? 'I opened **VQ Chat** so you can sign in. Our conversation went with you, and this bubble will use your account afterwards.'
+                : moving ? 'Our conversation **moved to VQ Chat**, in its own tab, so you can carry on there. This page stays right here, and I\'m still here for quick questions.'
+                         : 'I opened **VQ Chat** in its own tab. This page stays right here.');
+            if (moving) {
+                const box = messagesContainer.lastElementChild && messagesContainer.lastElementChild.querySelector('.vq-message-content');
+                if (box) {
+                    const row = document.createElement('div');
+                    row.className = 'vq-go-row';
+                    const b = document.createElement('button');
+                    b.type = 'button'; b.className = 'vq-go';
+                    b.innerHTML = '<span>Back to the conversation in VQ Chat</span>↗';
+                    b.addEventListener('click', () => { const w = window.open(CONFIG.appUrl, 'vq-chat-app'); if (w) { try { w.focus(); } catch (e) {} } });
+                    row.appendChild(b);
+                    box.appendChild(row);
+                }
+            }
         }
 
         let activeTyping = null;   // finishes the reply being typed, if any
