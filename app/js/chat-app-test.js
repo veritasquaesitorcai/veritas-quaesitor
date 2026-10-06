@@ -54,6 +54,12 @@
         renderSidebar();
         applyTitleStyle();
         applyUIPrefs();
+        if (!document.querySelector('.vq-mist')) {
+            const mist = el('div', 'vq-mist');
+            mist.setAttribute('aria-hidden', 'true');
+            mist.innerHTML = '<span class="m1"></span><span class="m2"></span><span class="m3"></span><span class="m4"></span>';
+            document.body.appendChild(mist);
+        }
         const signinArrival = new URLSearchParams(location.search).get('signin');
         playIntro(!!(continued || signinArrival));
         renderActiveChat();
@@ -783,8 +789,7 @@
               text: 'Ask “what can you do?” any time for the full list. Ready to make VQ Chat look your own?' }
         ]},
         custom: { name: 'Customise your screen', other: 'use', otherLabel: 'Using VQ Chat tour', demo: true, steps: [
-            { sel: null, title: 'Make it yours', every: 1900,
-              cycle: [[['theme', 'ocean'], ['font', 'readable']], [['theme', 'plum'], ['font', 'rounded'], ['bubbles', true]], [['theme', 'ember'], ['font', 'classic'], ['scale', 1.15]], []],
+            { sel: null, title: 'Make it yours',
               text: 'Everything here works by simply asking, in your own words: no settings menus. A sample conversation is on screen so you can see each change happen. Nothing is saved; your own look comes back at the end.' },
             { sel: null, title: 'Nine themes', cycle: [['theme', 'ocean'], ['theme', 'ember'], ['theme', 'forest'], ['theme', 'plum'], ['theme', 'navy']],
               text: 'Each theme changes the background, panels, icon style and glow, and brings a matching accent colour. You can still pick a different accent afterwards.',
@@ -795,24 +800,24 @@
             { sel: '.ft-demo', title: 'Fonts', cycle: [['font', 'script'], ['font', 'retro'], ['font', 'rounded'], ['font', 'classic']],
               text: 'Thirteen fonts for the conversation, from easy-reading to playful. Tables and code stay plain so they remain easy to read.',
               tips: ['readable font', 'cursive font', 'typewriter font', 'rounded font', 'serif', 'handwriting'] },
-            { sel: '.ft-demo', title: 'Text size and spacing', cycle: [['scale', 1.25], ['scale', 0.9], [['scale', 1.1], ['line', 2.0]], [['width', 'narrow']], []],
+            { sel: '.ft-demo', title: 'Text size and spacing', cycle: [['scale', 1.25], ['scale', 0.9], ['scale', 1.1], []],
               text: '“Bigger” and “smaller” work instantly and never use a message. You can also ask for more line spacing, a wider chat column, higher contrast, or less motion.',
               tips: ['bigger', 'smaller', 'more line spacing', 'wider chat', 'high contrast', 'reduce motion'] },
             { sel: '.ft-demo', title: 'Bubbles or open layout', cycle: [['bubbles', true], ['bubbles', false]],
               text: 'By default, answers read like a page, with your messages marked by a soft gradient. Prefer classic chat bubbles on both sides? Switch any time.',
               tips: ['bubbles on', 'bubbles off'] },
-            { sel: '.ft-demo', title: 'Icon glow', every: 1400, cycle: [['glow', false], ['glow', true], [['glow', false], ['theme', 'ocean']], [['glow', true], ['theme', 'ocean']]],
+            { sel: '.ft-demo', title: 'Icon glow', cycle: [['glow', false], ['glow', true]],
               text: 'A soft light sits around the icons and VQ’s avatar, in each theme’s own colour. Turn it off for clean, flat icons.',
               tips: ['glow off', 'glow on'] },
             { sel: null, title: 'Focus mode', every: 2000, cycle: [['focus', true], ['focus', false]],
               text: 'Hides the sidebar, panel and extras, leaving just the conversation. Free, and instant.',
               tips: ['focus', 'unfocus'] },
             { sel: '#panel-options', title: 'The side panel', panel: true,
-              cycle: [['panelWidth', 'wide'], [['panelWidth', 'wide'], ['panelDetail', 'plain']], ['panelDetail', 'plain'], []],
+              cycle: [['panelWidth', 'wide'], []],
               text: 'Make the panel Standard or Wide, or drag its left edge to any width (double-click the edge to reset). Choose Plain or Technical detail for the Details view.',
               tips: ['open the panel', 'wide panel', 'plain details'] },
             { sel: '.ft-demo', title: 'Undo and reset', every: 1500,
-              cycle: [[['theme', 'ember'], ['font', 'retro']], [['theme', 'ember'], ['font', 'retro'], ['scale', 1.2]], [['theme', 'ember'], ['font', 'retro']], []],
+              cycle: [['font', 'retro'], []],
               text: 'Changed your mind? “Undo” steps back one change at a time. “Reset” returns everything to the standard look. Both are free. When you’re signed in, your look follows you to every device.',
               tips: ['undo', 'reset'] },
             { sel: null, title: 'Back to your own look', end: true,
@@ -2220,6 +2225,7 @@
         b.toggle('panel-plain', uiPrefs.panelDetail === 'plain');
         b.toggle('ui-bubbles', !!uiPrefs.bubbles);
         b.toggle('no-glow', uiPrefs.glow === false);
+        b.toggle('no-mist', uiPrefs.mist === false);
         applyTheme(THEMES.hasOwnProperty(uiPrefs.theme) ? uiPrefs.theme : 'vq');
         const tv = TITLE_STYLES[uiPrefs.title] || 1;
         [1, 2, 3].forEach(n => b.toggle(`title-v${n}`, n === tv));
@@ -2270,6 +2276,7 @@
                     if (!ACCENTS[st.accent] && THEME_ACCENT[st.theme]) uiPrefs.accent = THEME_ACCENT[st.theme];
                 }
                 if (st.glow === 'on' || st.glow === 'off') uiPrefs.glow = st.glow === 'on';
+                if (st.mist === 'on' || st.mist === 'off') uiPrefs.mist = st.mist === 'on';
                 break;
             }
             case 'panel':
@@ -3565,6 +3572,7 @@
                     if (st.accent) { used.add('accent'); lines.push(`Accent colour set to **${cap(st.accent)}**. Other colours: ${others(CHOICES.accent, st.accent)}.`); }
                     if (st.title) { used.add('title'); lines.push(`Title style set to **${cap(st.title)}**. The others are ${others(CHOICES.title, st.title).replace(/, ([^,]*)$/, ' and $1')}.`); }
                     if (st.bubbles) { used.add('bubbles'); lines.push(st.bubbles === 'on' ? 'Answers now show **in chat bubbles**. Say “bubbles off” for the open page layout.' : 'Answers now use the **open page layout**. Say “bubbles on” to bring the bubbles back.'); }
+                    if (st.mist) lines.push(st.mist === 'on' ? 'The warm **mist** is back, drifting through the VQ theme.' : 'The warm mist is **off**: a still, clean background. Say “mist on” to bring it back.');
                     if (st.glow) lines.push(st.glow === 'on' ? 'Icon glow is **on**. Each theme glows in its own colour.' : 'Icon glow is **off**: clean, flat icons. Say “glow on” to bring it back.');
                     if (typeof st.text_scale === 'number') { used.add('size'); lines.push(`Text size set to **${Math.round(st.text_scale * 100)}%**.`); }
                     if (typeof st.line_spacing === 'number') lines.push(`Line spacing set to **${st.line_spacing}**.`);
