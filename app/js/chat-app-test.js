@@ -59,6 +59,7 @@
             mist.setAttribute('aria-hidden', 'true');
             mist.innerHTML = '<span class="m1"></span><span class="m2"></span><span class="m3"></span><span class="m4"></span>';
             document.body.appendChild(mist);
+            setTimeout(() => mist.classList.add('vq-mist-settled'), 11500);   // after its strong arrival, it stays settled
         }
         const signinArrival = new URLSearchParams(location.search).get('signin');
         playIntro(!!(continued || signinArrival));
@@ -582,6 +583,7 @@
                 if (!it) return;
                 const card = el('div', 'pcard');
                 const img = safeHttps(it.image);
+                if (!img && it.url) setTimeout(() => fillCardImage(card, it.url), 0);
                 if (img) {
                     const im = document.createElement('img');
                     im.src = img; im.alt = str(it.title, 120); im.loading = 'lazy'; im.referrerPolicy = 'no-referrer';
@@ -791,8 +793,11 @@
         custom: { name: 'Customise your screen', other: 'use', otherLabel: 'Using VQ Chat tour', demo: true, steps: [
             { sel: null, title: 'Make it yours',
               text: 'Everything here works by simply asking, in your own words: no settings menus. A sample conversation is on screen so you can see each change happen. Nothing is saved; your own look comes back at the end.' },
-            { sel: null, title: 'Nine themes', cycle: [['theme', 'ocean'], ['theme', 'ember'], ['theme', 'forest'], ['theme', 'plum'], ['theme', 'navy']],
-              text: 'Each theme changes the background, panels, icon style and glow, and brings a matching accent colour. You can still pick a different accent afterwards.',
+            { sel: null, title: 'Living mist', cycle: [['mist', false], ['mist', true]], every: 2000,
+              text: 'A soft mist drifts through the background, always in your accent colour. It arrives strong, then settles into gentle, ever-changing wisps. Prefer a still screen? Switch it off.',
+              tips: ['mist off', 'mist on'] },
+            { sel: null, title: 'Nine themes', every: 2400, cycle: [['theme', 'ocean'], ['theme', 'ember'], ['theme', 'forest'], ['theme', 'plum'], ['theme', 'navy']],
+              text: 'Each theme changes the background, panels, icons and glow, and brings a matching accent colour. Watch the mist: it sweeps through in each new theme’s colours. You can still pick a different accent afterwards.',
               tips: ['ocean theme', 'ember', 'forest', 'plum', 'midnight', 'slate', 'charcoal', 'navy', 'classic'] },
             { sel: '.ft-demo', title: 'Accent colours', cycle: [['accent', 'teal'], ['accent', 'rose'], ['accent', 'gold'], ['accent', 'violet']],
               text: 'The accent colours your messages, buttons, highlights and the CAI badge.',
@@ -1122,6 +1127,75 @@
         });
         wrap.appendChild(list);
         return wrap;
+    }
+
+
+    // ---------- Films and TV (TMDB): poster cards with the official age rating ----------
+    function buildMovieRow(items) {
+        const wrap = el('div', 'media-row');
+        wrap.appendChild(el('div', 'present-title', 'Films and shows'));
+        const grid = el('div', 'movie-grid');
+        items.slice(0, 6).forEach(m => {
+            if (!m || !m.title) return;
+            const card = el('div', 'movie-card');
+            const pv = el('div', 'movie-poster');
+            const src = safeHttps(m.poster);
+            if (src) {
+                const im = document.createElement('img');
+                im.src = src; im.alt = ''; im.loading = 'lazy'; im.referrerPolicy = 'no-referrer';
+                im.onerror = () => { im.remove(); pv.textContent = str(m.title, 40); pv.classList.add('none'); };
+                pv.appendChild(im);
+            } else { pv.textContent = str(m.title, 40); pv.classList.add('none'); }
+            if (m.cert) pv.appendChild(el('span', 'movie-cert', str(m.cert, 8)));
+            card.appendChild(pv);
+            const body = el('div', 'movie-body');
+            body.appendChild(el('div', 'movie-title', str(m.title, 120)));
+            const meta = [str(m.year, 4), m.runtime ? `${m.runtime} min` : '', m.rating ? `★ ${m.rating}` : ''].filter(Boolean).join(' · ');
+            if (meta) body.appendChild(el('div', 'movie-meta', meta));
+            if (m.genres) body.appendChild(el('div', 'movie-genres', str(m.genres, 80)));
+            const extra = el('div', 'news-extra');
+            if (m.overview) extra.appendChild(el('p', 'pcard-more-text', str(m.overview, 700)));
+            const actions = el('div', 'pcard-actions');
+            const tr = el('button', 'pcard-visit', 'Watch the trailer');
+            tr.type = 'button';
+            tr.addEventListener('click', (e) => { e.stopPropagation(); askAbout(`the trailer for ${str(m.title, 100)}${m.year ? ' (' + m.year + ')' : ''}`); });
+            actions.appendChild(tr);
+            const u = safeHttps(m.url);
+            if (u) {
+                const a = el('a', 'pcard-ask', 'Details ↗');
+                a.href = u; a.target = '_blank'; a.rel = 'noopener noreferrer';
+                a.addEventListener('click', (e) => e.stopPropagation());
+                actions.appendChild(a);
+            }
+            extra.appendChild(actions);
+            body.appendChild(extra);
+            const toggle = el('span', 'pcard-toggle', 'More ▾');
+            body.appendChild(toggle);
+            card.appendChild(body);
+            expandable(card, toggle);
+            grid.appendChild(card);
+        });
+        wrap.appendChild(grid);
+        wrap.appendChild(el('div', 'movie-credit', 'Film data and posters from TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.'));
+        return wrap;
+    }
+
+    // Cards from the web without a picture: ask the backend for the linked page's preview image
+    const previewCache = {};
+    function fillCardImage(card, url) {
+        const u = safeHttps(url);
+        if (!u) return;
+        const apply = (img) => {
+            if (!img || card.querySelector('img')) return;
+            const im = document.createElement('img');
+            im.src = img; im.alt = ''; im.loading = 'lazy'; im.referrerPolicy = 'no-referrer';
+            im.onerror = () => im.remove();
+            card.insertBefore(im, card.firstChild);
+        };
+        if (u in previewCache) { previewCache[u].then(apply); return; }
+        previewCache[u] = fetch(CONFIG.apiEndpoint.replace(/\/chat$/, '/preview-image') + '?url=' + encodeURIComponent(u))
+            .then(r => r.ok ? r.json() : {}).then(d => safeHttps(d.image || '')).catch(() => null);
+        previewCache[u].then(apply);
     }
 
     // ---------- YouTube videos and Google Books as cards ----------
@@ -1548,6 +1622,7 @@
                 if (Array.isArray(meta.verses) && meta.verses.length) body.insertBefore(buildVerseCards(meta.verses), body.querySelector('.message-actions'));
                 if (Array.isArray(meta.news) && meta.news.length) body.insertBefore(buildNewsRow(meta.news), body.querySelector('.message-actions'));
                 if (Array.isArray(meta.papers) && meta.papers.length) body.insertBefore(buildPaperRow(meta.papers), body.querySelector('.message-actions'));
+                if (Array.isArray(meta.movies) && meta.movies.length) body.insertBefore(buildMovieRow(meta.movies), body.querySelector('.message-actions'));
                 if (Array.isArray(meta.images) && meta.images.length) body.appendChild(buildGallery(meta.images));
                 appendAnswerChips(body, messageDiv, meta);
             }
@@ -1923,7 +1998,7 @@
             const q = st.query ? `"${st.query}" · ` : '';
             const pics = st.images ? ` · ${st.images} images` : '';
             const unit = /YouTube/.test(st.label) ? 'videos' : /Books/.test(st.label) ? 'books' : /news/i.test(st.label) ? 'articles'
-                       : /papers/i.test(st.label) ? 'papers' : /Scripture/.test(st.label) ? 'passage' : 'sources';
+                       : /papers/i.test(st.label) ? 'papers' : /Scripture/.test(st.label) ? 'passage' : /films/i.test(st.label) ? 'titles' : 'sources';
             const filt = st.filtered ? ` · ${st.filtered} hidden by the content filter` : '';
             ol.appendChild(codeLine(++n, v, r, `${q}${k ? `${k} ${k === 1 ? unit.replace(/s$/, '') : unit} found` : 'no usable results'}${pics}${filt}`, st.ms));
         });
@@ -2198,7 +2273,20 @@
         const root = document.documentElement.style;
         const vals = THEMES[name];
         THEME_VARS.forEach((v, i) => { if (vals) root.setProperty(v, vals[i]); else root.removeProperty(v); });
+        const before = document.body.dataset.theme;
         document.body.dataset.theme = vals ? name : 'classic';
+        if (before && before !== document.body.dataset.theme) mistSurge();
+    }
+
+    function mistSurge() {
+        const m = document.querySelector('.vq-mist');
+        if (!m) return;
+        m.classList.remove('vq-mist-surge');
+        m.classList.add('vq-mist-settled');       // a wave never replays the arrival
+        void m.offsetWidth;                       // restart the animation
+        m.classList.add('vq-mist-surge');
+        clearTimeout(mistSurge.t);
+        mistSurge.t = setTimeout(() => m.classList.remove('vq-mist-surge'), 1700);
     }
 
     function applyUIPrefs() {
@@ -2211,6 +2299,8 @@
         root.setProperty('--ui-accent-2', a2);
         const hex = a1.replace('#', '');
         root.setProperty('--ui-accent-rgb', [0, 2, 4].map(i => parseInt(hex.slice(i, i + 2), 16)).join(','));
+        const hex2 = a2.replace('#', '');
+        root.setProperty('--ui-accent2-rgb', [0, 2, 4].map(i => parseInt(hex2.slice(i, i + 2), 16)).join(','));
         root.setProperty('--chat-max', WIDTHS[uiPrefs.width] || WIDTHS.normal);
         const b = document.body.classList;
         b.toggle('ui-hc', uiPrefs.contrast === 'high');
