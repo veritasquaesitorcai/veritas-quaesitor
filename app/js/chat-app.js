@@ -782,6 +782,21 @@
         items.slice(0, 6).forEach(n => {
             if (!n || !n.title) return;
             const card = el('div', 'news-card');
+            // The article's own image, or a quiet themed placeholder so every card in the row lines up
+            const placeholder = () => {
+                const ph = el('div', 'news-img news-img-none');
+                ph.appendChild(el('span', null, (str(n.source, 40) || 'News').replace(/\..*$/, '')));
+                return ph;
+            };
+            const img = safeHttps(n.image);
+            if (img) {
+                const im = document.createElement('img');
+                im.className = 'news-img'; im.src = img; im.alt = ''; im.loading = 'lazy'; im.referrerPolicy = 'no-referrer';
+                im.onerror = () => im.replaceWith(placeholder());
+                card.appendChild(im);
+            } else {
+                card.appendChild(placeholder());
+            }
             const top = el('div', 'news-top');
             top.appendChild(el('span', 'news-source', str(n.source, 60)));
             const d = friendlyDate(n.date);
