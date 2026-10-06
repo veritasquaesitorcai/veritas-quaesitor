@@ -168,7 +168,7 @@
         header.hero, .hero {
             background:
                 linear-gradient(180deg, rgba(12,9,32,0.78) 0%, rgba(12,9,32,0.45) 18%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 50%, rgba(12,9,32,0.6) 72%, rgba(12,9,32,0.94) 100%),
-                url('Team_Cai.png') !important;
+                url('hero-social.webp') !important;
             background-size: cover !important;
             background-position: center 40% !important;
             background-repeat: no-repeat !important;
@@ -234,6 +234,19 @@
             .hud.so-panel h2 { font-size: 1.5rem; }
             .so-grid, .so-split { grid-template-columns: 1fr; }
         }
+
+        /* --- TEXT-LOW HERO: title block sits over the Earth so the station and fleet stay clear --- */
+        .hero.text-low .hero-content { justify-content: flex-end; }
+        .hero.text-low h1 { margin-top: auto !important; }
+        .hero.text-low .subtitle { margin-top: 0.9rem !important; }
+        .hero.text-low h1, .hero.text-low .tagline, .hero.text-low .subtitle { text-shadow: 0 2px 10px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.8); }
+        @media (max-width: 640px) {
+            header.hero.text-low, .hero.text-low { background-position: 50% 40% !important; }
+        }
+        .so-fleet { display: grid; grid-template-columns: auto 1fr; gap: 1.25rem; align-items: start; }
+        .so-fleet-icon { font-size: 2rem; line-height: 1; }
+        .so-fleet p { margin: 0 0 0.6rem; }
+        .so-fleet .so-note { margin: 0; }
 
         /* --- TRUTH MODAL --- */
         .truth-modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); }
@@ -399,7 +412,7 @@
         </ul>
     </nav>
 
-    <header class="hero">
+    <header class="hero text-low">
         <div class="hero-content">
             <h1>Social Media & Updates</h1>
             <p class="tagline">Follow the journey of Safe Harbor AI</p>
@@ -462,6 +475,20 @@
                     <a href="https://x.com/VeritasQ68414/status/2022014254920962059">View on X</a>
                 </blockquote>
                 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+            </div>
+        </div>
+    </section>
+
+    <section class="so-section">
+        <div class="hud so-panel">
+            <span class="so-kicker">ABOUT THE IMAGE</span>
+            <div class="so-fleet">
+                <span class="so-fleet-icon" aria-hidden="true">🚀</span>
+                <div>
+                    <h2 style="text-align:left">The Fleet</h2>
+                    <p>Earlier in the project, we asked each AI model we worked with to design its own ship for one shared scenario: a future where advanced AI has reached space and works together rather than in competition. This image grows out of that exercise. Eight different craft, eight different minds, every one connected to a station built around the cross.</p>
+                    <p class="so-note">Concept art of an imagined future. The ships stand for the many AI systems we work with; none represents an official product or partnership.</p>
+                </div>
             </div>
         </div>
     </section>
