@@ -921,6 +921,46 @@
 
         body.ui-reduce-motion .vq-scene *, body.ui-reduce-motion .vq-scene { animation: none !important; }
         @media (prefers-reduced-motion: reduce) { .vq-scene, .vq-scene * { animation: none !important; } .vq-scene .rain { display: none !important; } }
+        /* ---- Cast to panel ("Now showing") ---- */
+        body.casting { --insight-width: clamp(420px, 44vw, 860px); }
+        @media (max-width: 1500px) { body.casting #status-text { display: none; } }   /* keeps the header title clear while the panel is wide */
+        .pcard, .news-card, .paper-card, .movie-card, .book-card, .video-thumb, .img-gallery { position: relative; }
+        .cast-btn { position: absolute; top: 0.45rem; right: 0.45rem; z-index: 2; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+            border: 1px solid rgba(255,255,255,0.25); background: rgba(10,10,14,0.72); color: #fff; cursor: pointer; opacity: 0; transition: opacity .2s, background .2s; }
+        .cast-btn svg { width: 15px; height: 15px; }
+        .cast-btn:hover { background: var(--ui-accent, #ff8c42); color: #1a1030; border-color: transparent; }
+        .cast-btn:focus-visible { opacity: 1; outline: 2px solid #ffd9a8; outline-offset: 2px; }
+        .pcard:hover .cast-btn, .news-card:hover .cast-btn, .paper-card:hover .cast-btn, .movie-card:hover .cast-btn, .book-card:hover .cast-btn,
+        .video-card:hover .cast-btn, .img-gallery:hover .cast-btn { opacity: 1; }
+        @media (hover: none) { .cast-btn { opacity: 0.9; } }
+        .img-gallery > .cast-btn { top: auto; bottom: 0.45rem; }
+        .cast-tab[hidden] { display: none; }
+        .cast-tab .tab-label { color: var(--ui-accent-2, #ffb27a); }
+        #cast-body { flex: 1; overflow-y: auto; padding: 0.9rem 1rem 1rem; display: flex; flex-direction: column; gap: 0.8rem; }
+        .cast-head { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; }
+        .cast-title { font-weight: 700; font-size: 0.95rem; color: var(--text-primary); line-height: 1.3; }
+        .cast-stop { flex-shrink: 0; border: 1px solid var(--border-subtle); background: transparent; color: var(--text-secondary); border-radius: 999px;
+            padding: 0.3rem 0.8rem; font: inherit; font-size: 0.8rem; cursor: pointer; }
+        .cast-stop:hover { color: #fff; border-color: rgba(var(--ui-accent-rgb),0.6); }
+        .cast-stage { display: flex; flex-direction: column; gap: 0.7rem; }
+        .cast-video { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.45); }
+        .cast-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+        .cast-meta { display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+        .cast-sub { font-size: 0.82rem; color: var(--text-tertiary); }
+        .cast-text { margin: 0; font-size: 0.88rem; line-height: 1.55; color: var(--text-secondary); }
+        .cast-photo { position: relative; border-radius: 12px; overflow: hidden; background: #000; display: grid; place-items: center; min-height: 240px; }
+        .cast-photo img { max-width: 100%; max-height: 62vh; object-fit: contain; display: block; }
+        .cast-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 38px; height: 38px; border-radius: 50%; border: 0; cursor: pointer;
+            background: rgba(10,10,14,0.65); color: #fff; font-size: 1.5rem; line-height: 1; }
+        .cast-nav.prev { left: 0.5rem; } .cast-nav.next { right: 0.5rem; }
+        .cast-nav:hover { background: var(--ui-accent, #ff8c42); color: #1a1030; }
+        .cast-strip { display: flex; gap: 0.4rem; overflow-x: auto; padding-bottom: 0.2rem; }
+        .cast-thumb { flex-shrink: 0; width: 64px; height: 48px; padding: 0; border-radius: 8px; overflow: hidden; border: 2px solid transparent; cursor: pointer; background: #111; }
+        .cast-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .cast-thumb.on { border-color: var(--ui-accent, #ff8c42); }
+        .cast-card { cursor: default !important; transform: none !important; }
+        .cast-card.movie-card { flex-direction: column; }
+        .cast-card.movie-card .movie-poster { width: 100%; max-width: 260px; align-self: center; }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -1094,6 +1134,9 @@
                     <button type="button" role="tab" class="panel-tab" data-view="enquirer" aria-selected="false" title="O.R.I.A. (say &quot;Airo&quot;): the third companion">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-.9.8-.9 1.4v.3M12 16.5h.01"/></svg><span class="tab-label">O.R.I.A.</span>
                     </button>
+                    <button type="button" role="tab" class="panel-tab cast-tab" data-view="cast" aria-selected="false" hidden title="What's showing in the panel">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M10 9l4 2-4 2z" fill="currentColor"/></svg><span class="tab-label">Now showing</span>
+                    </button>
                 </div>
                 <button id="insight-close" class="insight-close" type="button" aria-label="Close panel" title="Close panel">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg>
@@ -1102,6 +1145,7 @@
             <div id="insight-body" role="tabpanel"></div>
             <div id="notes-body" role="tabpanel" hidden></div>
             <div id="enquirer-body" role="tabpanel" hidden></div>
+            <div id="cast-body" role="tabpanel" hidden></div>
             <form id="oria-form" class="oria-form" hidden>
                 <label for="oria-input" class="sr-only">Message O.R.I.A.</label>
                 <textarea id="oria-input" rows="1" placeholder="Talk to O.R.I.A.…" maxlength="2000"></textarea>
@@ -1173,6 +1217,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-06-scenes2"></script>
+    <script src="js/chat-app-test.js?v=2026-10-06-cast"></script>
 </body>
 </html>
