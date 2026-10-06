@@ -783,7 +783,8 @@
               text: 'Ask “what can you do?” any time for the full list. Ready to make VQ Chat look your own?' }
         ]},
         custom: { name: 'Customise your screen', other: 'use', otherLabel: 'Using VQ Chat tour', demo: true, steps: [
-            { sel: null, title: 'Make it yours',
+            { sel: null, title: 'Make it yours', every: 1900,
+              cycle: [[['theme', 'ocean'], ['font', 'readable']], [['theme', 'plum'], ['font', 'rounded'], ['bubbles', true]], [['theme', 'ember'], ['font', 'classic'], ['scale', 1.15]], []],
               text: 'Everything here works by simply asking, in your own words: no settings menus. A sample conversation is on screen so you can see each change happen. Nothing is saved; your own look comes back at the end.' },
             { sel: null, title: 'Nine themes', cycle: [['theme', 'ocean'], ['theme', 'ember'], ['theme', 'forest'], ['theme', 'plum'], ['theme', 'navy']],
               text: 'Each theme changes the background, panels, icon style and glow, and brings a matching accent colour. You can still pick a different accent afterwards.',
@@ -794,22 +795,24 @@
             { sel: '.ft-demo', title: 'Fonts', cycle: [['font', 'script'], ['font', 'retro'], ['font', 'rounded'], ['font', 'classic']],
               text: 'Thirteen fonts for the conversation, from easy-reading to playful. Tables and code stay plain so they remain easy to read.',
               tips: ['readable font', 'cursive font', 'typewriter font', 'rounded font', 'serif', 'handwriting'] },
-            { sel: '.ft-demo', title: 'Text size and spacing', cycle: [['scale', 1.25], ['scale', 0.9], ['scale', 1.1]],
+            { sel: '.ft-demo', title: 'Text size and spacing', cycle: [['scale', 1.25], ['scale', 0.9], [['scale', 1.1], ['line', 2.0]], [['width', 'narrow']], []],
               text: '“Bigger” and “smaller” work instantly and never use a message. You can also ask for more line spacing, a wider chat column, higher contrast, or less motion.',
               tips: ['bigger', 'smaller', 'more line spacing', 'wider chat', 'high contrast', 'reduce motion'] },
-            { sel: '.ft-demo', title: 'Bubbles or open layout', set: [['bubbles', true]],
+            { sel: '.ft-demo', title: 'Bubbles or open layout', cycle: [['bubbles', true], ['bubbles', false]],
               text: 'By default, answers read like a page, with your messages marked by a soft gradient. Prefer classic chat bubbles on both sides? Switch any time.',
               tips: ['bubbles on', 'bubbles off'] },
-            { sel: '.ft-demo', title: 'Icon glow', cycle: [['glow', false], ['glow', true]],
+            { sel: '.ft-demo', title: 'Icon glow', every: 1400, cycle: [['glow', false], ['glow', true], [['glow', false], ['theme', 'ocean']], [['glow', true], ['theme', 'ocean']]],
               text: 'A soft light sits around the icons and VQ’s avatar, in each theme’s own colour. Turn it off for clean, flat icons.',
               tips: ['glow off', 'glow on'] },
-            { sel: null, title: 'Focus mode', set: [['focus', true]],
+            { sel: null, title: 'Focus mode', every: 2000, cycle: [['focus', true], ['focus', false]],
               text: 'Hides the sidebar, panel and extras, leaving just the conversation. Free, and instant.',
               tips: ['focus', 'unfocus'] },
             { sel: '#panel-options', title: 'The side panel', panel: true,
+              cycle: [['panelWidth', 'wide'], [['panelWidth', 'wide'], ['panelDetail', 'plain']], ['panelDetail', 'plain'], []],
               text: 'Make the panel Standard or Wide, or drag its left edge to any width (double-click the edge to reset). Choose Plain or Technical detail for the Details view.',
               tips: ['open the panel', 'wide panel', 'plain details'] },
-            { sel: '#message-input', title: 'Undo and reset',
+            { sel: '.ft-demo', title: 'Undo and reset', every: 1500,
+              cycle: [[['theme', 'ember'], ['font', 'retro']], [['theme', 'ember'], ['font', 'retro'], ['scale', 1.2]], [['theme', 'ember'], ['font', 'retro']], []],
               text: 'Changed your mind? “Undo” steps back one change at a time. “Reset” returns everything to the standard look. Both are free. When you’re signed in, your look follows you to every device.',
               tips: ['undo', 'reset'] },
             { sel: null, title: 'Back to your own look', end: true,
@@ -818,6 +821,7 @@
     };
     let ftKind = null, ftIndex = -1, ftLayer = null, ftSnapshot = null, ftCycle = null;
 
+    const ftPairs = (entry) => !entry.length ? [] : Array.isArray(entry[0]) ? entry : [entry];
     function ftApply(pairs) {
         pairs.forEach(([k, v]) => { uiPrefs[k] = v; if (k === 'theme' && THEME_ACCENT[v]) uiPrefs.accent = THEME_ACCENT[v]; });
         applyUIPrefs();
@@ -888,8 +892,8 @@
         if (step.set) ftApply(step.set);
         if (step.cycle) {
             let k = 0;
-            ftApply([step.cycle[0]]);
-            ftCycle = setInterval(() => { k = (k + 1) % step.cycle.length; restoreLookKeepCycle(); ftApply([step.cycle[k]]); setTimeout(ftPlace, 80); }, 1700);
+            ftApply(ftPairs(step.cycle[0]));
+            ftCycle = setInterval(() => { k = (k + 1) % step.cycle.length; restoreLookKeepCycle(); ftApply(ftPairs(step.cycle[k])); setTimeout(ftPlace, 80); }, step.every || 1700);
         }
         ftLayer.querySelector('.ft-step').textContent = `${tour.name} · ${i + 1} of ${tour.steps.length}`;
         ftLayer.querySelector('.ft-title').textContent = step.title;
