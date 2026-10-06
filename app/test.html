@@ -755,6 +755,31 @@
         .ft-choice-alt { border: 1px solid rgba(127,243,255,0.45); color: var(--text-primary); background: transparent; }
         @media (max-width: 600px) { .ft-prompt { font-size: 0.82rem; bottom: calc(118px + env(safe-area-inset-bottom, 0px)); } }
         @media (prefers-reduced-motion: reduce) { .ft-spot, .ft-card { transition: none; } }
+        /* ---- Warm mist (VQ theme): drifts through the app, strong at first, then settling into gentle, changing wisps ---- */
+        .vq-mist { position: fixed; inset: 0; z-index: 900; pointer-events: none; overflow: hidden; display: none; mix-blend-mode: screen;
+            animation: vqMistArrive 11s cubic-bezier(.25,.6,.3,1) both; }
+        body[data-theme="vq"]:not(.no-mist) .vq-mist { display: block; }
+        .vq-mist span { position: absolute; border-radius: 50%; filter: blur(50px); will-change: transform, opacity; }
+        .vq-mist .m1 { width: 75vmax; height: 55vmax; left: -25vmax; top: -15vmax;
+            background: radial-gradient(closest-side, rgba(255,140,66,0.55), rgba(255,106,61,0.18) 55%, transparent);
+            animation: vqMistA 38s ease-in-out infinite alternate, vqMistPulse 13s ease-in-out infinite; }
+        .vq-mist .m2 { width: 60vmax; height: 45vmax; right: -20vmax; top: 25vh;
+            background: radial-gradient(closest-side, rgba(255,184,107,0.42), rgba(255,140,66,0.12) 60%, transparent);
+            animation: vqMistB 46s ease-in-out infinite alternate, vqMistPulse 17s ease-in-out -6s infinite; }
+        .vq-mist .m3 { width: 85vmax; height: 40vmax; left: 10vw; bottom: -22vmax;
+            background: radial-gradient(closest-side, rgba(255,120,70,0.40), rgba(255,170,110,0.10) 60%, transparent);
+            animation: vqMistC 52s ease-in-out infinite alternate, vqMistPulse 21s ease-in-out -11s infinite; }
+        .vq-mist .m4 { width: 45vmax; height: 30vmax; left: 35vw; top: -10vmax;
+            background: radial-gradient(closest-side, rgba(255,200,140,0.30), transparent 70%);
+            animation: vqMistD 33s ease-in-out infinite alternate, vqMistPulse 9s ease-in-out -3s infinite; }
+        @keyframes vqMistArrive { 0% { opacity: 0; } 8% { opacity: 1; } 35% { opacity: 0.85; } 100% { opacity: 0.38; } }
+        @keyframes vqMistPulse { 0%, 100% { opacity: 0.55; } 35% { opacity: 1; } 70% { opacity: 0.3; } }
+        @keyframes vqMistA { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(28vw, 12vh) scale(1.2); } 100% { transform: translate(55vw, -4vh) scale(0.95); } }
+        @keyframes vqMistB { 0% { transform: translate(0, 0) scale(1.1); } 50% { transform: translate(-30vw, -18vh) scale(0.9); } 100% { transform: translate(-55vw, 10vh) scale(1.2); } }
+        @keyframes vqMistC { 0% { transform: translate(0, 0); } 50% { transform: translate(-20vw, -12vh) scale(1.15); } 100% { transform: translate(25vw, -20vh) scale(0.9); } }
+        @keyframes vqMistD { 0% { transform: translate(0, 0); } 100% { transform: translate(-30vw, 45vh) scale(1.3); } }
+        body.ui-reduce-motion .vq-mist, body.ui-reduce-motion .vq-mist span { animation: none; opacity: 0.3; }
+        @media (prefers-reduced-motion: reduce) { .vq-mist, .vq-mist span { animation: none !important; opacity: 0.3; } }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -1007,6 +1032,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-05-ftour4"></script>
+    <script src="js/chat-app-test.js?v=2026-10-05-mist"></script>
 </body>
 </html>
