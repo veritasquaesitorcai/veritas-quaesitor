@@ -691,6 +691,29 @@
         @keyframes vqAppIn { from { filter: blur(3px) brightness(1.35); } to { filter: none; } }
         .welcome-title.vq-typing-title::after { content: "▍"; margin-left: 2px; color: #7ff3ff; -webkit-text-fill-color: #7ff3ff; animation: vqBlink 1s steps(1) infinite; }
         @media (prefers-reduced-motion: reduce) { .vq-intro { display: none; } }
+        /* ---- Films and TV (TMDB) ---- */
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr)); gap: 0.75rem; }
+        .movie-card { display: flex; flex-direction: column; border: 1px solid var(--border-subtle); border-radius: 14px; overflow: hidden;
+            background: var(--message-bg, rgba(255,255,255,0.04)); cursor: pointer; transition: border-color .2s, transform .2s; }
+        .movie-card:hover { border-color: rgba(var(--ui-accent-rgb),0.55); transform: translateY(-2px); }
+        .movie-card:focus-visible { outline: 2px solid #ffd9a8; outline-offset: 2px; }
+        .movie-card.expanded { grid-column: 1 / -1; flex-direction: row; border-color: rgba(var(--ui-accent-rgb),0.55); }
+        .movie-card.expanded .movie-poster { width: 9.5rem; flex-shrink: 0; }
+        .movie-poster { position: relative; aspect-ratio: 2 / 3; background: rgba(255,255,255,0.05); }
+        .movie-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .movie-poster.none { display: flex; align-items: center; justify-content: center; padding: 1rem; text-align: center;
+            font-family: "Cinzel", Georgia, serif; font-weight: 700; color: rgba(255,255,255,0.75);
+            background: radial-gradient(80% 70% at 30% 20%, rgba(var(--ui-accent-rgb),0.3), transparent 70%), var(--surface-raised, #1b1b1b); }
+        .movie-cert { position: absolute; top: 0.45rem; left: 0.45rem; padding: 0.12rem 0.45rem; border-radius: 6px; font-size: 0.72rem; font-weight: 800;
+            letter-spacing: 0.04em; color: #fff; background: rgba(0,0,0,0.72); border: 1px solid rgba(255,255,255,0.35); }
+        .movie-body { display: flex; flex-direction: column; gap: 0.2rem; padding: 0.65rem 0.75rem 0.7rem; min-width: 0; flex: 1; }
+        .movie-title { font-weight: 700; font-size: 0.93rem; line-height: 1.3; color: var(--text-primary); }
+        .movie-meta { font-size: 0.78rem; color: var(--ui-accent-2, #ffb27a); font-weight: 600; }
+        .movie-genres { font-size: 0.76rem; color: var(--text-tertiary); }
+        .movie-card.expanded .news-extra { display: block; animation: pcardOpen .25s ease; }
+        .movie-card:hover .pcard-toggle, .movie-card.expanded .pcard-toggle { color: var(--ui-accent-2, #ffb27a); }
+        .movie-credit { margin-top: 0.5rem; font-size: 0.7rem; color: var(--text-tertiary); }
+        @media (max-width: 520px) { .movie-card.expanded { flex-direction: column; } .movie-card.expanded .movie-poster { width: 100%; aspect-ratio: 16 / 10; } }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -939,6 +962,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app.js?v=2026-10-05-handoff"></script>
+    <script src="js/chat-app.js?v=2026-10-06-films"></script>
 </body>
 </html>
