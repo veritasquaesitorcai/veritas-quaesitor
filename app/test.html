@@ -691,6 +691,38 @@
         @keyframes vqAppIn { from { filter: blur(3px) brightness(1.35); } to { filter: none; } }
         .welcome-title.vq-typing-title::after { content: "▍"; margin-left: 2px; color: #7ff3ff; -webkit-text-fill-color: #7ff3ff; animation: vqBlink 1s steps(1) infinite; }
         @media (prefers-reduced-motion: reduce) { .vq-intro { display: none; } }
+        /* ---- Feature tour (spotlight) ---- */
+        .ft-layer { position: fixed; inset: 0; z-index: 99990; pointer-events: auto; }
+        .ft-spot { position: fixed; border-radius: 14px; pointer-events: none; transition: all .45s cubic-bezier(.3,.7,.2,1);
+            box-shadow: 0 0 0 9999px rgba(4, 6, 12, 0.72), 0 0 0 2px #7ff3ff, 0 0 24px 4px rgba(127,243,255,0.45); }
+        .ft-card { position: fixed; z-index: 2; padding: 1rem 1.1rem 0.85rem; border-radius: 16px; background: var(--surface-raised, #1b1b1b);
+            border: 1px solid rgba(127,243,255,0.35); box-shadow: 0 24px 60px rgba(0,0,0,0.6); color: var(--text-primary); transition: top .45s cubic-bezier(.3,.7,.2,1), left .45s cubic-bezier(.3,.7,.2,1); }
+        .ft-card::before, .ft-card::after { content: ""; position: absolute; width: 24px; height: 24px; border: 0 solid #7ff3ff; pointer-events: none; }
+        .ft-card::before { top: -1px; right: -1px; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 16px; }
+        .ft-card::after { bottom: -1px; left: -1px; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 16px; }
+        .ft-step { font-size: 0.72rem; letter-spacing: 0.06em; color: #7ff3ff; text-transform: uppercase; font-weight: 700; }
+        .ft-title { margin: 0.25rem 0 0.35rem; font-family: "Cinzel", Georgia, serif; font-size: 1.12rem; letter-spacing: 0.03em; color: #fff; }
+        .ft-text { margin: 0; font-size: 0.92rem; line-height: 1.55; color: var(--text-secondary); }
+        .ft-dots { display: flex; gap: 5px; margin: 0.8rem 0 0.6rem; }
+        .ft-dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); transition: all .3s; }
+        .ft-dots i.on { width: 18px; border-radius: 3px; background: var(--ui-accent, #ff8c42); }
+        .ft-nav { display: flex; align-items: center; gap: 0.5rem; }
+        .ft-nav span { flex: 1; }
+        .ft-nav button { font: inherit; font-size: 0.85rem; border-radius: 999px; padding: 0.4rem 0.95rem; cursor: pointer; }
+        .ft-skip { background: none; border: 0; color: var(--text-tertiary); padding-left: 0 !important; }
+        .ft-skip:hover { color: #fff; }
+        .ft-back { background: transparent; border: 1px solid var(--border-subtle); color: var(--text-primary); }
+        .ft-next { background: linear-gradient(135deg, var(--ui-accent, #ff8c42), var(--ui-accent-2, #ffb27a)); border: 0; color: #1a1030; font-weight: 700; }
+        .ft-prompt { position: fixed; z-index: 9000; left: 50%; bottom: calc(150px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%);
+            display: flex; align-items: center; gap: 0.7rem; padding: 0.6rem 0.6rem 0.6rem 1rem; border-radius: 999px; max-width: calc(100vw - 24px);
+            background: var(--surface-raised, #1b1b1b); border: 1px solid rgba(127,243,255,0.35); box-shadow: 0 14px 40px rgba(0,0,0,0.5), 0 0 18px rgba(127,243,255,0.15);
+            font-size: 0.9rem; color: var(--text-primary); animation: pcardOpen .4s ease; }
+        .ft-prompt b { color: #fff; }
+        .ft-prompt .ft-go { border: 0; border-radius: 999px; padding: 0.4rem 0.9rem; font: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer; color: #1a1030;
+            background: linear-gradient(135deg, var(--ui-accent, #ff8c42), var(--ui-accent-2, #ffb27a)); white-space: nowrap; }
+        .ft-prompt .ft-no { width: 28px; height: 28px; border-radius: 50%; border: 0; background: rgba(255,255,255,0.08); color: #ccc; cursor: pointer; }
+        @media (max-width: 600px) { .ft-prompt { font-size: 0.82rem; bottom: calc(118px + env(safe-area-inset-bottom, 0px)); } }
+        @media (prefers-reduced-motion: reduce) { .ft-spot, .ft-card { transition: none; } }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -939,6 +971,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-05-handoff"></script>
+    <script src="js/chat-app-test.js?v=2026-10-05-ftour"></script>
 </body>
 </html>
