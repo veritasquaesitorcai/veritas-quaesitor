@@ -61,6 +61,17 @@
             document.body.appendChild(mist);
             setTimeout(() => mist.classList.add('vq-mist-settled'), 11500);   // after its strong arrival, it stays settled
         }
+        if (!document.querySelector('.vq-scene')) {
+            const sc = el('div', 'vq-scene');
+            sc.setAttribute('aria-hidden', 'true');
+            const clouds = Array.from({ length: 7 }, (_, i) => `<span class="cloud c${i + 1}"></span>`).join('');
+            sc.innerHTML = `<div class="stars"></div><div class="moon-wrap"><span class="moon-halo"></span><span class="moon"></span></div>` +
+                `<div class="sun-wrap"><span class="sun-rays r1"></span><span class="sun-rays r2"></span><span class="sun-halo"></span><span class="sun"></span><span class="horizon"></span></div>` +
+                `<div class="clouds">${clouds}</div><div class="rain"></div><div class="flash"></div><svg class="bolt" preserveAspectRatio="none"></svg>`;
+            buildRays(sc);
+            document.body.appendChild(sc);
+            applyScene();
+        }
         const signinArrival = new URLSearchParams(location.search).get('signin');
         playIntro(!!(continued || signinArrival));
         renderActiveChat();
@@ -2278,6 +2289,74 @@
         if (before && before !== document.body.dataset.theme) mistSurge();
     }
 
+
+    // ---------- Sky scenes: mist (default), drifting clouds, a sunset, or a sci-fi storm ----------
+    let stormTimer = null;
+    function applyScene() {
+        const sc = document.querySelector('.vq-scene');
+        if (!sc) return;
+        const scene = ['clouds', 'sunset', 'storm', 'night'].includes(uiPrefs.scene) ? uiPrefs.scene : '';
+        sc.dataset.scene = scene;
+        clearTimeout(stormTimer);
+        const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches || uiPrefs.motion === 'reduced';
+        if (scene === 'storm' && !calm) scheduleLightning(sc);
+    }
+    // Uneven sun rays (crepuscular): random widths, gaps and strengths, so they never look like a pinwheel
+    function buildRays(sc) {
+        sc.querySelectorAll('.sun-rays').forEach((r, layer) => {
+            let a = Math.random() * 20, stops = [];
+            while (a < 360) {
+                const gap = 4 + Math.random() * (layer ? 26 : 18);
+                const w = 0.6 + Math.random() * (layer ? 6 : 3.5);
+                const al = (layer ? 0.05 : 0.08) + Math.random() * (layer ? 0.08 : 0.14);
+                stops.push(`transparent ${a.toFixed(1)}deg`, `rgba(255,${190 + Math.round(Math.random() * 40)},${120 + Math.round(Math.random() * 50)},${al.toFixed(3)}) ${(a + w / 2).toFixed(1)}deg`, `transparent ${(a + w).toFixed(1)}deg`);
+                a += w + gap;
+            }
+            r.style.background = `conic-gradient(from ${Math.round(Math.random() * 360)}deg, ${stops.join(', ')})`;
+        });
+    }
+
+    // Natural lightning: a jagged, branching bolt drawn fresh each time, lighting up the clouds near it.
+    // Gentle by design: at most one strike every few seconds, a soft tinted glow, never a hard white flash.
+    function boltPath(x, y, len, spread, depth, out) {
+        let px = x, py = y, d = `M${x.toFixed(1)} ${y.toFixed(1)}`;
+        const steps = Math.max(4, Math.round(len / 16));
+        for (let i = 1; i <= steps; i++) {
+            px += (Math.random() - 0.5) * spread + (Math.random() - 0.5) * 6;
+            py += len / steps * (0.7 + Math.random() * 0.6);
+            d += ` L${px.toFixed(1)} ${py.toFixed(1)}`;
+            if (depth < 2 && Math.random() < (depth ? 0.12 : 0.28)) boltPath(px, py, len * (0.25 + Math.random() * 0.35), spread * 0.8, depth + 1, out);
+        }
+        out.push({ d, depth });
+        return out;
+    }
+    function scheduleLightning(sc) {
+        stormTimer = setTimeout(() => {
+            if (sc.dataset.scene !== 'storm' || document.hidden) { scheduleLightning(sc); return; }
+            strike(sc);
+            scheduleLightning(sc);
+        }, 6000 + Math.random() * 9000);
+    }
+    function strike(sc) {
+        const vw = window.innerWidth, vh = window.innerHeight;
+        const x = vw * (0.12 + Math.random() * 0.76), top = vh * (0.04 + Math.random() * 0.1), len = vh * (0.35 + Math.random() * 0.3);
+        const svg = sc.querySelector('.bolt');
+        svg.setAttribute('viewBox', `0 0 ${vw} ${vh}`);
+        const paths = boltPath(x, top, len, 34, 0, []);
+        svg.innerHTML = paths.map(p => `<path class="glow d${p.depth}" d="${p.d}"/><path class="core d${p.depth}" d="${p.d}"/>`).join('');
+        sc.style.setProperty('--fx', `${(x / vw * 100).toFixed(1)}%`);
+        sc.style.setProperty('--fy', `${(top / vh * 100 + 8).toFixed(1)}%`);
+        // light the clouds by how close they are to the strike
+        sc.querySelectorAll('.cloud').forEach(c => {
+            const r = c.getBoundingClientRect();
+            const dx = (r.left + r.width / 2 - x) / vw, dy = (r.top + r.height / 2 - top) / vh;
+            const near = Math.max(0, 1 - Math.hypot(dx, dy) * 2.2);
+            c.style.setProperty('--lit', (1 + near * 2.4).toFixed(2));
+        });
+        sc.classList.remove('strike'); void sc.offsetWidth; sc.classList.add('strike');
+        setTimeout(() => sc.classList.remove('strike'), 1400);
+    }
+
     function mistSurge() {
         const m = document.querySelector('.vq-mist');
         if (!m) return;
@@ -2315,7 +2394,8 @@
         b.toggle('panel-plain', uiPrefs.panelDetail === 'plain');
         b.toggle('ui-bubbles', !!uiPrefs.bubbles);
         b.toggle('no-glow', uiPrefs.glow === false);
-        b.toggle('no-mist', uiPrefs.mist === false);
+        b.toggle('no-mist', uiPrefs.mist === false || ['clouds', 'sunset', 'storm', 'night', 'none'].includes(uiPrefs.scene));
+        applyScene();
         applyTheme(THEMES.hasOwnProperty(uiPrefs.theme) ? uiPrefs.theme : 'vq');
         const tv = TITLE_STYLES[uiPrefs.title] || 1;
         [1, 2, 3].forEach(n => b.toggle(`title-v${n}`, n === tv));
@@ -2366,7 +2446,8 @@
                     if (!ACCENTS[st.accent] && THEME_ACCENT[st.theme]) uiPrefs.accent = THEME_ACCENT[st.theme];
                 }
                 if (st.glow === 'on' || st.glow === 'off') uiPrefs.glow = st.glow === 'on';
-                if (st.mist === 'on' || st.mist === 'off') uiPrefs.mist = st.mist === 'on';
+                if (st.mist === 'on' || st.mist === 'off') { uiPrefs.mist = st.mist === 'on'; if (st.mist === 'on') uiPrefs.scene = 'mist'; }
+                if (['mist', 'clouds', 'sunset', 'storm', 'night', 'none'].includes(st.scene)) { uiPrefs.scene = st.scene; uiPrefs.mist = st.scene !== 'none'; }
                 break;
             }
             case 'panel':
@@ -3662,6 +3743,9 @@
                     if (st.accent) { used.add('accent'); lines.push(`Accent colour set to **${cap(st.accent)}**. Other colours: ${others(CHOICES.accent, st.accent)}.`); }
                     if (st.title) { used.add('title'); lines.push(`Title style set to **${cap(st.title)}**. The others are ${others(CHOICES.title, st.title).replace(/, ([^,]*)$/, ' and $1')}.`); }
                     if (st.bubbles) { used.add('bubbles'); lines.push(st.bubbles === 'on' ? 'Answers now show **in chat bubbles**. Say “bubbles off” for the open page layout.' : 'Answers now use the **open page layout**. Say “bubbles on” to bring the bubbles back.'); }
+                    if (st.scene) lines.push({ mist: 'The **living mist** is back.', clouds: 'Clouds now drift slowly across your screen.',
+                        sunset: 'A **sunset** glows in the corner, with clouds drifting past the sun.', night: 'Night falls: a **moon** with drifting clouds and faint stars.', storm: 'A gentle **sci-fi storm** rolls in: rain, drifting thunderheads and the odd soft flash of lightning.',
+                        none: 'The background is now **still**: no mist or sky effects.' }[st.scene] + ' Other skies: mist, clouds, sunset, night, storm, or none.');
                     if (st.mist) lines.push(st.mist === 'on' ? 'The warm **mist** is back, drifting through the VQ theme.' : 'The warm mist is **off**: a still, clean background. Say “mist on” to bring it back.');
                     if (st.glow) lines.push(st.glow === 'on' ? 'Icon glow is **on**. Each theme glows in its own colour.' : 'Icon glow is **off**: clean, flat icons. Say “glow on” to bring it back.');
                     if (typeof st.text_scale === 'number') { used.add('size'); lines.push(`Text size set to **${Math.round(st.text_scale * 100)}%**.`); }
