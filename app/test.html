@@ -721,6 +721,14 @@
         .ft-prompt .ft-go { border: 0; border-radius: 999px; padding: 0.4rem 0.9rem; font: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer; color: #1a1030;
             background: linear-gradient(135deg, var(--ui-accent, #ff8c42), var(--ui-accent-2, #ffb27a)); white-space: nowrap; }
         .ft-prompt .ft-no { width: 28px; height: 28px; border-radius: 50%; border: 0; background: rgba(255,255,255,0.08); color: #ccc; cursor: pointer; }
+        .ft-layer.ft-open .ft-spot { box-shadow: 0 0 0 9999px rgba(4, 6, 12, 0.18); }
+        .ft-extra:empty { display: none; }
+        .ft-extra { margin-top: 0.8rem; }
+        .ft-other { border: 1px solid rgba(127,243,255,0.5); background: rgba(127,243,255,0.08); color: #bff7fc; border-radius: 999px; padding: 0.45rem 1rem;
+            font: inherit; font-size: 0.86rem; font-weight: 600; cursor: pointer; }
+        .ft-other:hover { background: rgba(127,243,255,0.16); color: #fff; }
+        .ft-prompt .ft-go-alt { background: transparent; color: var(--text-primary); border: 1px solid rgba(127,243,255,0.45); }
+        .ft-demo { display: flex; flex-direction: column; gap: 1.2rem; padding-top: 0.5rem; }
         @media (max-width: 600px) { .ft-prompt { font-size: 0.82rem; bottom: calc(118px + env(safe-area-inset-bottom, 0px)); } }
         @media (prefers-reduced-motion: reduce) { .ft-spot, .ft-card { transition: none; } }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
@@ -971,6 +979,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-05-ftour"></script>
+    <script src="js/chat-app-test.js?v=2026-10-05-ftour2"></script>
 </body>
 </html>
