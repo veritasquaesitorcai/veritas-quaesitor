@@ -2146,6 +2146,22 @@ def _json_get(url: str, timeout: int = 12):
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return json.loads(r.read().decode())
 
+def _og_image(url: str) -> str:
+    """The article's own preview image (og:image), read from the top of the page. Empty if there isn't one."""
+    import urllib.request
+    try:
+        if not _public_url(url):
+            return ""
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; VQChat/1.0)", "Accept": "text/html"})
+        with urllib.request.urlopen(req, timeout=4) as r:
+            if "html" not in (r.headers.get("Content-Type") or ""):
+                return ""
+            head = r.read(300_000).decode(r.headers.get_content_charset() or "utf-8", errors="ignore")
+        img = _meta_from_html(head, url).get("image") or ""
+        return img if img.startswith("https://") else ""
+    except Exception:
+        return ""
+
 def news_cards(query: str) -> dict:
     from urllib.parse import urlparse as _up
     res = tavily_search(query, topic="news", max_results=10)
@@ -2155,7 +2171,16 @@ def news_cards(query: str) -> dict:
             continue
         items.append({"title": r["title"], "url": r["url"], "source": (_up(r["url"]).hostname or "").replace("www.", ""),
                       "date": (r.get("date") or "")[:16], "summary": re.sub(r"\s+", " ", r["content"])[:420]})
-    return {"items": items[:6], "filtered": len(res.get("results", [])) - len(items), "ms": res["ms"], "error": res["error"]}
+    items = items[:6]
+    # Fetch each article's preview image in parallel (about a second; cards without one simply show no image)
+    if items:
+        from concurrent.futures import ThreadPoolExecutor
+        t_img = _time.time()
+        with ThreadPoolExecutor(max_workers=6) as pool:
+            for it, img in zip(items, pool.map(lambda it: _og_image(it["url"]), items)):
+                it["image"] = img
+        print(f"[NEWS] preview images: {sum(1 for it in items if it['image'])}/{len(items)} in {int((_time.time() - t_img) * 1000)}ms", flush=True)
+    return {"items": items, "filtered": len(res.get("results", [])) - len(items), "ms": res["ms"], "error": res["error"]}
 
 def bible_lookup(reference: str) -> dict:
     import urllib.parse as _upr
