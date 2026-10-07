@@ -1164,6 +1164,13 @@
         body[data-fx="low"] .vq-mist { filter: brightness(0.32); }
         body[data-fx="low"].fx-crt .message-content, body[data-fx="low"].fx-crt .welcome-title, body[data-fx="low"].fx-crt .app-title { text-shadow: none; }
         body[data-fx="low"] .fx-crt-roll, body[data-fx="low"] .fx-crt-noise { animation-play-state: paused; }
+        /* ---- Visual Toolkit canvas layers: drawn over the app, blending like light ---- */
+        .vq-visual-host { position: fixed; inset: 0; z-index: 897; pointer-events: none; mix-blend-mode: screen; isolation: isolate; }
+        .vq-visual-host[data-vq-visual] { background: none !important; position: fixed !important; inset: 0 !important; width: 100vw !important; height: 100vh !important;
+            height: 100dvh !important; margin: 0 !important; padding: 0 !important; border: 0 !important; z-index: 897 !important; }
+        .vq-visual-host[hidden] { display: none; }
+        body[data-fx="medium"] .vq-visual-host { opacity: 0.62; }
+        body[data-fx="low"] .vq-visual-host { opacity: 0.3; }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -1420,6 +1427,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-07-textstatic"></script>
+    <script src="js/vq-visual-toolkit.js?v=2026-10-07-tk"></script>
+    <script src="js/chat-app-test.js?v=2026-10-07-tk"></script>
 </body>
 </html>
