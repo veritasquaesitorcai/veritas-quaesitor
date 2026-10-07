@@ -86,6 +86,12 @@
         if (window.innerWidth > 768) elements.messageInput.focus();
         const tb = document.getElementById('tour-btn');
         if (tb) tb.addEventListener('click', () => { offerTours('use'); if (window.innerWidth <= 768) document.getElementById('sidebar-scrim')?.click(); });
+        const sharedTheme = new URLSearchParams(location.search).get('theme');
+        if (sharedTheme) {
+            const raw = parseThemeCode(sharedTheme);
+            try { history.replaceState(null, '', location.pathname); } catch (e) {}
+            if (raw) { const r = installTheme(raw); saveUIPrefs(); applyUIPrefs(); setTimeout(() => showLocalNote(`Theme “${r.spec.name}” added from a shared link`), 900); }
+        }
         if (continued) setTimeout(() => showLocalNote('Continued from the website chat'), 700);
         else setTimeout(showFeaturePrompt, sessionStorage.getItem('vq-app-intro-just-played') ? 5200 : 1800);
         // If this tab is already open, a conversation sent from the website bubble arrives live
@@ -2404,12 +2410,297 @@
     const THEME_ACCENT = { vq: 'orange', classic: 'orange', navy: 'gold', charcoal: 'teal', midnight: 'rose', ocean: 'orange',
                            forest: 'gold', ember: 'teal', slate: 'violet', plum: 'rose' };
 
+
+    // ---------- VQ's own themes: designed from a description, checked for readability, saved and shareable ----------
+    const hexRgb = (h) => { h = String(h || '').replace('#', ''); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) || 0); };
+    const rgbHex = (c) => '#' + c.map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
+    const mixHex = (a, b, t) => { const x = hexRgb(a), y = hexRgb(b); return rgbHex(x.map((v, i) => v + (y[i] - v) * t)); };
+    const lumOf = (h) => { const c = hexRgb(h).map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+    const contrastOf = (a, b) => { const x = lumOf(a), y = lumOf(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+    const isHex = (v) => typeof v === 'string' && /^#?[0-9a-f]{6}$/i.test(v.trim());
+
+    // Make any design readable: a dark background, clearly readable text, visible accents and icons
+    function fixTheme(raw) {
+        const fixes = [];
+        const s = {};
+        s.name = String(raw.name || 'My theme').replace(/[^\w '\-&]/g, '').slice(0, 28).trim() || 'My theme';
+        s.background = isHex(raw.background) ? '#' + raw.background.replace('#', '').toLowerCase() : '#101418';
+        let guard = 0;
+        while (lumOf(s.background) > 0.035 && guard++ < 40) s.background = mixHex(s.background, '#000000', 0.12);
+        if (guard > 0) fixes.push('darkened the background');
+        s.surface = isHex(raw.surface) ? '#' + raw.surface.replace('#', '').toLowerCase() : mixHex(s.background, '#ffffff', 0.07);
+        guard = 0; while (lumOf(s.surface) > 0.07 && guard++ < 40) s.surface = mixHex(s.surface, '#000000', 0.12);
+        if (contrastOf(s.surface, s.background) < 1.08) s.surface = mixHex(s.background, '#ffffff', 0.07);
+        const lift = (key, fallback, min, label) => {
+            let c = isHex(raw[key]) ? '#' + raw[key].replace('#', '').toLowerCase() : fallback;
+            let g = 0, changed = false;
+            while (contrastOf(c, s.background) < min && g++ < 40) { c = mixHex(c, '#ffffff', 0.12); changed = true; }
+            if (changed && isHex(raw[key])) fixes.push(label);
+            s[key] = c;
+        };
+        lift('text', '#ececec', 7, 'brightened the text');
+        lift('accent', '#ff8c42', 3.2, 'brightened the accent');
+        lift('accent2', mixHex(s.accent, '#ffffff', 0.35), 4.5, 'brightened the second accent');
+        lift('icon', s.accent2, 4.5, 'brightened the icons');
+        if (['mist', 'clouds', 'sunset', 'night', 'seaday', 'seanight', 'storm', 'none'].includes(raw.scene)) s.scene = raw.scene;
+        const fxIn = Array.isArray(raw.effects) ? raw.effects : String(raw.effects || '').split(',');
+        s.effects = [...new Set(fxIn.map(x => String(x).trim().toLowerCase()).filter(x => FX_LIST.includes(x)))].slice(0, 4);
+        return { spec: s, fixes };
+    }
+
+    function themeVars(s) {
+        const t = hexRgb(s.text).join(',');
+        const panel = hexRgb(mixHex(s.background, s.surface, 0.6));
+        return [s.background, mixHex(s.background, '#000000', 0.18), `rgba(${panel.join(',')}, 0.84)`, s.surface,
+                `rgba(${t},0.11)`, `rgba(${t},0.055)`, s.text];
+    }
+    function customSpec(id) { return (uiPrefs.customThemes || {})[id] || null; }
+    const ICON_VARS = ['--ic-tile', '--ic-line', '--ic-fill', '--ic-accent', '--vq-eye', '--vq-light', '--vq-ear', '--ic-glow-color', '--fx-rgb', '--fx-text-rgb', '--vq-avatar-bg'];
+    function applyCustomIcons(s) {
+        const b = document.body.style;
+        if (!s) { ICON_VARS.forEach(v => b.removeProperty(v)); return; }
+        const ic = hexRgb(s.icon).join(','), ac = hexRgb(s.accent2).join(',');
+        b.setProperty('--ic-tile', `rgba(${ic},0.10)`); b.setProperty('--ic-line', s.icon); b.setProperty('--ic-fill', `rgba(${ic},0.18)`);
+        b.setProperty('--ic-accent', s.accent2); b.setProperty('--vq-eye', s.icon); b.setProperty('--vq-light', s.icon); b.setProperty('--vq-ear', s.accent2);
+        b.setProperty('--ic-glow-color', `rgba(${ic},0.6)`);
+        b.setProperty('--fx-rgb', ic); b.setProperty('--fx-text-rgb', hexRgb(s.text).join(','));
+        b.setProperty('--vq-avatar-bg', `radial-gradient(circle at 50% 40%, ${mixHex(s.surface, '#ffffff', 0.06)}, ${mixHex(s.background, '#000000', 0.5)})`);
+    }
+
+    function themeCode(s) {
+        const short = { n: s.name, b: s.background, u: s.surface, t: s.text, a: s.accent, a2: s.accent2, i: s.icon, s: s.scene || '', e: (s.effects || []).join(',') };
+        return 'VQT1-' + btoa(unescape(encodeURIComponent(JSON.stringify(short)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+    function parseThemeCode(code) {
+        try {
+            const b64 = code.replace(/^VQT1-/, '').replace(/-/g, '+').replace(/_/g, '/');
+            const o = JSON.parse(decodeURIComponent(escape(atob(b64))));
+            return { name: o.n, background: o.b, surface: o.u, text: o.t, accent: o.a, accent2: o.a2, icon: o.i, scene: o.s, effects: o.e || '' };
+        } catch (e) { return null; }
+    }
+
+    // Save (or update) a theme and switch to it. Returns { id, spec, fixes }.
+    function installTheme(raw) {
+        const { spec, fixes } = fixTheme(raw || {});
+        uiPrefs.customThemes = Object.assign({}, uiPrefs.customThemes || {});
+        const existing = Object.keys(uiPrefs.customThemes).find(k => uiPrefs.customThemes[k].name.toLowerCase() === spec.name.toLowerCase());
+        const id = existing || ('custom-' + spec.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString(36).slice(-3));
+        uiPrefs.customThemes[id] = spec;
+        const ids = Object.keys(uiPrefs.customThemes);
+        if (ids.length > 12) delete uiPrefs.customThemes[ids.find(k => k !== id)];   // keep the 12 most recent
+        uiPrefs.theme = id;
+        uiPrefs.accent = 'theme';
+        if (spec.scene) { uiPrefs.scene = spec.scene; uiPrefs.mist = spec.scene !== 'none'; }
+        return { id, spec, fixes };
+    }
+
+    function themeShareLink(s) { return `${location.origin}${location.pathname}?theme=${themeCode(s)}`; }
+
+
+
+    // ---------- Theme effects: building blocks VQ can add to its own themes, drawn in the theme's colours ----------
+    const FX_LIST = ['trees', 'grass', 'mountains', 'stars', 'comet', 'planet', 'aurora', 'fireflies', 'snow', 'leaves', 'static', 'crt', 'tvset'];
+    // One small tile of TV noise, made once and reused (shifted around to make it shimmer)
+    let noiseTile = null;
+    function getNoiseTile() {
+        if (noiseTile) return noiseTile;
+        const c = document.createElement('canvas'); c.width = c.height = 192;
+        const ctx = c.getContext('2d'), img = ctx.createImageData(192, 192);
+        for (let i = 0; i < img.data.length; i += 4) {
+            const v = Math.random() * 255;                         // overall brightness: reads as grey from a distance
+            const tint = Math.random() < 0.55 ? 1 : 0;             // up close, many specks carry their own colour
+            for (let k = 0; k < 3; k++) img.data[i + k] = Math.max(0, Math.min(255, v + (Math.random() - 0.5) * 210 * tint));
+            img.data[i + 3] = 255;
+        }
+        ctx.putImageData(img, 0, 0);
+        return (noiseTile = c.toDataURL('image/png'));
+    }
+    let cometTimer = null;
+    const rnd = (a, b) => a + Math.random() * (b - a);
+
+    function renderFx(spec) {
+        let layer = document.querySelector('.vq-fx');
+        if (!layer) { layer = el('div', 'vq-fx'); layer.setAttribute('aria-hidden', 'true'); document.body.appendChild(layer); }
+        const want = (spec && Array.isArray(spec.effects) ? spec.effects.filter(f => FX_LIST.includes(f)) : []).slice(0, 4);
+        const key = want.join(',') + '|' + (spec ? spec.name : '');
+        clearTimeout(cometTimer);
+        if (layer.dataset.key === key) { if (want.includes('comet')) scheduleComet(layer); return; }
+        layer.dataset.key = key;
+        layer.innerHTML = '';
+        document.body.classList.toggle('fx-has-planet', want.includes('planet'));
+        document.body.classList.toggle('fx-crt', want.includes('crt'));
+        document.body.classList.toggle('fx-tv', want.includes('tvset'));
+        const oldControls = document.querySelector('.tv-controls');
+        if (oldControls) oldControls.remove();
+        if (want.includes('tvset')) buildTvControls();
+        if (!want.length) return;
+        const W = 1600, H = 300;
+        want.forEach(fx => {
+            if (fx === 'trees') {
+                let svg = `<svg class="fx-trees" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMax slice">`;
+                for (let x = -20; x < W + 40; x += rnd(38, 70)) {
+                    const h = rnd(90, 230), w = h * rnd(0.32, 0.42), base = H, far = Math.random() < 0.45;
+                    const tiers = 3 + Math.round(Math.random());
+                    let path = '';
+                    for (let t = 0; t < tiers; t++) {
+                        const top = base - h + t * h / (tiers + 0.6), bot = top + h / (tiers - 0.4), ww = w * (0.45 + t * 0.22);
+                        path += `M${x} ${top.toFixed(0)} L${(x - ww / 2).toFixed(0)} ${bot.toFixed(0)} L${(x + ww / 2).toFixed(0)} ${bot.toFixed(0)}Z `;
+                    }
+                    path += `M${x - 4} ${base - h * 0.18} h8 V${base} h-8Z`;
+                    svg += `<path class="${far ? 'far' : 'near'}" d="${path}" style="transform-origin:${x}px ${base}px;animation-duration:${rnd(5, 9).toFixed(1)}s;animation-delay:-${rnd(0, 8).toFixed(1)}s"/>`;
+                }
+                layer.insertAdjacentHTML('beforeend', svg + '</svg>');
+            } else if (fx === 'grass') {
+                let svg = `<svg class="fx-grass" viewBox="0 0 ${W} 120" preserveAspectRatio="xMidYMax slice">`;
+                for (let x = 0; x < W; x += rnd(5, 11)) {
+                    const h = rnd(30, 95), lean = rnd(-14, 14);
+                    svg += `<path d="M${x} 120 Q${(x + lean / 2).toFixed(0)} ${(120 - h / 2).toFixed(0)} ${(x + lean).toFixed(0)} ${(120 - h).toFixed(0)} Q${(x + lean / 2 + 3).toFixed(0)} ${(120 - h / 2).toFixed(0)} ${x + 5} 120Z" style="transform-origin:${x}px 120px;animation-duration:${rnd(3, 6).toFixed(1)}s;animation-delay:-${rnd(0, 5).toFixed(1)}s"/>`;
+                }
+                layer.insertAdjacentHTML('beforeend', svg + '</svg>');
+            } else if (fx === 'mountains') {
+                const ridge = (y0, amp, step) => { let d = `M0 ${H}`; for (let x = 0; x <= W; x += step) d += ` L${x} ${(y0 + Math.sin(x / 140) * amp * 0.4 + rnd(-amp, amp)).toFixed(0)}`; return d + ` L${W} ${H}Z`; };
+                layer.insertAdjacentHTML('beforeend', `<svg class="fx-mountains" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMax slice"><path class="m-back" d="${ridge(120, 60, 60)}"/><path class="m-front" d="${ridge(190, 40, 45)}"/></svg>`);
+            } else if (fx === 'stars') {
+                const s = el('div', 'fx-stars');
+                for (let i = 0; i < 70; i++) {
+                    const d = el('span');
+                    d.style.cssText = `left:${rnd(0, 100).toFixed(1)}%;top:${rnd(0, 70).toFixed(1)}%;width:${rnd(1, 2.6).toFixed(1)}px;height:auto;animation-duration:${rnd(2.5, 7).toFixed(1)}s;animation-delay:-${rnd(0, 7).toFixed(1)}s`;
+                    s.appendChild(d);
+                }
+                layer.appendChild(s);
+            } else if (fx === 'comet') {
+                layer.insertAdjacentHTML('beforeend', '<div class="fx-comet"><span></span></div>');
+                scheduleComet(layer);
+            } else if (fx === 'planet') {
+                layer.insertAdjacentHTML('beforeend', '<div class="fx-planet"><span class="ring back"></span><span class="ball"></span><span class="ring front"></span></div>');
+            } else if (fx === 'aurora') {
+                layer.insertAdjacentHTML('beforeend', '<div class="fx-aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>');
+            } else if (fx === 'fireflies') {
+                const f = el('div', 'fx-fireflies');
+                for (let i = 0; i < 18; i++) {
+                    const d = el('span');
+                    d.style.cssText = `left:${rnd(2, 98).toFixed(1)}%;top:${rnd(45, 95).toFixed(1)}%;--dx:${rnd(-60, 60).toFixed(0)}px;--dy:${rnd(-50, 30).toFixed(0)}px;animation-duration:${rnd(6, 12).toFixed(1)}s,${rnd(1.8, 4).toFixed(1)}s;animation-delay:-${rnd(0, 10).toFixed(1)}s,-${rnd(0, 4).toFixed(1)}s`;
+                    f.appendChild(d);
+                }
+                layer.appendChild(f);
+            } else if (fx === 'static') {
+                const n = el('div', 'fx-static');
+                n.style.backgroundImage = `url(${getNoiseTile()})`;
+                layer.appendChild(n);
+            } else if (fx === 'crt') {
+                // the old-TV screen: scanlines, a rolling bar, curved glass with a dark bezel, and a power-on line
+                const n = el('div', 'fx-crt-noise');
+                n.style.backgroundImage = `url(${getNoiseTile()})`;
+                layer.appendChild(n);
+                layer.insertAdjacentHTML('beforeend', '<div class="fx-crt-lines"></div><div class="fx-crt-roll"></div><div class="fx-crt-glass"></div><div class="fx-crt-on"></div>');
+            } else if (fx === 'snow') {
+                layer.insertAdjacentHTML('beforeend', '<div class="fx-snow s1"></div><div class="fx-snow s2"></div>');
+            } else if (fx === 'leaves') {
+                const lv = el('div', 'fx-leaves');
+                for (let i = 0; i < 12; i++) {
+                    const d = el('span');
+                    d.innerHTML = '<svg viewBox="0 0 20 20"><path d="M10 1 C 16 5 18 12 10 19 C 2 12 4 5 10 1Z M10 3 L10 18"/></svg>';
+                    d.style.cssText = `left:${rnd(0, 100).toFixed(1)}%;--sway:${rnd(-80, 80).toFixed(0)}px;animation-duration:${rnd(11, 20).toFixed(1)}s;animation-delay:-${rnd(0, 20).toFixed(1)}s;transform:scale(${rnd(0.7, 1.3).toFixed(2)})`;
+                    lv.appendChild(d);
+                }
+                layer.appendChild(lv);
+            }
+        });
+    }
+
+
+    // ---------- The wooden TV set: a cabinet around the app with working knobs ----------
+    function buildTvControls() {
+        const c = el('div', 'tv-controls');
+        const ticks = Array.from({ length: 12 }, (_, i) => `<i style="transform:rotate(${i * 30}deg)"><b style="transform:rotate(${-i * 30}deg)">${i + 2}</b></i>`).join('');
+        c.innerHTML = `<div class="tv-brand">VQ</div>
+            <button type="button" class="tv-knob tv-channel" aria-label="Turn the channel dial"><span class="tv-dial">${ticks}</span><span class="tv-cap"><span class="tv-pointer"></span></span></button>
+            <button type="button" class="tv-knob tv-volume" aria-label="Turn the volume knob"><span class="tv-cap small"><span class="tv-pointer"></span></span></button>
+            <div class="tv-grille">${'<span></span>'.repeat(9)}</div>
+            <button type="button" class="tv-power" aria-label="Power button"><span class="tv-led"></span></button>
+            <div class="tv-osd" aria-hidden="true"></div>`;
+        document.body.appendChild(c);
+        let ch = 0, vol = 6;
+        const osd = c.querySelector('.tv-osd');
+        const showOsd = (txt) => { osd.textContent = txt; osd.classList.remove('show'); void osd.offsetWidth; osd.classList.add('show'); };
+        c.querySelector('.tv-channel').addEventListener('click', () => {
+            ch = (ch + 1) % 12;
+            c.querySelector('.tv-channel .tv-cap').style.transform = `rotate(${ch * 30}deg)`;
+            const fx = document.querySelector('.vq-fx');
+            if (fx) { fx.classList.remove('tv-burst'); void fx.offsetWidth; fx.classList.add('tv-burst'); }
+            showOsd(`CH ${String(ch + 2).padStart(2, '0')}`);
+        });
+        c.querySelector('.tv-volume').addEventListener('click', () => {
+            vol = (vol + 1) % 11;
+            c.querySelector('.tv-volume .tv-cap').style.transform = `rotate(${vol * 27 - 135}deg)`;
+            showOsd(`VOLUME ${'▮'.repeat(vol)}${'▯'.repeat(10 - vol)}`);
+        });
+        c.querySelector('.tv-power').addEventListener('click', () => {
+            document.body.classList.remove('tv-off'); void document.body.offsetWidth;
+            document.body.classList.add('tv-off');
+            setTimeout(() => {
+                document.body.classList.remove('tv-off');
+                const on = document.querySelector('.fx-crt-on');
+                if (on) { on.style.animation = 'none'; void on.offsetWidth; on.style.animation = ''; }
+            }, 1500);
+        });
+    }
+
+    // A comet crosses the sky every 12-25 seconds, on a slightly different path each time
+    function scheduleComet(layer) {
+        clearTimeout(cometTimer);
+        const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches || uiPrefs.motion === 'reduced';
+        if (calm) return;
+        cometTimer = setTimeout(() => {
+            const c = layer.querySelector('.fx-comet');
+            if (!c || !document.body.contains(c)) return;
+            if (!document.hidden) {
+                c.style.top = rnd(4, 30).toFixed(1) + 'vh';
+                c.style.setProperty('--ang', rnd(12, 26).toFixed(1) + 'deg');
+                c.classList.remove('fly'); void c.offsetWidth; c.classList.add('fly');
+            }
+            scheduleComet(layer);
+        }, rnd(12000, 25000));
+    }
+
+    function showMyThemes() {
+        elements.messagesArea.querySelectorAll('.ft-offer').forEach(o => o.remove());
+        hideWelcomeScreen();
+        elements.chatContainer.classList.add('has-messages');
+        const box = el('div', 'ft-offer my-themes');
+        const list = Object.entries(uiPrefs.customThemes || {});
+        box.appendChild(el('div', 'ft-offer-title', list.length ? 'Your themes' : 'No saved themes yet'));
+        box.appendChild(el('div', 'ft-offer-text', list.length ? 'Tap one to use it, or copy its code to share it.' : 'Ask VQ to design one, for example: “make me a theme like a sunrise over the ocean”.'));
+        list.reverse().forEach(([id, t]) => {
+            const row = el('div', 'mt-row');
+            const sw = el('span', 'mt-swatch');
+            sw.style.background = `linear-gradient(135deg, ${t.background} 0 45%, ${t.accent} 45% 70%, ${t.icon} 70%)`;
+            const use = el('button', 'mt-use', t.name); use.type = 'button';
+            use.addEventListener('click', () => { uiUndo.push(snapshotUI()); uiPrefs.theme = id; uiPrefs.accent = 'theme'; if (t.scene) { uiPrefs.scene = t.scene; uiPrefs.mist = t.scene !== 'none'; } saveUIPrefs(); applyUIPrefs(); showLocalNote(`Switched to “${t.name}”`); });
+            const copy = el('button', 'mt-copy', 'Copy code'); copy.type = 'button';
+            copy.addEventListener('click', () => { navigator.clipboard?.writeText(themeCode(t)).then(() => { copy.textContent = 'Copied'; setTimeout(() => copy.textContent = 'Copy code', 1500); }); });
+            const link = el('button', 'mt-copy', 'Copy link'); link.type = 'button';
+            link.addEventListener('click', () => { navigator.clipboard?.writeText(themeShareLink(t)).then(() => { link.textContent = 'Copied'; setTimeout(() => link.textContent = 'Copy link', 1500); }); });
+            row.append(sw, use, copy, link);
+            box.appendChild(row);
+        });
+        const no = el('button', 'ft-offer-no', 'Close'); no.type = 'button';
+        no.addEventListener('click', () => { box.remove(); if (!conversationHistory.length) showWelcomeScreen(); });
+        box.appendChild(no);
+        elements.messagesArea.appendChild(box);
+        box.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
     function applyTheme(name) {
         const root = document.documentElement.style;
-        const vals = THEMES[name];
+        const cs = customSpec(name);
+        const vals = cs ? themeVars(cs) : THEMES[name];
         THEME_VARS.forEach((v, i) => { if (vals) root.setProperty(v, vals[i]); else root.removeProperty(v); });
+        applyCustomIcons(cs);
+        renderFx(cs);
         const before = document.body.dataset.theme;
-        document.body.dataset.theme = vals ? name : 'classic';
+        document.body.dataset.theme = cs ? 'custom' : vals ? name : 'classic';
+        if (cs) document.body.dataset.customTheme = name; else delete document.body.dataset.customTheme;
         if (before && before !== document.body.dataset.theme) mistSurge();
     }
 
@@ -2496,7 +2787,8 @@
         const root = document.documentElement.style;
         root.setProperty('--ui-scale', String(uiPrefs.scale));
         root.setProperty('--ui-line', String(uiPrefs.line));
-        const [a1, a2] = ACCENTS[uiPrefs.accent] || ACCENTS.orange;
+        const ct = customSpec(uiPrefs.theme);
+        const [a1, a2] = (uiPrefs.accent === 'theme' && ct) ? [ct.accent, ct.accent2] : (ACCENTS[uiPrefs.accent] || ACCENTS.orange);
         root.setProperty('--accent-gradient', `linear-gradient(135deg, ${a1} 0%, ${a2} 100%)`);
         root.setProperty('--ui-accent', a1);
         root.setProperty('--ui-accent-2', a2);
@@ -2520,7 +2812,7 @@
         b.toggle('no-glow', uiPrefs.glow === false);
         b.toggle('no-mist', uiPrefs.mist === false || ['clouds', 'sunset', 'storm', 'night', 'seaday', 'seanight', 'none'].includes(uiPrefs.scene));
         applyScene();
-        applyTheme(THEMES.hasOwnProperty(uiPrefs.theme) ? uiPrefs.theme : 'vq');
+        applyTheme(THEMES.hasOwnProperty(uiPrefs.theme) || customSpec(uiPrefs.theme) ? uiPrefs.theme : 'vq');
         const tv = TITLE_STYLES[uiPrefs.title] || 1;
         [1, 2, 3].forEach(n => b.toggle(`title-v${n}`, n === tv));
     }
@@ -2597,6 +2889,10 @@
                 openPanel(true);
                 setPanelView(PANEL_VIEWS.includes(act.view) ? act.view : 'details', true);
                 break;
+            case 'create_theme': {
+                act._installed = installTheme(act.theme || {});
+                break;
+            }
             case 'add_note':
                 if (act.note) addNote(act.note, true);
                 break;
@@ -2607,7 +2903,7 @@
             }
             case 'reset_display':
                 // Everything back to the standard setup: look, panel (Details, Technical, standard width) and VQ in the main chat
-                uiPrefs = Object.assign({}, UI_DEFAULTS);
+                uiPrefs = Object.assign({}, UI_DEFAULTS, uiPrefs.customThemes ? { customThemes: uiPrefs.customThemes } : {});   // your saved themes survive a reset
                 if (isSwapped()) endSwap(false);
                 saveUIPrefs();
                 applyUIPrefs();
@@ -3903,6 +4199,19 @@
                 case 'panel_view':
                     lines.push(`Side panel switched to **${a.view === 'enquirer' ? 'O.R.I.A.' : cap(a.view || 'details')}**.`);
                     break;
+                case 'create_theme': {
+                    const r = a._installed || {};
+                    const sp = r.spec || {};
+                    used.add('theme'); used.add('accent');
+                    const fxNames = { trees: 'swaying trees', grass: 'swaying grass', mountains: 'mountains', stars: 'twinkling stars', comet: 'a passing comet', planet: 'a ringed planet', aurora: 'an aurora', fireflies: 'fireflies', snow: 'falling snow', leaves: 'falling leaves', static: 'TV static', crt: 'an old-TV screen', tvset: 'a wooden TV set with working knobs' };
+                    const fxText = (sp.effects || []).map(f => fxNames[f]).filter(Boolean);
+                    lines.push(`New theme **${sp.name || 'saved'}** created and saved${sp.scene && sp.scene !== 'none' ? `, with a matching **${sp.scene === 'seaday' ? 'seashore' : sp.scene === 'seanight' ? 'night seashore' : sp.scene}** sky` : ''}` +
+                        (fxText.length ? `, and ${fxText.length > 1 ? fxText.slice(0, -1).join(', ') + ' and ' + fxText.slice(-1) : fxText[0]}` : '') + '.' +
+                        (r.fixes && r.fixes.length ? ` For readability I ${r.fixes.join(', ')}.` : ''));
+                    if (sp.name) lines.push(`Share it with this code: \`${themeCode(sp)}\` or this link: ${themeShareLink(sp)}`);
+                    lines.push('Say “my themes” to see all your saved themes, or name one to switch back to it.');
+                    break;
+                }
                 case 'add_note':
                     used.add('notes');
                     lines.push('Saved to your **Notes**. You’ll find it in the side panel.');
@@ -3940,6 +4249,31 @@
         // Simple display commands run on this device: instant, free, and they work even after the daily limit
         const tourAsk = /^\s*(customi[sz](e|ation)( tour)?|personali[sz]e( tour)?|style tour|how (do|can) i change the look\??)\s*$/i.test(rawMessage) ? 'custom'
             : /^\s*(feature tour|usage tour|how (do i|to) use (this|vq chat|the app)\??|show me (the )?features|tour( the)? (app|features)|what can (this app|vq chat) do\??)\s*$/i.test(rawMessage) ? 'use' : null;
+        // Theme codes, "my themes" and switching to a saved theme by name are handled here, free and instant
+        const codeMatch = rawMessage.match(/\b(VQT1-[A-Za-z0-9_-]{10,})\b/);
+        if (codeMatch) {
+            const raw = parseThemeCode(codeMatch[1]);
+            elements.messageInput.value = '';
+            if (raw) { uiUndo.push(snapshotUI()); const r = installTheme(raw); saveUIPrefs(); applyUIPrefs(); showLocalNote(`Theme “${r.spec.name}” added and switched on`); }
+            else showLocalNote('That theme code didn’t work: check it was copied in full');
+            return;
+        }
+        if (/^\s*(my themes|show (me )?my themes|saved themes|list (my )?themes)\s*\??\s*$/i.test(rawMessage)) {
+            elements.messageInput.value = '';
+            showMyThemes();
+            return;
+        }
+        const escRe = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const named = Object.entries(uiPrefs.customThemes || {}).find(([, t]) => new RegExp('^\\s*(use |switch to |apply )?(my )?' + escRe(t.name) + '( theme)?\\s*$', 'i').test(rawMessage));
+        if (named) {
+            elements.messageInput.value = '';
+            uiUndo.push(snapshotUI());
+            uiPrefs.theme = named[0]; uiPrefs.accent = 'theme';
+            if (named[1].scene) { uiPrefs.scene = named[1].scene; uiPrefs.mist = named[1].scene !== 'none'; }
+            saveUIPrefs(); applyUIPrefs();
+            showLocalNote(`Switched to your “${named[1].name}” theme`);
+            return;
+        }
         if (/^\s*(stop (casting|showing)|close (the )?(video|player|pictures)|stop the video)\s*$/i.test(rawMessage) && document.body.classList.contains('casting')) {
             elements.messageInput.value = '';
             stopCasting();
