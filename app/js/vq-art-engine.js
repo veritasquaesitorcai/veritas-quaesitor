@@ -1,4 +1,4 @@
-/* VQ Art v2 — data-only scenes, hierarchy and animation. No libraries/network. */
+/* VQ Art v2 — data-only scenes, hierarchy and animation. No libraries/network. */ 
 (function(global){'use strict';
 const TYPES=['flower','butterfly','tree','fern','bush','reeds','bird','falling-petals','custom'];
 const SPECIES=['daisy','tulip','rose','poppy','lavender','sunflower','wildflower'];
