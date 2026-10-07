@@ -1434,7 +1434,20 @@ UI_TOOL = {
             "properties": {
                 "action": {"type": "string", "enum": ["text_size", "style", "panel", "focus_mode", "show_reasoning",
                                                        "new_chat", "reset_display", "undo", "panel_view", "add_note",
-                                                       "second_opinion", "swap"]},
+                                                       "second_opinion", "swap", "create_theme"]},
+                "theme": {"type": "object", "description": ("For create_theme: a new theme you design from the user's description. "
+                          "Dark backgrounds only (the app is built for dark screens). Give six hex colours and a short evocative name."),
+                          "properties": {
+                              "name": {"type": "string", "description": "2-3 word theme name, e.g. 'Dawn Tide'"},
+                              "background": {"type": "string", "description": "main background, a dark hex colour, e.g. #101a2b"},
+                              "surface": {"type": "string", "description": "panels and cards, slightly lighter than the background"},
+                              "text": {"type": "string", "description": "main text, a light hex colour"},
+                              "accent": {"type": "string", "description": "the main accent (buttons, highlights)"},
+                              "accent2": {"type": "string", "description": "a lighter companion to the accent"},
+                              "icon": {"type": "string", "description": "icon and VQ-eye colour, light and vivid"},
+                              "scene": {"type": "string", "description": "optional matching sky: mist, clouds, sunset, night, seaday, seanight, storm, none"},
+                              "effects": {"type": "array", "items": {"type": "string", "enum": ["trees", "grass", "mountains", "stars", "comet", "planet", "aurora", "fireflies", "snow", "leaves", "static", "crt", "tvset"]},
+                                          "description": "optional: up to 3 animated effects that fit the theme, e.g. forest -> trees, fireflies; space -> stars, comet, planet; winter -> snow, mountains; autumn -> leaves, trees; northern lights -> aurora, mountains, stars; retro or old TV -> crt, static, tvset (crt makes the screen look like an old tube; tvset puts the app inside a wooden TV cabinet with working knobs)"}}},
                 "view": {"type": "string", "enum": ["details", "notes", "enquirer"], "description": "For panel_view: which side-panel view to show"},
                 "text": {"type": "string", "description": "For add_note: the text to save in the user's notes (up to 2000 characters)"},
                 "size": {"type": "string", "enum": ["smaller", "larger", "compact", "comfortable", "large", "extra_large"],
@@ -1553,6 +1566,27 @@ def validate_ui_action(args: dict):
         asked = str(st.get("accent") or "").strip().lower()
         if "accent" in style and asked and asked != style["accent"] and asked != "gray":
             parts = [p + f" (the closest to {asked})" if p.startswith("accent") else p for p in parts]
+    if action == "create_theme":
+        th = args.get("theme") if isinstance(args.get("theme"), dict) else {}
+        hexok = lambda v: isinstance(v, str) and re.fullmatch(r"#?[0-9a-fA-F]{6}", v.strip()) is not None
+        norm = lambda v: "#" + v.strip().lstrip("#").lower()
+        spec = {}
+        for k in ("background", "surface", "text", "accent", "accent2", "icon"):
+            if hexok(th.get(k)):
+                spec[k] = norm(th[k])
+        if not all(k in spec for k in ("background", "text", "accent")):
+            return None, "create_theme needs at least background, text and accent colours"
+        spec["name"] = re.sub(r"[^\w '\-&]", "", str(th.get("name") or "My theme"))[:28].strip() or "My theme"
+        fx = th.get("effects") if isinstance(th.get("effects"), list) else []
+        allowed = {"trees", "grass", "mountains", "stars", "comet", "planet", "aurora", "fireflies", "snow", "leaves", "static", "crt", "tvset"}
+        fx = [f for f in dict.fromkeys(str(x).lower().strip() for x in fx) if f in allowed][:4]
+        if fx:
+            spec["effects"] = fx
+        sc = str(th.get("scene") or "").lower().strip()
+        if sc in ("mist", "clouds", "sunset", "night", "seaday", "seanight", "storm", "none"):
+            spec["scene"] = sc
+        clean["theme"] = spec
+        parts = [f"new theme “{spec['name']}”"]
     if action == "add_note":
         text = re.sub(r"[<>]", "", str(args.get("text") or "")).strip()[:2000]
         if not text:
@@ -1573,6 +1607,7 @@ def validate_ui_action(args: dict):
         "panel_view": f"Panel → {clean.get('view', 'details')}",
         "add_note": "Saved a note",
         "second_opinion": f"Asked {ENQUIRER_NAME} about the {clean.get('which', 'latest')} answer",
+        "create_theme": "Look → " + ", ".join(parts) if action == "create_theme" else "",
         "swap": ("Swapped back: VQ has the main chat" if clean.get('state') == 'off' else f"Swapped places: {ENQUIRER_NAME} has the main chat"),
     }
     return clean, labels[action]
@@ -1590,6 +1625,13 @@ UI_SYSTEM_NOTE = (
     "you may combine style options creatively within their allowed values. Never change the screen unless the user "
     "asked. You can't see the user's screen, so when they ask for a change, always make it with the tool, even if you "
     "think it's already set (their screen may differ from what the conversation suggests). "
+    "DESIGNING A THEME: when the user asks you to make, design or create a theme (e.g. 'a theme like a sunrise over the ocean', "
+    "'something calm and green'), call ui_action with action create_theme and a theme you design: dark background, a slightly "
+    "lighter surface, light text, an accent and its lighter companion, a vivid icon colour, a short evocative name, a matching "
+    "scene if one fits, and up to three animated effects that bring it to life (trees, grass, mountains, stars, comet, planet, aurora, "
+    "fireflies, snow, leaves, static, crt, tvset). For a retro TV look use crt, static and tvset with a phosphor palette: near-black "
+    "background with green, amber or cool white text, and scene none. If the user asks to add an effect to a theme of yours, create the theme again with it included. The app checks and adjusts readability automatically. Then describe the theme in one or two sentences "
+    "(the mood and the colours you chose); the app shows its name and a code for sharing it.\n"
     "After a change, confirm it in one short sentence and mention they can say 'undo'. If the user asks what "
     "you can change or how to control the screen, follow the WHAT YOU CAN DO guide below."
     "\n\nWHAT YOU CAN DO (when asked what you can change, what you can do, or for a list of features): give a full, well-organised "
@@ -1598,6 +1640,8 @@ UI_SYSTEM_NOTE = (
     "accent colours (orange, gold, teal, rose, violet, green, blue, grey); thirteen fonts (default, readable, serif, mono, script, "
     "handwriting, elegant, classic, inscription, futuristic, retro, playful, rounded); text size ('bigger'/'smaller', free); line spacing; "
     "chat width; bubbles on/off; icon glow on/off; a moving sky behind the app (mist, drifting clouds, a sunset in the corner, a moonlit night, a seashore by day or at night, a gentle sci-fi storm, or still); higher contrast; reduced motion; focus mode ('focus'/'unfocus').\n"
+    "YOUR OWN THEMES: ask VQ to design a theme from any description ('a theme like a sunrise over the ocean'); it's checked for "
+    "readability, named, saved, and can be shared with a theme code.\n"
     "PANEL: open or close it; Details, Notes; Standard or Wide, or drag its edge; Plain or Technical detail.\n"
     "USING VQ: answers that show their work; news, books, videos, scholarly papers and Bible verses as cards; layouts for comparisons, "
     "timelines, steps and quick facts; paste a link to have a page read; notes ('note that down', highlight text, export); "
