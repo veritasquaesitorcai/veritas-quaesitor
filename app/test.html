@@ -1071,6 +1071,16 @@
         body.ui-reduce-motion .vq-fx *, body.ui-reduce-motion .vq-fx { animation: none !important; }
         @media (prefers-reduced-motion: reduce) { .vq-fx, .vq-fx * { animation: none !important; } .fx-comet, .fx-leaves, .fx-snow { display: none; } }
         /* ---- Retro TV: static noise and the full CRT screen ---- */
+        .app-noise { position: fixed; inset: -10%; z-index: 400; pointer-events: none; opacity: var(--noise-op, 0.16); background-size: 288px 288px; image-rendering: pixelated; mix-blend-mode: screen;
+            animation: vqStatic 0.5s steps(1) infinite; }
+        .app-noise.over { z-index: 420; }
+        /* the chat text sits above the "under" layer of static (so it only gets the light "over" layer, or none) */
+        body.noise-under-text .message-content, body.noise-under-text .welcome-title, body.noise-under-text .welcome-subtitle { position: relative; z-index: 410; }
+        /* only the letters rise above the static: no frosted backing that would blur the snow behind the text */
+        body.noise-under-text .message-content { -webkit-backdrop-filter: none; backdrop-filter: none; }
+        #app-container.tv-burst .app-noise { animation: vqStatic 0.12s steps(1) infinite, vqBurst 0.6s ease-out; }
+        body[data-fx="medium"] .app-noise { filter: brightness(0.62); }
+        body[data-fx="low"] .app-noise { filter: brightness(0.3); animation-play-state: paused; }
         .fx-static, .fx-crt-noise { position: absolute; inset: -10%; background-size: 288px 288px; image-rendering: pixelated; mix-blend-mode: screen;
             animation: vqStatic 0.5s steps(1) infinite; }
         .fx-static { opacity: 0.16; }
@@ -1097,9 +1107,9 @@
         body.fx-crt .message-content, body.fx-crt .welcome-title, body.fx-crt .welcome-subtitle, body.fx-crt .app-title {
             text-shadow: 0 0 3px rgba(var(--fx-rgb, 127,243,255), 0.35), 0.6px 0 rgba(255,40,90,0.18), -0.6px 0 rgba(40,200,255,0.18); }
         body.fx-crt .app-container, body.fx-crt #app { border-radius: 26px; }
-        body.ui-reduce-motion .fx-static, body.ui-reduce-motion .fx-crt-noise, body.ui-reduce-motion .fx-crt-roll, body.ui-reduce-motion .fx-crt-lines, body.ui-reduce-motion .fx-crt-on { animation: none !important; }
+        body.ui-reduce-motion .app-noise, body.ui-reduce-motion .fx-static, body.ui-reduce-motion .fx-crt-noise, body.ui-reduce-motion .fx-crt-roll, body.ui-reduce-motion .fx-crt-lines, body.ui-reduce-motion .fx-crt-on { animation: none !important; }
         body.ui-reduce-motion .fx-crt-on { display: none; }
-        @media (prefers-reduced-motion: reduce) { .fx-static, .fx-crt-noise, .fx-crt-roll, .fx-crt-lines { animation: none !important; } .fx-crt-on, .fx-crt-roll { display: none; } }
+        @media (prefers-reduced-motion: reduce) { .app-noise, .fx-static, .fx-crt-noise, .fx-crt-roll, .fx-crt-lines { animation: none !important; } .fx-crt-on, .fx-crt-roll { display: none; } }
         /* ---- The wooden TV set ---- */
         body.fx-tv { background:
             repeating-linear-gradient(91deg, rgba(0,0,0,0) 0 7px, rgba(0,0,0,0.10) 7px 8px, rgba(0,0,0,0) 8px 19px, rgba(255,210,160,0.05) 19px 20px),
@@ -1135,8 +1145,8 @@
             text-shadow: 0 0 8px rgba(var(--fx-rgb, 127,243,255),0.7); opacity: 0; pointer-events: none; }
         .tv-osd.show { animation: vqOsd 1.8s ease-out; }
         @keyframes vqOsd { 0%, 70% { opacity: 1; } 100% { opacity: 0; } }
-        .vq-fx.tv-burst .fx-crt-noise, .vq-fx.tv-burst .fx-static { animation: vqStatic 0.12s steps(1) infinite, vqBurst 0.6s ease-out; }
-        @keyframes vqBurst { 0% { opacity: 0.45; } 100% { opacity: inherit; } }
+        
+        @keyframes vqBurst { 0% { opacity: 0.45; } 100% { opacity: var(--noise-op, 0.16); } }
         /* the power button: the picture collapses to a line, then a dot, then comes back */
         body.tv-off #app-container { animation: vqTvOff 1.5s ease-in-out; }
         @keyframes vqTvOff { 0% { transform: none; filter: none; } 18% { transform: scaleY(0.006); filter: brightness(3); } 32% { transform: scale(0.01, 0.006); filter: brightness(3); }
@@ -1410,6 +1420,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-07-fxlevel"></script>
+    <script src="js/chat-app-test.js?v=2026-10-07-textstatic"></script>
 </body>
 </html>
