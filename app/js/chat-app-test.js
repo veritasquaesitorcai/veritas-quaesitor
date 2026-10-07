@@ -2446,6 +2446,13 @@
         const fxIn = Array.isArray(raw.effects) ? raw.effects : String(raw.effects || '').split(',');
         s.effects = [...new Set(fxIn.map(x => String(x).trim().toLowerCase()).filter(x => FX_LIST.includes(x)))].slice(0, 4);
         const okParam = (k, v) => /^[a-z]{2,14}$/i.test(k) && (typeof v === 'number' && isFinite(v) || typeof v === 'boolean' || (typeof v === 'string' && v.length <= 12));
+        s.art = (Array.isArray(raw.art) ? raw.art : []).filter(e => e && ART_TYPES.includes(e.type)).slice(0, 8).map(e => {
+            const o = { type: e.type };
+            ['species', 'style', 'kind', 'area'].forEach(k => { if (typeof e[k] === 'string' && /^[a-z\-]{2,20}$/.test(e[k])) o[k] = e[k]; });
+            ['count', 'size', 'speed', 'density'].forEach(k => { if (typeof e[k] === 'number' && isFinite(e[k])) o[k] = e[k]; });
+            if (Array.isArray(e.colors)) o.colors = e.colors.filter(isHex).slice(0, 6).map(c => '#' + c.replace('#', ''));
+            return o;
+        });
         s.layers = (Array.isArray(raw.layers) ? raw.layers : []).filter(l => l && TK_TYPES.includes(l.type)).slice(0, 4).map(l => ({
             type: l.type,
             params: Object.fromEntries(Object.entries(l.params && typeof l.params === 'object' ? l.params : {}).filter(([k, v]) => okParam(k, v)).slice(0, 10))
@@ -2473,14 +2480,14 @@
     }
 
     function themeCode(s) {
-        const short = { n: s.name, b: s.background, u: s.surface, t: s.text, a: s.accent, a2: s.accent2, i: s.icon, s: s.scene || '', e: (s.effects || []).join(','), l: s.layers && s.layers.length ? s.layers : undefined };
+        const short = { n: s.name, b: s.background, u: s.surface, t: s.text, a: s.accent, a2: s.accent2, i: s.icon, s: s.scene || '', e: (s.effects || []).join(','), l: s.layers && s.layers.length ? s.layers : undefined, r: s.art && s.art.length ? s.art : undefined };
         return 'VQT1-' + btoa(unescape(encodeURIComponent(JSON.stringify(short)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     }
     function parseThemeCode(code) {
         try {
             const b64 = code.replace(/^VQT1-/, '').replace(/-/g, '+').replace(/_/g, '/');
             const o = JSON.parse(decodeURIComponent(escape(atob(b64))));
-            return { name: o.n, background: o.b, surface: o.u, text: o.t, accent: o.a, accent2: o.a2, icon: o.i, scene: o.s, effects: o.e || '', layers: o.l || [] };
+            return { name: o.n, background: o.b, surface: o.u, text: o.t, accent: o.a, accent2: o.a2, icon: o.i, scene: o.s, effects: o.e || '', layers: o.l || [], art: o.r || [] };
         } catch (e) { return null; }
     }
 
@@ -2662,6 +2669,136 @@
         } catch (e) { console.warn('Visual toolkit unavailable:', e.message); host.hidden = true; }
     }
 
+
+    // ---------- VQ Art: animated flowers, butterflies, trees and more, added one at a time ----------
+    const ART_TYPES = ['flower', 'butterfly', 'tree', 'fern', 'bush', 'reeds', 'bird', 'falling-petals'];
+    let artEngine = null, artKey = '';
+    function artPalette(type, s) {
+        const a = s.accent, a2 = s.accent2, ic = s.icon;
+        return {
+            flower: ['#5f9f6e', a2, a, ic], butterfly: [a, a2, '#2a2622', ic], tree: ['#7a5c45', '#5d8f63', '#8db38a', a2], 'tree:cherry-blossom': ['#6e5242', '#f2a7c3', '#f8c9da', '#ffffff'],
+            fern: ['#4f8a62', '#86b897', '#6c9f7c'], bush: ['#4c7d5b', '#7fae86', a2], reeds: ['#7d8f5a', '#a9b77d', '#5f7046'],
+            bird: ['#d9dde4', a2], 'falling-petals': [a2, a, '#ffffff']
+        }[type] || [a, a2, ic];
+    }
+    function applyArt(spec) {
+        const list = (spec && Array.isArray(spec.art) ? spec.art : []).filter(e => e && ART_TYPES.includes(e.type)).slice(0, 8);
+        const key = JSON.stringify(list) + '|' + (spec ? spec.accent + spec.icon : '');
+        if (key === artKey) return;
+        artKey = key;
+        let host = document.querySelector('.vq-art-host');
+        document.body.classList.toggle('has-art', list.length > 0);
+        if (!list.length) { if (artEngine) artEngine.clear(); if (host) host.hidden = true; return; }
+        if (!window.VQArt) return;
+        // Drawn inside the app, behind the chat text, the composer, the sidebar and the panel, so nothing hides what you read or type
+        if (!host) {
+            host = el('div', 'vq-art-host'); host.setAttribute('aria-hidden', 'true');
+            (document.getElementById('app-container') || document.body).appendChild(host);
+            // The scene fills the conversation area (above the composer, between the sidebar and panel), so plants grow
+            // up from just above where you type instead of hiding behind it
+            const fit = () => {
+                const chat = document.getElementById('chat-container'), inp = document.getElementById('input-area');
+                if (!chat) return;
+                const r = chat.getBoundingClientRect(), bottom = inp ? inp.getBoundingClientRect().top : r.bottom;
+                Object.assign(host.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: Math.max(80, bottom - r.top) + 'px', right: 'auto', bottom: 'auto' });
+            };
+            fit();
+            if (window.ResizeObserver) { const ro = new ResizeObserver(fit); ['chat-container', 'input-area', 'app-container'].forEach(id => { const n = document.getElementById(id); if (n) ro.observe(n); }); }
+            window.addEventListener('resize', fit);
+        }
+        host.hidden = false;
+        try {
+            if (!artEngine) artEngine = window.VQArt.create({ root: host });
+            const elements = list.map(e => Object.assign({ colors: artPalette(e.kind === 'cherry-blossom' ? 'tree:cherry-blossom' : e.type, spec) }, e));
+            let r = artEngine.render({ elements });
+            if (!r.ok) {   // keep whichever elements are valid on their own
+                const good = elements.filter(e => { const t = window.VQArt.create({ root: document.createElement('div') }); const ok = t.render({ elements: [e] }).ok; t.dispose(); return ok; });
+                r = artEngine.render({ elements: good });
+                console.warn('Some scene elements were skipped:', r.error || '');
+            }
+        } catch (e) { console.warn('Art engine unavailable:', e.message); host.hidden = true; }
+    }
+
+    // Plain words → one element, e.g. "red tulips", "6 monarch butterflies", "cherry blossom trees", "a galaxy"
+    const COLOR_WORDS = { red: '#e0484f', pink: '#f28cb8', yellow: '#f5d04a', orange: '#f59a45', purple: '#a06cdc', violet: '#8b6cf0',
+        blue: '#5a9cf0', white: '#f4f1ea', gold: '#e8b04a', golden: '#e8b04a', green: '#5fae6e', black: '#2a2622', lilac: '#c7a6f0', coral: '#ff7f6b' };
+    function parseItem(text) {
+        let t = ' ' + String(text || '').toLowerCase().replace(/[^a-z0-9 \-]/g, ' ').replace(/\s+/g, ' ') + ' ';
+        const num = (t.match(/ (\d{1,2}) /) || [])[1];
+        const colors = Object.keys(COLOR_WORDS).filter(c => t.includes(' ' + c + ' ')).map(c => COLOR_WORDS[c]);
+        const has = (w) => new RegExp(`\\b(${w})\\b`).test(t);
+        const art = (type, extra) => ({ kind: 'art', item: Object.assign({ type }, extra || {}, num ? { count: +num } : {}, colors.length ? { colors: colors.concat(type === 'flower' ? ['#5f9f6e'] : []) } : {}) });
+        const species = ['daisy', 'tulip', 'rose', 'poppy', 'lavender', 'sunflower', 'wildflower'];
+        const sp = species.find(x => has(x + '|' + x + 's|' + (x === 'daisy' ? 'daisies' : x === 'poppy' ? 'poppies' : x + 's')));
+        if (sp || has('flowers?|blooms?|blossoms') && !has('cherry')) return art('flower', sp ? { species: sp } : {});
+        const bstyle = ['monarch', 'blue', 'swallowtail', 'moth'].find(x => has(x + 's?'));
+        if (has('butterfl(y|ies)|moths?')) return art('butterfly', bstyle ? { style: bstyle } : {});
+        if (has('petals?')) return art('falling-petals');
+        const kind = has('cherry') ? 'cherry-blossom' : ['pine', 'oak', 'birch', 'palm', 'willow'].find(x => has(x + 's?|' + x + 'es'));
+        if (has('trees?|forest|woods') || kind) return art('tree', kind ? { kind } : {});
+        if (has('ferns?')) return art('fern');
+        if (has('bush(es)?|shrubs?|hedges?')) return art('bush');
+        if (has('reeds?|rushes|cattails?')) return art('reeds');
+        if (has('birds?|flock|seagulls?|gulls?')) return art('bird');
+        const fx = [['grass', 'grass|meadow'], ['mountains', 'mountains?|hills?'], ['comet', 'comet'], ['planet', 'planets?|saturn'], ['aurora', 'aurora|northern lights'],
+            ['fireflies', 'fireflies|firefly'], ['snow', 'snow|snowflakes?'], ['leaves', 'leaves|leaf'], ['static', 'static|tv noise|noise'], ['crt', 'crt|old tv screen|scanlines'],
+            ['tvset', 'tv set|tv cabinet|television|knobs'], ['stars', 'stars|starfield|star field']];
+        for (const [type, words] of fx) if (has(words)) return { kind: 'fx', type };
+        const tk = [['galaxy', 'galax(y|ies)'], ['nebula', 'nebulae?'], ['constellations', 'constellations?'], ['waves', 'waves'], ['seashore', 'surf'], ['matrix', 'matrix|falling code|code rain'],
+            ['orbits', 'orbits?|rings'], ['vortex', 'vortex|whirlpool'], ['tunnel', 'tunnel'], ['grid', 'grid|synthwave'], ['circuit', 'circuits?|circuit traces'], ['comets', 'comets'],
+            ['ripples', 'ripples?'], ['grain', 'grain|film grain'], ['mist', 'mist|fog|haze'], ['clouds', 'clouds?']];
+        for (const [type, words] of tk) if (has(words)) return { kind: 'tk', type };
+        return null;
+    }
+
+    // Edit the current theme one element at a time. A built-in theme becomes "yours" (a copy) on the first edit.
+    function currentThemeSpec() {
+        const cs = customSpec(uiPrefs.theme);
+        if (cs) return JSON.parse(JSON.stringify(cs));
+        const v = THEMES[uiPrefs.theme] || THEMES.vq;
+        const [a1, a2] = ACCENTS[uiPrefs.accent] || ACCENTS[THEME_ACCENT[uiPrefs.theme]] || ACCENTS.orange;
+        const name = (uiPrefs.theme === 'vq' ? 'VQ' : cap(uiPrefs.theme || 'VQ')) + ' (yours)';
+        return { name, background: v[0], surface: v[3], text: v[6], accent: a1, accent2: a2, icon: a2, effects: [], layers: [], art: [] };
+    }
+    function editTheme(edit) {
+        const sp = currentThemeSpec();
+        sp.effects = sp.effects || []; sp.layers = sp.layers || []; sp.art = sp.art || [];
+        const out = { added: null, removed: null, missing: null, full: false };
+        if (edit.add) {
+            const it = parseItem(edit.add);
+            if (!it) out.missing = edit.add;
+            else if (it.kind === 'art') {
+                if (edit.count) it.item.count = edit.count;
+                const same = sp.art.findIndex(e => e.type === it.item.type && (e.species || e.style || e.kind || '') === (it.item.species || it.item.style || it.item.kind || ''));
+                if (same >= 0) sp.art[same] = Object.assign(sp.art[same], it.item);
+                else if (sp.art.length >= 8) out.full = true; else sp.art.push(it.item);
+                out.added = edit.add;
+            } else if (it.kind === 'fx') {
+                if (!sp.effects.includes(it.type)) { if (sp.effects.length >= 4) out.full = true; else sp.effects.push(it.type); }
+                out.added = edit.add;
+            } else {
+                if (!sp.layers.some(l => l.type === it.type)) { if (sp.layers.length >= 4) out.full = true; else sp.layers.push({ type: it.type, params: {} }); }
+                out.added = edit.add;
+            }
+        }
+        if (edit.remove) {
+            const it = parseItem(edit.remove);
+            const before = sp.art.length + sp.effects.length + sp.layers.length;
+            if (it && it.kind === 'art') sp.art = sp.art.filter(e => e.type !== it.item.type || (it.item.species && e.species !== it.item.species) || (it.item.style && e.style !== it.item.style) || (it.item.kind && e.kind !== it.item.kind));
+            if (it && it.kind === 'fx') sp.effects = sp.effects.filter(e => e !== it.type);
+            if (it && it.kind === 'tk') sp.layers = sp.layers.filter(l => l.type !== it.type);
+            if (/\b(storm|rain|sunset|night|moon|seashore|beach|sea)\b/i.test(edit.remove)) { uiPrefs.scene = 'none'; uiPrefs.mist = false; out.removed = edit.remove; }
+            if (sp.art.length + sp.effects.length + sp.layers.length < before) out.removed = edit.remove;
+            if (!out.removed) out.missing = out.missing || edit.remove;
+        }
+        if (edit.shade === 'darker') sp.background = mixHex(sp.background, '#000000', 0.35);
+        if (edit.shade === 'lighter') sp.background = mixHex(sp.background, '#ffffff', 0.12);
+        if (edit.accent_hex) { sp.accent = edit.accent_hex; sp.accent2 = mixHex(edit.accent_hex, '#ffffff', 0.35); }
+        const r = installTheme(sp);
+        out.name = r.spec.name;
+        return out;
+    }
+
     // ---------- The wooden TV set: a cabinet around the app with working knobs ----------
     function buildTvControls() {
         const c = el('div', 'tv-controls');
@@ -2752,6 +2889,7 @@
         applyCustomIcons(cs);
         renderFx(cs);
         applyToolkitLayers(cs);
+        applyArt(cs);
         const before = document.body.dataset.theme;
         document.body.dataset.theme = cs ? 'custom' : vals ? name : 'classic';
         if (cs) document.body.dataset.customTheme = name; else delete document.body.dataset.customTheme;
@@ -2949,6 +3087,10 @@
                 break;
             case 'create_theme': {
                 act._installed = installTheme(act.theme || {});
+                break;
+            }
+            case 'theme_edit': {
+                act._edit = editTheme(act.edit || {});
                 break;
             }
             case 'add_note':
@@ -4261,6 +4403,17 @@
                 case 'panel_view':
                     lines.push(`Side panel switched to **${a.view === 'enquirer' ? 'O.R.I.A.' : cap(a.view || 'details')}**.`);
                     break;
+                case 'theme_edit': {
+                    const r = a._edit || {};
+                    used.add('theme');
+                    if (r.added) lines.push(r.full ? `There’s no room for **${r.added}**: a theme holds up to 8 scene elements and 4 effects. Remove something first.` : `Added **${r.added}** to **${r.name}**.`);
+                    if (r.removed) lines.push(`Removed **${r.removed}**.`);
+                    if (r.missing) lines.push(`**${r.missing}** isn’t available yet, so I couldn’t add or remove it.`);
+                    if ((a.edit || {}).shade) lines.push(`Background made **${a.edit.shade}**.`);
+                    if ((a.edit || {}).accent_hex) lines.push('Accent colour changed.');
+                    lines.push('Add or remove one thing at a time, for example “add butterflies” or “remove the comet”.');
+                    break;
+                }
                 case 'create_theme': {
                     const r = a._installed || {};
                     const sp = r.spec || {};
@@ -4313,6 +4466,17 @@
         // Simple display commands run on this device: instant, free, and they work even after the daily limit
         const tourAsk = /^\s*(customi[sz](e|ation)( tour)?|personali[sz]e( tour)?|style tour|how (do|can) i change the look\??)\s*$/i.test(rawMessage) ? 'custom'
             : /^\s*(feature tour|usage tour|how (do i|to) use (this|vq chat|the app)\??|show me (the )?features|tour( the)? (app|features)|what can (this app|vq chat) do\??)\s*$/i.test(rawMessage) ? 'use' : null;
+        // "add …" / "remove …": one element at a time, free and instant when the element is known
+        const addM = rawMessage.match(/^\s*(?:please\s+)?(?:add|put|include|bring in|give me)\s+(?:some\s+|a few\s+|a\s+|an\s+|more\s+)?(.{2,40}?)\s*(?:to (?:the |my )?(?:theme|screen|background|scene))?\s*[.!]?\s*$/i);
+        const remM = rawMessage.match(/^\s*(?:please\s+)?(?:remove|delete|hide|take away|get rid of|no more)\s+(?:the\s+|all\s+(?:the\s+)?|my\s+)?(.{2,40}?)\s*[.!]?\s*$/i);
+        if ((addM && parseItem(addM[1])) || (remM && (parseItem(remM[1]) || /\b(storm|rain|sunset|night|moon|seashore|beach|sea)\b/i.test(remM[1])))) {
+            elements.messageInput.value = '';
+            uiUndo.push(snapshotUI());
+            const r = editTheme(addM ? { add: addM[1] } : { remove: remM[1] });
+            saveUIPrefs(); applyUIPrefs();
+            showLocalNote(r.full ? 'No room: a theme holds up to 8 scene elements and 4 effects' : r.added ? `Added ${r.added}` : r.removed ? `Removed ${r.removed}` : `Couldn’t find ${r.missing} on screen`);
+            return;
+        }
         // How much TV static falls on the chat text, free and instant
         const tsAsk = (() => {
             const m = rawMessage.toLowerCase().trim().replace(/[.!?]+$/, '');
