@@ -1213,6 +1213,16 @@
         .welcome-avatar.has-portrait svg { width: 88%; height: 88%; }
         .vq-intro-live .vq-intro-face { opacity: 0; transition: opacity .3s ease; }
         .vq-intro-vq iframe { color-scheme: dark; background: transparent !important; }
+        /* ---- Code blocks: Copy / Run, and VQ Run in the panel ---- */
+        .message-content pre { position: relative; }
+        .code-actions { display: flex; align-items: center; gap: 0.4rem; justify-content: flex-end; margin: -0.2rem -0.2rem 0.4rem; font-family: inherit; }
+        .code-lang { margin-right: auto; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); }
+        .code-btn { border: 1px solid var(--border-subtle); background: rgba(255,255,255,0.05); color: var(--text-secondary); border-radius: 999px;
+            padding: 0.18rem 0.65rem; font: inherit; font-size: 0.75rem; cursor: pointer; }
+        .code-btn:hover { color: #fff; border-color: rgba(var(--ui-accent-rgb),0.6); }
+        .code-run { color: var(--ui-accent-2, #ffb27a); border-color: rgba(var(--ui-accent-rgb),0.45); }
+        .run-box { min-height: 420px; height: 62vh; --vq-accent: var(--ui-accent); --vq-chart-1: var(--ui-accent); --vq-chart-2: var(--ui-accent-2);
+            --vq-chart-3: #7ff3ff; --vq-chart-4: #b4e3b6; --vq-chart-5: #c2b1ff; --vq-chart-6: #f5d04a; --vq-chart-7: #f28cb8; --vq-chart-8: #9aa0b0; }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -1477,6 +1487,7 @@
     <script src="js/vq-art-engine.js?v=2026-10-07-v3"></script>
     <script src="js/vq-portraits.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-persona-bridge.js?v=2026-10-08-portraits"></script>
-    <script src="js/chat-app-test.js?v=2026-10-08-portraits"></script>
+    <script src="js/vq-run.js?v=2026-10-08-run"></script>
+    <script src="js/chat-app-test.js?v=2026-10-08-run"></script>
 </body>
 </html>
