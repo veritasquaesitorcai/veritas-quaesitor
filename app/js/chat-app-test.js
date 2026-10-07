@@ -3177,6 +3177,19 @@
         }
         return cssHex(value, alpha);
     }
+    // A line of width w as a filled outline; a closed line becomes a ring (outer and inner edges wound opposite ways)
+    function ribbon(pts, w, closed) {
+        let P = pts.slice();
+        if (closed && P.length > 2 && Math.hypot(P[0][0] - P[P.length - 1][0], P[0][1] - P[P.length - 1][1]) < 1e-3) P.pop();
+        const n = P.length, h = w / 2, L = [], R = [];
+        for (let i = 0; i < n; i++) {
+            const a = P[closed ? (i - 1 + n) % n : Math.max(0, i - 1)], b = P[closed ? (i + 1) % n : Math.min(n - 1, i + 1)];
+            let dx = b[0] - a[0], dy = b[1] - a[1]; const d = Math.hypot(dx, dy) || 1; dx /= d; dy /= d;
+            L.push([P[i][0] - dy * h, P[i][1] + dx * h]); R.push([P[i][0] + dy * h, P[i][1] - dx * h]);
+        }
+        if (!closed) return L.concat(R.reverse());
+        return L.concat([L[0]], [R[0]], R.slice(1).reverse(), [R[0]]);
+    }
     function rdp(pts, tol) {
         if (pts.length < 4) return pts.slice();
         // A closed outline starts and ends on the same point: split it at its farthest point and simplify each half
@@ -3235,7 +3248,7 @@
                 if (!m) continue;
                 const T = (x, y) => [m.a * x + m.c * y + m.e, m.b * x + m.d * y + m.f];
                 const group = n.closest('[data-anim]');
-                const base = { fill, stroke, group: group && svg.contains(group) ? group : null };
+                const base = { fill, stroke, group: group && svg.contains(group) ? group : null, sw: stroke ? sw * Math.sqrt(Math.abs(m.a * m.d - m.b * m.c)) : 0 };
                 const tag = n.tagName.toLowerCase();
                 const upright = Math.abs(m.b) < 1e-6 && Math.abs(m.c) < 1e-6;
                 if ((tag === 'circle' || tag === 'ellipse') && upright) {
@@ -3275,6 +3288,21 @@
                     raw.push(Object.assign({ kind: closed && fill ? 'polygon' : (closed ? 'polygon' : 'path'), dense: pts, area }, base));
                 }
             }
+            // Thick lines (bike frames, ropes, legs, rims) become real shapes at their true width; the engine's own
+            // strokes are hairlines, which would make them vanish
+            for (let i = 0; i < raw.length; i++) {
+                const p = raw[i];
+                if (!p.stroke || p.sw < 0.9) continue;
+                let line = p.dense, closed = p.kind === 'polygon';
+                if (p.kind === 'ellipse') {
+                    const [[x0, y0], [x1, y1]] = p.box, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, rx = (x1 - x0) / 2, ry = (y1 - y0) / 2;
+                    line = Array.from({ length: 48 }, (_, k) => [cx + rx * Math.cos(k / 48 * 2 * Math.PI), cy + ry * Math.sin(k / 48 * 2 * Math.PI)]);
+                    line.push(line[0].slice()); closed = true;
+                } else if (closed && line && line.length > 2) line = line.concat([line[0].slice()]);
+                if (!line || line.length < 2) continue;
+                const rib = { kind: 'ribbon', dense: line, closed, w: Math.min(p.sw, 14), fill: p.stroke, stroke: null, group: p.group, area: p.area };
+                if (p.fill) { p.stroke = null; raw.splice(i + 1, 0, rib); i++; } else raw[i] = rib;
+            }
             if (!raw.length) return { ok: false, error: 'the drawing had no shapes I could use' };
             // Budget: the engine takes up to 40 parts (one is the invisible body that carries the whole-drawing motion)
             let parts = raw;
@@ -3287,11 +3315,13 @@
             for (let k = 0; k < 14 && total > 290; k++, tol *= 1.45) {
                 total = 2;
                 for (const p of parts) {
-                    if (p.dense) { p.pts = rdp(p.dense, tol); if (p.kind === 'polygon' && p.pts.length > 3 && Math.hypot(p.pts[0][0] - p.pts[p.pts.length - 1][0], p.pts[0][1] - p.pts[p.pts.length - 1][1]) < 0.3) p.pts.pop(); total += p.pts.length; }
+                    if (p.kind === 'ribbon') { p.pts = rdp(p.dense, tol); total += p.pts.length * 2 + 2; }
+                    else if (p.dense) { p.pts = rdp(p.dense, tol); if (p.kind === 'polygon' && p.pts.length > 3 && Math.hypot(p.pts[0][0] - p.pts[p.pts.length - 1][0], p.pts[0][1] - p.pts[p.pts.length - 1][1]) < 0.3) p.pts.pop(); total += p.pts.length; }
                     else total += 2;
                 }
             }
             parts = parts.filter(p => !p.dense || (p.kind === 'polygon' ? p.pts.length >= 3 : p.pts.length >= 2));
+            for (const p of parts) if (p.kind === 'ribbon') { p.pts = ribbon(p.pts, p.w, p.closed).map(([x, y]) => [clampP(x), clampP(y)]); p.kind = 'polygon'; }
             if (total > 300) return { ok: false, error: 'the drawing was too detailed' };
             // Joints: the invisible body first, then each animated group hangs from its first shape
             const motion = DRAW_MOTION[opts.motion] || DRAW_MOTION.still;
