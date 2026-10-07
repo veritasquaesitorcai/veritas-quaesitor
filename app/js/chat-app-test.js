@@ -2511,8 +2511,19 @@
             ['species', 'style', 'kind', 'area'].forEach(k => { if (typeof e[k] === 'string' && /^[a-z\-]{2,20}$/.test(e[k])) o[k] = e[k]; });
             ['count', 'size', 'speed', 'density'].forEach(k => { if (typeof e[k] === 'number' && isFinite(e[k])) o[k] = e[k]; });
             if (Array.isArray(e.colors)) o.colors = e.colors.filter(isHex).slice(0, 6).map(c => '#' + c.replace('#', ''));
+            if (['near', 'mid', 'far', 'auto'].includes(e.depth)) o.depth = e.depth;
+            // Arranged by hand: where each one stands (fractions of the scene)
+            if (Array.isArray(e.positions)) o.positions = e.positions.slice(0, 80).map(p => Array.isArray(p) && p.length === 2 && p.every(v => typeof v === 'number' && v >= 0 && v <= 1) ? [p[0], p[1]] : null);
+            if (e.type === 'custom') {   // one of VQ's drawings: its shapes are checked again by the scene engine before drawing
+                if (typeof e.name === 'string') o.name = e.name.replace(/[^\w '\-]/g, '').slice(0, 40) || 'drawing';
+                if (typeof e.what === 'string') o.what = e.what.slice(0, 240);
+                if (Array.isArray(e.parts) && e.parts.length && e.parts.length <= 40) o.parts = JSON.parse(JSON.stringify(e.parts));
+                if (e.path && typeof e.path === 'object' && typeof e.path.kind === 'string') o.path = { kind: e.path.kind, amount: +e.path.amount || 0.5, speed: +e.path.speed || 1 };
+                if (typeof e.spawn === 'string') o.spawn = e.spawn;
+                if (!o.parts || !o.name) return null;
+            }
             return o;
-        });
+        }).filter(Boolean);
         s.layers = (Array.isArray(raw.layers) ? raw.layers : []).filter(l => l && TK_TYPES.includes(l.type)).slice(0, 4).map(l => ({
             type: l.type,
             params: Object.fromEntries(Object.entries(l.params && typeof l.params === 'object' ? l.params : {}).filter(([k, v]) => okParam(k, v)).slice(0, 10))
@@ -2900,8 +2911,8 @@
     }
 
     // ---------- VQ Art: animated flowers, butterflies, trees and more, added one at a time ----------
-    const ART_TYPES = ['flower', 'butterfly', 'tree', 'fern', 'bush', 'reeds', 'bird', 'falling-petals'];
-    let artEngine = null, artKey = '';
+    const ART_TYPES = ['flower', 'butterfly', 'tree', 'fern', 'bush', 'reeds', 'bird', 'falling-petals', 'custom'];
+    let artEngine = null, artKey = '', artIdIndex = {};
     // Nature keeps its own colours whatever the theme: roses red, sunflowers yellow, leaves green
     const NATURAL = {
         flower: { daisy: ['#4f8a4a', '#f7f5ee', '#f2c230'], tulip: ['#4a8a45', '#e2394a', '#ffd27a'], rose: ['#3f7a3e', '#c8102e', '#7a0a1c'],
@@ -2921,13 +2932,15 @@
         return t[e.species || e.style || e.kind] || t.any || ['#4f8a4a', '#f7f5ee', '#f2c230'];
     }
     function applyArt(spec) {
-        const list = (spec && Array.isArray(spec.art) ? spec.art : []).filter(e => e && ART_TYPES.includes(e.type)).slice(0, 8);
+        const all = spec && Array.isArray(spec.art) ? spec.art : [];
+        const listIdx = all.map((e, i) => i).filter(i => all[i] && ART_TYPES.includes(all[i].type)).slice(0, 8);
+        const list = listIdx.map(i => all[i]);
         const key = JSON.stringify(list) + '|' + (spec ? spec.accent + spec.icon : '') + '|' + (uiPrefs.scene || '') + '|' + (uiPrefs.fx || '');
         if (key === artKey) return;
         artKey = key;
         let host = document.querySelector('.vq-art-host');
         document.body.classList.toggle('has-art', list.length > 0);
-        if (!list.length) { if (artEngine) artEngine.clear(); if (host) host.hidden = true; return; }
+        if (!list.length) { if (artEngine) artEngine.clear(); if (host) host.hidden = true; if (arranging) setArrange(false); return; }
         if (!window.VQArt) return;
         // Drawn inside the app, behind the chat text, the composer, the sidebar and the panel, so nothing hides what you read or type
         if (!host) {
@@ -2956,19 +2969,24 @@
             const BASE = { flower: 12, tree: 4, fern: 8, bush: 5, reeds: 14, butterfly: 6, bird: 10, 'falling-petals': 28 };
             const share = (type) => PLANTS.includes(type) ? Math.max(type === 'tree' ? 2 : 4, Math.round(BASE[type] / Math.sqrt(plantTypes))) : BASE[type];
             let seedN = 0;
-            const elements = list.map(e => {
+            artIdIndex = {};
+            const elements = list.map((e, li) => {
                 seedN++;
-                const variant = e.species || e.style || e.kind || 'any';
+                e = Object.assign({}, e);
+                delete e.what;   // VQ's own description of a drawing: kept for the theme, not for the engine
+                if (Array.isArray(e.positions) && typeof e.count === 'number') e.positions = e.positions.slice(0, e.count);
+                const variant = e.type === 'custom' ? String(e.name || 'drawing').toLowerCase() : (e.species || e.style || e.kind || 'any');
                 const base = `${e.type}-${variant}`.replace(/[^a-zA-Z0-9_-]/g, '-');
                 seen[base] = (seen[base] || 0) + 1;
-                const flying = ['butterfly', 'bird', 'falling-petals'].includes(e.type);
+                const flying = ['butterfly', 'bird', 'falling-petals', 'custom'].includes(e.type);
+                artIdIndex['a' + base + (seen[base] > 1 ? '-' + seen[base] : '')] = listIdx[li];
                 return Object.assign({
                     count: share(e.type) || undefined,
                     depth: DEPTH[e.type] || 'auto',
                     size: e.type === 'tree' ? 150 : undefined,
                     seed: 1000 + seedN * 7919,
                     id: 'a' + base + (seen[base] > 1 ? '-' + seen[base] : ''),
-                    colors: artPalette(e),
+                    colors: e.type === 'custom' ? undefined : artPalette(e),
                     spawn: 'grow',
                     // the scene responds to VQ: a soft glow while thinking, a gentle pulse while answering
                     react: flying ? { onThink: { kind: 'glow', amount: 0.35, speed: 0.7 }, onSpeak: { kind: 'pulse', amount: 0.15, speed: 1 } }
@@ -3014,14 +3032,350 @@
     }, 300);
 
     function runFreeCommand(cmd) { if (!elements.messageInput) return; elements.messageInput.value = cmd; sendMessage(); }
-    function updateLookTools() { const u = document.getElementById('look-undo'); if (u) u.hidden = !uiUndo.length; }
+    function updateLookTools() {
+        const u = document.getElementById('look-undo'); if (u) u.hidden = !uiUndo.length;
+        const a = document.getElementById('look-arrange'); if (a) { a.hidden = !document.body.classList.contains('has-art'); a.setAttribute('aria-pressed', String(arranging)); }
+    }
     setTimeout(() => {
         document.getElementById('look-undo')?.addEventListener('click', () => runFreeCommand('undo'));
         document.getElementById('look-reset')?.addEventListener('click', () => runFreeCommand('reset'));
+        document.getElementById('look-arrange')?.addEventListener('click', () => setArrange(!arranging));
         setInterval(updateLookTools, 700);
     }, 400);
 
     function artSignal(cue) { try { if (artEngine) artEngine.signal(cue); } catch (e) {} }
+
+    // ---------- Arrange: drag scene elements around, drop them on the bin to remove them ----------
+    let arranging = false, arrangeHeld = null, arrangeBar = null, arrangeBin = null, arrangeWired = false;
+    // Save one element's edit into the current theme (a fresh copy, so Undo can restore the previous layout)
+    function saveArtEdit(id, patch) {
+        const themeId = uiPrefs.theme, cs = customSpec(themeId), idx = artIdIndex[id];
+        if (!cs || idx == null || !cs.art || !cs.art[idx]) return false;
+        uiUndo.push(snapshotUI());
+        if (uiUndo.length > 20) uiUndo.shift();
+        const sp = JSON.parse(JSON.stringify(cs));
+        Object.assign(sp.art[idx], patch);
+        uiPrefs.customThemes = { [themeId]: sp };
+        saveUIPrefs();
+        applyArt(sp);
+        return true;
+    }
+    function setArrange(on) {
+        const host = document.querySelector('.vq-art-host');
+        if (on && (!host || host.hidden || !artEngine)) { showLocalNote('There’s nothing to arrange yet. Add something first, e.g. “add red tulips” or “draw a hot-air balloon”'); return false; }
+        arranging = !!on;
+        document.body.classList.toggle('arranging', arranging);
+        if (!arranging) { if (arrangeHeld) { try { artEngine.drop(); } catch (e) {} arrangeHeld = null; } return true; }
+        if (!arrangeBar) {
+            arrangeBar = el('div', 'arrange-bar');
+            arrangeBar.setAttribute('role', 'status');
+            arrangeBar.innerHTML = '<span>✥ Drag anything to move it. Drop it on the bin to remove it.</span>';
+            const undo = el('button', 'look-btn', '↶ Undo'); undo.type = 'button';
+            undo.addEventListener('click', () => { applyUIAction({ action: 'undo' }); });
+            const done = el('button', 'look-btn arrange-done', 'Done'); done.type = 'button';
+            done.addEventListener('click', () => setArrange(false));
+            arrangeBar.append(undo, done);
+            document.body.appendChild(arrangeBar);
+        }
+        if (!arrangeBin || !host.contains(arrangeBin)) {
+            arrangeBin = el('div', 'arrange-bin');
+            arrangeBin.setAttribute('aria-label', 'Bin: drop here to remove');
+            arrangeBin.innerHTML = '<svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v6M14 11v6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+            host.appendChild(arrangeBin);
+        }
+        if (!arrangeWired) { arrangeWired = true; wireArrange(host); }
+        const hr = host.getBoundingClientRect();   // the instruction bar sits at the top of the scene, centred over it
+        document.body.style.setProperty('--arrange-x', (hr.left + hr.width / 2) + 'px');
+        document.body.style.setProperty('--arrange-top', (hr.top + 12) + 'px');
+        return true;
+    }
+    function wireArrange(host) {
+        let grab = [0, 0], pointer = null;
+        const point = ev => { const r = host.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; };
+        const overBin = ev => { if (!arrangeBin) return false; const b = arrangeBin.getBoundingClientRect(); return ev.clientX >= b.left - 12 && ev.clientX <= b.right + 12 && ev.clientY >= b.top - 12 && ev.clientY <= b.bottom + 12; };
+        host.addEventListener('pointerdown', ev => {
+            if (!arranging || pointer !== null || ev.button !== 0 || !artEngine) return;
+            if (arrangeBin && arrangeBin.contains(ev.target)) return;
+            const [x, y] = point(ev), hit = artEngine.hitTest(x, y);
+            if (!hit || hit.ok === false) return;
+            if (!artEngine.lift(hit.id, hit.index).ok) return;
+            const pos = (artEngine.getPositions(hit.id) || [])[hit.index] || [0.5, 0.5];
+            const r = host.getBoundingClientRect();
+            grab = [x - pos[0] * r.width, y - pos[1] * r.height];
+            arrangeHeld = hit; pointer = ev.pointerId;
+            host.classList.add('dragging');
+            try { host.setPointerCapture(pointer); } catch (e) {}
+            ev.preventDefault();
+        });
+        host.addEventListener('pointermove', ev => {
+            if (ev.pointerId !== pointer || !arrangeHeld) return;
+            const [x, y] = point(ev);
+            artEngine.dragTo(x - grab[0], y - grab[1]);
+            if (arrangeBin) arrangeBin.classList.toggle('hot', overBin(ev));
+        });
+        const finish = ev => {
+            if (ev.pointerId !== pointer) return;
+            const id = pointer; pointer = null;
+            host.classList.remove('dragging');
+            const hit = arrangeHeld; arrangeHeld = null;
+            const binned = ev.type === 'pointerup' && overBin(ev);
+            if (arrangeBin) arrangeBin.classList.remove('hot');
+            try { if (host.hasPointerCapture(id)) host.releasePointerCapture(id); } catch (e) {}
+            if (!hit || !artEngine) return;
+            const d = artEngine.drop();
+            if (!d || !d.ok) return;
+            if (binned) {
+                const r = artEngine.removeInstance(hit.id, hit.index);
+                if (r && r.ok) saveArtEdit(hit.id, { count: r.count, density: 1, positions: artEngine.getPositions(hit.id) });
+            } else {
+                const pos = artEngine.getPositions(hit.id);
+                if (Array.isArray(pos)) saveArtEdit(hit.id, { count: pos.length, density: 1, positions: pos });
+            }
+        };
+        host.addEventListener('pointerup', finish);
+        host.addEventListener('pointercancel', finish);
+        host.addEventListener('lostpointercapture', finish);
+        document.addEventListener('keydown', ev => { if (arranging && ev.key === 'Escape') setArrange(false); });
+    }
+
+    // ---------- VQ's own drawings: an SVG he writes, turned into an animated scene element ----------
+    // The drawing is cleaned (no scripts, links or images), then each shape becomes one engine part, so it gets the
+    // same light, depth, wind, dragging, bin and undo as the flowers. Groups marked data-anim move on their own.
+    const DRAW_ANIMS = { spin: { amount: 0.6, speed: 1.6 }, rotate: { amount: 0.35, speed: 0.8 }, sway: { amount: 0.35, speed: 0.8 },
+        flap: { amount: 0.8, speed: 1.4 }, flutter: { amount: 0.5, speed: 1.4 }, bob: { amount: 0.3, speed: 0.7 }, pulse: { amount: 0.3, speed: 1 },
+        glow: { amount: 0.45, speed: 0.8 }, twinkle: { amount: 0.5, speed: 1.2 }, wobble: { amount: 0.3, speed: 1 }, breathe: { amount: 0.25, speed: 0.6 },
+        blink: { amount: 0.6, speed: 0.6 } };
+    const DRAW_MOTION = {
+        fly:    { path: { kind: 'arc', amount: 0.3, speed: 0.55 }, area: 'top' },
+        float:  { path: { kind: 'wander', amount: 0.45, speed: 0.3 }, area: 'top', anim: { kind: 'bob', amount: 0.25, speed: 0.5 } },
+        drift:  { path: { kind: 'zigzag', amount: 0.12, speed: 0.3 } },
+        wander: { path: { kind: 'wander', amount: 0.7, speed: 0.5 } },
+        swim:   { path: { kind: 'wander', amount: 0.6, speed: 0.45 }, anim: { kind: 'wobble', amount: 0.15, speed: 0.8 } },
+        sway:   { anim: { kind: 'sway', amount: 0.22, speed: 0.6, pivot: [50, 98] } },
+        bob:    { anim: { kind: 'bob', amount: 0.3, speed: 0.6 } },
+        spin:   { anim: { kind: 'spin', amount: 0.15, speed: 0.3 } },
+        still:  {}
+    };
+    function cssHex(c, alpha) {
+        const m = /rgba?\(\s*([\d.]+)[ ,]+([\d.]+)[ ,]+([\d.]+)(?:[ ,/]+([\d.]+%?))?\s*\)/.exec(c || '');
+        if (!m) return null;
+        let a = m[4] == null ? 1 : (m[4].endsWith('%') ? parseFloat(m[4]) / 100 : +m[4]);
+        a *= alpha;
+        if (a <= 0.02) return null;
+        const h = v => Math.max(0, Math.min(255, Math.round(+v))).toString(16).padStart(2, '0');
+        return '#' + h(m[1]) + h(m[2]) + h(m[3]) + (a < 0.98 ? h(a * 255) : '');
+    }
+    function paintOf(svgRoot, value, alpha) {
+        if (!value || value === 'none') return null;
+        const u = /url\(["']?#([^"')]+)["']?\)/.exec(value);
+        if (u) {   // a gradient: use its middle colour
+            const g = svgRoot.querySelector('#' + CSS.escape(u[1]));
+            const stops = g ? [...g.querySelectorAll('stop')] : [];
+            if (!stops.length) return null;
+            const st = getComputedStyle(stops[Math.floor((stops.length - 1) / 2)]);
+            return cssHex(st.stopColor, alpha * (parseFloat(st.stopOpacity) || 1));
+        }
+        return cssHex(value, alpha);
+    }
+    function rdp(pts, tol) {
+        if (pts.length < 4) return pts.slice();
+        // A closed outline starts and ends on the same point: split it at its farthest point and simplify each half
+        const [sx, sy] = pts[0], [ex, ey] = pts[pts.length - 1];
+        if (Math.hypot(ex - sx, ey - sy) < 1e-6) {
+            let k = 1, best = -1;
+            for (let i = 1; i < pts.length - 1; i++) { const d = Math.hypot(pts[i][0] - sx, pts[i][1] - sy); if (d > best) { best = d; k = i; } }
+            if (best <= 0) return [pts[0]];
+            return rdp(pts.slice(0, k + 1), tol).concat(rdp(pts.slice(k), tol).slice(1));
+        }
+        const keep = new Uint8Array(pts.length); keep[0] = keep[pts.length - 1] = 1;
+        const stack = [[0, pts.length - 1]];
+        while (stack.length) {
+            const [a, b] = stack.pop(); let best = -1, bi = -1;
+            const [x1, y1] = pts[a], [x2, y2] = pts[b], dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1e-9;
+            for (let i = a + 1; i < b; i++) { const d = Math.abs(dy * pts[i][0] - dx * pts[i][1] + x2 * y1 - y2 * x1) / L; if (d > best) { best = d; bi = i; } }
+            if (best > tol) { keep[bi] = 1; stack.push([a, bi], [bi, b]); }
+        }
+        return pts.filter((p, i) => keep[i]);
+    }
+    function svgToCustom(svgText, opts) {
+        opts = opts || {};
+        if (!window.DOMPurify) return { ok: false, error: 'the drawing tools did not load' };
+        const clean = window.DOMPurify.sanitize(String(svgText || ''), { USE_PROFILES: { svg: true }, ADD_ATTR: ['data-anim', 'data-pivot'],
+            FORBID_TAGS: ['image', 'text', 'use', 'foreignObject', 'style', 'a', 'script', 'tspan', 'textPath', 'animate', 'animateTransform', 'animateMotion', 'set'] });
+        const holder = document.createElement('div');
+        holder.style.cssText = 'position:fixed;left:-10000px;top:0;width:100px;height:100px;opacity:0;pointer-events:none;';
+        holder.innerHTML = clean;
+        document.body.appendChild(holder);
+        try {
+            const svg = holder.querySelector('svg');
+            if (!svg) return { ok: false, error: 'the drawing came back empty' };
+            svg.setAttribute('width', '100'); svg.setAttribute('height', '100');
+            svg.removeAttribute('x'); svg.removeAttribute('y'); svg.removeAttribute('style');
+            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+            // Fit the drawing to its content, whatever box it was drawn in
+            let bb = null;
+            try { bb = svg.getBBox(); } catch (e) {}
+            if (!bb || !(bb.width > 0) || !(bb.height > 0)) return { ok: false, error: 'the drawing had no visible shapes' };
+            const side = Math.max(bb.width, bb.height) * 1.06, cx = bb.x + bb.width / 2, cy = bb.y + bb.height / 2;
+            svg.setAttribute('viewBox', `${cx - side / 2} ${cy - side / 2} ${side} ${side}`);
+            const skip = 'defs, clipPath, mask, pattern, linearGradient, radialGradient, symbol, marker';
+            const shapes = [...svg.querySelectorAll('path, circle, ellipse, rect, polygon, polyline, line')].filter(n => !n.closest(skip));
+            const clampP = v => Math.max(0, Math.min(100, +v.toFixed(2)));
+            const raw = [];   // {kind, pts|box, fill, stroke, closed, group, area}
+            for (const n of shapes) {
+                const cs = getComputedStyle(n);
+                if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+                let alpha = 1;
+                for (let a = n; a && a !== svg.parentNode; a = a.parentNode) if (a.nodeType === 1) alpha *= parseFloat(getComputedStyle(a).opacity) || (getComputedStyle(a).opacity === '0' ? 0 : 1);
+                const sw = parseFloat(cs.strokeWidth) || 0;
+                const fill = ['line', 'polyline'].includes(n.tagName) ? null : paintOf(svg, cs.fill, alpha * (parseFloat(cs.fillOpacity) || (cs.fillOpacity === '0' ? 0 : 1)));
+                const stroke = sw > 0 ? paintOf(svg, cs.stroke, alpha * (parseFloat(cs.strokeOpacity) || (cs.strokeOpacity === '0' ? 0 : 1))) : null;
+                if (!fill && !stroke) continue;
+                const m = n.getCTM();
+                if (!m) continue;
+                const T = (x, y) => [m.a * x + m.c * y + m.e, m.b * x + m.d * y + m.f];
+                const group = n.closest('[data-anim]');
+                const base = { fill, stroke, group: group && svg.contains(group) ? group : null };
+                const tag = n.tagName.toLowerCase();
+                const upright = Math.abs(m.b) < 1e-6 && Math.abs(m.c) < 1e-6;
+                if ((tag === 'circle' || tag === 'ellipse') && upright) {
+                    const ccx = n.cx.baseVal.value, ccy = n.cy.baseVal.value;
+                    const rx = (tag === 'circle' ? n.r.baseVal.value : n.rx.baseVal.value) * Math.abs(m.a), ry = (tag === 'circle' ? n.r.baseVal.value : n.ry.baseVal.value) * Math.abs(m.d);
+                    const [x, y] = T(ccx, ccy);
+                    if (!(rx > 0.05 && ry > 0.05)) continue;
+                    raw.push(Object.assign({ kind: 'ellipse', box: [[clampP(x - rx), clampP(y - ry)], [clampP(x + rx), clampP(y + ry)]], area: rx * ry * Math.PI }, base));
+                    continue;
+                }
+                let polys = [], closed = true;
+                if (tag === 'line') { polys = [[T(n.x1.baseVal.value, n.y1.baseVal.value), T(n.x2.baseVal.value, n.y2.baseVal.value)]]; closed = false; }
+                else if ((tag === 'polygon' || tag === 'polyline') && n.points) { polys = [[...n.points].map(p => T(p.x, p.y))]; closed = tag === 'polygon'; }
+                else if (tag === 'rect' && !(n.rx.baseVal.value || n.ry.baseVal.value)) {
+                    const x = n.x.baseVal.value, y = n.y.baseVal.value, w = n.width.baseVal.value, h = n.height.baseVal.value;
+                    if (!(w > 0 && h > 0)) continue;
+                    polys = [[T(x, y), T(x + w, y), T(x + w, y + h), T(x, y + h)]];
+                } else {
+                    // Curves: sample densely along the outline, splitting where the pen jumps (separate sub-shapes)
+                    let len = 0; try { len = n.getTotalLength(); } catch (e) {}
+                    if (!(len > 0)) continue;
+                    const N = Math.max(24, Math.min(320, Math.round(len * 3))), step = len / N;
+                    let cur = [], prev = null;
+                    for (let i = 0; i <= N; i++) {
+                        const p = n.getPointAtLength(Math.min(len, i * step)), q = [p.x, p.y];
+                        if (prev && Math.hypot(q[0] - prev[0], q[1] - prev[1]) > step * 3.5) { if (cur.length > 1) polys.push(cur); cur = []; }
+                        cur.push(q); prev = q;
+                    }
+                    if (cur.length > 1) polys.push(cur);
+                    polys = polys.map(pl => pl.map(([x, y]) => T(x, y)));
+                    if (tag === 'path') closed = !!fill || /z\s*$/i.test(n.getAttribute('d') || '');
+                }
+                for (const pl of polys) {
+                    const pts = pl.map(([x, y]) => [clampP(x), clampP(y)]);
+                    const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+                    const area = (Math.max(...xs) - Math.min(...xs) + 0.5) * (Math.max(...ys) - Math.min(...ys) + 0.5);
+                    raw.push(Object.assign({ kind: closed && fill ? 'polygon' : (closed ? 'polygon' : 'path'), dense: pts, area }, base));
+                }
+            }
+            if (!raw.length) return { ok: false, error: 'the drawing had no shapes I could use' };
+            // Budget: the engine takes up to 40 parts (one is the invisible body that carries the whole-drawing motion)
+            let parts = raw;
+            if (parts.length > 39) {
+                const keep = new Set(parts.map((p, i) => [p.area, i]).sort((a, b) => b[0] - a[0]).slice(0, 39).map(x => x[1]));
+                parts = parts.filter((p, i) => keep.has(i));
+            }
+            // ...and 300 points in total: simplify the outlines until they fit, keeping corners and curves
+            let tol = 0.1, total = Infinity;
+            for (let k = 0; k < 14 && total > 290; k++, tol *= 1.45) {
+                total = 2;
+                for (const p of parts) {
+                    if (p.dense) { p.pts = rdp(p.dense, tol); if (p.kind === 'polygon' && p.pts.length > 3 && Math.hypot(p.pts[0][0] - p.pts[p.pts.length - 1][0], p.pts[0][1] - p.pts[p.pts.length - 1][1]) < 0.3) p.pts.pop(); total += p.pts.length; }
+                    else total += 2;
+                }
+            }
+            parts = parts.filter(p => !p.dense || (p.kind === 'polygon' ? p.pts.length >= 3 : p.pts.length >= 2));
+            if (total > 300) return { ok: false, error: 'the drawing was too detailed' };
+            // Joints: the invisible body first, then each animated group hangs from its first shape
+            const motion = DRAW_MOTION[opts.motion] || DRAW_MOTION.still;
+            const out = [{ id: 'body', shape: 'circle', points: [[50, 50], [50.5, 50]], fill: '#00000000' }];
+            if (motion.anim) out[0].animate = Object.assign({ pivot: [50, 50] }, motion.anim);
+            const groups = new Map(); let gN = 0;
+            for (const p of parts) {
+                const part = { shape: p.kind === 'ellipse' ? 'ellipse' : p.kind, points: p.kind === 'ellipse' ? p.box : p.pts };
+                if (p.kind === 'ellipse' && Math.abs((p.box[1][0] - p.box[0][0]) - (p.box[1][1] - p.box[0][1])) < 0.05) {
+                    const r = (p.box[1][0] - p.box[0][0]) / 2, c = [+(p.box[0][0] + r).toFixed(2), +(p.box[0][1] + r).toFixed(2)];
+                    part.shape = 'circle'; part.points = [c, [+(c[0] + r).toFixed(2), c[1]]];
+                }
+                if (p.fill) part.fill = p.fill;
+                if (p.stroke) part.stroke = p.stroke;
+                const kind = p.group && String(p.group.getAttribute('data-anim') || '').toLowerCase().trim();
+                if (kind && DRAW_ANIMS[kind]) {
+                    if (!groups.has(p.group)) {
+                        gN++;
+                        part.id = 'g' + gN; part.parent = 'body';
+                        let pivot = null;
+                        const pv = /(-?[\d.]+)[ ,]+(-?[\d.]+)/.exec(p.group.getAttribute('data-pivot') || '');
+                        const gm = p.group.getCTM && p.group.getCTM();
+                        if (pv && gm) pivot = [clampP(gm.a * +pv[1] + gm.c * +pv[2] + gm.e), clampP(gm.b * +pv[1] + gm.d * +pv[2] + gm.f)];
+                        if (!pivot) {   // the centre of everything in the group
+                            const pts = parts.filter(q => q.group === p.group).flatMap(q => q.pts || q.box);
+                            const xs = pts.map(q => q[0]), ys = pts.map(q => q[1]);
+                            pivot = [clampP((Math.min(...xs) + Math.max(...xs)) / 2), clampP((Math.min(...ys) + Math.max(...ys)) / 2)];
+                        }
+                        part.animate = Object.assign({ kind, pivot }, DRAW_ANIMS[kind]);
+                        groups.set(p.group, part.id);
+                    } else part.parent = groups.get(p.group);
+                } else part.parent = 'body';
+                out.push(part);
+            }
+            const name = String(opts.name || 'drawing').replace(/[^\w '\-]/g, '').trim().slice(0, 40) || 'drawing';
+            const place = { sky: 'top', ground: 'bottom', anywhere: 'full' }[opts.place];
+            const element = { type: 'custom', name, parts: out, count: Math.max(1, Math.min(6, +opts.count || 1)),
+                size: Math.max(40, Math.min(220, +opts.size || (opts.place === 'ground' ? 130 : 100))), depth: opts.depth || 'mid',
+                area: place || motion.area || 'full', spawn: 'grow' };
+            if (motion.path) element.path = Object.assign({}, motion.path);
+            // Check it the way the scene will draw it
+            const probe = document.createElement('div');
+            probe.style.cssText = 'position:fixed;left:-10000px;top:0;width:300px;height:200px;';
+            document.body.appendChild(probe);
+            try {
+                const t = window.VQArt ? window.VQArt.create({ root: probe }) : null;
+                const r = t ? t.render({ elements: [element] }) : { ok: true };
+                if (t) t.dispose();
+                if (!r.ok) {
+                    console.warn('Drawing rejected by the scene engine:', r.error);
+                    return { ok: false, error: 'the scene couldn’t use that drawing (' + String(r.error || '').slice(0, 120) + ')' };
+                }
+            } finally { probe.remove(); }
+            return { ok: true, element, parts: out.length - 1, points: total };
+        } catch (e) {
+            console.warn('Drawing conversion failed:', e);
+            return { ok: false, error: 'the drawing couldn’t be converted' };
+        } finally { holder.remove(); }
+    }
+    window.VQScene = { engine: () => artEngine, ids: () => Object.assign({}, artIdIndex), arrange: (on) => setArrange(on !== false), convert: svgToCustom };   // for testing and tinkering
+    // Put a drawing into the current theme (replacing an earlier drawing of the same name)
+    function addDrawing(act) {
+        const conv = svgToCustom(act.svg, { name: act.name, motion: act.motion, place: act.place, count: act.count });
+        if (!conv.ok) return { ok: false, name: act.name || 'that drawing', error: conv.error };
+        const sp = currentThemeSpec();
+        sp.art = sp.art || [];
+        const el2 = Object.assign({}, conv.element, act.what ? { what: String(act.what).slice(0, 240) } : {});
+        const same = sp.art.findIndex(e => e.type === 'custom' && String(e.name || '').toLowerCase() === el2.name.toLowerCase());
+        if (same >= 0) sp.art[same] = el2;
+        else if (sp.art.length >= 8) return { ok: false, full: true, name: el2.name };
+        else sp.art.push(el2);
+        const r = installTheme(sp);
+        return { ok: true, name: el2.name, theme: r.spec.name, count: el2.count };
+    }
+    // Find one of VQ's drawings by the words the user uses ("the plane", "balloons")
+    function findDrawing(art, words) {
+        const w = String(words || '').toLowerCase().replace(/\b(the|a|an|my|your|some|all)\b/g, ' ').replace(/[^a-z0-9 \-']/g, ' ').trim();
+        if (!w) return -1;
+        const stem = s => s.replace(/(es|s)$/, '');
+        return (art || []).findIndex(e => e && e.type === 'custom' && (() => {
+            const n = String(e.name || '').toLowerCase();
+            return n === w || stem(n) === stem(w) || n.split(/\s+/).some(t => t.length > 2 && w.split(/\s+/).some(u => stem(u) === stem(t)));
+        })());
+    }
 
     // Plain words → one element, e.g. "red tulips", "6 monarch butterflies", "cherry blossom trees", "a galaxy"
     const COLOR_WORDS = { red: '#e0484f', pink: '#f28cb8', yellow: '#f5d04a', orange: '#f59a45', purple: '#a06cdc', violet: '#8b6cf0',
@@ -3074,7 +3428,11 @@
         if (skyAdd) { setSky(skyAdd); out.added = SKY_LABEL[skyAdd] + ' sky'; edit = Object.assign({}, edit, { add: null }); }
         if (edit.add) {
             const it = parseItem(edit.add);
-            if (!it) out.missing = edit.add;
+            const dIdx = !it ? findDrawing(sp.art, edit.add) : -1;
+            if (dIdx >= 0) {   // one of VQ's drawings: more (or fewer) of it
+                if (edit.count) { sp.art[dIdx].count = Math.max(1, Math.min(6, edit.count)); delete sp.art[dIdx].positions; }
+                out.added = sp.art[dIdx].name;
+            } else if (!it) out.missing = edit.add;
             else if (it.kind === 'art') {
                 if (edit.count) it.item.count = edit.count;
                 const same = sp.art.findIndex(e => e.type === it.item.type && (e.species || e.style || e.kind || '') === (it.item.species || it.item.style || it.item.kind || ''));
@@ -3092,6 +3450,8 @@
         if (edit.remove) {
             const it = parseItem(edit.remove);
             const before = sp.art.length + sp.effects.length + sp.layers.length;
+            const dIdx = findDrawing(sp.art, edit.remove);
+            if (dIdx >= 0) sp.art.splice(dIdx, 1);
             if (it && it.kind === 'art') sp.art = sp.art.filter(e => e.type !== it.item.type || (it.item.species && e.species !== it.item.species) || (it.item.style && e.style !== it.item.style) || (it.item.kind && e.kind !== it.item.kind));
             if (it && it.kind === 'fx') sp.effects = sp.effects.filter(e => e !== it.type);
             if (it && it.kind === 'tk') sp.layers = sp.layers.filter(l => l.type !== it.type);
@@ -3525,6 +3885,11 @@
             }
             case 'theme_edit': {
                 act._edit = editTheme(act.edit || {});
+                break;
+            }
+            case 'draw': {
+                act._draw = addDrawing(act);
+                if (!act._draw.ok) uiUndo.pop();   // nothing changed, so nothing to undo
                 break;
             }
             case 'add_note':
@@ -4852,6 +5217,16 @@
                     lines.push('Add or remove one thing at a time, for example “add butterflies” or “remove the comet”.');
                     break;
                 }
+                case 'draw': {
+                    const r = a._draw || {};
+                    used.add('theme');
+                    if (r.ok) {
+                        lines.push(`I drew **${r.name}**${r.count > 1 ? ` (${r.count} of them)` : ''} and added it to **${r.theme}**. It’s my own design, so it may look a little hand-made.`);
+                        lines.push('Tap **✥ Arrange** under the message box (or say “arrange”) to drag it where you like, or drop it on the bin to remove it.');
+                    } else if (r.full) lines.push(`There’s no room for **${r.name}**: a theme holds up to 8 scene elements. Remove something first.`);
+                    else lines.push(`I tried to draw **${r.name || 'that'}**, but ${r.error || 'it didn’t work'}. Try describing it a little more simply.`);
+                    break;
+                }
                 case 'create_theme': {
                     const r = a._installed || {};
                     const sp = r.spec || {};
@@ -4893,7 +5268,7 @@
         const pool = TIPS.filter(([k, t]) => !used.has(k) && t !== lastTip);
         const tip = pool.length ? pool[n % pool.length][1] : '';
         try { localStorage.setItem('vq-tip-n', String(n + 1)); localStorage.setItem('vq-tip-last', tip); } catch (e) {}
-        const noUndo = (acts || []).every(a => a && ['undo', 'new_chat', 'show_reasoning'].includes(a.action));
+        const noUndo = (acts || []).every(a => a && (['undo', 'new_chat', 'show_reasoning'].includes(a.action) || (a.action === 'draw' && !(a._draw || {}).ok)));
         return lines.join('\n\n') + (tip ? `\n\n*Tip: ${tip}*` : '') + (noUndo ? '' : '\n\nSay “undo” if you’d like it back.');
     }
 
@@ -4917,6 +5292,15 @@
             if (personaAsk === 'off') { stopPersona(); uiPrefs.persona = 'off'; saveUIPrefs(); showLocalNote('VQ’s body is hidden'); return; }
             if (startPersona(personaAsk)) { uiPrefs.persona = personaAsk; saveUIPrefs(); showLocalNote({ panel: 'VQ is here, in the side panel', badge: 'VQ is in the header', roam: 'VQ is walking along the bottom of the screen', moon: 'VQ is on the moon, fishing', fly: 'VQ is flying around (he keeps clear of what you’re reading)' }[personaAsk]); }
             return;
+        }
+        // Arrange the scene: drag things around, drop them on the bin to remove them
+        if (/^(?:arrange|rearrange|arrange mode|edit (?:the )?scene|move things(?: around)?|(?:arrange|rearrange|move) (?:the )?(?:scene|elements|things|flowers|drawings|plants)(?: around)?)$/.test(pm)) {
+            elements.messageInput.value = '';
+            if (setArrange(true)) showLocalNote('Arrange mode: drag anything to move it, drop it on the bin to remove it, and tap Done when you’re finished');
+            return;
+        }
+        if (/^(?:done|done arranging|stop arranging|finish arranging)$/.test(pm) && arranging) {
+            elements.messageInput.value = ''; setArrange(false); showLocalNote('Arrangement saved'); return;
         }
         // The complete list of customisations, on request
         if (/^\s*(?:please\s+)?(?:(?:show|list|give)(?: me)?(?: a| the)?(?: full| complete)?(?: list of)? (?:all )?(?:the |your )?(?:customi[sz]ations?|customi[sz]ation options|options|settings|visual effects|effects|themes and effects|things i can change)|what can (?:i|you) (?:change|customi[sz]e)(?: on screen)?|what (?:visual )?effects (?:are there|do you have|can you (?:add|do))|customi[sz]ation list|all customi[sz]ations)\s*\??\s*$/i.test(rawMessage)) {
@@ -4947,7 +5331,8 @@
         // "add …" / "remove …": one element at a time, free and instant when the element is known
         const addM = rawMessage.match(/^\s*(?:please\s+)?(?:add|put|include|bring in|give me)\s+(?:some\s+|a few\s+|a\s+|an\s+|more\s+)?(.{2,40}?)\s*(?:to (?:the |my )?(?:theme|screen|background|scene))?\s*[.!]?\s*$/i);
         const remM = rawMessage.match(/^\s*(?:please\s+)?(?:remove|delete|hide|take away|get rid of|no more)\s+(?:the\s+|all\s+(?:the\s+)?|my\s+)?(.{2,40}?)\s*[.!]?\s*$/i);
-        if ((addM && (parseItem(addM[1]) || skyFrom(addM[1]))) || (remM && (parseItem(remM[1]) || /\b(storm|rain|sunset|night|moon|seashore|beach|sea|clouds|mist)\b/i.test(remM[1])))) {
+        const drawnArt = (customSpec(uiPrefs.theme) || {}).art || [];
+        if ((addM && (parseItem(addM[1]) || skyFrom(addM[1]))) || (remM && (parseItem(remM[1]) || findDrawing(drawnArt, remM[1]) >= 0 || /\b(storm|rain|sunset|night|moon|seashore|beach|sea|clouds|mist)\b/i.test(remM[1])))) {
             elements.messageInput.value = '';
             uiUndo.push(snapshotUI());
             const r = editTheme(addM ? { add: addM[1] } : { remove: remM[1] });
