@@ -1245,6 +1245,15 @@
         .look-btn[hidden] { display: none; }
         #customise-body .cat-sticky { position: sticky; top: -0.6rem; z-index: 2; display: flex; gap: 0.4rem; padding: 0.5rem 0; margin-bottom: 0.2rem;
             background: var(--bg-panel, rgba(20,20,20,0.95)); backdrop-filter: blur(8px); }
+        /* ---- Nature effects keep natural colours, whatever the theme ---- */
+        .fx-trees path.far { fill: rgba(40,80,50,0.35); }
+        .fx-trees path.near { fill: rgba(47,107,58,0.55); stroke: rgba(80,140,80,0.4); }
+        .fx-grass path { fill: rgba(86,150,70,0.55); }
+        .fx-mountains .m-back { fill: rgba(70,82,110,0.35); } .fx-mountains .m-front { fill: rgba(52,64,86,0.6); }
+        .fx-trees, .fx-grass, .fx-mountains { mix-blend-mode: normal; }
+        .fx-leaves svg { fill: rgba(214,120,40,0.85); stroke: rgba(150,70,20,0.6); }
+        .fx-fireflies span { background: rgba(255,230,120,0.95); box-shadow: 0 0 10px 3px rgba(255,210,90,0.6); }
+        .fx-snow.s1, .fx-snow.s2 { --fxt: 255,255,255; }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -1518,6 +1527,6 @@
     <script src="js/vq-portraits.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-persona-bridge.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-run.js?v=2026-10-08-run"></script>
-    <script src="js/chat-app-test.js?v=2026-10-08-fixes"></script>
+    <script src="js/chat-app-test.js?v=2026-10-08-natural"></script>
 </body>
 </html>
