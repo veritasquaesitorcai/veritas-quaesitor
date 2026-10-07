@@ -21,6 +21,7 @@
     };
 
     const ROBOT = '<svg viewBox="0 0 32 32" aria-hidden="true"><line x1="16" y1="4.2" x2="16" y2="8" stroke="#7ff3ff" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="3.4" r="2.1" fill="#ff5fd2"/><rect x="5.5" y="8" width="21" height="16.5" rx="6.5" fill="none" stroke="#7ff3ff" stroke-width="2"/><rect x="8.6" y="11.6" width="14.8" height="7.6" rx="3.8" fill="#05060a"/><circle cx="12.6" cy="15.4" r="2" fill="#7ff3ff"/><circle cx="19.4" cy="15.4" r="2" fill="#7ff3ff"/><circle cx="13.2" cy="14.8" r=".6" fill="#fff"/><circle cx="20" cy="14.8" r=".6" fill="#fff"/><path d="M13 21.6c1.9 1 4.1 1 6 0" stroke="#7ff3ff" stroke-width="1.8" fill="none" stroke-linecap="round"/><rect x="2.6" y="13.6" width="2.6" height="5.2" rx="1.3" fill="#ff5fd2"/><rect x="26.8" y="13.6" width="2.6" height="5.2" rx="1.3" fill="#ff5fd2"/></svg>';
+    let face = ROBOT;   // VQ's face for avatars: his portrait once it has loaded
     const ICON = {
         expand: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>',
         shrink: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="M14 10l7-7"/><path d="M3 21l7-7"/></svg>',
@@ -125,6 +126,11 @@
         #vq-chat-header .vq-face { width: 34px; height: 34px; flex-shrink: 0; border-radius: 50%; display: grid; place-items: center;
             background: radial-gradient(circle at 50% 40%, #17171e, #050507); box-shadow: 0 0 0 1px rgba(127,243,255,0.4), 0 0 12px rgba(127,243,255,0.3); }
         #vq-chat-header .vq-face svg { width: 27px; height: 27px; }
+        #vq-chat-widget .vq-has-portrait svg { width: 92%; height: 92%; }
+        #vq-chat-header .vq-face { position: relative; overflow: hidden; }
+        #vq-chat-header .vq-face.vq-live > svg { opacity: 0; transition: opacity .4s ease; }
+        #vq-chat-header .vq-mini-host { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -46%) scale(0.42); pointer-events: none; }
+        #vq-chat-header .vq-mini-host iframe { color-scheme: dark; background: transparent !important; }
         #vq-chat-info { flex: 1; min-width: 0; }
         #vq-chat-info h3 { display: flex; align-items: center; gap: 7px; white-space: nowrap; font: 700 0.9rem/1.2 "Cinzel", Georgia, serif; letter-spacing: .05em; color: #fff; }
         #vq-chat-info h3 span { font: 700 0.58rem/1 -apple-system, "Segoe UI", sans-serif; letter-spacing: .14em; color: #1a1030; padding: 3px 5px 2px; border-radius: 4px;
@@ -419,6 +425,7 @@
             localStorage.setItem('vq-widget-open', 'true');
             if (focus && !isPhone()) input.focus();
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            setTimeout(startMini, 500);
         }
         function closeChat() {
             if (panel.classList.contains('open') && !onTour) { try { localStorage.setItem('vq-widget-dismissed', String(Date.now())); } catch (e) {} }
@@ -426,6 +433,7 @@
             bubble.setAttribute('aria-expanded', 'false');
             document.documentElement.classList.remove('vq-chat-open');
             localStorage.setItem('vq-widget-open', 'false');
+            stopMini();
         }
         function clearConversation() {
             localStorage.removeItem('vq-conversation-history');
@@ -486,7 +494,7 @@
             } else {
                 const av = document.createElement('span');
                 av.className = 'vq-av';
-                av.innerHTML = ROBOT;
+                av.innerHTML = face;
                 messageDiv.appendChild(av);
                 if (typed && !reduceMotion) typeReply(bubbleEl, content);
                 else fillAssistant(bubbleEl, content);
@@ -644,10 +652,44 @@
             catch (e) { conversationHistory = conversationHistory.slice(-12); try { localStorage.setItem('vq-conversation-history', JSON.stringify(conversationHistory)); } catch (_) {} }
         }
 
+        // ---------- VQ himself: his portrait on the button and avatars, and his live head while the bubble is open ----------
+        const loadScript = (src) => new Promise((ok, fail) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });
+        const appAsset = (path) => new URL(path, CONFIG.appUrl).href;
+        loadScript(appAsset('js/vq-portraits.js?v=2026-10-08')).then(() => {
+            if (!window.VQPortraits) return;
+            face = window.VQPortraits.get('idle', { size: 40 });
+            document.querySelectorAll('#vq-chat-widget .vq-face, #vq-chat-widget .vq-av').forEach(n => { n.innerHTML = face; n.classList.add('vq-has-portrait'); });
+        }).catch(() => {});
+        const liveOK = () => !isPhone() && !reduceMotion && window.innerWidth > 700;
+        let miniVQ = null, miniHost = null;
+        function startMini() {
+            if (miniVQ || !liveOK()) return;
+            const headFace = document.querySelector('#vq-chat-header .vq-face');
+            if (!headFace) return;
+            const go = () => {
+                if (miniVQ || !panel.classList.contains('open') || !window.VQEmbodiment) return;
+                try {
+                    miniHost = document.createElement('div'); miniHost.className = 'vq-mini-host';
+                    headFace.appendChild(miniHost); headFace.classList.add('vq-live');
+                    miniVQ = window.VQEmbodiment.mount({ root: miniHost, src: appAsset('vq-full-body.html'), mode: 'mini', accent: '#7FF3FF' });
+                    miniVQ.bindComposer(input);
+                } catch (e) { stopMini(); }
+            };
+            if (window.VQEmbodiment) go(); else loadScript(appAsset('js/vq-persona-bridge.js?v=2026-10-08')).then(go).catch(() => {});
+        }
+        function stopMini() {
+            try { if (miniVQ) miniVQ.dispose(); } catch (e) {}
+            miniVQ = null;
+            if (miniHost) miniHost.remove(); miniHost = null;
+            const headFace = document.querySelector('#vq-chat-header .vq-face');
+            if (headFace) headFace.classList.remove('vq-live');
+        }
+        const miniSay = (fn) => { try { if (miniVQ) fn(miniVQ); } catch (e) {} };
+
         function showTypingIndicator() {
             const t = document.createElement('div');
             t.className = 'vq-message'; t.id = 'vq-typing';
-            t.innerHTML = `<span class="vq-av">${ROBOT}</span><div class="vq-typing" aria-label="VQ is typing"><i></i><i></i><i></i></div>`;
+            t.innerHTML = `<span class="vq-av">${face}</span><div class="vq-typing" aria-label="VQ is typing"><i></i><i></i><i></i></div>`;
             messagesContainer.appendChild(t);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
@@ -872,6 +914,7 @@
             sendBtn.disabled = true;
             const pageContext = getSmartPageContext();
             showTypingIndicator();
+            miniSay(v => v.state('thinking'));
             try {
                 const response = await fetch(CONFIG.apiEndpoint, {
                     method: 'POST',
@@ -886,7 +929,7 @@
                 const data = await response.json().catch(() => ({}));
                 hideTypingIndicator();
                 if (data && data.response) {
-                    if (response.ok) { addMessage('assistant', data.response); maybeGrow(data.response); }
+                    if (response.ok) { addMessage('assistant', data.response); maybeGrow(data.response); miniSay(v => { v.speak({ text: String(data.response).slice(0, 4000), start: true }); v.end(); }); }
                     else if (response.status === 429 && data.quota && data.quota.tier === 'guest') showSignInOffer(data.quota);
                     else addMessageToUI('assistant', data.response);   // limit or error notices aren't saved
                 } else {
@@ -895,6 +938,7 @@
             } catch (error) {
                 console.error('VQ chat error:', error);
                 hideTypingIndicator();
+                miniSay(v => v.state('idle'));
                 addMessageToUI('assistant', "I'm having trouble connecting right now. Please try again in a moment, or open the full VQ Chat app.");
             } finally {
                 sendBtn.disabled = false;
