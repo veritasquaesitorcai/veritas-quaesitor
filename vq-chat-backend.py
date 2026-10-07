@@ -1456,9 +1456,12 @@ UI_TOOL = {
                 "what": {"type": "string", "description": ("For draw: what to draw, as a short concrete visual description of YOUR OWN original design "
                          "(shape, colours, key details), e.g. 'a red and white hot-air balloon with a wicker basket', 'a small silver passenger plane with a spinning propeller'")},
                 "name": {"type": "string", "description": "For draw: a 1-3 word name for it, e.g. 'hot-air balloon'"},
-                "motion": {"type": "string", "enum": ["fly", "float", "drift", "wander", "swim", "sway", "bob", "spin", "still"],
+                "motion": {"type": "string",
                            "description": "For draw: how it moves: fly (planes, birds, across the sky), float (balloons), drift (clouds, boats), wander (creatures), swim (fish), sway (plants, flags), bob, spin, still (buildings)"},
-                "place": {"type": "string", "enum": ["sky", "ground", "anywhere"], "description": "For draw: where it belongs"},
+                "place": {"type": "string", "description": "For draw: where it belongs: sky, ground or anywhere"},
+                "scale": {"type": "string", "description": ("For draw: how big it appears, judged from its real-world size and distance: "
+                          "tiny (insects, a single flower), small (birds, fish, a kite), medium (balloons, boats, a cottage, a plane in the distance), "
+                          "large (lighthouses, trees, a nearby spaceship, a dragon), huge (mountains, castles, a whole space station)")},
                 "add": {"type": "string", "description": "For theme_edit: ONE element to add, in plain words, e.g. 'butterflies', 'red tulips', 'cherry blossom trees', 'a galaxy', 'snow'"},
                 "remove": {"type": "string", "description": "For theme_edit: ONE element to remove, e.g. 'comet', 'butterflies'"},
                 "count": {"type": "integer", "description": "For theme_edit add or draw: how many (optional; draw allows 1-6)"},
@@ -1637,11 +1640,19 @@ def validate_ui_action(args: dict):
         if not what:
             return None, "draw needs a description of what to draw"
         motion = str(args.get("motion") or "").lower().strip()
+        motion = {"orbit": "wander", "orbiting": "wander", "fly around": "fly", "flying": "fly", "flies": "fly", "hover": "float",
+                  "floating": "float", "swimming": "swim", "walk": "wander", "roam": "wander", "rotate": "spin", "spinning": "spin",
+                  "static": "still", "none": "still", "stand": "still", "sail": "drift", "glide": "fly"}.get(motion, motion)
         place = str(args.get("place") or "").lower().strip()
+        place = {"space": "sky", "air": "sky", "top": "sky", "water": "anywhere", "sea": "anywhere", "land": "ground", "bottom": "ground"}.get(place, place)
         clean["what"] = what
         clean["name"] = name or "drawing"
         clean["motion"] = motion if motion in ("fly", "float", "drift", "wander", "swim", "sway", "bob", "spin", "still") else "still"
         clean["place"] = place if place in ("sky", "ground", "anywhere") else ("sky" if clean["motion"] in ("fly", "float") else "anywhere")
+        sc = str(args.get("scale") or "").lower().strip()
+        sc = {"very small": "tiny", "little": "small", "normal": "medium", "average": "medium", "big": "large", "very large": "huge",
+              "giant": "huge", "massive": "huge", "enormous": "huge"}.get(sc, sc)
+        clean["draw_size"] = {"tiny": 70, "small": 105, "medium": 145, "large": 195, "huge": 250}.get(sc, 145 if clean["place"] != "ground" else 175)
         try:
             clean["count"] = max(1, min(6, int(args.get("count") or 1)))
         except (TypeError, ValueError):
@@ -1714,7 +1725,7 @@ def validate_ui_action(args: dict):
 
 # ---------- VQ's own drawings: a separate call writes the SVG, so the chat model only decides what to draw ----------
 DRAW_MODEL = os.environ.get("DRAW_MODEL", "openai/gpt-oss-120b")
-DRAW_EFFORT = os.environ.get("DRAW_EFFORT", "medium")     # how hard the drawing model thinks: low, medium or high
+DRAW_EFFORT = os.environ.get("DRAW_EFFORT", "high")     # how hard the drawing model thinks: low, medium or high
 DRAW_PROMPT = (
     "You are VQ's illustrator. Reply with ONE SVG and nothing else (no explanation, no code fence).\n"
     "Rules:\n"
@@ -1731,6 +1742,19 @@ DRAW_PROMPT = (
     "- Moving parts: wrap them in <g data-anim=\"KIND\" data-pivot=\"x,y\"> where KIND is spin (propellers, wheels, rotors), "
     "flap (wings), sway (leaves, flags, tails, flames), flutter, bob, pulse, glow or twinkle (lights, stars), blink (eyes); "
     "data-pivot is the joint or axle point in the 0-100 box. At most 3 animated groups; leave everything else unwrapped.\n"
+    "- Draw ONLY the subject asked for: no planets, ground, water, sky or extra scenery unless the request names them.\n"
+    "- Method: first decide the silhouette and its main parts with coordinates (e.g. a space station = central module, two long "
+    "solar-panel wings, a docking ring, an antenna); then draw the big parts, then shading, then details. Use 18-30 shapes; "
+    "fewer than 12 almost always looks unfinished. The subject should span at least 70 of the 100 units across.\n"
+    "- Example of the expected quality (a plane): <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\">"
+    "<path d=\"M8 52 C8 44 20 41 40 41 L74 41 C84 41 92 45 94 50 C92 55 84 58 74 58 L30 58 C18 58 8 57 8 52 Z\" fill=\"#e9edf2\"/>"
+    "<path d=\"M10 54 C20 58 60 58 92 52 C88 56 82 58 74 58 L30 58 C18 58 10 57 10 54 Z\" fill=\"#b9c2cc\"/>"
+    "<path d=\"M10 48 L4 30 L14 30 L24 44 Z\" fill=\"#c8102e\"/><path d=\"M38 50 L58 50 L46 76 L38 76 Z\" fill=\"#cfd6de\"/>"
+    "<circle cx=\"66\" cy=\"46\" r=\"2.2\" fill=\"#3a6fa8\"/><circle cx=\"58\" cy=\"46\" r=\"2.2\" fill=\"#3a6fa8\"/>"
+    "<path d=\"M80 43 C85 43 89 46 90 49 L82 49 Z\" fill=\"#2b4f7a\"/>"
+    "<g data-anim=\"spin\" data-pivot=\"95,50\"><ellipse cx=\"95\" cy=\"40\" rx=\"1.6\" ry=\"9\" fill=\"#4a4a52\"/>"
+    "<ellipse cx=\"95\" cy=\"60\" rx=\"1.6\" ry=\"9\" fill=\"#4a4a52\"/></g></svg> "
+    "Match this level of care, not this subject.\n"
     "- Originality: always your own original design. If the request is for a real person, a known fictional character, a mascot, "
     "a logo, a brand or any copyrighted design, reply with exactly REFUSE."
 )
@@ -1791,7 +1815,7 @@ UI_SYSTEM_NOTE = (
     "tunnel, retro grid, circuit traces, comets, ripples, film grain.\n"
     "DRAWING YOUR OWN: if the user asks to add, draw or make something that is NOT in that list (a plane, a hot-air balloon, a lighthouse, "
     "a sailboat, a dragon of your own design), call ui_action with action draw: 'what' (a short concrete description of your own "
-    "original design), 'name', 'motion', 'place' and optionally 'count' (1-6). ONE drawing per request. More or fewer of an existing "
+    "original design), 'name', 'motion', 'place', 'scale' (tiny, small, medium, large or huge, judged from its real-world size) and optionally 'count' (1-6). ONE drawing per request. More or fewer of an existing "
     "drawing, or removing it, is a theme_edit add/remove with its name. NEVER draw real people, known characters (e.g. superheroes, "
     "cartoon or game characters), mascots, logos or brands: do not call the tool; say plainly in one sentence that you can't draw that "
     "one because it's someone else's character, and offer an original design of your own instead (e.g. an original masked hero in your "
