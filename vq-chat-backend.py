@@ -1446,6 +1446,13 @@ UI_TOOL = {
                               "accent2": {"type": "string", "description": "a lighter companion to the accent"},
                               "icon": {"type": "string", "description": "icon and VQ-eye colour, light and vivid"},
                               "scene": {"type": "string", "description": "optional matching sky: mist, clouds, sunset, night, seaday, seanight, storm, none"},
+                              "layers": {"type": "array", "description": ("optional: up to 3 canvas effect layers from the visual toolkit, each "
+                                         "{type, params}. Types: mist, clouds, storm, stars, constellations, galaxy, nebula, aurora, waves, seashore, matrix "
+                                         "(falling code), orbits, vortex, tunnel, grid (retro perspective grid), circuit, comets, ripples, grain (film grain). "
+                                         "params (all optional): count (whole number), size, opacity (0.05-0.6), speed (0.2-2), color and secondary (#hex), "
+                                         "glyph for matrix (1-4 characters). Examples: space -> galaxy, nebula, comets; hacker -> matrix, circuit; "
+                                         "synthwave -> grid, tunnel; ocean -> waves, ripples; hypnotic -> vortex, orbits; cinematic -> grain."),
+                                         "items": {"type": "object", "properties": {"type": {"type": "string"}, "params": {"type": "object"}}}},
                               "effects": {"type": "array", "items": {"type": "string", "enum": ["trees", "grass", "mountains", "stars", "comet", "planet", "aurora", "fireflies", "snow", "leaves", "static", "crt", "tvset"]},
                                           "description": "optional: up to 3 animated effects that fit the theme, e.g. forest -> trees, fireflies; space -> stars, comet, planet; winter -> snow, mountains; autumn -> leaves, trees; northern lights -> aurora, mountains, stars; retro or old TV -> crt, static, tvset (crt makes the screen look like an old tube; tvset puts the app inside a wooden TV cabinet with working knobs)"}}},
                 "view": {"type": "string", "enum": ["details", "notes", "enquirer"], "description": "For panel_view: which side-panel view to show"},
@@ -1587,6 +1594,23 @@ def validate_ui_action(args: dict):
         if not all(k in spec for k in ("background", "text", "accent")):
             return None, "create_theme needs at least background, text and accent colours"
         spec["name"] = re.sub(r"[^\w '\-&]", "", str(th.get("name") or "My theme"))[:28].strip() or "My theme"
+        tk_types = {"mist", "clouds", "storm", "stars", "constellations", "galaxy", "nebula", "aurora", "waves", "seashore", "matrix",
+                    "orbits", "vortex", "tunnel", "grid", "circuit", "comets", "ripples", "grain"}
+        layers = []
+        for l in (th.get("layers") if isinstance(th.get("layers"), list) else [])[:4]:
+            if not isinstance(l, dict) or str(l.get("type", "")).lower() not in tk_types:
+                continue
+            pr = {}
+            for k, v in (l.get("params") if isinstance(l.get("params"), dict) else {}).items():
+                if not re.fullmatch(r"[a-zA-Z]{2,14}", str(k)) or len(pr) >= 10:
+                    continue
+                if isinstance(v, bool) or (isinstance(v, (int, float)) and abs(v) < 10000):
+                    pr[k] = v
+                elif isinstance(v, str) and len(v) <= 12 and re.fullmatch(r"[#\w ]+", v):
+                    pr[k] = v
+            layers.append({"type": str(l["type"]).lower(), "params": pr})
+        if layers:
+            spec["layers"] = layers
         fx = th.get("effects") if isinstance(th.get("effects"), list) else []
         allowed = {"trees", "grass", "mountains", "stars", "comet", "planet", "aurora", "fireflies", "snow", "leaves", "static", "crt", "tvset"}
         fx = [f for f in dict.fromkeys(str(x).lower().strip() for x in fx) if f in allowed][:4]
@@ -1639,7 +1663,8 @@ UI_SYSTEM_NOTE = (
     "'something calm and green'), call ui_action with action create_theme and a theme you design: dark background, a slightly "
     "lighter surface, light text, an accent and its lighter companion, a vivid icon colour, a short evocative name, a matching "
     "scene if one fits, and up to three animated effects that bring it to life (trees, grass, mountains, stars, comet, planet, aurora, "
-    "fireflies, snow, leaves, static, crt, tvset). For a retro TV look use crt, static and tvset with a phosphor palette: near-black "
+    "fireflies, snow, leaves, static, crt, tvset), plus up to three canvas 'layers' from the visual toolkit for richer scenes "
+    "(galaxy, nebula, matrix, grid, tunnel, vortex, orbits, circuit, ripples and more). Choose what fits; two to four in total is plenty. For a retro TV look use crt, static and tvset with a phosphor palette: near-black "
     "background with green, amber or cool white text, and scene none. If the user asks to add an effect to a theme of yours, create the theme again with it included. The app checks and adjusts readability automatically. Then describe the theme in one or two sentences "
     "(the mood and the colours you chose); the app shows its name and a code for sharing it.\n"
     "After a change, confirm it in one short sentence and mention they can say 'undo'. If the user asks what "
