@@ -1019,6 +1019,8 @@
         /* ---- Theme effects (drawn in the theme's own colours) ---- */
         .vq-fx { position: fixed; inset: 0; z-index: 898; pointer-events: none; overflow: hidden; --fxa: var(--ui-accent-rgb, 255,140,66); --fxb: var(--fx-rgb, 127,243,255); --fxt: var(--fx-text-rgb, 236,236,236); }
         .vq-fx > svg { position: absolute; left: 0; bottom: 0; width: 100%; }
+        /* ground effects grow from the same ground as flowers and trees: the conversation area, above the input */
+        .vq-fx > svg.fx-trees, .vq-fx > svg.fx-grass, .vq-fx > svg.fx-mountains { left: var(--ground-left, 0); width: var(--ground-width, 100%); bottom: var(--ground-bottom, 0); }
         .fx-trees { height: 30vh; mix-blend-mode: screen; }
         .fx-trees path { animation-name: vqSway; animation-timing-function: ease-in-out; animation-iteration-count: infinite; animation-direction: alternate; }
         .fx-trees path.far { fill: rgba(var(--fxt), 0.045); }
@@ -1232,6 +1234,17 @@
         #persona-sky { z-index: 405 !important; }
         #persona-sky iframe { color-scheme: dark; background: transparent !important; }
         body.persona-moon .vq-scene .moon-wrap { display: none !important; }   /* VQ's own moon replaces the sky's */
+        /* ---- VQ in the header: just VQ, no button circle ---- */
+        #app-header .app-avatar-small.has-persona { background: none !important; box-shadow: none !important; border: 0 !important; overflow: visible; }
+        #app-header .app-avatar-small.has-persona::before, #app-header .app-avatar-small.has-persona::after { display: none !important; }
+        /* ---- Undo / Reset always at hand ---- */
+        .look-tools { display: inline-flex; gap: 0.35rem; margin-right: auto; margin-left: 0.6rem; }
+        .look-btn { border: 1px solid var(--border-subtle); background: rgba(255,255,255,0.04); color: var(--text-secondary); border-radius: 999px;
+            padding: 0.12rem 0.6rem; font: inherit; font-size: 0.74rem; cursor: pointer; }
+        .look-btn:hover { color: #fff; border-color: rgba(var(--ui-accent-rgb),0.6); }
+        .look-btn[hidden] { display: none; }
+        #customise-body .cat-sticky { position: sticky; top: -0.6rem; z-index: 2; display: flex; gap: 0.4rem; padding: 0.5rem 0; margin-bottom: 0.2rem;
+            background: var(--bg-panel, rgba(20,20,20,0.95)); backdrop-filter: blur(8px); }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -1382,6 +1395,10 @@
                     <p class="input-disclaimer">VQ can make mistakes. Check sources on anything important.</p>
                     <div class="input-footer">
                         <span class="char-count" id="char-count">0 / 2000</span>
+                        <span class="look-tools" id="look-tools">
+                            <button type="button" class="look-btn" id="look-undo" hidden title="Undo the last change to the look (free)">↶ Undo</button>
+                            <button type="button" class="look-btn" id="look-reset" title="Put the look back to the standard setup (free)">⟲ Reset look</button>
+                        </span>
                         <span class="footer-links">
                             VQ Chat v3.1 • 
                             <a href="../privacy.html" target="_blank">Privacy</a> • 
@@ -1501,6 +1518,6 @@
     <script src="js/vq-portraits.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-persona-bridge.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-run.js?v=2026-10-08-run"></script>
-    <script src="js/chat-app-test.js?v=2026-10-08-moonfly"></script>
+    <script src="js/chat-app-test.js?v=2026-10-08-fixes"></script>
 </body>
 </html>
