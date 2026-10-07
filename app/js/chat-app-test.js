@@ -3359,7 +3359,7 @@
             const name = String(opts.name || 'drawing').replace(/[^\w '\-]/g, '').trim().slice(0, 40) || 'drawing';
             const place = { sky: 'top', ground: 'bottom', anywhere: 'full' }[opts.place];
             const element = { type: 'custom', name, parts: out, count: Math.max(1, Math.min(6, +opts.count || 1)),
-                size: Math.max(40, Math.min(220, +opts.size || (opts.place === 'ground' ? 130 : 100))), depth: opts.depth || 'mid',
+                size: Math.max(40, Math.min(260, +opts.size || (opts.place === 'ground' ? 170 : 140))), depth: opts.depth || 'mid',
                 area: place || motion.area || 'full', spawn: 'grow' };
             if (motion.path) element.path = Object.assign({}, motion.path);
             // Check it the way the scene will draw it
@@ -3384,7 +3384,7 @@
     window.VQScene = { engine: () => artEngine, ids: () => Object.assign({}, artIdIndex), arrange: (on) => setArrange(on !== false), convert: svgToCustom };   // for testing and tinkering
     // Put a drawing into the current theme (replacing an earlier drawing of the same name)
     function addDrawing(act) {
-        const conv = svgToCustom(act.svg, { name: act.name, motion: act.motion, place: act.place, count: act.count });
+        const conv = svgToCustom(act.svg, { name: act.name, motion: act.motion, place: act.place, count: act.count, size: act.draw_size });
         if (!conv.ok) return { ok: false, name: act.name || 'that drawing', error: conv.error };
         const sp = currentThemeSpec();
         sp.art = sp.art || [];
@@ -3623,11 +3623,11 @@
             ['Monarch butterflies', 'add monarch butterflies'], ['Blue butterflies', 'add blue butterflies'], ['Swallowtails', 'add swallowtail butterflies'], ['Moths', 'add moths'],
             ['Pine trees', 'add pine trees'], ['Oaks', 'add oak trees'], ['Birches', 'add birch trees'], ['Palms', 'add palm trees'], ['Willows', 'add willow trees'], ['Cherry blossom', 'add cherry blossom trees'],
             ['Ferns', 'add ferns'], ['Bushes', 'add bushes'], ['Reeds', 'add reeds'], ['Birds', 'add birds'], ['Falling petals', 'add falling petals']]);
-        section('VQ draws his own', 'Want something that isn’t in the lists? Ask VQ to draw it. He designs his own original version, and its parts move: propellers spin, wings flap, lights twinkle. Say what it is, and optionally how many and where (“2 hot-air balloons in the sky”). One drawing per request; each uses a message. He can’t draw real people, known characters or brands, but he can make an original one of his own.', [
+        section('VQ draws his own', 'Want something that isn’t in the lists? Ask VQ to draw it. He designs his own original version, and its parts move: propellers spin, wings flap, lights twinkle. Say what it is, and optionally how many and where (“2 hot-air balloons in the sky”). He picks a size that suits it (a butterfly small, a lighthouse large); say “make the … bigger” or “smaller” to adjust it, free. One drawing per request; each uses a message. He can’t draw real people, known characters or brands, but he can make an original one of his own.', [
             ['Hot-air balloon', 'draw a hot-air balloon'], ['Plane flying past', 'draw a small plane flying past'], ['Lighthouse', 'draw a lighthouse'],
             ['Sailboat', 'draw a sailboat'], ['Kite', 'draw a kite'], ['Windmill', 'draw a windmill'], ['Little cottage', 'draw a little cottage'],
             ['Fish', 'draw 3 fish swimming'], ['Lantern', 'draw a glowing lantern'], ['Your own dragon', 'draw a friendly dragon of your own design'],
-            ['“remove the plane”', null], ['“more balloons” (say how many)', null]]);
+            ['“remove the plane”', null], ['“more balloons” (say how many)', null], ['“make the rocket bigger”', null], ['“make the kite smaller”', null]]);
         section('Arrange', 'Move anything in the scene by hand: tap ✥ Arrange under the message box (or say “arrange”). Drag a flower, tree, butterfly or drawing where you like; plants stay on the ground. Drop something on the bin to remove it. Every move can be undone; tap Done (or press Esc) when you’re finished. Free.', [
             ['Arrange now', 'arrange'], ['Undo last move', 'undo']]);
         section('Effects', 'Drawn in your theme’s colours.', [
@@ -5369,6 +5369,18 @@
         const addM = rawMessage.match(/^\s*(?:please\s+)?(?:add|put|include|bring in|give me)\s+(?:some\s+|a few\s+|a\s+|an\s+|more\s+)?(.{2,40}?)\s*(?:to (?:the |my )?(?:theme|screen|background|scene))?\s*[.!]?\s*$/i);
         const remM = rawMessage.match(/^\s*(?:please\s+)?(?:remove|delete|hide|take away|get rid of|no more)\s+(?:the\s+|all\s+(?:the\s+)?|my\s+)?(.{2,40}?)\s*[.!]?\s*$/i);
         const drawnArt = (customSpec(uiPrefs.theme) || {}).art || [];
+        // "make the rocket bigger" / "make the balloons smaller": resize one of VQ's drawings, free
+        const sizeM = pm.match(/^(?:make |can you make )?(?:the |my |those |these )?(.{2,30}?) (bigger|larger|smaller|much bigger|much smaller|a bit bigger|a bit smaller)(?: please)?$/);
+        if (sizeM && findDrawing(drawnArt, sizeM[1]) >= 0) {
+            elements.messageInput.value = '';
+            uiUndo.push(snapshotUI());
+            const sp = currentThemeSpec(), i = findDrawing(sp.art, sizeM[1]), d = sp.art[i];
+            const f = /much/.test(sizeM[2]) ? 1.6 : /a bit/.test(sizeM[2]) ? 1.15 : 1.3;
+            d.size = Math.round(Math.max(40, Math.min(300, (d.size || 140) * (/smaller/.test(sizeM[2]) ? 1 / f : f))));
+            installTheme(sp); saveUIPrefs(); applyUIPrefs();
+            showLocalNote(`Made the ${d.name} ${/smaller/.test(sizeM[2]) ? 'smaller' : 'bigger'}`);
+            return;
+        }
         if ((addM && (parseItem(addM[1]) || skyFrom(addM[1]))) || (remM && (parseItem(remM[1]) || findDrawing(drawnArt, remM[1]) >= 0 || /\b(storm|rain|sunset|night|moon|seashore|beach|sea|clouds|mist)\b/i.test(remM[1])))) {
             elements.messageInput.value = '';
             uiUndo.push(snapshotUI());
