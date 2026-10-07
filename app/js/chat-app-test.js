@@ -500,12 +500,17 @@
             const html = window.marked.parse(text, { breaks: true, gfm: true });
             const clean = window.DOMPurify.sanitize(html, {
                 ALLOWED_TAGS: MD_ALLOWED_TAGS,
-                ALLOWED_ATTR: ['href', 'title'],
+                ALLOWED_ATTR: ['href', 'title', 'class'],
                 ALLOWED_URI_REGEXP: /^(?:https?:|mailto:)/i
             });
             const block = document.createElement('div');
             block.className = 'md';
             block.innerHTML = clean;
+            // classes are only kept for a code block's language
+            block.querySelectorAll('[class]').forEach(n => {
+                const lang = n.tagName === 'CODE' && (n.className.match(/\blanguage-[a-z0-9+#-]{1,20}\b/i) || [])[0];
+                if (lang) n.className = lang; else n.removeAttribute('class');
+            });
             block.querySelectorAll('a').forEach(a => {
                 a.target = '_blank';
                 a.rel = 'noopener noreferrer';
@@ -523,7 +528,7 @@
     // Code fences are stripped because the model sometimes wraps image tags in them
     // Only unwrap old-style ```html fences; real code blocks and layout blocks stay intact
     function cleanReply(text) {
-        return (text || '').replace(/```html\s*([\s\S]*?)```/gi, '$1');
+        return (text || '').replace(/```html\s*([\s\S]*?)```/gi, (m, body) => (/<img/i.test(body) && !/<(script|style|!doctype|body|div|button)/i.test(body)) ? body : m);
     }
 
     const PRESENT_RE = /```vq-present\s*([\s\S]*?)(```|$)/g;
@@ -587,6 +592,7 @@
         });
         fillRichText(contentDiv, text.slice(last));
         enhanceTables(contentDiv);
+        enhanceCode(contentDiv);
     }
 
     // ---------- Presentation layouts (VQ supplies data; the app draws it) ----------
@@ -1042,6 +1048,43 @@
     }
 
 
+
+    // ---------- Code blocks: Copy, and Run in the side panel (VQ Run: sandboxed, on this device only) ----------
+    const RUN_LANG = { html: 'html', xml: null, css: 'css', javascript: 'javascript', js: 'javascript', python: 'python', py: 'python', json: 'json', csv: 'csv' };
+    let runner = null;
+    function disposeRunner() { try { if (runner) runner.dispose(); } catch (e) {} runner = null; }
+    function enhanceCode(contentDiv) {
+        contentDiv.querySelectorAll('pre > code').forEach(code => {
+            const pre = code.parentElement;
+            if (pre.querySelector('.code-actions')) return;
+            const lang = ((code.className.match(/language-([a-z0-9+#-]+)/i) || [])[1] || '').toLowerCase();
+            const bar = el('div', 'code-actions');
+            if (lang) bar.appendChild(el('span', 'code-lang', lang));
+            const copy = el('button', 'code-btn', 'Copy'); copy.type = 'button';
+            copy.addEventListener('click', () => navigator.clipboard?.writeText(code.textContent).then(() => { copy.textContent = 'Copied'; setTimeout(() => copy.textContent = 'Copy', 1400); }));
+            bar.appendChild(copy);
+            const runLang = RUN_LANG[lang];
+            if (runLang && window.VQRun) {
+                const run = el('button', 'code-btn code-run', '▶ Run'); run.type = 'button';
+                run.title = runLang === 'python' ? 'Runs in your browser. The first Python run downloads about 26 MB once.' : 'Runs safely in your browser, shown in the side panel';
+                run.addEventListener('click', () => runCode(runLang, code.textContent));
+                bar.appendChild(run);
+            }
+            pre.prepend(bar);
+        });
+    }
+    function runCode(language, source) {
+        castInto(`Running ${language === 'javascript' ? 'JavaScript' : language === 'python' ? 'Python' : language.toUpperCase()}`, (stage) => {
+            disposeRunner();
+            const box = el('div', 'run-box');
+            stage.appendChild(box);
+            try {
+                runner = window.VQRun.create({ root: box });
+                runner.run({ language, code: source }).then(r => { if (r && !r.ok && r.error) console.warn('Run:', r.error); });
+            } catch (e) { box.textContent = 'This code couldn’t be run here: ' + e.message; }
+        });
+    }
+
     // ---------- Cast to panel: watch a video, browse pictures or keep a card open beside the chat ----------
     const CAST_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-6"/><path d="M3 13a6 6 0 0 1 6 6M3 17a2 2 0 0 1 2 2"/></svg>';
     function castButton(onCast, label) {
@@ -1055,6 +1098,7 @@
     }
 
     function castInto(title, buildContent) {
+        disposeRunner();
         const body = document.getElementById('cast-body');
         const tab = document.querySelector('.cast-tab');
         if (!body || !tab) return;
@@ -1076,6 +1120,7 @@
     }
 
     function stopCasting() {
+        disposeRunner();
         const body = document.getElementById('cast-body');
         if (body) body.innerHTML = '';                   // also stops any playing video
         const tab = document.querySelector('.cast-tab');
@@ -3080,6 +3125,8 @@
             sec.appendChild(row);
             box.appendChild(sec);
         };
+        section('VQ himself', 'VQ’s animated robot body. He looks at you, follows the conversation, thinks, speaks and shows moods.', [
+            ['In the header', 'vq in the header'], ['In the side panel', 'show vq'], ['Walking around', 'let vq walk around'], ['Hide VQ', 'hide vq']]);
         section('Themes', 'Ten built-in looks, each with matching icons and accent. Or ask VQ to design a new one from any description.',
             CHOICES.theme.map(t => [t, `${t.toLowerCase()} theme`]));
         section('Skies', 'One moving sky at a time, behind everything.',
@@ -3103,7 +3150,8 @@
         section('Text and layout', null, [['Bigger', 'bigger'], ['Smaller', 'smaller'], ['More line spacing', 'more line spacing'], ['Wider chat', 'wider chat'], ['Narrower chat', 'narrower chat'],
             ['Bubbles on', 'bubbles on'], ['Bubbles off', 'bubbles off'], ['Focus', 'focus'], ['Unfocus', 'unfocus'], ['High contrast', 'high contrast'], ['Less motion', 'reduce motion']]);
         section('Icons and static', null, [['Glow on', 'glow on'], ['Glow off', 'glow off'], ['Text over static: clear', 'text static clear'], ['Reduced', 'text static reduced'], ['Full', 'text static full']]);
-        section('Side panel', null, [['Open', 'open the panel'], ['Close', 'close the panel'], ['Wide', 'wide panel'], ['Standard', 'standard panel'], ['Plain details', 'plain details'], ['Technical details', 'technical details'], ['Notes', 'show my notes']]);
+        section('Side panel', 'Videos, pictures and cards can also be shown here with their cast button (⧉).', [['Open', 'open the panel'], ['Close', 'close the panel'], ['Wide', 'wide panel'], ['Standard', 'standard panel'], ['Plain details', 'plain details'], ['Technical details', 'technical details'], ['Notes', 'show my notes']]);
+        section('Code', 'Code in VQ’s answers has Copy and ▶ Run. Run shows web pages, Python results and charts, and data charts in the side panel, safely on your device.', [['“make me a small web page with a button”', null], ['“plot a sine wave in Python”', null]]);
         section('Undo and reset', null, [['Undo', 'undo'], ['Reset everything', 'reset']]);
         const no = el('button', 'ft-offer-no', 'Close'); no.type = 'button';
         no.addEventListener('click', () => { box.remove(); if (!conversationHistory.length) showWelcomeScreen(); });
