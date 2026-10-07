@@ -4415,7 +4415,7 @@
                         nebula: 'a nebula', aurora: 'aurora curtains', waves: 'flowing waves', seashore: 'surf', matrix: 'falling code', orbits: 'orbital rings', vortex: 'a light vortex',
                         tunnel: 'a geometric tunnel', grid: 'a perspective grid', circuit: 'circuit traces', comets: 'comets', ripples: 'water ripples', grain: 'film grain' };
                     const fxText = (sp.effects || []).map(f => fxNames[f]).concat((sp.layers || []).map(l => tkNames[l.type])).filter(Boolean);
-                    lines.push(`New theme **${sp.name || 'saved'}** created and saved${sp.scene && sp.scene !== 'none' ? `, with a matching **${sp.scene === 'seaday' ? 'seashore' : sp.scene === 'seanight' ? 'night seashore' : sp.scene}** sky` : ''}` +
+                    lines.push(`New theme **${sp.name || 'made for you'}** created${sp.scene && sp.scene !== 'none' ? `, with a matching **${sp.scene === 'seaday' ? 'seashore' : sp.scene === 'seanight' ? 'night seashore' : sp.scene}** sky` : ''}` +
                         (fxText.length ? `, and ${fxText.length > 1 ? fxText.slice(0, -1).join(', ') + ' and ' + fxText.slice(-1) : fxText[0]}` : '') + '.' +
                         (r.fixes && r.fixes.length ? ` For readability I ${r.fixes.join(', ')}.` : ''));
 
@@ -4458,6 +4458,17 @@
         // Simple display commands run on this device: instant, free, and they work even after the daily limit
         const tourAsk = /^\s*(customi[sz](e|ation)( tour)?|personali[sz]e( tour)?|style tour|how (do|can) i change the look\??)\s*$/i.test(rawMessage) ? 'custom'
             : /^\s*(feature tour|usage tour|how (do i|to) use (this|vq chat|the app)\??|show me (the )?features|tour( the)? (app|features)|what can (this app|vq chat) do\??)\s*$/i.test(rawMessage) ? 'use' : null;
+        // Built-in themes by name ("ocean theme", "forest"), free and instant: never redesigned
+        const builtIn = rawMessage.match(/^\s*(?:please\s+)?(?:use |switch to |set |change to |go back to |back to )?(?:the |my )?(vq|classic|navy|charcoal|midnight|ocean|forest|ember|slate|plum|default|original)(?: theme)?\s*(?:please)?[.!]?\s*$/i);
+        if (builtIn) {
+            const name = { default: 'vq', original: 'vq' }[builtIn[1].toLowerCase()] || builtIn[1].toLowerCase();
+            elements.messageInput.value = '';
+            uiUndo.push(snapshotUI());
+            uiPrefs.theme = name; uiPrefs.accent = THEME_ACCENT[name] || 'orange';
+            saveUIPrefs(); applyUIPrefs();
+            showLocalNote(`Theme set to ${name === 'vq' ? 'VQ' : cap(name)}`);
+            return;
+        }
         // "add …" / "remove …": one element at a time, free and instant when the element is known
         const addM = rawMessage.match(/^\s*(?:please\s+)?(?:add|put|include|bring in|give me)\s+(?:some\s+|a few\s+|a\s+|an\s+|more\s+)?(.{2,40}?)\s*(?:to (?:the |my )?(?:theme|screen|background|scene))?\s*[.!]?\s*$/i);
         const remM = rawMessage.match(/^\s*(?:please\s+)?(?:remove|delete|hide|take away|get rid of|no more)\s+(?:the\s+|all\s+(?:the\s+)?|my\s+)?(.{2,40}?)\s*[.!]?\s*$/i);
