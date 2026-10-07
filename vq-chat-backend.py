@@ -1746,7 +1746,7 @@ UI_SYSTEM_NOTE = (
     "screen, wooden TV set; and richer layers: galaxy, nebula, constellations, comets, waves, surf, ripples, falling code, circuits, "
     "retro grid, tunnel, vortex, orbits, film grain. Effects strength high, medium or low (free: 'effects low').\n"
     "VQ HIMSELF: VQ's animated robot body, free: in the header (the default on desktop), 'show vq' (in the side panel), 'let vq walk "
-    "around', 'hide vq'. He looks at you, follows the conversation, thinks, speaks and shows moods.\n"
+    "around', 'let vq fly', 'vq on the moon' (he fishes; also automatic on a night sky), 'hide vq'. He looks at you, follows the conversation, thinks, speaks and shows moods.\n"
     "TEXT AND LOOK: accent colours (orange, gold, teal, rose, violet, green, blue, grey); thirteen fonts (default, readable, serif, "
     "mono, script, handwriting, elegant, classic, inscription, futuristic, retro, playful, rounded); 'bigger'/'smaller' (free); line "
     "spacing; chat width; bubbles on/off; icon glow on/off; higher contrast; reduced motion; focus mode ('focus'/'unfocus', free).\n"
