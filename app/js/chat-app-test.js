@@ -13,6 +13,9 @@
         maxChats: 50,
         historySent: 20
     };
+    const ICON_VQ_SVG = ICONS.vq;
+    Object.defineProperty(ICONS, 'vq', { get: () => (window.VQPortraits && window.VQPortraits.get) ? window.VQPortraits.get('idle', { size: 40 }) : ICON_VQ_SVG });
+
 
     // store = { activeId, chats: { id: { id, title, messages: [{role, content, sent?}], updated } } }
     let store = { activeId: null, chats: {} };
@@ -86,6 +89,10 @@
         if (window.innerWidth > 768) elements.messageInput.focus();
         const tb = document.getElementById('tour-btn');
         if (tb) tb.addEventListener('click', () => { offerTours('use'); if (window.innerWidth <= 768) document.getElementById('sidebar-scrim')?.click(); });
+        headerPortrait('idle'); updateFavicon();
+        // the welcome screen's big face is VQ's portrait too (gently alive)
+        const wa = document.querySelector('.welcome-avatar, .welcome-icon');
+        if (wa && hasPortraits()) { wa.innerHTML = portraitSVG('happy', 96); wa.classList.add('vq-alive', 'has-portrait'); }
         const personaDefault = (!uiPrefs.persona && window.innerWidth > 900 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && uiPrefs.motion !== 'reduced') ? 'badge' : uiPrefs.persona;
         if (['panel', 'badge', 'roam'].includes(personaDefault)) setTimeout(() => startPersona(personaDefault), 900);
         if (continued) setTimeout(() => showLocalNote('Continued from the website chat'), 700);
@@ -724,7 +731,7 @@
         o.setAttribute('aria-hidden', 'true');
         o.innerHTML = `
             <div class="vq-intro-core">
-                <div class="vq-intro-ring"><span class="vq-intro-face">${ICONS.vq}</span></div>
+                <div class="vq-intro-ring"><span class="vq-intro-face">${hasPortraits() ? portraitSVG('happy', 128) : ICONS.vq}</span></div>
                 <div class="vq-intro-word"><span class="vq-intro-name">Veritas Quaesitor</span><span class="vq-intro-badge">CAI</span></div>
                 <div class="vq-intro-line"></div>
             </div>
@@ -732,6 +739,17 @@
             <button type="button" class="vq-intro-skip">Skip</button>`;
         document.body.appendChild(o);
         document.body.classList.add('vq-intro-playing');
+        // On desktop, VQ himself materialises and waves inside the ring
+        let introVQ = null;
+        if (window.VQEmbodiment && window.innerWidth > 900) {
+            try {
+                const stage = el('div', 'vq-intro-vq');
+                o.querySelector('.vq-intro-ring').appendChild(stage);
+                introVQ = window.VQEmbodiment.mount({ root: stage, src: './vq-full-body.html', mode: 'badge', accent: personaAccent() });
+                Promise.resolve(introVQ.play('arrive')).then(r => { if (r && r.ok !== false) o.classList.add('vq-intro-live'); });
+                setTimeout(() => o.classList.add('vq-intro-live'), 600);   // the arrival starts invisible, so it can take over straight away
+            } catch (e) { introVQ = null; }
+        }
         const line = o.querySelector('.vq-intro-line');
         const tagline = 'Anchored in Christ. Same standard for every view.';
         let i = 0, typer = null, done = false;
@@ -743,7 +761,7 @@
             o.classList.add('vq-intro-out');
             document.body.classList.remove('vq-intro-playing');
             document.body.classList.add('vq-intro-reveal');
-            setTimeout(() => { o.remove(); document.body.classList.remove('vq-intro-reveal'); }, 1300);
+            setTimeout(() => { try { if (introVQ) introVQ.dispose(); } catch (e) {} o.remove(); document.body.classList.remove('vq-intro-reveal'); }, 1300);
             typeWelcomeTitle(false);
         };
         timers.push(setTimeout(() => {
@@ -2665,6 +2683,43 @@
 
 
 
+
+    // ---------- VQ's portraits: the static face everywhere the live robot isn't (avatars, header, favicon) ----------
+    const hasPortraits = () => !!(window.VQPortraits && window.VQPortraits.get);
+    function portraitSVG(name, size) {
+        try { return window.VQPortraits.get(name, { size }); } catch (e) { return ICON_VQ_SVG; }
+    }
+    // The newest VQ avatar shows what VQ is doing: thinking, speaking, then back to idle
+    function setPortrait(av, name) {
+        if (!av || !hasPortraits()) return;
+        if (av.dataset.portrait === name) return;
+        av.dataset.portrait = name;
+        av.innerHTML = portraitSVG(name, 40);
+    }
+    function headerPortrait(name) {
+        const av = document.querySelector('#app-header .app-avatar-small');
+        if (!av || !hasPortraits() || av.classList.contains('has-persona')) return;
+        let box = av.querySelector('.vq-portrait-box');
+        if (!box) { av.querySelectorAll(':scope > svg').forEach(s => s.remove()); box = el('span', 'vq-portrait-box vq-alive'); av.prepend(box); }
+        if (box.dataset.portrait !== name) { box.dataset.portrait = name; box.innerHTML = portraitSVG(name, 40); }
+    }
+    function livePortraits(name) {
+        headerPortrait(name);
+        const avs = elements.messagesArea ? elements.messagesArea.querySelectorAll('.message:not(.user) .message-avatar') : [];
+        const last = avs[avs.length - 1];
+        if (last) setPortrait(last, name);
+    }
+    // The browser-tab icon: VQ's small face, eyes in the current theme's colour
+    function updateFavicon() {
+        if (!hasPortraits()) return;
+        let eye = getComputedStyle(document.body).getPropertyValue('--vq-eye').trim();
+        if (!/^#[0-9a-f]{6}$/i.test(eye)) eye = '#23dcdd';
+        const svg = portraitSVG('idle', 24).replace(/var\(--vq-eye[^)]*\)/g, eye);
+        let link = document.querySelector('link[rel="icon"]');
+        if (!link) { link = document.createElement('link'); link.rel = 'icon'; document.head.appendChild(link); }
+        link.href = 'data:image/svg+xml,' + encodeURIComponent(svg);
+    }
+
     // ---------- VQ's embodiment: the robot, in the panel, the header or walking along the bottom ----------
     let persona = null, personaMode = null, personaSaid = 0, personaUnbind = null;
     function personaAccent() {
@@ -2716,7 +2771,7 @@
         try { if (persona) persona.dispose(); } catch (e) {}
         persona = null; personaUnbind = null;
         if (personaMode === 'panel') { const tab = document.querySelector('.persona-tab'); if (tab) tab.hidden = true; setPanelView('details', false); }
-        if (personaMode === 'badge') { const av = document.querySelector('#app-header .app-avatar-small'); if (av) { av.classList.remove('has-persona'); av.querySelector('.persona-badge')?.remove(); } }
+        if (personaMode === 'badge') { const av = document.querySelector('#app-header .app-avatar-small'); if (av) { av.classList.remove('has-persona'); av.querySelector('.persona-badge')?.remove(); headerPortrait('idle'); } }
         if (personaMode === 'roam') document.getElementById('persona-roam')?.remove();
         personaMode = null;
     }
@@ -3111,6 +3166,7 @@
         renderFx(cs);
         applyToolkitLayers(cs);
         applyArt(cs);
+        setTimeout(updateFavicon, 50);
         if (persona) { try { persona.accent(personaAccent()); } catch (e) {} }
         const before = document.body.dataset.theme;
         document.body.dataset.theme = cs ? 'custom' : vals ? name : 'classic';
@@ -4865,6 +4921,7 @@
                 firstMs = Math.round(performance.now() - t0);
                 artSignal('speak');
                 bubble = createStreamingBubble();
+                livePortraits('speaking');
             }
             fillRich(bubble.content, full);
             personaStream(bubble.content.innerText || full);
@@ -4914,6 +4971,7 @@
         setStatus('typing', 'Thinking...');
         artSignal('think');
         personaThinking(message);
+        livePortraits('thinking');
         showPending('Reading your question');
         startLivePanel(message.replace(/^\[[A-Z ]+\]\s*/, ''));
 
@@ -5005,6 +5063,7 @@
             isTyping = false;
             artSignal('idle');
             personaDone();
+            setTimeout(() => livePortraits('idle'), 400);
             handleInputChange();
             if (window.innerWidth > 768) elements.messageInput.focus();
         }
