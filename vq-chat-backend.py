@@ -1452,7 +1452,12 @@ UI_TOOL = {
             "properties": {
                 "action": {"type": "string", "enum": ["text_size", "style", "panel", "focus_mode", "show_reasoning",
                                                        "new_chat", "reset_display", "undo", "panel_view", "add_note",
-                                                       "second_opinion", "swap", "create_theme"]},
+                                                       "second_opinion", "swap", "create_theme", "theme_edit"]},
+                "add": {"type": "string", "description": "For theme_edit: ONE element to add, in plain words, e.g. 'butterflies', 'red tulips', 'cherry blossom trees', 'a galaxy', 'snow'"},
+                "remove": {"type": "string", "description": "For theme_edit: ONE element to remove, e.g. 'comet', 'butterflies'"},
+                "count": {"type": "integer", "description": "For theme_edit add: how many (optional)"},
+                "shade": {"type": "string", "enum": ["darker", "lighter"], "description": "For theme_edit: make the background darker or lighter"},
+                "accent_hex": {"type": "string", "description": "For theme_edit: a new accent colour as #hex (optional)"},
                 "theme": {"type": "object", "description": ("For create_theme: a new theme you design from the user's description. "
                           "Dark backgrounds only (the app is built for dark screens). Give six hex colours and a short evocative name."),
                           "properties": {
@@ -1601,6 +1606,25 @@ def validate_ui_action(args: dict):
         asked = str(st.get("accent") or "").strip().lower()
         if "accent" in style and asked and asked != style["accent"] and asked != "gray":
             parts = [p + f" (the closest to {asked})" if p.startswith("accent") else p for p in parts]
+    if action == "theme_edit":
+        edit = {}
+        for k in ("add", "remove"):
+            v = re.sub(r"[^\w ,'\-]", "", str(args.get(k) or "")).strip()[:60]
+            if v:
+                edit[k] = v
+        try:
+            if args.get("count") is not None:
+                edit["count"] = max(1, min(60, int(args["count"])))
+        except (TypeError, ValueError):
+            pass
+        if args.get("shade") in ("darker", "lighter"):
+            edit["shade"] = args["shade"]
+        if isinstance(args.get("accent_hex"), str) and re.fullmatch(r"#?[0-9a-fA-F]{6}", args["accent_hex"].strip()):
+            edit["accent_hex"] = "#" + args["accent_hex"].strip().lstrip("#").lower()
+        if not edit:
+            return None, "theme_edit needs something to add, remove or change"
+        clean["edit"] = edit
+        parts = [f"{k} {v}" for k, v in edit.items()]
     if action == "create_theme":
         th = args.get("theme") if isinstance(args.get("theme"), dict) else {}
         hexok = lambda v: isinstance(v, str) and re.fullmatch(r"#?[0-9a-fA-F]{6}", v.strip()) is not None
@@ -1660,6 +1684,7 @@ def validate_ui_action(args: dict):
         "add_note": "Saved a note",
         "second_opinion": f"Asked {ENQUIRER_NAME} about the {clean.get('which', 'latest')} answer",
         "create_theme": "Look → " + ", ".join(parts) if action == "create_theme" else "",
+        "theme_edit": "Theme edit → " + ", ".join(parts) if action == "theme_edit" else "",
         "swap": ("Swapped back: VQ has the main chat" if clean.get('state') == 'off' else f"Swapped places: {ENQUIRER_NAME} has the main chat"),
     }
     return clean, labels[action]
@@ -1677,7 +1702,14 @@ UI_SYSTEM_NOTE = (
     "you may combine style options creatively within their allowed values. Never change the screen unless the user "
     "asked. You can't see the user's screen, so when they ask for a change, always make it with the tool, even if you "
     "think it's already set (their screen may differ from what the conversation suggests). "
-    "DESIGNING A THEME: when the user asks you to make, design or create a theme (e.g. 'a theme like a sunrise over the ocean', "
+    "SMALL CHANGES FIRST: when the user asks to add, remove or change ONE thing on screen ('add butterflies', 'remove the comet', "
+    "'make it darker', 'some red tulips'), call ui_action with action theme_edit and just that one change (add / remove / count / "
+    "shade / accent_hex). Never rebuild a whole theme for a small change. Things that can be added: flowers (daisy, tulip, rose, "
+    "poppy, lavender, sunflower, wildflower), butterflies (monarch, blue, swallowtail, moth), trees (pine, oak, birch, palm, willow, "
+    "cherry blossom), ferns, bushes, reeds, birds, falling petals, grass, mountains, stars, comet, planet, aurora, fireflies, snow, "
+    "leaves, TV static, old-TV screen, TV set, mist, clouds, galaxy, nebula, constellations, waves, surf, falling code, orbits, vortex, "
+    "tunnel, retro grid, circuit traces, comets, ripples, film grain. If something isn't in this list, say plainly it isn't available yet.\n"
+    "DESIGNING A THEME: when the user asks you to make, design or create a WHOLE NEW theme (e.g. 'a theme like a sunrise over the ocean', "
     "'something calm and green'), call ui_action with action create_theme and a theme you design: dark background, a slightly "
     "lighter surface, light text, an accent and its lighter companion, a vivid icon colour, a short evocative name, a matching "
     "scene if one fits, and up to three animated effects that bring it to life (trees, grass, mountains, stars, comet, planet, aurora, "
@@ -3416,7 +3448,27 @@ def chat():
                                                                              temperature=0.7, max_tokens=1200, stream=True)
                         calls = {}
                         degenerate = False
-                        for chunk in stream:
+                        def _chunks(first_stream):
+                            # Yields stream chunks; if a tool call fails before any text was sent, retry once,
+                            # then answer without tools, so a fumbled tool call never becomes an error message.
+                            nonlocal tools_disabled
+                            attempt, st = 0, first_stream
+                            while True:
+                                try:
+                                    for ch in st:
+                                        yield ch
+                                    return
+                                except Exception as _se:
+                                    if parts or "tools" not in kwargs or attempt >= 2:
+                                        raise
+                                    attempt += 1
+                                    calls.clear()
+                                    print(f"[STREAM] tool call failed mid-stream ({str(_se)[:120]}); retry {attempt}", flush=True)
+                                    if attempt == 2:
+                                        tools_disabled = True
+                                        kwargs.pop("tools", None); kwargs.pop("tool_choice", None)
+                                    st = groq_client.chat.completions.create(**kwargs)
+                        for chunk in _chunks(stream):
                             if not chunk.choices:
                                 continue
                             d = chunk.choices[0].delta
