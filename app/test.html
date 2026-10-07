@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1180,6 +1180,16 @@
         .vq-art-host > canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
         body[data-fx="medium"] .vq-art-host { opacity: 0.62; }
         body[data-fx="low"] .vq-art-host { opacity: 0.3; }
+        /* ---- Customisation catalogue ---- */
+        .catalog { max-width: 46rem; }
+        .cat-sec { margin-top: 0.9rem; }
+        .cat-title { font-weight: 700; font-size: 0.92rem; color: var(--text-primary); }
+        .cat-note { font-size: 0.8rem; color: var(--text-tertiary); margin: 0.15rem 0 0.4rem; }
+        .cat-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.35rem; }
+        .cat-chip { border: 1px solid var(--border-subtle); background: rgba(255,255,255,0.04); color: var(--text-secondary); border-radius: 999px;
+            padding: 0.28rem 0.7rem; font: inherit; font-size: 0.8rem; cursor: pointer; }
+        .cat-chip:hover:not(:disabled) { color: #fff; border-color: rgba(var(--ui-accent-rgb),0.6); background: rgba(var(--ui-accent-rgb),0.12); }
+        .cat-chip:disabled { cursor: default; font-style: italic; opacity: 0.75; }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -1438,6 +1448,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
     <script src="js/vq-visual-toolkit.js?v=2026-10-07-edit"></script>
     <script src="js/vq-art-engine.js?v=2026-10-07-v2"></script>
-    <script src="js/chat-app-test.js?v=2026-10-07-v2"></script>
+    <script src="js/chat-app-test.js?v=2026-10-07-catalog"></script>
 </body>
 </html>
