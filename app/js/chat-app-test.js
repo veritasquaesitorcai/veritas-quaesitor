@@ -3104,11 +3104,14 @@
     }
     const SKY_LABEL = { mist: 'Mist', clouds: 'Clouds', sunset: 'Sunset', night: 'Night sky', seaday: 'Seashore', seanight: 'Seashore at night', storm: 'Storm', none: 'Still (no sky)' };
 
-    function showCatalog() {
-        elements.messagesArea.querySelectorAll('.ft-offer').forEach(o => o.remove());
-        hideWelcomeScreen();
-        elements.chatContainer.classList.add('has-messages');
-        const box = el('div', 'ft-offer catalog');
+    // host: the side panel's Customise tab; without one, the list opens in the chat
+    function showCatalog(host) {
+        if (!host) {
+            elements.messagesArea.querySelectorAll('.ft-offer').forEach(o => o.remove());
+            hideWelcomeScreen();
+            elements.chatContainer.classList.add('has-messages');
+        }
+        const box = el('div', 'ft-offer catalog' + (host ? ' in-panel' : ''));
         box.appendChild(el('div', 'ft-offer-title', 'Everything you can customise'));
         box.appendChild(el('div', 'ft-offer-text', 'Tap any item to try it, or type it yourself. Press and hold anywhere on this list to see through it. Themes, skies, elements, effects, effects strength, text static, bigger/smaller, focus, undo and reset are instant and free; the rest are passed to VQ and use a message.'));
         const run = (cmd) => { elements.messageInput.value = cmd; sendMessage(); };
@@ -3153,6 +3156,12 @@
         section('Side panel', 'Videos, pictures and cards can also be shown here with their cast button (⧉).', [['Open', 'open the panel'], ['Close', 'close the panel'], ['Wide', 'wide panel'], ['Standard', 'standard panel'], ['Plain details', 'plain details'], ['Technical details', 'technical details'], ['Notes', 'show my notes']]);
         section('Code', 'Code in VQ’s answers has Copy and ▶ Run. Run shows web pages, Python results and charts, and data charts in the side panel, safely on your device.', [['“make me a small web page with a button”', null], ['“plot a sine wave in Python”', null]]);
         section('Undo and reset', null, [['Undo', 'undo'], ['Reset everything', 'reset']]);
+        if (host) {
+            host.textContent = '';
+            host.appendChild(box);
+            enablePeek(box);
+            return;
+        }
         const no = el('button', 'ft-offer-no', 'Close'); no.type = 'button';
         no.addEventListener('click', () => { box.remove(); if (!conversationHistory.length) showWelcomeScreen(); });
         box.appendChild(no);
@@ -3458,7 +3467,7 @@
 
     // ---------- Panel views: Details / Notes, options bar, width ----------
 
-    const PANEL_VIEWS = ['details', 'notes', 'enquirer', 'cast', 'persona'];
+    const PANEL_VIEWS = ['details', 'notes', 'customise', 'enquirer', 'cast', 'persona'];
 
     function setupPanelViews() {
         document.querySelectorAll('.panel-tab').forEach(tab => {
@@ -3485,6 +3494,8 @@
         if (cb) cb.hidden = view !== 'cast';
         const pb = document.getElementById('persona-body');
         if (pb) pb.hidden = view !== 'persona';
+        const cu = document.getElementById('customise-body');
+        if (cu) { cu.hidden = view !== 'customise'; if (view === 'customise' && !cu.firstChild) showCatalog(cu); }
         document.body.classList.toggle('casting-view', view === 'cast' && document.body.classList.contains('casting'));
         if (view === 'notes') renderNotes();
         if (view === 'enquirer') renderEnquirer();
