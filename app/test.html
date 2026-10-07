@@ -1071,10 +1071,10 @@
         body.ui-reduce-motion .vq-fx *, body.ui-reduce-motion .vq-fx { animation: none !important; }
         @media (prefers-reduced-motion: reduce) { .vq-fx, .vq-fx * { animation: none !important; } .fx-comet, .fx-leaves, .fx-snow { display: none; } }
         /* ---- Retro TV: static noise and the full CRT screen ---- */
-        .fx-static, .fx-crt-noise { position: absolute; inset: -10%; background-size: 192px 192px; image-rendering: pixelated; mix-blend-mode: screen;
+        .fx-static, .fx-crt-noise { position: absolute; inset: -10%; background-size: 288px 288px; image-rendering: pixelated; mix-blend-mode: screen;
             animation: vqStatic 0.5s steps(1) infinite; }
-        .fx-static { opacity: 0.075; }
-        .fx-crt-noise { opacity: 0.045; }
+        .fx-static { opacity: 0.16; }
+        .fx-crt-noise { opacity: 0.09; }
         @keyframes vqStatic { 0% { background-position: 0 0; } 10% { background-position: -37px 51px; } 20% { background-position: 83px -19px; }
             30% { background-position: -121px 77px; } 40% { background-position: 46px 133px; } 50% { background-position: -88px -64px; }
             60% { background-position: 150px 22px; } 70% { background-position: -15px -140px; } 80% { background-position: 101px 96px; } 90% { background-position: -160px 9px; } }
@@ -1147,6 +1147,13 @@
             .tv-controls { display: none; }
         }
         @media (prefers-reduced-motion: reduce) { body.tv-off #app-container { animation: none; } }
+        /* ---- Effects strength: low / medium / high (the mist, the skies and theme effects) ---- */
+        body[data-fx="medium"] .vq-scene, body[data-fx="medium"] .vq-fx { opacity: 0.62; }
+        body[data-fx="low"] .vq-scene, body[data-fx="low"] .vq-fx { opacity: 0.3; }
+        body[data-fx="medium"] .vq-mist { filter: brightness(0.65); }
+        body[data-fx="low"] .vq-mist { filter: brightness(0.32); }
+        body[data-fx="low"].fx-crt .message-content, body[data-fx="low"].fx-crt .welcome-title, body[data-fx="low"].fx-crt .app-title { text-shadow: none; }
+        body[data-fx="low"] .fx-crt-roll, body[data-fx="low"] .fx-crt-noise { animation-play-state: paused; }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -1403,6 +1410,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/chat-app-test.js?v=2026-10-07-tvset"></script>
+    <script src="js/chat-app-test.js?v=2026-10-07-fxlevel"></script>
 </body>
 </html>
