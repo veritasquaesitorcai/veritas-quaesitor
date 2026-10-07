@@ -2926,10 +2926,8 @@
             // The scene fills the conversation area (above the composer, between the sidebar and panel), so plants grow
             // up from just above where you type instead of hiding behind it
             const fit = () => {
-                const chat = document.getElementById('chat-container'), inp = document.getElementById('input-area');
-                if (!chat) return;
-                const r = chat.getBoundingClientRect(), bottom = inp ? inp.getBoundingClientRect().top : r.bottom;
-                Object.assign(host.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: Math.max(80, bottom - r.top) + 'px', right: 'auto', bottom: 'auto' });
+                const g = fitGround();
+                if (g) Object.assign(host.style, { left: g.left + 'px', top: g.top + 'px', width: g.width + 'px', height: g.height + 'px', right: 'auto', bottom: 'auto' });
             };
             fit();
             if (window.ResizeObserver) { const ro = new ResizeObserver(fit); ['chat-container', 'input-area', 'app-container'].forEach(id => { const n = document.getElementById(id); if (n) ro.observe(n); }); }
@@ -2940,12 +2938,25 @@
             const fresh = !artEngine;
             if (!artEngine) artEngine = window.VQArt.create({ root: host });
             const seen = {};
+            // Plants share the ground: trees stand behind, shrubs in the middle, flowers in front, and each type
+            // gets a modest number (fewer when several types share the space) so nothing smothers the rest
+            const PLANTS = ['tree', 'bush', 'fern', 'reeds', 'flower'];
+            const plantTypes = list.filter(e => PLANTS.includes(e.type)).length || 1;
+            const DEPTH = { tree: 'far', bush: 'mid', fern: 'mid', reeds: 'mid', flower: 'near' };
+            const BASE = { flower: 12, tree: 4, fern: 8, bush: 5, reeds: 14, butterfly: 6, bird: 10, 'falling-petals': 28 };
+            const share = (type) => PLANTS.includes(type) ? Math.max(type === 'tree' ? 2 : 4, Math.round(BASE[type] / Math.sqrt(plantTypes))) : BASE[type];
+            let seedN = 0;
             const elements = list.map(e => {
+                seedN++;
                 const variant = e.species || e.style || e.kind || 'any';
                 const base = `${e.type}-${variant}`.replace(/[^a-zA-Z0-9_-]/g, '-');
                 seen[base] = (seen[base] || 0) + 1;
                 const flying = ['butterfly', 'bird', 'falling-petals'].includes(e.type);
                 return Object.assign({
+                    count: share(e.type) || undefined,
+                    depth: DEPTH[e.type] || 'auto',
+                    size: e.type === 'tree' ? 150 : undefined,
+                    seed: 1000 + seedN * 7919,
                     id: 'a' + base + (seen[base] > 1 ? '-' + seen[base] : ''),
                     colors: artPalette(e.kind === 'cherry-blossom' ? 'tree:cherry-blossom' : e.type, spec),
                     spawn: 'grow',
@@ -2953,7 +2964,7 @@
                     react: flying ? { onThink: { kind: 'glow', amount: 0.35, speed: 0.7 }, onSpeak: { kind: 'pulse', amount: 0.15, speed: 1 } }
                                   : { onThink: { kind: 'glow', amount: 0.25, speed: 0.6 }, onSpeak: { kind: 'sway', amount: 0.25, speed: 1.2 } }
                 }, e);
-            });
+            }).map(o => { Object.keys(o).forEach(k => o[k] === undefined && delete o[k]); return o; });
             // Light comes from the sky's own light source; detail follows the effects-strength setting
             const LIGHT = { sunset: { angle: 160, strength: 0.75 }, night: { angle: -135, strength: 0.4 }, seanight: { angle: -135, strength: 0.4 },
                             seaday: { angle: -120, strength: 0.7 }, storm: { angle: -90, strength: 0.35 }, clouds: { angle: -90, strength: 0.5 } };
@@ -2973,6 +2984,32 @@
             }
         } catch (e) { console.warn('Art engine unavailable:', e.message); host.hidden = true; }
     }
+
+    // One shared "ground" for everything that grows from the bottom (flowers, trees, grass, mountains):
+    // the conversation area, just above where you type
+    function fitGround() {
+        const chat = document.getElementById('chat-container'), inp = document.getElementById('input-area');
+        if (!chat) return null;
+        const r = chat.getBoundingClientRect(), bottom = inp ? inp.getBoundingClientRect().top : r.bottom;
+        const g = { left: r.left, top: r.top, width: r.width, height: Math.max(80, bottom - r.top) };
+        const st = document.body.style;
+        st.setProperty('--ground-left', g.left + 'px'); st.setProperty('--ground-width', g.width + 'px');
+        st.setProperty('--ground-bottom', Math.max(0, innerHeight - bottom) + 'px');
+        return g;
+    }
+    window.addEventListener('resize', fitGround);
+    setTimeout(() => {
+        fitGround();
+        if (window.ResizeObserver) { const ro = new ResizeObserver(fitGround); ['chat-container', 'input-area'].forEach(id => { const n = document.getElementById(id); if (n) ro.observe(n); }); }
+    }, 300);
+
+    function runFreeCommand(cmd) { if (!elements.messageInput) return; elements.messageInput.value = cmd; sendMessage(); }
+    function updateLookTools() { const u = document.getElementById('look-undo'); if (u) u.hidden = !uiUndo.length; }
+    setTimeout(() => {
+        document.getElementById('look-undo')?.addEventListener('click', () => runFreeCommand('undo'));
+        document.getElementById('look-reset')?.addEventListener('click', () => runFreeCommand('reset'));
+        setInterval(updateLookTools, 700);
+    }, 400);
 
     function artSignal(cue) { try { if (artEngine) artEngine.signal(cue); } catch (e) {} }
 
@@ -3204,6 +3241,9 @@
         section('Undo and reset', null, [['Undo', 'undo'], ['Reset everything', 'reset']]);
         if (host) {
             host.textContent = '';
+            const bar = el('div', 'cat-sticky');
+            [['↶ Undo', 'undo'], ['⟲ Reset look', 'reset']].forEach(([l, c]) => { const b = el('button', 'look-btn', l); b.type = 'button'; b.addEventListener('click', () => runFreeCommand(c)); bar.appendChild(b); });
+            host.appendChild(bar);
             host.appendChild(box);
             enablePeek(box);
             return;
