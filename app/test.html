@@ -1228,6 +1228,10 @@
         #cast-body[hidden], #customise-body[hidden], #persona-body[hidden] { display: none !important; }   /* their display rules must not override hidden */
         .catalog.in-panel { max-width: none; margin: 0; padding: 0.4rem 0.2rem; border: 0; background: transparent; box-shadow: none; }
         .catalog.in-panel .ft-offer-title { font-size: 0.95rem; }
+        /* ---- VQ on the moon / flying ---- */
+        #persona-sky { z-index: 405 !important; }
+        #persona-sky iframe { color-scheme: dark; background: transparent !important; }
+        body.persona-moon .vq-scene .moon-wrap { display: none !important; }   /* VQ's own moon replaces the sky's */
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -1497,6 +1501,6 @@
     <script src="js/vq-portraits.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-persona-bridge.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-run.js?v=2026-10-08-run"></script>
-    <script src="js/chat-app-test.js?v=2026-10-08-custab"></script>
+    <script src="js/chat-app-test.js?v=2026-10-08-moonfly"></script>
 </body>
 </html>
