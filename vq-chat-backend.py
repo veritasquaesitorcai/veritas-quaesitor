@@ -1714,6 +1714,7 @@ def validate_ui_action(args: dict):
 
 # ---------- VQ's own drawings: a separate call writes the SVG, so the chat model only decides what to draw ----------
 DRAW_MODEL = os.environ.get("DRAW_MODEL", "openai/gpt-oss-120b")
+DRAW_EFFORT = os.environ.get("DRAW_EFFORT", "medium")     # how hard the drawing model thinks: low, medium or high
 DRAW_PROMPT = (
     "You are VQ's illustrator. Reply with ONE SVG and nothing else (no explanation, no code fence).\n"
     "Rules:\n"
@@ -1724,6 +1725,9 @@ DRAW_PROMPT = (
     "- Only <g>, <path>, <circle>, <ellipse>, <rect>, <polygon>, <polyline>, <line>. Solid fills as fill=\"#rrggbb\"; optional stroke and stroke-width.\n"
     "- No text, images, gradients, filters, masks, clip paths, patterns, styles, scripts, links or animation tags.\n"
     "- Natural real-world colours unless the description says otherwise.\n"
+    "- It is shown on a DARK background: give dark subjects (black bikes, tyres, dark birds) a lighter edge or highlight so they stand out.\n"
+    "- Lines that matter (frames, legs, ropes, rims, antennae) use stroke-width 2.5 or more; anything thinner reads as a hairline.\n"
+    "- Proportions first: get the overall silhouette right with the big shapes before adding small details; make it recognisable at a glance.\n"
     "- Moving parts: wrap them in <g data-anim=\"KIND\" data-pivot=\"x,y\"> where KIND is spin (propellers, wheels, rotors), "
     "flap (wings), sway (leaves, flags, tails, flames), flutter, bob, pulse, glow or twinkle (lights, stars), blink (eyes); "
     "data-pivot is the joint or axle point in the 0-100 box. At most 3 animated groups; leave everything else unwrapped.\n"
@@ -1746,12 +1750,13 @@ def _clean_svg(text: str):
 def draw_svg(spec: dict):
     """Returns (svg, None) or (None, reason)."""
     try:
+        _extra = {"reasoning_effort": DRAW_EFFORT} if DRAW_MODEL.startswith("openai/gpt-oss") else {}
         r = groq_client.chat.completions.create(
-            model=DRAW_MODEL,
+            model=DRAW_MODEL, **_extra,
             messages=[{"role": "system", "content": DRAW_PROMPT},
                       {"role": "user", "content": f"Draw: {spec.get('what')}. It will {spec.get('motion', 'stay still')} "
                                                   f"in the {spec.get('place', 'scene')} of an animated scene, shown about 100 pixels tall."}],
-            temperature=0.6, max_tokens=5000, reasoning_effort="low")
+            temperature=0.6, max_tokens=9000)
         text = (r.choices[0].message.content or "").strip()
     except Exception as e:
         print(f"[DRAW] failed: {e}", flush=True)
@@ -1761,7 +1766,7 @@ def draw_svg(spec: dict):
     svg = _clean_svg(text)
     if not svg:
         return None, "the drawing came back unusable"
-    print(f"[DRAW] {spec.get('name')}: {len(svg)} chars", flush=True)
+    print(f"[DRAW] {spec.get('name')} ({DRAW_MODEL}, effort {DRAW_EFFORT}): {len(svg)} chars\n{svg}", flush=True)
     return svg, None
 
 UI_SYSTEM_NOTE = (
