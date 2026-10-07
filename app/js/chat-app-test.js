@@ -2675,7 +2675,7 @@
     }
     function applyArt(spec) {
         const list = (spec && Array.isArray(spec.art) ? spec.art : []).filter(e => e && ART_TYPES.includes(e.type)).slice(0, 8);
-        const key = JSON.stringify(list) + '|' + (spec ? spec.accent + spec.icon : '');
+        const key = JSON.stringify(list) + '|' + (spec ? spec.accent + spec.icon : '') + '|' + (uiPrefs.scene || '') + '|' + (uiPrefs.fx || '');
         if (key === artKey) return;
         artKey = key;
         let host = document.querySelector('.vq-art-host');
@@ -2717,7 +2717,13 @@
                                   : { onThink: { kind: 'glow', amount: 0.25, speed: 0.6 }, onSpeak: { kind: 'sway', amount: 0.25, speed: 1.2 } }
                 }, e);
             });
-            let r = fresh ? artEngine.render({ elements }) : artEngine.update({ elements });
+            // Light comes from the sky's own light source; detail follows the effects-strength setting
+            const LIGHT = { sunset: { angle: 160, strength: 0.75 }, night: { angle: -135, strength: 0.4 }, seanight: { angle: -135, strength: 0.4 },
+                            seaday: { angle: -120, strength: 0.7 }, storm: { angle: -90, strength: 0.35 }, clouds: { angle: -90, strength: 0.5 } };
+            const root = { elements, light: LIGHT[uiPrefs.scene] || { angle: -45, strength: 0.65 } };
+            if (uiPrefs.fx === 'low') root.quality = 'low'; else if (uiPrefs.fx === 'medium') root.quality = 'medium';   // high: the engine picks for the device
+            let r = fresh ? artEngine.render(root) : artEngine.update(root);
+            if (!r.ok) r = fresh ? artEngine.render({ elements }) : artEngine.update({ elements });   // an older engine without light/quality
             if (!r.ok) {   // an older engine, or a setting it doesn't know: try without the extras
                 const plain = elements.map(({ react, spawn, id, ...rest }) => rest);
                 r = artEngine.render({ elements: plain });
@@ -2742,8 +2748,8 @@
         const colors = Object.keys(COLOR_WORDS).filter(c => t.includes(' ' + c + ' ')).map(c => COLOR_WORDS[c]);
         const has = (w) => new RegExp(`\\b(${w})\\b`).test(t);
         const art = (type, extra) => ({ kind: 'art', item: Object.assign({ type }, extra || {}, num ? { count: +num } : {}, colors.length ? { colors: colors.concat(type === 'flower' ? ['#5f9f6e'] : []) } : {}) });
-        const species = ['daisy', 'tulip', 'rose', 'poppy', 'lavender', 'sunflower', 'wildflower'];
-        const sp = species.find(x => has(x + '|' + x + 's|' + (x === 'daisy' ? 'daisies' : x === 'poppy' ? 'poppies' : x + 's')));
+        const species = ['daisy', 'tulip', 'rose', 'poppy', 'lavender', 'sunflower', 'wildflower', 'lily'];
+        const sp = species.find(x => has(x + '|' + x + 's|' + x.replace(/y$/, 'ies')));
         if (sp || has('flowers?|blooms?|blossoms') && !has('cherry')) return art('flower', sp ? { species: sp } : {});
         const bstyle = ['monarch', 'blue', 'swallowtail', 'moth'].find(x => has(x + 's?'));
         if (has('butterfl(y|ies)|moths?')) return art('butterfly', bstyle ? { style: bstyle } : {});
@@ -2894,7 +2900,7 @@
         elements.chatContainer.classList.add('has-messages');
         const box = el('div', 'ft-offer catalog');
         box.appendChild(el('div', 'ft-offer-title', 'Everything you can customise'));
-        box.appendChild(el('div', 'ft-offer-text', 'Tap any item to try it, or type it yourself. Themes, skies, elements, effects, effects strength, text static, bigger/smaller, focus, undo and reset are instant and free; the rest are passed to VQ and use a message.'));
+        box.appendChild(el('div', 'ft-offer-text', 'Tap any item to try it, or type it yourself. Press and hold anywhere on this list to see through it. Themes, skies, elements, effects, effects strength, text static, bigger/smaller, focus, undo and reset are instant and free; the rest are passed to VQ and use a message.'));
         const run = (cmd) => { elements.messageInput.value = cmd; sendMessage(); };
         const section = (title, note, items) => {
             const sec = el('div', 'cat-sec');
@@ -2914,7 +2920,7 @@
         section('Skies', 'One moving sky at a time, behind everything.',
             ['mist', 'clouds', 'sunset', 'night', 'seaday', 'seanight', 'storm', 'none'].map(k => [SKY_LABEL[k], { mist: 'mist', clouds: 'clouds', sunset: 'sunset', night: 'night sky', seaday: 'seashore', seanight: 'seashore at night', storm: 'storm', none: 'no sky' }[k]]));
         section('Scene elements', 'Animated and added one at a time. Name a colour or number too: “add 6 red tulips”.', [
-            ['Daisies', 'add daisies'], ['Tulips', 'add tulips'], ['Roses', 'add roses'], ['Poppies', 'add poppies'], ['Lavender', 'add lavender'], ['Sunflowers', 'add sunflowers'], ['Wildflowers', 'add wildflowers'],
+            ['Daisies', 'add daisies'], ['Tulips', 'add tulips'], ['Roses', 'add roses'], ['Poppies', 'add poppies'], ['Lavender', 'add lavender'], ['Sunflowers', 'add sunflowers'], ['Wildflowers', 'add wildflowers'], ['Lilies', 'add lilies'],
             ['Monarch butterflies', 'add monarch butterflies'], ['Blue butterflies', 'add blue butterflies'], ['Swallowtails', 'add swallowtail butterflies'], ['Moths', 'add moths'],
             ['Pine trees', 'add pine trees'], ['Oaks', 'add oak trees'], ['Birches', 'add birch trees'], ['Palms', 'add palm trees'], ['Willows', 'add willow trees'], ['Cherry blossom', 'add cherry blossom trees'],
             ['Ferns', 'add ferns'], ['Bushes', 'add bushes'], ['Reeds', 'add reeds'], ['Birds', 'add birds'], ['Falling petals', 'add falling petals']]);
@@ -2939,6 +2945,23 @@
         box.appendChild(no);
         elements.messagesArea.appendChild(box);
         box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        enablePeek(box);
+    }
+
+    // Press and hold anywhere on a card to see through it (the scene behind), without closing it
+    function enablePeek(box) {
+        let timer = null, peeked = false, sx = 0, sy = 0;
+        const end = () => { clearTimeout(timer); timer = null; box.classList.remove('peek'); };
+        box.addEventListener('pointerdown', (e) => {
+            if (e.button && e.button !== 0) return;
+            peeked = false; sx = e.clientX; sy = e.clientY;
+            timer = setTimeout(() => { peeked = true; box.classList.add('peek'); }, 280);
+        });
+        box.addEventListener('pointermove', (e) => { if (timer && !peeked && Math.hypot(e.clientX - sx, e.clientY - sy) > 10) { clearTimeout(timer); timer = null; } });
+        ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => box.addEventListener(t, end));
+        // a hold is a peek, not a tap: don't trigger the chip underneath on release
+        box.addEventListener('click', (e) => { if (peeked) { e.stopPropagation(); e.preventDefault(); peeked = false; } }, true);
+        box.addEventListener('contextmenu', (e) => { if (peeked) e.preventDefault(); });
     }
 
     function showMyThemes() {
@@ -3092,6 +3115,7 @@
         b.toggle('no-glow', uiPrefs.glow === false);
         b.toggle('no-mist', uiPrefs.mist === false || ['clouds', 'sunset', 'storm', 'night', 'seaday', 'seanight', 'none'].includes(uiPrefs.scene));
         document.body.dataset.fx = ['low', 'medium', 'high'].includes(uiPrefs.fx) ? uiPrefs.fx : 'high';
+        if (typeof applyArt === 'function' && customSpec(uiPrefs.theme)) applyArt(customSpec(uiPrefs.theme));
         if (document.getElementById('app-container') && noiseStrength) applyNoise();
         applyScene();
         applyTheme(THEMES.hasOwnProperty(uiPrefs.theme) || customSpec(uiPrefs.theme) ? uiPrefs.theme : 'vq');
