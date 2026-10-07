@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1177,8 +1177,8 @@
         /* ---- VQ Art scene elements (flowers, butterflies, trees…) ---- */
         .vq-art-host { position: fixed; inset: 0; z-index: 395; pointer-events: none; }
         /* the reading and typing areas stay in front of the scene */
-        body.has-art #sidebar, body.has-art #app-header, body.has-art #input-area, body.has-art .message-content, body.has-art .welcome-screen { position: relative; z-index: 410; }
-        body.has-art #insight-panel { z-index: 410; }
+        body.has-art #app-header, body.has-art #input-area, body.has-art .message-content, body.has-art .welcome-screen { position: relative; z-index: 410; }
+        body.has-art #sidebar, body.has-art #insight-panel { z-index: 410; }   /* keep their own positioning (the sidebar slides out on phones) */
         .vq-art-host[hidden] { display: none; }
         .vq-art-host > canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
         body[data-fx="medium"] .vq-art-host { opacity: 0.62; }
@@ -1243,6 +1243,22 @@
             padding: 0.12rem 0.6rem; font: inherit; font-size: 0.74rem; cursor: pointer; }
         .look-btn:hover { color: #fff; border-color: rgba(var(--ui-accent-rgb),0.6); }
         .look-btn[hidden] { display: none; }
+        .look-btn[aria-pressed="true"] { color: #fff; border-color: rgba(var(--ui-accent-rgb),0.8); background: rgba(var(--ui-accent-rgb),0.18); }
+        /* ---- Arrange mode: the scene comes to the front, the chat fades back ---- */
+        body.arranging .vq-art-host { z-index: 420 !important; pointer-events: auto !important; opacity: 1 !important; cursor: grab; touch-action: none;
+            outline: 2px dashed rgba(var(--ui-accent-rgb),0.45); outline-offset: -6px; border-radius: 14px; }
+        body.arranging .vq-art-host.dragging { cursor: grabbing; }
+        body.arranging #messages-area, body.arranging .welcome-screen { opacity: 0.18; transition: opacity .3s; }
+        .arrange-bar { display: none; }
+        body.arranging .arrange-bar { display: flex; align-items: center; gap: 0.5rem; position: fixed; left: var(--arrange-x, 50%); transform: translateX(-50%); top: var(--arrange-top, 4.6rem); z-index: 440;
+            padding: 0.45rem 0.55rem 0.45rem 0.9rem; border-radius: 999px; background: rgba(15,15,18,0.9); border: 1px solid rgba(var(--ui-accent-rgb),0.5);
+            color: #f4f1ea; font-size: 0.82rem; box-shadow: 0 8px 30px rgba(0,0,0,0.45); backdrop-filter: blur(10px); width: max-content; max-width: calc(100vw - 24px); }
+        .arrange-bar .arrange-done { background: var(--accent-gradient); color: #fff; border: 0; }
+        .arrange-bin { display: none; }
+        body.arranging .arrange-bin { display: grid; place-items: center; position: absolute; right: 18px; bottom: 18px; width: 58px; height: 58px; border-radius: 16px;
+            color: #f4f1ea; background: rgba(20,20,24,0.78); border: 1px dashed rgba(255,255,255,0.35); transition: transform .15s, background .15s, color .15s; z-index: 2; }
+        body.arranging .arrange-bin.hot { transform: scale(1.18); background: rgba(200,40,50,0.85); color: #fff; border-color: transparent; }
+        @media (max-width: 640px) { body.arranging .arrange-bar { left: 50% !important; padding: 0.35rem 0.4rem 0.35rem 0.7rem; } body.arranging .arrange-bar span { font-size: 0.72rem; line-height: 1.25; } }
         #customise-body .cat-sticky { position: sticky; top: -0.6rem; z-index: 2; display: flex; gap: 0.4rem; padding: 0.5rem 0; margin-bottom: 0.2rem;
             background: var(--bg-panel, rgba(20,20,20,0.95)); backdrop-filter: blur(8px); }
         /* ---- Nature effects keep natural colours, whatever the theme ---- */
@@ -1406,6 +1422,7 @@
                         <span class="char-count" id="char-count">0 / 2000</span>
                         <span class="look-tools" id="look-tools">
                             <button type="button" class="look-btn" id="look-undo" hidden title="Undo the last change to the look (free)">↶ Undo</button>
+                            <button type="button" class="look-btn" id="look-arrange" hidden title="Drag scene elements around, or drop them on the bin to remove them (free)">✥ Arrange</button>
                             <button type="button" class="look-btn" id="look-reset" title="Put the look back to the standard setup (free)">⟲ Reset look</button>
                         </span>
                         <span class="footer-links">
@@ -1523,10 +1540,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
     <script src="js/vq-visual-toolkit.js?v=2026-10-07-edit"></script>
-    <script src="js/vq-art-engine.js?v=2026-10-07-v3"></script>
+    <script src="js/vq-art-engine.js?v=2026-10-08-v4"></script>
     <script src="js/vq-portraits.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-persona-bridge.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-run.js?v=2026-10-08-run"></script>
-    <script src="js/chat-app-test.js?v=2026-10-08-natural"></script>
+    <script src="js/chat-app-test.js?v=2026-10-08-draw"></script>
 </body>
 </html>
