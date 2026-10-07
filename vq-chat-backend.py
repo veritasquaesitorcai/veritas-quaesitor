@@ -1762,7 +1762,7 @@ DRAW_PROMPT = (
 def _clean_svg(text: str):
     """Pull out the SVG and strip anything that isn't plain drawing. The app cleans it again before use.
     A drawing cut off part-way (the model ran out of room) is closed off at its last complete shape, so it isn't lost."""
-    text = text or ""
+    text = re.sub(r"<think>[\s\S]*?(</think>|$)", "", text or "", flags=re.I)   # reasoning models (Qwen, MiniMax) think inline
     m = re.search(r"<svg[\s\S]*?</svg>", text, re.I)
     if m:
         svg = m.group(0)
