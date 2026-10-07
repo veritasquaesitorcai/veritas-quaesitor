@@ -1171,6 +1171,15 @@
         .vq-visual-host[hidden] { display: none; }
         body[data-fx="medium"] .vq-visual-host { opacity: 0.62; }
         body[data-fx="low"] .vq-visual-host { opacity: 0.3; }
+        /* ---- VQ Art scene elements (flowers, butterflies, trees…) ---- */
+        .vq-art-host { position: fixed; inset: 0; z-index: 395; pointer-events: none; }
+        /* the reading and typing areas stay in front of the scene */
+        body.has-art #sidebar, body.has-art #app-header, body.has-art #input-area, body.has-art .message-content, body.has-art .welcome-screen { position: relative; z-index: 410; }
+        body.has-art #insight-panel { z-index: 410; }
+        .vq-art-host[hidden] { display: none; }
+        .vq-art-host > canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+        body[data-fx="medium"] .vq-art-host { opacity: 0.62; }
+        body[data-fx="low"] .vq-art-host { opacity: 0.3; }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
@@ -1427,7 +1436,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
-    <script src="js/vq-visual-toolkit.js?v=2026-10-07-tk"></script>
-    <script src="js/chat-app-test.js?v=2026-10-07-tk"></script>
+    <script src="js/vq-visual-toolkit.js?v=2026-10-07-edit"></script>
+    <script src="js/vq-art-engine.js?v=2026-10-07-edit"></script>
+    <script src="js/chat-app-test.js?v=2026-10-07-edit"></script>
 </body>
 </html>
