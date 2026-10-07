@@ -86,12 +86,6 @@
         if (window.innerWidth > 768) elements.messageInput.focus();
         const tb = document.getElementById('tour-btn');
         if (tb) tb.addEventListener('click', () => { offerTours('use'); if (window.innerWidth <= 768) document.getElementById('sidebar-scrim')?.click(); });
-        const sharedTheme = new URLSearchParams(location.search).get('theme');
-        if (sharedTheme) {
-            const raw = parseThemeCode(sharedTheme);
-            try { history.replaceState(null, '', location.pathname); } catch (e) {}
-            if (raw) { const r = installTheme(raw); saveUIPrefs(); applyUIPrefs(); setTimeout(() => showLocalNote(`Theme “${r.spec.name}” added from a shared link`), 900); }
-        }
         if (continued) setTimeout(() => showLocalNote('Continued from the website chat'), 700);
         else setTimeout(showFeaturePrompt, sessionStorage.getItem('vq-app-intro-just-played') ? 5200 : 1800);
         // If this tab is already open, a conversation sent from the website bubble arrives live
@@ -2497,9 +2491,7 @@
         uiPrefs.customThemes = Object.assign({}, uiPrefs.customThemes || {});
         const existing = Object.keys(uiPrefs.customThemes).find(k => uiPrefs.customThemes[k].name.toLowerCase() === spec.name.toLowerCase());
         const id = existing || ('custom-' + spec.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString(36).slice(-3));
-        uiPrefs.customThemes[id] = spec;
-        const ids = Object.keys(uiPrefs.customThemes);
-        if (ids.length > 12) delete uiPrefs.customThemes[ids.find(k => k !== id)];   // keep the 12 most recent
+        uiPrefs.customThemes = { [id]: spec };   // just the current custom look; no saved library for now
         uiPrefs.theme = id;
         uiPrefs.accent = 'theme';
         if (spec.scene) { uiPrefs.scene = spec.scene; uiPrefs.mist = spec.scene !== 'none'; }
@@ -4426,7 +4418,7 @@
                     lines.push(`New theme **${sp.name || 'saved'}** created and saved${sp.scene && sp.scene !== 'none' ? `, with a matching **${sp.scene === 'seaday' ? 'seashore' : sp.scene === 'seanight' ? 'night seashore' : sp.scene}** sky` : ''}` +
                         (fxText.length ? `, and ${fxText.length > 1 ? fxText.slice(0, -1).join(', ') + ' and ' + fxText.slice(-1) : fxText[0]}` : '') + '.' +
                         (r.fixes && r.fixes.length ? ` For readability I ${r.fixes.join(', ')}.` : ''));
-                    lines.push('To share it, say **“my themes”** and use **Copy code** or **Copy link**. Name it any time to switch back to it.');
+
                     break;
                 }
                 case 'add_note':
@@ -4505,31 +4497,6 @@
             uiUndo.push(snapshotUI());
             uiPrefs.fx = fxAsk; saveUIPrefs(); applyUIPrefs();
             showLocalNote(`Effects set to ${fxAsk === 'high' ? 'full strength' : fxAsk}`);
-            return;
-        }
-        // Theme codes, "my themes" and switching to a saved theme by name are handled here, free and instant
-        const codeMatch = rawMessage.match(/\b(VQT1-[A-Za-z0-9_-]{10,})\b/);
-        if (codeMatch) {
-            const raw = parseThemeCode(codeMatch[1]);
-            elements.messageInput.value = '';
-            if (raw) { uiUndo.push(snapshotUI()); const r = installTheme(raw); saveUIPrefs(); applyUIPrefs(); showLocalNote(`Theme “${r.spec.name}” added and switched on`); }
-            else showLocalNote('That theme code didn’t work: check it was copied in full');
-            return;
-        }
-        if (/^\s*(my themes|show (me )?my themes|saved themes|list (my )?themes)\s*\??\s*$/i.test(rawMessage)) {
-            elements.messageInput.value = '';
-            showMyThemes();
-            return;
-        }
-        const escRe = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const named = Object.entries(uiPrefs.customThemes || {}).find(([, t]) => new RegExp('^\\s*(use |switch to |apply )?(my )?' + escRe(t.name) + '( theme)?\\s*$', 'i').test(rawMessage));
-        if (named) {
-            elements.messageInput.value = '';
-            uiUndo.push(snapshotUI());
-            uiPrefs.theme = named[0]; uiPrefs.accent = 'theme';
-            if (named[1].scene) { uiPrefs.scene = named[1].scene; uiPrefs.mist = named[1].scene !== 'none'; }
-            saveUIPrefs(); applyUIPrefs();
-            showLocalNote(`Switched to your “${named[1].name}” theme`);
             return;
         }
         if (/^\s*(stop (casting|showing)|close (the )?(video|player|pictures)|stop the video)\s*$/i.test(rawMessage) && document.body.classList.contains('casting')) {
