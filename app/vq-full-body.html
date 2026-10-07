@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="data:,"><title>VQ · Digital embodiment</title>
+<style>
+:root{color-scheme:dark;--accent:#8adbd1;--ink:#dcece9;--muted:#879b9c;--line:#263a3b}*{box-sizing:border-box}body{margin:0;background:#080f13;color:var(--ink);font:14px system-ui,sans-serif}main{max-width:1080px;margin:auto;padding:28px}header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}h1{font-family:Georgia,serif;font-weight:400;font-size:27px;margin:6px 0}small,.muted{color:var(--muted)}.eyebrow{font-size:10px;letter-spacing:3px;color:var(--accent)}.workspace{display:grid;grid-template-columns:1fr 410px;gap:22px}.intro{padding:36px 20px}.intro h2{font-size:35px;line-height:1.15;font-weight:400;max-width:420px}.intro p{line-height:1.8;color:#9cb0b2;max-width:420px}.tag{border:1px solid var(--line);border-radius:30px;padding:7px 12px;font-size:11px;color:var(--accent)}.panel{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:linear-gradient(155deg,#142124b0,#0b1319c0)}nav{display:flex;padding:12px;gap:5px;border-bottom:1px solid var(--line)}button,select,input{font:inherit}button{cursor:pointer;color:#a7b9bb;background:transparent;border:1px solid transparent;border-radius:9px;padding:9px 12px}button:hover{background:#203237}button[aria-selected=true],button.active{background:#25433f;color:#c6fff0;border-color:#40635b}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.pane[hidden]{display:none}.stage{height:580px;position:relative;background:radial-gradient(ellipse at 50% 40%,#1c32353d,transparent 68%)}canvas{width:100%;height:100%;display:block}.hud{position:absolute;left:20px;right:20px;bottom:15px;display:flex;justify-content:space-between;font:10px monospace;letter-spacing:1px;color:var(--accent);pointer-events:none}.dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--accent);margin-right:7px}.controls{padding:20px;border-top:1px solid var(--line)}label{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:14px;gap:12px}select{max-width:190px;background:#0e1b20;color:var(--ink);border:1px solid var(--line);padding:7px;border-radius:7px}input[type=range]{width:150px;accent-color:var(--accent)}.modes{display:flex;gap:4px;flex-wrap:wrap;margin:14px 0}.modes button{padding:7px 10px;font-size:11px;border-color:var(--line)}.actions{display:flex;gap:8px;margin-top:16px}.actions button{border-color:var(--line)}textarea{width:100%;height:65px;background:#0c191d;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical;font:12px system-ui}.content{padding:24px;line-height:1.75;min-height:500px}.content h2{font-size:20px;font-weight:400;color:var(--accent)}code{font-size:11px;color:var(--accent);overflow-wrap:anywhere}.content pre{white-space:pre-wrap;background:#071114;padding:14px;border-radius:8px}.content textarea{height:200px}footer{margin-top:20px;color:var(--muted);font-size:11px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}@media(max-width:760px){main{padding:16px}.workspace{display:block}.intro{padding:0 4px 16px}.intro h2{font-size:24px}.intro p{margin-bottom:18px}.panel{max-width:460px;margin:auto}.stage{height:540px}}@media(prefers-reduced-motion:reduce){.dot{animation:none}}
+.demo-chat{border:1px solid var(--line);padding:18px;border-radius:14px;background:#0e191d}.demo-chat button{border-color:var(--line)}#transcript{max-height:360px;overflow:auto;margin-top:18px}.message{margin:12px 0;padding:12px;border-left:2px solid var(--accent);background:#15252a;border-radius:0 8px 8px 0}.message strong{font-size:11px;letter-spacing:1px;color:var(--accent)}.message p{font-size:14px;margin:8px 0;line-height:1.7;color:var(--ink)}.persona-label{position:absolute;left:20px;top:18px;font-size:11px;letter-spacing:2px;color:var(--accent)}
+html[data-embed=true],html[data-embed=true] body{background:transparent!important}html[data-embed=true] main{padding:0;max-width:none}html[data-embed=true] header,html[data-embed=true] .intro,html[data-embed=true] nav,html[data-embed=true] .controls,html[data-embed=true] footer,html[data-embed=true] .hud,html[data-embed=true] .persona-label{display:none}html[data-embed=true] .workspace{display:block}html[data-embed=true] .panel{border:0;border-radius:0;background:transparent;max-width:none}html[data-embed=true] .stage{height:100vh;background:transparent}html[data-mode=badge] .stage{background:transparent} html[data-mode=badge]:not([data-embed=true]) .stage{height:96px;width:96px;margin:24px auto} </style></head><body><main><header><div><div class="eyebrow">VERITAS QUAESITOR</div><h1>VQ, brought to life.</h1></div><span class="tag">VQ / FULL BODY</span></header><div class="workspace"><section class="intro"><h2>Your robot, present in the conversation.</h2><p>A fully articulated VQ: white porcelain, optical glass, precision joints and individually modelled fingers. Try a wave, an explaining gesture, a walk cycle or a calm thoughtful pose.</p><p>Run a scripted chat scene below. VQ’s expression and mouth follow the response as it streams. These are demo lines, not live AI answers.</p><div class="demo-chat"><label>Chat scene<select id="scene"><option value="welcome">Welcome</option><option value="curious">Exploring an idea</option><option value="concern">Offering support</option><option value="playful">A lighter moment</option></select></label><button id="run-scene">Run chat scene</button><button id="stop-scene">Stop</button><div id="transcript" role="log" aria-label="Scripted chat demo"></div><p class="muted" id="scene-status">Choose a scene to see the face respond.</p></div><small>Offline · no camera · no external assets</small></section><aside class="panel" aria-label="Companion panel"><nav role="tablist" aria-label="Panel views"><button role="tab" id="tab-details" aria-controls="details" aria-selected="false" tabindex="-1">Details</button><button role="tab" id="tab-notes" aria-controls="notes" aria-selected="false" tabindex="-1">Notes</button><button role="tab" id="tab-face" aria-controls="face" aria-selected="true">Face</button></nav>
+<section class="pane" id="face" role="tabpanel" aria-labelledby="tab-face"><div class="stage"><span class="persona-label" id="persona-name">VQ · ATTENTIVE</span><canvas id="portrait" role="img" aria-label="Animated three-dimensional robot face"></canvas><div class="hud"><span><i class="dot"></i><span id="status">IDLE</span></span><span id="fps">LIVE</span></div></div><div class="controls"><select id="persona" hidden aria-label="Robot persona"><option value="vq">VQ</option></select><label>Body movement<select id="action"><option value="auto">Follow conversation</option><option value="idle">Idle / breathing</option><option value="wave">Wave hello</option><option value="explain">Explain / gesture</option><option value="walk">Walk in place</option><option value="celebrate">Celebrate</option><option value="think">Thinking pose</option></select></label><label>Movement speed<input id="pace" type="range" min="50" max="160" value="100"></label><label>View<select id="camera"><option value="full">Full body</option><option value="portrait">Face close-up</option></select></label><label>Expression<select id="expression"><option value="neutral">Neutral</option><option value="warm">Warm / smiling</option><option value="curious">Curious</option><option value="concerned">Concerned</option><option value="surprised">Surprised</option><option value="serious">Serious</option><option value="playful">Playful</option></select></label><label>Lighting<select id="lighting"><option value="studio">Studio</option><option value="warm">Warm room</option><option value="cool">Cool lab</option></select></label><label>Surface finish<input id="roughness" type="range" min="15" max="65" value="32" aria-label="Ceramic surface roughness"></label><label>Render quality<input id="density" type="range" min="1" max="2" step="0.25" value="1.5"></label><label>Body turn<input id="head-turn" type="range" min="-60" max="60" value="12" aria-label="Body turn in degrees"></label><label>Idle motion<input id="motion" type="range" min="0" max="100" value="65"></label><label>Colour<select id="colour"><option value="mint">Mint</option><option value="amber">Amber</option><option value="ice">Ice</option><option value="mono">White</option></select></label><div class="modes" aria-label="Conversation state"><button class="active" data-state="idle" aria-pressed="true">Idle</button><button data-state="listening" aria-pressed="false">Listening</button><button data-state="thinking" aria-pressed="false">Thinking</button><button data-state="speaking" aria-pressed="false">Speaking</button></div><textarea id="speech" aria-label="Speaking demo text">Hello. I'm here to explore ideas with you. What shall we look at together?</textarea><div class="actions"><button id="demo">Speak demo</button><button id="pause" aria-pressed="false">Pause</button><button id="reset">Reset</button></div><p class="muted" style="font-size:11px;line-height:1.6;margin-bottom:0">Articulated joints · fingers · blended movement<br>Speaking demo simulates articulation; it does not generate audio.</p><span class="sr" id="announcement" aria-live="polite"></span></div></section>
+<section class="pane content" id="details" role="tabpanel" aria-labelledby="tab-details" hidden><h2>VQ · full body</h2><p>Shoulders, elbows, wrists, fingers, hips, knees and ankles form a joint hierarchy. Movement eases between poses. Follow conversation maps thinking to a thoughtful pose and speaking to explaining gestures.</p><p>The walk cycle stays in place. This prototype has no navigation, obstacle avoidance or physics-based foot placement.</p><p>A physically inspired material renderer: metal roughness, brushed surface detail, Fresnel reflections, optical glass, and analytical studio-light reflections. The face remains clearly robotic.</p><p>All geometry and materials are procedural. No photographs, external textures or libraries are loaded. This is a real-time material prototype, rather than a scanned or offline-rendered production model.</p><p>Choose Studio, Warm room or Cool lab lighting, and turn the head to inspect reflections. Surface finish adjusts ceramic roughness. Chat integration and expression timing are unchanged.</p><h2>Connect your chat events</h2><pre><code>// Typing / request begins:
+VQFace.setSpeaker('vq'); 
+VQFace.setAction('wave');
+VQFace.setAction('auto'); // follow chat state
+VQFace.setState('listening');
+VQFace.setState('thinking');
+
+// Start streaming an actual answer:
+VQFace.beginResponse({speaker:'vq', cues:[
+  {at:0, expression:'curious'},
+  {at:70, expression:'warm'}
+]});
+VQFace.appendText(chunk); // each text delta
+VQFace.endResponse();    // stream finished
+
+// Or animate a complete response:
+VQFace.respond({speaker:'vq', text:answer,
+ cues:[{at:0, expression:'serious'}]});
+
+// Optional audio mouth input:
+VQFace.setMouth(0.6); // 0–1
+VQFace.setMouth(null); // back to text
+VQFace.pause(true);</code></pre><p>Cue offsets count JavaScript string characters from the start of the response. Supply them from structured response metadata; they take priority over the conservative text-tone fallback. The demo scenes use explicit cues.</p><p>Existing <code>vq-face</code> page events accept speaker, state, expression, text and mouth. <code>respond</code> returns a Promise that completes after visual articulation.</p><p>Text mouth animation approximates speech. Audio amplitude improves opening timing; accurate lip-sync needs phoneme timing. This standalone file does not modify your live chat or connect to an AI service.</p></section>
+<section class="pane content" id="notes" role="tabpanel" aria-labelledby="tab-notes" hidden><h2>Prototype notes</h2><p>Use this space to jot down expression or appearance ideas. Notes stay in this page session.</p><textarea aria-label="Prototype notes" placeholder="What should this companion feel like?"></textarea></section></aside></div><footer>VQ · physically inspired material prototype · Standalone full body prototype</footer></main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),canvas=$('portrait'),gl=canvas.getContext('webgl',{alpha:true,antialias:true,premultipliedAlpha:false}),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+if(!gl){$('status').textContent='WEBGL UNAVAILABLE';$('announcement').textContent='This browser cannot create a WebGL context. Try a browser with graphics acceleration enabled.';return;}
+let quality=1.25,viewAngle=Math.PI/15,finish=.32,lighting=0;
+const expressions={neutral:[.2,0,0,0],warm:[.9,.15,0,.2],curious:[.25,.8,0,0],concerned:[-.35,-.55,0,0],surprised:[0,1,1,0],serious:[0,-.2,0,0],playful:[1,.6,0,.4]};
+const personas={vq:{name:'VQ',tag:'ATTENTIVE',speed:.72,tilt:.035,base:'warm',blink:3.6}};
+const palettes={mint:[36,218,205],amber:[249,191,114],ice:[146,199,255],mono:[226,237,243]};
+let persona='vq',expr='warm',state='idle',blend=[.2,0,0,0],yaw=.18,pitch=-.02,gazeX=0,gazeY=0,pointer=null,blinkStart=-10,nextBlink=2,time=0,last=performance.now(),paused=false,active=true,mouthOverride=null,motion=.65,width=410,height=405,lastDraw=0,frames=0,fpsStart=0,rgb=palettes.mint,response=null,serial=0,sceneSerial=0;
+function resize(){const b=canvas.getBoundingClientRect();if(!b.width)return;width=b.width;height=b.height;const d=Math.min(devicePixelRatio||1,quality);canvas.width=Math.round(width*d);canvas.height=Math.round(height*d);gl.viewport(0,0,canvas.width,canvas.height)}const canvasResizeObserver=new ResizeObserver(resize);canvasResizeObserver.observe(canvas);
+function announce(s){$('announcement').textContent=s}
+function setExpression(v){if(!expressions[v])return;expr=v;$('expression').value=v;announce(v+' expression')}
+function setSpeaker(v){v=String(v).toLowerCase().replace(/[^a-z]/g,'');if(!personas[v])return;persona=v;$('persona').value=v;const p=personas[v];$('persona-name').textContent=p.name+' · '+p.tag;setExpression(p.base);canvas.setAttribute('aria-label',p.name+' animated three-dimensional robot face')}
+function cancelResponse(){if(response){const old=response;response=null;old.resolve?.({cancelled:true})}}
+function setState(v,internal=false){if(!['idle','listening','thinking','speaking'].includes(v))return;if(!internal&&v!=='speaking')cancelResponse();state=v;$('status').textContent=v.toUpperCase();document.querySelectorAll('[data-state]').forEach(b=>{const on=b.dataset.state===v;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on)});if(v!=='speaking')mouthOverride=null;if(!moodExplicit){if(v==='thinking')setExpression('curious');if(v==='listening')setExpression('warm')}markSignal('state:'+v);announce(personas[persona].name+' '+v)}
+function pause(v){paused=!!v;$('pause').textContent=paused?'Resume':'Pause';$('pause').setAttribute('aria-pressed',paused);announce(paused?'Animation paused':'Animation resumed')}
+function fallback(text){if(/\b(sorry|difficult|hurting|grief|afraid)\b/i.test(text))return 'concerned';if(/\b(evidence|uncertain|verify|careful)\b/i.test(text))return 'serious';if(/\?|\b(explore|wonder|question)\b/i.test(text))return 'curious';if(/\b(welcome|thank|together|glad)\b/i.test(text))return 'warm';return personas[persona].base}
+function beginResponse(d={}){cancelResponse();if(d.speaker)setSpeaker(d.speaker);const cues=Array.isArray(d.cues)?d.cues.filter(c=>c&&Number.isFinite(c.at)&&expressions[c.expression]).map(c=>({at:Math.max(0,c.at),expression:c.expression})).sort((a,b)=>a.at-b.at):[];response={id:++serial,text:'',cursor:0,next:time,cues,cue:0,ended:false,resolve:null,onProgress:typeof d.onProgress==='function'?d.onProgress:null};setState('speaking',true);return response.id}
+function appendText(text){if(!response)beginResponse();response.text+=String(text).slice(0,50000-response.text.length);if(!response.cues.length&&!moodExplicit)setExpression(fallback(response.text))}
+function endResponse(){if(response)response.ended=true}
+function respond(d={}){beginResponse(d);appendText(d.text||'');endResponse();return new Promise(resolve=>{response.resolve=resolve})}
+function speakText(text){return respond({speaker:persona,text:String(text)})}
+function setMouth(v){mouthOverride=v==null?null:clamp(Number(v)||0,0,1)}
+// VQ presence controller. Inputs stay local and are never stored or transmitted.
+const MOODS={warm:{expression:'warm',still:.75,tilt:0,glow:1},joyful:{expression:'playful',still:.8,tilt:.018,glow:1.15},curious:{expression:'curious',still:.72,tilt:.07,glow:1.04},serious:{expression:'serious',still:.45,tilt:0,glow:.9},reverent:{expression:'neutral',still:.14,tilt:-.06,glow:.72},thoughtful:{expression:'curious',still:.4,tilt:-.025,glow:.86}};
+let moodName='warm',moodExplicit=false,mouthVisual=0,moodMix={still:.75,tilt:0,glow:1},typingIntensity=0,typingTarget=0,lastTypingAt=0,lastTypingLength=0,attentionTarget=null,personTarget=null,messageUntil=0,lastSignalMs=0,firstSignalFrame=0,signalPending=[],detailLevel=2,slowFrames=0,fastFrames=0,renderMean=0,frameSamples=[],signalSamples=[],roamTarget=0,roamPosition=0,disposed=false;
+const reducedQuery=matchMedia('(prefers-reduced-motion: reduce)');let reduced=reducedQuery.matches;
+function markSignal(kind){lastSignalMs=performance.now();signalPending.push({kind,at:lastSignalMs});if(signalPending.length>128)signalPending.shift();firstSignalFrame=0;}
+function mood(name){if(!Object.hasOwn(MOODS,name))return {ok:false,error:'Unknown mood'};moodName=name;moodExplicit=true;setExpression(MOODS[name].expression);markSignal('mood:'+name);return {ok:true}}
+function focusAt(point={}){if(!Number.isFinite(point.x)||!Number.isFinite(point.y))return {ok:false,error:'Attention needs finite x/y'};let x=point.x,y=point.y;if(point.space!=='normalized'){const b=canvas.getBoundingClientRect();x=(x-b.left)/Math.max(1,b.width)*2-1;y=(y-b.top)/Math.max(1,b.height)*2-1}const target={x:clamp(x,-1,1),y:clamp(y,-1,1)};if(point.source==='message'){attentionTarget=target;messageUntil=performance.now()+850}else{personTarget=target;if(performance.now()>=messageUntil)attentionTarget=target}markSignal('attention');return {ok:true}}
+function typeInput(data={}){const text=typeof data.text==='string'?data.text:'',now=performance.now(),delta=Math.max(1,Math.abs(text.length-lastTypingLength)),dt=lastTypingAt?Math.max(40,now-lastTypingAt):250;typingTarget=clamp(delta*1000/dt/12,.12,1);lastTypingAt=now;lastTypingLength=text.length;if(data.cursor)focusAt({...data.cursor,source:'cursor'});setState('listening');markSignal('typing');return {ok:true}}
+function speak(data={}){if(typeof data.text!=='string')return {ok:false,error:'speak.text must be a string'};if(data.start||!response||response.ended)beginResponse();if(data.mode==='cumulative'){if(data.text.startsWith(response.text))appendText(data.text.slice(response.text.length));else return {ok:false,error:'Cumulative text must extend the active response'}}else appendText(data.text);if(data.final)endResponse();markSignal('speak');return {ok:true}}
+function accent(value){if(typeof value!=='string'||!/^#[\da-f]{6}$/i.test(value))return {ok:false,error:'Accent requires #RRGGBB'};rgb=[1,3,5].map(i=>parseInt(value.slice(i,i+2),16));document.documentElement.style.setProperty('--accent',value);markSignal('accent');return {ok:true}}
+function mode(value){if(!['panel','badge','roaming'].includes(value))return {ok:false,error:'Mode must be panel, badge or roaming'};document.documentElement.dataset.mode=value;cameraMode=value==='badge'?'portrait':'full';$('camera').value=cameraMode;resize();markSignal('mode');return {ok:true}}
+function signal(value){if(!['idle','listening','thinking','speaking'].includes(value))return {ok:false,error:'Unknown state'};setState(value);return {ok:true}}
+function stats(){const sorted=frameSamples.slice().sort((a,b)=>a-b);return {state,mood:moodName,quality:detailLevel===2?'high':detailLevel===1?'medium':'low',drawMeanMs:+renderMean.toFixed(2),frameP95Ms:sorted.length?+sorted[Math.ceil(sorted.length*.95)-1].toFixed(2):0,signals:signalSamples.slice(-30),textBacklog:response?response.text.length-response.cursor:0,firstSignalFrame,paused,reducedMotion:reduced}}
+function disposePersona(){if(disposed)return {ok:false,error:'Already disposed'};disposed=true;canvasResizeObserver.disconnect?.();cancelResponse();for(const mesh of allMeshes){gl.deleteBuffer(mesh.vb);gl.deleteBuffer(mesh.ib)}for(const mesh of curveCache.values()){gl.deleteBuffer(mesh.vb);gl.deleteBuffer(mesh.ib)}gl.deleteProgram(program);gl.getExtension('WEBGL_lose_context')?.loseContext();return {ok:true}}
+const embodiment=Object.freeze({state:signal,mood,speak,end:()=>{endResponse();markSignal('end');return {ok:true}},mouth:level=>{if(level!==null&&(!Number.isFinite(level)||level<0||level>1))return {ok:false,error:'mouth is 0–1 or null'};setMouth(level);markSignal('mouth');return {ok:true}},typing:typeInput,attention:focusAt,message:p=>focusAt({...p,source:'message'}),accent,mode,moveTo:x=>{if(!Number.isFinite(x)||x<-.7||x>.7)return {ok:false,error:'Roam x must be -0.7..0.7'};roamTarget=x;markSignal('move');return {ok:true}},stats,dispose:disposePersona});
+window.persona=embodiment;
+window.addEventListener('pointermove',e=>{if(e.target.closest?.('input,textarea'))return;focusAt({x:e.clientX,y:e.clientY,source:'pointer'})},{passive:true});
+reducedQuery.addEventListener?.('change',e=>{reduced=e.matches;motion=reduced?0:.65;markSignal('motion preference')});
+window.addEventListener('message',event=>{if(event.source!==parent||event.origin!==location.origin)return;const d=event.data;if(!d||d.vqPersona!==1||typeof d.method!=='string')return;if(!['state','mood','speak','end','mouth','typing','attention','message','accent','mode','moveTo','stats','dispose'].includes(d.method))return;const result=embodiment[d.method](d.payload);parent.postMessage({vqPersona:1,ack:d.id,result},event.origin==='null'?'*':event.origin)});
+const initialMode=new URLSearchParams(location.search).get('embed');
+
+window.VQFace=Object.freeze({setSpeaker,setState,setExpression,beginResponse,appendText,endResponse,respond,speakText,setMouth,pause,setAction});
+window.addEventListener('vq-face',e=>{const d=e.detail||{};if(d.speaker)setSpeaker(d.speaker);if(d.action)setAction(d.action);if(d.state)setState(d.state);if(typeof d.text==='string')respond(d);if(d.expression)setExpression(d.expression);if('mouth' in d)setMouth(d.mouth)});
+canvas.addEventListener('pointermove',e=>{const b=canvas.getBoundingClientRect();pointer={x:clamp((e.clientX-b.left)/b.width*2-1,-1,1),y:clamp((e.clientY-b.top)/b.height*2-1,-1,1)}});canvas.addEventListener('pointerleave',()=>pointer=null);
+$('action').onchange=e=>setAction(e.target.value);
+$('pace').oninput=e=>pace=+e.target.value/100;
+$('camera').onchange=e=>cameraMode=e.target.value;
+$('lighting').onchange=e=>lighting={studio:0,warm:1,cool:2}[e.target.value];
+$('roughness').oninput=e=>finish=+e.target.value/100;
+$('head-turn').oninput=e=>viewAngle=+e.target.value*Math.PI/180;
+$('persona').onchange=e=>{cancelResponse();setSpeaker(e.target.value);setState('idle')};$('expression').onchange=e=>setExpression(e.target.value);$('density').oninput=e=>{quality=+e.target.value;resize()};$('motion').oninput=e=>motion=+e.target.value/100;$('colour').onchange=e=>{rgb=palettes[e.target.value];document.documentElement.style.setProperty('--accent',`rgb(${rgb.join(',')})`)};
+document.querySelectorAll('[data-state]').forEach(b=>b.onclick=()=>setState(b.dataset.state));$('demo').onclick=()=>speakText($('speech').value);$('pause').onclick=()=>pause(!paused);$('reset').onclick=()=>{sceneSerial++;cancelResponse();setSpeaker('vq');setAction('auto');cameraMode='full';pace=1;$('pace').value=100;$('camera').value='full';setState('idle');pause(false);motion=.65;quality=1.5;viewAngle=Math.PI/15;finish=.32;lighting=0;$('roughness').value=32;$('lighting').value='studio';$('head-turn').value=12;$('motion').value=65;$('density').value=1.5;resize();rgb=palettes.mint;$('colour').value='mint';document.documentElement.style.setProperty('--accent','#8adbd1')};
+function tab(id){document.querySelectorAll('[role=tab]').forEach(b=>{const on=b.id==='tab-'+id;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1});document.querySelectorAll('.pane').forEach(p=>p.hidden=p.id!==id);active=id==='face';if(active)resize()}
+const tabs=Array.from(document.querySelectorAll('[role=tab]'));tabs.forEach((b,i)=>{b.onclick=()=>tab(b.getAttribute('aria-controls'));b.onkeydown=e=>{let j=i;if(e.key==='ArrowRight')j=(i+1)%tabs.length;else if(e.key==='ArrowLeft')j=(i+tabs.length-1)%tabs.length;else if(e.key==='Home')j=0;else if(e.key==='End')j=tabs.length-1;else return;e.preventDefault();tab(tabs[j].getAttribute('aria-controls'));tabs[j].focus()}});
+const scenes={welcome:[{speaker:'vq',text:"Welcome. I'm glad you're here. We can explore the question together, one step at a time.",cues:[{at:0,expression:'warm'},{at:43,expression:'curious'},{at:75,expression:'warm'}]}],curious:[{speaker:'vq',text:"That's an interesting question. Which part would you like to explore? Let's examine the evidence carefully before drawing a conclusion.",cues:[{at:0,expression:'curious'},{at:73,expression:'serious'}]}],concern:[{speaker:'vq',text:"That sounds difficult. Thank you for sharing it. We can slow down and think through what would help you next.",cues:[{at:0,expression:'concerned'},{at:48,expression:'warm'}]}],playful:[{speaker:'vq',text:"A storm in the chat! We seem to have brought our own weather. Shall we explore something a little brighter?",cues:[{at:0,expression:'surprised'},{at:20,expression:'playful'},{at:61,expression:'curious'}]}]};
+function addMessage(name){const div=document.createElement('div'),strong=document.createElement('strong'),p=document.createElement('p');div.className='message';strong.textContent=name;div.append(strong,p);$('transcript').append(div);return p}
+$('run-scene').onclick=async()=>{const run=++sceneSerial;cancelResponse();tab('face');setAction('auto');pause(false);$('transcript').replaceChildren();for(const line of scenes[$('scene').value]||scenes.welcome){if(run!==sceneSerial)return;setSpeaker(line.speaker);setState('thinking');$('scene-status').textContent=personas[persona].name+' is preparing a reply…';await new Promise(r=>setTimeout(r,650));if(run!==sceneSerial)return;const p=addMessage(personas[line.speaker].name);$('scene-status').textContent='Scripted response · expressions follow the text';const result=await respond({...line,onProgress:text=>{p.textContent=text;$('transcript').scrollTop=$('transcript').scrollHeight}});if(run!==sceneSerial||result.cancelled)return}$('scene-status').textContent='Scene complete · face returns to idle'};
+$('stop-scene').onclick=()=>{sceneSerial++;cancelResponse();setState('idle');setExpression(personas[persona].base);$('scene-status').textContent='Scene stopped'};
+if(reduced){motion=0;$('motion').value=0}
+// Rounded robotic shell and inset faceplate. Coordinates are a real 3D surface.
+function advance(){if(!response)return;const r=response;if(time>=r.next&&r.cursor<r.text.length){const ch=r.text[r.cursor++];r.next=time+(/[.!?]/.test(ch)?.26:/[,;:]/.test(ch)?.13:/\s/.test(ch)?.032:.043);while(r.cue<r.cues.length&&r.cursor>=r.cues[r.cue].at)setExpression(r.cues[r.cue++].expression);r.onProgress?.(r.text.slice(0,r.cursor))}if(r.ended&&r.cursor>=r.text.length&&time>r.next+.25){response=null;setState('idle',true);r.resolve?.({cancelled:false});}}
+// Self-contained, depth-tested WebGL renderer. All robot parts are meshes.
+const vertexSource=`attribute vec3 aPosition;attribute vec3 aNormal;uniform mat4 uModel;uniform mat4 uVP;uniform mat3 uNormal;varying vec3 vPosition;varying vec3 vNormal;varying vec3 vLocal;void main(){vLocal=aPosition;vec4 p=uModel*vec4(aPosition,1.0);vPosition=p.xyz;vNormal=normalize(uNormal*aNormal);gl_Position=uVP*p;}`;
+const fragmentSource=`precision highp float;
+varying vec3 vPosition;varying vec3 vNormal;varying vec3 vLocal;
+uniform vec3 uColor;uniform float uMetal;uniform float uEmission;uniform float uRoughness;uniform float uKind;uniform float uLighting;uniform vec3 uCamera;
+const float PI=3.14159265;
+float hash(vec3 p){return fract(sin(dot(p,vec3(127.1,311.7,74.7)))*43758.5453);}
+vec3 fresnel(float c,vec3 f0){return f0+(1.0-f0)*pow(1.0-c,5.0);}
+float Dggx(float nh,float r){float a=r*r;float a2=a*a;float d=nh*nh*(a2-1.0)+1.0;return a2/(PI*d*d+.00001);}
+float G1(float nv,float r){float k=(r+1.0)*(r+1.0)/8.0;return nv/(nv*(1.0-k)+k+.00001);}
+vec3 direct(vec3 n,vec3 v,vec3 l,vec3 light,vec3 base,vec3 f0,float rough){vec3 h=normalize(v+l);float nl=max(dot(n,l),0.0),nv=max(dot(n,v),.001),nh=max(dot(n,h),0.0),vh=max(dot(v,h),0.0);vec3 f=fresnel(vh,f0);vec3 spec=Dggx(nh,rough)*G1(nv,rough)*G1(nl,rough)*f/(4.0*nv*max(nl,.001)+.001);return ((1.0-f)*(1.0-uMetal)*base/PI+spec)*light*nl;}
+// Analytic studio environment: broad softboxes and narrow strip reflections.
+vec3 environment(vec3 r,float rough){float spread=rough*rough*.32;vec3 col=mix(vec3(.025,.035,.049),vec3(.13,.17,.20),smoothstep(-.5,.9,r.y));
+float left=exp(-pow((r.x+.32)/(.10+spread),4.0)-pow((r.y-.3)/(.48+spread),4.0));
+float right=exp(-pow((r.x-.72)/(.05+spread),4.0)-pow((r.y-.1)/(.65+spread),4.0));
+float top=exp(-pow((r.y-.76)/(.06+spread),4.0)-pow(r.x/(.75+spread),4.0));
+vec3 white=uLighting<.5?vec3(1.0,.98,.94):uLighting<1.5?vec3(1.0,.72,.43):vec3(.65,.82,1.0);
+col+=white*left*2.0+vec3(.25,.53,.63)*right*1.5+white*top*.9;return col;}
+vec3 aces(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.0,1.0);}
+void main(){vec3 n=normalize(vNormal),v=normalize(uCamera-vPosition);float nv=max(dot(n,v),.001);float rough=clamp(uRoughness,.055,.8);vec3 base=pow(uColor,vec3(2.2));
+if(uMetal>.7){float brush=sin(vLocal.y*1300.0+sin(vLocal.x*52.0))*.5+.5;float grain=hash(floor(vLocal*900.0));rough=clamp(rough+(brush-.5)*.028+(grain-.5)*.025,.055,.8);base*=.985+grain*.03;n=normalize(n+vec3((grain-.5)*.002,cos(vLocal.y*1300.0)*.003,0.0));}
+if(uKind>2.5){float radius=length(vLocal.xy);float angle=atan(vLocal.y,vLocal.x);float spokes=pow(abs(sin(angle*28.0+radius*14.0)),6.0);float etch=.5+.5*sin(radius*140.0);base*=.28+.45*spokes+.18*etch;rough=.22;}
+vec3 f0=mix(vec3(.04),base,uMetal);if(uKind>.5&&uKind<1.5)f0=vec3(.055);
+vec3 key=uLighting<.5?vec3(2.8,2.7,2.55):uLighting<1.5?vec3(3.2,2.25,1.4):vec3(1.9,2.65,3.3);
+vec3 light=direct(n,v,normalize(vec3(-.9,1.1,1.6)),key,base,f0,rough);
+light+=direct(n,v,normalize(vec3(.9,.25,.85)),vec3(.55,.80,1.0),base,f0,rough);
+vec3 reflected=environment(reflect(-v,n),rough);vec3 f=fresnel(nv,f0);
+light+=reflected*f*(1.0-.45*rough)+base*(1.0-uMetal)*.065;
+if(uKind>.5&&uKind<1.5){light=base*.17+reflected*f*.72;}
+// Mild contact shading around the paired optical assemblies on the face glass.
+if(uKind>.5&&uKind<1.5&&abs(vLocal.x)<1.05){float contact=exp(-pow((abs(vPosition.x)-.265)/.16,2.0)-pow((vPosition.y-.14)/.18,2.0));light*=1.0-contact*.18;}
+light+=base*uEmission*1.4;
+gl_FragColor=vec4(pow(aces(light),vec3(1.0/2.2)),1.0);}
+`;
+function shader(type,source){const s=gl.createShader(type);gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s}
+const program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vertexSource));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,fragmentSource));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
+const pos=gl.getAttribLocation(program,'aPosition'),norm=gl.getAttribLocation(program,'aNormal'),uniforms={};for(const name of ['uModel','uVP','uNormal','uColor','uMetal','uEmission','uRoughness','uKind','uLighting','uCamera'])uniforms[name]=gl.getUniformLocation(program,name);
+gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.clearColor(0,0,0,0);
+const allMeshes=[];
+const signpow=(x,p)=>Math.sign(x)*Math.pow(Math.abs(x),p),normalize=v=>{const n=Math.hypot(...v)||1;return v.map(x=>x/n)},cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+function mesh(fn,nu=64,nv=32,flip=false){const vertices=[],indices=[];for(let j=0;j<=nv;j++)for(let i=0;i<=nu;i++){const u=i/nu,v=j/nv,p=fn(u,v),e=.0002,pu=fn(u+e,v),pv=fn(u,v+e);let n=normalize(cross(pu.map((x,k)=>x-p[k]),pv.map((x,k)=>x-p[k])));if(n.every(x=>Math.abs(x)<.001))n=normalize(p);else if(flip)n=n.map(x=>-x);vertices.push(...p,...n)}for(let j=0;j<nv;j++)for(let i=0;i<nu;i++){const a=j*(nu+1)+i,b=a+nu+1;indices.push(a,b,a+1,b,b+1,a+1)}return upload(vertices,indices)}
+function upload(vertices,indices){const vb=gl.createBuffer(),ib=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,vb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(vertices),gl.STATIC_DRAW);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(indices),gl.STATIC_DRAW);const result={vb,ib,count:indices.length};allMeshes.push(result);return result}
+function ellipsoid(power=1,segments=40){return mesh((u,v)=>{const a=u*Math.PI*2,b=v*Math.PI-Math.PI/2,cb=signpow(Math.cos(b),power);return [cb*signpow(Math.cos(a),power),signpow(Math.sin(b),power),cb*signpow(Math.sin(a),power)]},segments,Math.floor(segments*.6),true)}
+const sphere=ellipsoid(),box=ellipsoid(.46),soft=ellipsoid(.72);for(const [m,power]of [[sphere,1],[box,.46],[soft,.72]]){m.medium=ellipsoid(power,24);m.low=ellipsoid(power,12)}
+function roundedLoop(u,w,h,r){const a=u*Math.PI*2;return [signpow(Math.cos(a),r)*w,signpow(Math.sin(a),r)*h]}
+function ring(w,h,pow=.4,r=.025){return mesh((u,v)=>{const a=u*Math.PI*2,b=v*Math.PI*2,q=roundedLoop(u,w,h,pow),ahead=roundedLoop(u+.0001,w,h,pow),t=normalize([ahead[0]-q[0],ahead[1]-q[1],0]),n=[t[1],-t[0],0];return [q[0]+n[0]*r*Math.cos(b),q[1]+n[1]*r*Math.cos(b),r*Math.sin(b)]},64,8)}
+const rings={vq:ring(.69,.275,.58,.007),eye:ring(.081,.081,1,.009),ear:ring(.105,.105,1,.012),neck:ring(.19,.19,1,.014)};
+function plate(w,h,power){return mesh((u,v)=>{const q=roundedLoop(u,w,h,power),r=v;return [q[0]*r,q[1]*r,.055*(1-r*r)]},48,14,true)}
+const plates={vq:plate(.685,.27,.58)};
+function identity(){return [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]}
+function mul(a,b){let out=Array(16).fill(0);for(let c=0;c<4;c++)for(let r=0;r<4;r++)for(let k=0;k<4;k++)out[c*4+r]+=a[k*4+r]*b[c*4+k];return out}
+function rot(x,y,z){const cx=Math.cos(x),sx=Math.sin(x),cy=Math.cos(y),sy=Math.sin(y),cz=Math.cos(z),sz=Math.sin(z);return mul(mul([cz,sz,0,0,-sz,cz,0,0,0,0,1,0,0,0,0,1],[cy,0,-sy,0,0,1,0,0,sy,0,cy,0,0,0,0,1]),[1,0,0,0,0,cx,sx,0,0,-sx,cx,0,0,0,0,1])}
+let head=identity();
+// Joint transforms compose through shoulders, elbows, wrists, hips and knees.
+function translate(x,y,z){const out=identity();out[12]=x;out[13]=y;out[14]=z;return out}
+function joint(parent,xyz,angles=[0,0,0]){return mul(parent,mul(translate(...xyz),rot(...angles)))}
+const poseNames=['auto','idle','wave','explain','walk','celebrate','think'];
+let bodyAction='auto',actionMix={idle:1,wave:0,explain:0,walk:0,celebrate:0,think:0},cameraMode='full',pace=1;
+function setAction(v){if(!poseNames.includes(v))return;bodyAction=v;$('action').value=v;announce('VQ movement: '+v)}
+function bodyRig(root,t,dt,accent,shell,steel,dark){
+const target=bodyAction==='auto'?(moodName==='reverent'?'idle':Math.abs(roamTarget-roamPosition)>.015?'walk':state==='thinking'?'think':state==='speaking'&&moodName!=='reverent'?'explain':'idle'):bodyAction;
+const ease=1-Math.exp(-dt*12);for(const name of Object.keys(actionMix))actionMix[name]+=((name===target?1:0)-actionMix[name])*ease;
+const w=actionMix,phase=t*3.5,step=Math.sin(phase),bob=(1-Math.cos(phase*2))*.020*w.walk+Math.sin(t*2.3)*.009*motion;
+const body=joint(root,[roamPosition+Math.sin(t*.39)*.008*motion*moodMix.still,bob*moodMix.still,0],[state==='listening'?-.035*typingIntensity:0,0,Math.sin(phase)*.015*w.walk+Math.sin(t*.45)*.008*motion*moodMix.still]);head=body;
+// Pelvis, waist and chest carry complementary hard and soft materials.
+renderMesh(soft,[0,-.02,0],[.35,.18,.22],shell,.93);
+renderMesh(soft,[0,.24,0],[.26,.18,.18],dark,.4);
+for(let i=0;i<3;i++)renderMesh(soft,[0,.19+i*.041,.01],[.28,.013,.195],steel,.94);
+renderMesh(box,[0,.56,0],[.43,.36*(1+Math.sin(t*2.1)*.004*motion*moodMix.still),.24],shell,.94);
+renderMesh(box,[0,.57,.243],[.32,.26,.027],shell,.02,0,identity(),.28);
+renderMesh(rings.vq,[0,.57,.278],[.43,.84,.75],[.52,.59,.62],.1,0);
+curve('chestV',[[-.065,.60,.295],[-.042,.555,.295],[-.020,.60,.295]],.003,[.38,.47,.50],0);curve('chestQ',Array.from({length:17},(_,i)=>[.020+Math.cos(i/16*Math.PI*2)*.021,.578+Math.sin(i/16*Math.PI*2)*.023,.295]),.003,[.38,.47,.50],0);
+for(let j=-2;j<=2;j++)renderMesh(box,[j*.045,.365,.291],[.014,.002,.002],[.19,.23,.24],.85);
+for(const side of [-1,1]){renderMesh(sphere,[side*.32,.80,.17],[.014,.014,.010],steel,.98);renderMesh(sphere,[side*.29,-.05,.18],[.012,.012,.008],steel,.98)}
+renderMesh(sphere,[0,1.0,0],[.12,.15,.12],steel,.98);for(let i=0;i<3;i++)renderMesh(rings.neck,[0,.94+i*.045,0],[.6,.6,.20],steel,.98,0,rot(Math.PI/2,0,0));
+for(const side of [-1,1]){
+let armX=-step*.34*w.walk;let armZ=side*(.10+.05*Math.sin(t*.75)*motion);
+let elbowZ=side*.12,elbowX=-.10;
+if(side===1){armZ+=1.75*w.wave;elbowZ+=1.15*w.wave;armZ+=(.55+.07*Math.sin(t*.63))*w.explain;elbowZ+=.54*w.explain;armX-=.22*w.explain;armZ+=.70*w.think;elbowZ+=1.32*w.think;}
+else{armZ-=.23*w.explain;elbowZ-=.38*w.explain;armX-=.12*w.explain;}
+armZ+=side*1.70*w.celebrate;elbowZ+=side*(.42+.13*Math.sin(t*3))*w.celebrate;
+const shoulder=joint(body,[side*.50,.70,0],[armX,0,armZ]);head=shoulder;
+renderMesh(sphere,[0,0,0],[.13,.13,.13],steel,.96);
+renderMesh(soft,[0,-.22,0],[.11,.18,.12],shell,.94);
+renderMesh(soft,[0,-.23,.118],[.056,.12,.010],dark,.25);
+renderMesh(box,[0,-.21,.13],[.022,.055,.008],accent,.2,.3);
+const elbow=joint(shoulder,[0,-.43,0],[elbowX,0,elbowZ]);head=elbow;
+renderMesh(sphere,[0,0,0],[.090,.09,.09],[.10,.14,.16],.9);
+renderMesh(soft,[0,-.20,0],[.085,.16,.10],shell,.92);
+renderMesh(sphere,[0,-.36,0],[.065,.063,.065],steel,.96);
+const wrist=joint(elbow,[0,-.40,0],[0,0,side===1?Math.sin(t*6)*.22*w.wave:0]);head=wrist;
+renderMesh(soft,[0,-.070,.0],[.080,.085,.045],shell,.9);
+renderMesh(soft,[0,-.072,.046],[.059,.063,.008],shell,.03);
+// Four jointed fingers and a thumb, relaxed or open for the selected gesture.
+const open=clamp(w.wave+w.celebrate+w.explain*.8,0,1);
+for(let finger=0;finger<4;finger++){const fx=(finger-1.5)*.035,length=.052+(finger===1||finger===2?.015:0);const palm=joint(wrist,[fx,-.139,0],[(1-open)*.52,0,(finger-1.5)*.075*open]);head=palm;
+renderMesh(soft,[0,-length*.5,0],[.013,length*.48,.014],steel,.9);
+const knuckle=joint(palm,[0,-length,0],[(1-open)*.48,0,0]);head=knuckle;renderMesh(soft,[0,-.022,0],[.012,.022,.013],shell,.9)}
+head=joint(wrist,[side*.081,-.045,0],[.2,0,side*.52]);renderMesh(soft,[0,-.037,0],[.017,.039,.019],steel,.9);
+// Hip and knee chains. Walk is a looping gait in place, with counter-swinging arms.
+const swing=side*step*.43*w.walk,hip=joint(body,[side*.21,-.15,0],[swing,0,0]);head=hip;
+renderMesh(sphere,[0,0,0],[.10,.10,.10],steel,.96);
+renderMesh(soft,[0,-.23,0],[.12,.19,.12],shell,.93);
+renderMesh(box,[0,-.22,.12],[.045,.10,.008],dark,.4);
+const bend=Math.max(0,-side*step)*.62*w.walk,knee=joint(hip,[0,-.46,0],[bend,0,0]);head=knee;
+renderMesh(sphere,[0,0,0],[.087,.09,.09],[.10,.15,.17],.92);
+renderMesh(soft,[0,-.21,0],[.098,.17,.102],shell,.92);
+renderMesh(box,[0,-.22,.105],[.023,.058,.008],accent,.3,.3);
+const ankle=joint(knee,[0,-.42,0],[-swing-bend,0,0]);head=ankle;
+renderMesh(sphere,[0,0,0],[.07,.064,.07],steel,.97);
+renderMesh(box,[0,-.073,.074],[.14,.074,.23],shell,.95);
+renderMesh(box,[0,-.136,.084],[.145,.018,.23],[.045,.056,.061],.35);
+renderMesh(box,[0,-.068,.303],[.07,.009,.003],accent,.25,.2);
+}
+return body;
+}
+
+function renderMesh(mesh,xyz,scale,color,metal=.6,emission=0,local=identity(),rough=null,kind=0){if(color[0]>.9&&color[1]>.9&&color[2]>.9&&emission===0){metal=.015;rough=finish}mesh=detailLevel===0?(mesh.low||mesh):detailLevel===1?(mesh.medium||mesh):mesh;const transform=mul(head,mul([scale[0],0,0,0,0,scale[1],0,0,0,0,scale[2],0,...xyz,1],local)); // normal inverse-transpose from column cross products
+const a=transform.slice(0,3),b=transform.slice(4,7),c=transform.slice(8,11),bc=cross(b,c),det=a.reduce((n,x,i)=>n+x*bc[i],0),normal=[...bc,...cross(c,a),...cross(a,b)].map(x=>x/(det||1));
+gl.uniformMatrix4fv(uniforms.uModel,false,new Float32Array(transform));gl.uniformMatrix3fv(uniforms.uNormal,false,new Float32Array(normal));gl.uniform3fv(uniforms.uColor,new Float32Array(color));gl.uniform1f(uniforms.uMetal,metal);gl.uniform1f(uniforms.uEmission,emission);gl.uniform1f(uniforms.uRoughness,rough===null?(metal>.7?finish:.3):rough);gl.uniform1f(uniforms.uKind,kind);gl.uniform1f(uniforms.uLighting,lighting);gl.bindBuffer(gl.ARRAY_BUFFER,mesh.vb);gl.vertexAttribPointer(pos,3,gl.FLOAT,false,24,0);gl.vertexAttribPointer(norm,3,gl.FLOAT,false,24,12);gl.enableVertexAttribArray(pos);gl.enableVertexAttribArray(norm);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,mesh.ib);gl.drawElements(gl.TRIANGLES,mesh.count,gl.UNSIGNED_SHORT,0)}
+// Tubes for mouth, brows and crown: update existing buffers, not GPU objects.
+const curveCache=new Map();function curve(key,points,r,color,emission=.8){let data=[],indices=[],sides=6;for(let i=0;i<points.length;i++){let p=points[i],q=points[Math.min(i+1,points.length-1)],prev=points[Math.max(0,i-1)],t=normalize(q.map((v,k)=>v-prev[k])),n=normalize(cross(t,[0,0,1])),b=cross(t,n);for(let j=0;j<=sides;j++){let a=j/sides*Math.PI*2,normal=n.map((v,k)=>v*Math.cos(a)+b[k]*Math.sin(a));data.push(...p.map((v,k)=>v+r*normal[k]),...normal)}}for(let i=0;i<points.length-1;i++)for(let j=0;j<sides;j++){let a=i*(sides+1)+j,b=a+sides+1;indices.push(a,b,a+1,b,b+1,a+1)}let m=curveCache.get(key);if(!m){m=upload(data,indices);curveCache.set(key,m)}else{gl.bindBuffer(gl.ARRAY_BUFFER,m.vb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.DYNAMIC_DRAW);m.count=indices.length}renderMesh(m,[0,0,0],[1,1,1],color,.25,emission)}
+function draw(dt){if(!paused)advance();const t=time,p=personas[persona],m=motion*moodMix.still,rate=1-Math.exp(-dt*14);for(let i=0;i<4;i++)blend[i]+=(expressions[expr][i]-blend[i])*rate;
+const follow=1-Math.exp(-dt*15),saccade=Math.sin(Math.floor(t*p.speed*1.7)*12.9)*.021*m;const focus=attentionTarget||pointer;let gx=focus?focus.x*.054:Math.sin(t*.51*p.speed)*.023*m+saccade,gy=focus?-focus.y*.040:Math.sin(t*.69*p.speed)*.018*m;if(state==='thinking'){gx+=.033;gy+=.028}gazeX+=(gx-gazeX)*follow;gazeY+=(gy-gazeY)*follow;
+yaw+=((viewAngle+(focus?focus.x*.27:Math.sin(t*.6*p.speed)*.19*m))-yaw)*follow*.4;pitch+=((focus?focus.y*.13:Math.sin(t*.75*p.speed)*.075*m)+(state==='listening'?typingIntensity*.055:0)+(moodName==='reverent'?.095:0)-pitch)*follow*.65;
+if(!reduced&&t>nextBlink){blinkStart=t;nextBlink=t+p.blink+Math.random()*2.3}let blink=Math.sin(clamp((t-blinkStart)/.20,0,1)*Math.PI);
+let mouth=blend[2]*.055;if(state==='speaking'&&response&&response.cursor>0&&time<response.next+.025){const ch=response?.text[Math.max(0,response.cursor-1)]||'a';mouth+=/[\s.,!?;:]/.test(ch)?.003:(/[aeiou]/i.test(ch)?.09:.038)*(.6+.4*Math.sin(t*21)**2)}if(mouthOverride!==null)mouth=.12*mouthOverride;mouthVisual+=(mouth-mouthVisual)*(1-Math.exp(-dt*24));mouth=mouthVisual;
+const cyan=rgb.map(v=>v/255),pink=[1,.30,.64],accent=cyan,trim=cyan,shell=[.96,.965,.97],dark=[.012,.017,.023],steel=[.48,.53,.56];
+gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(program);
+const aspect=width/height,portrait=cameraMode==='portrait',centerY=portrait?1.61:.45,distance=portrait?2.55:Math.max(7.5,5.0/aspect),f=1/Math.tan(.56/2),near=.1,far=30,proj=[f/aspect,0,0,0,0,f,0,0,0,0,(far+near)/(near-far),-1,0,0,2*far*near/(near-far),0],view=identity();view[13]=-centerY;view[14]=-distance;gl.uniformMatrix4fv(uniforms.uVP,false,new Float32Array(mul(proj,view)));gl.uniform3fv(uniforms.uCamera,new Float32Array([0,centerY,distance]));
+roamPosition+=(roamTarget-roamPosition)*(1-Math.exp(-dt*2.5));const walking=Math.abs(roamTarget-roamPosition)>.015;const root=rot(0,viewAngle,0);const body=bodyRig(root,t*pace,dt,accent,shell,steel,dark);
+head=mul(body,mul(translate(0,1.49,0),mul(rot(pitch,yaw-viewAngle,Math.sin(t*.46*p.speed)*p.tilt*m+blend[1]*p.tilt*.45+moodMix.tilt),[.72,0,0,0,0,.72,0,0,0,0,.72,0,0,0,0,1])));
+// Main shell, face glass and a raised, emissive bezel.
+renderMesh(soft,[0,0,0],[.82,.67,.30],shell,.92);
+renderMesh(plates.vq,[0,.10,.301],[1,1,1],dark,.0,0,identity(),.11,1);
+renderMesh(rings[persona],[0,.10,.33],[1,1,1],accent,.15,.12+.09*clamp(mouth/.12,0,1));
+// Side ear housings and machined discs, clearly visible during head turns.
+for(const side of [-1,1]){const ex=side*(.87);renderMesh(soft,[ex,0,-.025],[.085,.21,.15],steel,.9);renderMesh(sphere,[ex,0,.075],[.062,.155,.04],trim,.15,.45);renderMesh(rings.ear,[ex,0,.13],[.48,1.15,.6],accent,.4,.45);
+for(let j=0;j<3;j++)renderMesh(box,[ex,-.045+j*.045,.17],[.027,.003,.004],[.17,.22,.28],.7);
+// Screw heads and cheek sensor nodes.
+renderMesh(sphere,[side*(.64),-.43,.275],[.015,.015,.013],steel,.9);renderMesh(sphere,[side*.44,-.26,.343],[.009,.009,.006],trim,.1,.9)}
+renderMesh(sphere,[0,.82,-.045],[.014,.18,.014],steel,.98,0,identity(),.19);
+renderMesh(sphere,[0,1.0,-.045],[.049,.049,.049],pink,.12,.55);
+renderMesh(sphere,[0,.65,-.06],[.075,.024,.065],steel,.95);
+// Machined back seam, connector collar and inset fasteners.
+renderMesh(rings.vq,[0,0,-.12],[1.06,1.09,.65],[.075,.10,.115],.88,0,identity(),.35);
+for(const side of [-1,1])for(const y of [-.48,.47]){
+renderMesh(sphere,[side*.635,y,.304],[.020,.020,.010],steel,.95,0,identity(),.23);
+renderMesh(box,[side*.635,y,.315],[.012,.002,.0015],[.05,.06,.065],.7);
+}
+// Ventilation slots and connector detail underneath the chin.
+for(let j=-3;j<=3;j++)renderMesh(box,[j*.042,-.604,.186],[.014,.004,.013],[.04,.06,.07],.8);
+
+// Optical eyes: socket, porcelain surround, iris, pupil and catchlight.
+for(const side of [-1,1]){const ex=side*.265,ey=.135,op=Math.max(.025,1-blink),eh=(.114)*(1+blend[2]*.27-blend[3]*.12)*op,ew=.127;
+renderMesh(sphere,[ex,ey,.351],[ew+.020,eh+.018,.035],dark,.12);
+renderMesh(rings.eye,[ex,ey,.400],[(ew+.008)/.081,(eh+.008)/.081,.65],[.16,.19,.20],.85,0,identity(),.22);
+renderMesh(rings.eye,[ex,ey,.407],[(ew+.002)/.081,(eh+.002)/.081,.35],[.18,.25,.28],.15,0,identity(),.27);
+renderMesh(sphere,[ex,ey,.377],[ew,eh,.025],[.038,.067,.076],.12,0,identity(),.14,1);
+const irisY=clamp(gazeY,-eh*.45,eh*.45),irisH=Math.min(.074,eh*.88);
+renderMesh(sphere,[ex+gazeX,ey+irisY,.403],[.087,Math.min(eh*.92,.087),.018],accent,.05,.8*moodMix.glow,identity(),.2,0);
+renderMesh(rings.eye,[ex+gazeX,ey+irisY,.412],[.85,irisH/.081,.40],accent,.5,.30);
+
+renderMesh(sphere,[ex+gazeX-.018,ey+irisY+.023*op,.425],[.012,.012*op,.004],[.96,1,1],0,.7);
+// Upper eyelid, curved brow and upper optical eyelids.
+const lid=[],brow=[];for(let i=0;i<=20;i++){let dx=(i/20*2-1)*ew;lid.push([ex+dx,ey+eh*Math.sqrt(Math.max(0,1-(dx/ew)**2)),.413]);let by=.30+blend[1]*.04-.045*(dx/ew)**2+(expr==='concerned'?-side*dx*.2:0)+0;brow.push([ex+dx,by,.36])}curve('lid'+side,lid,.010,accent,.7);
+}
+// Continuous calm smile, with a dark cavity and independently moving lips.
+const smile=blend[0],w=.23,y0=-.31,top=[],bottom=[];for(let i=0;i<=32;i++){let x=(i/32*2-1)*w,edge=Math.sqrt(Math.max(0,1-(x/w)**2)),y=y0+smile*.080*(x/w)**2;top.push([x,y+mouth*edge,.365]);bottom.push([x,y-mouth*edge-(0),.365])}
+renderMesh(sphere,[0,y0,.347],[w,.010+mouth,.007],dark,.05);curve('mouthTop',top,.012,accent,.8);curve('mouthBottom',bottom,.010,accent,.8);
+
+}
+canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();pause(true);$('status').textContent='GRAPHICS PAUSED';$('announcement').textContent='Graphics context lost. Reload this page to restore the face.'});
+
+function loop(now){if(disposed)return;const interval=now-last,dt=Math.min(Math.max(interval/1000,.001),.08);last=now;if(!document.hidden&&active){const elapsed=dt;lastDraw=now;if(!paused)time+=elapsed;if(performance.now()>messageUntil)attentionTarget=personTarget;if(now-lastTypingAt>650)typingTarget*=Math.exp(-dt*2);typingIntensity+=(typingTarget-typingIntensity)*(1-Math.exp(-dt*12));if(state==='listening'&&now-lastTypingAt>2300&&lastTypingAt)setState('idle');for(const key of ['still','tilt','glow'])moodMix[key]+=(MOODS[moodName][key]-moodMix[key])*(1-Math.exp(-dt*12));const before=performance.now();draw(paused?0:elapsed);window.VQAcceptance?.paint();const cost=performance.now()-before;renderMean=renderMean?renderMean*.9+cost*.1:cost;
+if(signalPending.length){const presented=performance.now();for(const sample of signalPending){firstSignalFrame=presented-sample.at;signalSamples.push({...sample,latencyMs:+firstSignalFrame.toFixed(2),measurement:'CPU draw submitted; not display presentation'})}signalSamples=signalSamples.slice(-60);signalPending=[]}
+if(interval<250){frameSamples.push(interval);if(frameSamples.length>300)frameSamples.shift()}if((cost>12||interval>24)&&!paused){slowFrames++;fastFrames=0}else{slowFrames=Math.max(0,slowFrames-1);fastFrames++}if(slowFrames>=3){if(detailLevel>0)detailLevel--;else if(quality>.65){quality=Math.max(.65,quality-.2);resize()}slowFrames=0}if(fastFrames>240&&detailLevel<2&&cost<6){detailLevel++;fastFrames=0}frames++;if(now-fpsStart>1000){$('fps').textContent=paused?'PAUSED':Math.round(frames*1000/(now-fpsStart))+' FPS · '+['LOW','MID','HIGH'][detailLevel];frames=0;fpsStart=now}}
+requestAnimationFrame(loop)}
+if(initialMode){document.documentElement.dataset.embed='true';mode(initialMode)}
+setSpeaker('vq');resize();requestAnimationFrame(loop);if(parent!==window)parent.postMessage({vqPersona:1,ready:true},location.origin==='null'?'*':location.origin);
+})();
+
+</script></body></html>
