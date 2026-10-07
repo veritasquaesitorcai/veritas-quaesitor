@@ -3566,7 +3566,7 @@
         }
         const box = el('div', 'ft-offer catalog' + (host ? ' in-panel' : ''));
         box.appendChild(el('div', 'ft-offer-title', 'Everything you can customise'));
-        box.appendChild(el('div', 'ft-offer-text', 'Tap any item to try it, or type it yourself. Press and hold anywhere on this list to see through it. Themes, skies, elements, effects, effects strength, text static, bigger/smaller, focus, undo and reset are instant and free; the rest are passed to VQ and use a message.'));
+        box.appendChild(el('div', 'ft-offer-text', 'Tap any item to try it, or type it yourself. Press and hold anywhere on this list to see through it. Themes, skies, elements, arranging, effects, effects strength, text static, bigger/smaller, focus, undo and reset are instant and free; the rest are passed to VQ and use a message.'));
         const run = (cmd) => { elements.messageInput.value = cmd; sendMessage(); };
         const section = (title, note, items) => {
             const sec = el('div', 'cat-sec');
@@ -3593,6 +3593,13 @@
             ['Monarch butterflies', 'add monarch butterflies'], ['Blue butterflies', 'add blue butterflies'], ['Swallowtails', 'add swallowtail butterflies'], ['Moths', 'add moths'],
             ['Pine trees', 'add pine trees'], ['Oaks', 'add oak trees'], ['Birches', 'add birch trees'], ['Palms', 'add palm trees'], ['Willows', 'add willow trees'], ['Cherry blossom', 'add cherry blossom trees'],
             ['Ferns', 'add ferns'], ['Bushes', 'add bushes'], ['Reeds', 'add reeds'], ['Birds', 'add birds'], ['Falling petals', 'add falling petals']]);
+        section('VQ draws his own', 'Want something that isn’t in the lists? Ask VQ to draw it. He designs his own original version, and its parts move: propellers spin, wings flap, lights twinkle. Say what it is, and optionally how many and where (“2 hot-air balloons in the sky”). One drawing per request; each uses a message. He can’t draw real people, known characters or brands, but he can make an original one of his own.', [
+            ['Hot-air balloon', 'draw a hot-air balloon'], ['Plane flying past', 'draw a small plane flying past'], ['Lighthouse', 'draw a lighthouse'],
+            ['Sailboat', 'draw a sailboat'], ['Kite', 'draw a kite'], ['Windmill', 'draw a windmill'], ['Little cottage', 'draw a little cottage'],
+            ['Fish', 'draw 3 fish swimming'], ['Lantern', 'draw a glowing lantern'], ['Your own dragon', 'draw a friendly dragon of your own design'],
+            ['“remove the plane”', null], ['“more balloons” (say how many)', null]]);
+        section('Arrange', 'Move anything in the scene by hand: tap ✥ Arrange under the message box (or say “arrange”). Drag a flower, tree, butterfly or drawing where you like; plants stay on the ground. Drop something on the bin to remove it. Every move can be undone; tap Done (or press Esc) when you’re finished. Free.', [
+            ['Arrange now', 'arrange'], ['Undo last move', 'undo']]);
         section('Effects', 'Drawn in your theme’s colours.', [
             ['Grass', 'add grass'], ['Mountains', 'add mountains'], ['Stars', 'add stars'], ['Comet', 'add a comet'], ['Planet', 'add a planet'], ['Aurora', 'add an aurora'],
             ['Fireflies', 'add fireflies'], ['Snow', 'add snow'], ['Falling leaves', 'add leaves'], ['TV static', 'add static'], ['Old-TV screen', 'add crt'], ['TV set', 'add the tv set']]);
