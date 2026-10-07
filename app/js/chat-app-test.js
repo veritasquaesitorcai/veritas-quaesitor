@@ -1,4 +1,4 @@
-(function() { 
+(function() {
     'use strict';
 
     // Drawn icons (replace emoji, which look different on every device)
@@ -86,7 +86,8 @@
         if (window.innerWidth > 768) elements.messageInput.focus();
         const tb = document.getElementById('tour-btn');
         if (tb) tb.addEventListener('click', () => { offerTours('use'); if (window.innerWidth <= 768) document.getElementById('sidebar-scrim')?.click(); });
-        if (['panel', 'badge', 'roam'].includes(uiPrefs.persona)) setTimeout(() => startPersona(uiPrefs.persona), 600);
+        const personaDefault = (!uiPrefs.persona && window.innerWidth > 900 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && uiPrefs.motion !== 'reduced') ? 'badge' : uiPrefs.persona;
+        if (['panel', 'badge', 'roam'].includes(personaDefault)) setTimeout(() => startPersona(personaDefault), 900);
         if (continued) setTimeout(() => showLocalNote('Continued from the website chat'), 700);
         else setTimeout(showFeaturePrompt, sessionStorage.getItem('vq-app-intro-just-played') ? 5200 : 1800);
         // If this tab is already open, a conversation sent from the website bubble arrives live
@@ -2703,7 +2704,7 @@
             personaMode = mode;
             personaUnbind = persona.bindComposer(elements.messageInput);
             persona.mood('warm');
-            if (mode === 'roam') roamWander();
+            if (mode === 'roam') { fitRoam(); roamWander(); }
             return true;
         } catch (e) { console.warn('Embodiment failed:', e.message); persona = null; personaMode = null; return false; }
     }
@@ -2717,6 +2718,15 @@
         if (personaMode === 'roam') document.getElementById('persona-roam')?.remove();
         personaMode = null;
     }
+    // The walking area is the whole conversation column, just above where you type (not a corner box)
+    function fitRoam() {
+        const host = document.getElementById('persona-roam');
+        const chat = document.getElementById('chat-container'), inp = document.getElementById('input-area');
+        if (!host || !chat) return;
+        const r = chat.getBoundingClientRect(), top = inp ? inp.getBoundingClientRect().top : r.bottom;
+        Object.assign(host.style, { left: r.left + 'px', width: r.width + 'px', right: 'auto', bottom: Math.max(0, window.innerHeight - top) + 'px', height: Math.min(300, Math.max(180, (top - r.top) * 0.55)) + 'px' });
+    }
+    window.addEventListener('resize', () => { if (personaMode === 'roam') fitRoam(); });
     // When walking, VQ strolls to a new spot now and then, and stays put while answering
     let roamTimer = null, personaBusy = false;
     function roamWander() {
