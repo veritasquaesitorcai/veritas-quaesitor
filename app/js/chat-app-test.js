@@ -93,8 +93,8 @@
         // the welcome screen's big face is VQ's portrait too (gently alive)
         const wa = document.querySelector('.welcome-avatar, .welcome-icon');
         if (wa && hasPortraits()) { wa.innerHTML = portraitSVG('happy', 96); wa.classList.add('vq-alive', 'has-portrait'); }
-        const personaDefault = (!uiPrefs.persona && window.innerWidth > 900 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && uiPrefs.motion !== 'reduced') ? 'badge' : uiPrefs.persona;
-        if (['panel', 'badge', 'roam'].includes(personaDefault)) setTimeout(() => startPersona(personaDefault), 900);
+        setTimeout(() => { personaReady = true; syncPersonaToSky(); }, 900);
+        elements.chatContainer && elements.chatContainer.addEventListener('scroll', personaGuardSoon, { passive: true });
         if (continued) setTimeout(() => showLocalNote('Continued from the website chat'), 700);
         else setTimeout(showFeaturePrompt, sessionStorage.getItem('vq-app-intro-just-played') ? 5200 : 1800);
         // If this tab is already open, a conversation sent from the website bubble arrives live
@@ -1117,6 +1117,7 @@
         document.body.classList.add('casting');
         if (!document.body.classList.contains('insight-open')) openPanel(false);
         setPanelView('cast', false);
+        setTimeout(() => personaPoint(document.getElementById('insight-panel')), 350);
     }
 
     function stopCasting() {
@@ -2790,9 +2791,30 @@
             av.classList.add('has-persona');
             return host;
         }
+        if (mode === 'moon' || mode === 'fly') {
+            let host = document.getElementById('persona-sky');
+            if (!host) { host = el('div'); host.id = 'persona-sky'; document.body.appendChild(host); }
+            return host;
+        }
         let host = document.getElementById('persona-roam');
         if (!host) { host = el('div'); host.id = 'persona-roam'; host.style.cssText = 'position:fixed;pointer-events:none;z-index:411'; document.body.appendChild(host); }
         return host;
+    }
+    // While flying, VQ keeps clear of what you're reading and where you type, and stays inside the conversation area
+    function personaGuard() {
+        if (!persona || !['fly', 'moon'].includes(personaMode)) return;
+        const avoid = [document.getElementById('input-area'), document.getElementById('app-header')]
+            .concat([...document.querySelectorAll('.message .message-content')].filter(n => { const r = n.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight && r.height > 0; }).slice(-6))
+            .filter(Boolean).slice(0, 8);
+        try { persona.setAvoid(avoid); } catch (e) {}
+        if (personaMode === 'fly') { const area = document.getElementById('chat-container'); if (area) try { persona.setArea(area); } catch (e) {} }
+    }
+    let guardTimer = null;
+    function personaGuardSoon() { clearTimeout(guardTimer); guardTimer = setTimeout(personaGuard, 120); }
+    // VQ points at something he has just changed or shown (only where his body can point)
+    function personaPoint(target, say) {
+        if (!persona || !target || !['fly', 'roam', 'panel'].includes(personaMode)) return;
+        try { persona.pointAt(target, say ? { say } : undefined); } catch (e) {}
     }
     function startPersona(mode) {
         stopPersona(true);
@@ -2802,11 +2824,14 @@
         try {
             // v2: a real walking surface sized to the conversation column (turns into the walk, proper gait)
             if (mode === 'roam') fitRoam();
-            persona = window.VQEmbodiment.mount({ root, src: './vq-full-body.html', mode: mode === 'roam' ? 'walking' : mode, accent: personaAccent() });
+            persona = window.VQEmbodiment.mount({ root, src: './vq-full-body.html', mode: { roam: 'walking', fly: 'roaming' }[mode] || mode, accent: personaAccent() });
             personaMode = mode;
             personaUnbind = persona.bindComposer(elements.messageInput);
             persona.mood('warm');
             if (mode === 'roam') { fitRoam(); roamWander(); }
+            if (mode === 'moon') { try { persona.activity('fishing'); } catch (e) {} }
+            document.body.classList.toggle('persona-moon', mode === 'moon');
+            if (mode === 'fly' || mode === 'moon') setTimeout(personaGuard, 400);
             return true;
         } catch (e) { console.warn('Embodiment failed:', e.message); persona = null; personaMode = null; return false; }
     }
@@ -2818,6 +2843,8 @@
         if (personaMode === 'panel') { const tab = document.querySelector('.persona-tab'); if (tab) tab.hidden = true; setPanelView('details', false); }
         if (personaMode === 'badge') { const av = document.querySelector('#app-header .app-avatar-small'); if (av) { av.classList.remove('has-persona'); av.querySelector('.persona-badge')?.remove(); headerPortrait('idle'); } }
         if (personaMode === 'roam') document.getElementById('persona-roam')?.remove();
+        if (personaMode === 'moon' || personaMode === 'fly') document.getElementById('persona-sky')?.remove();
+        document.body.classList.remove('persona-moon');
         personaMode = null;
     }
     // The walking area is the whole conversation column, just above where you type (not a corner box)
@@ -2828,7 +2855,7 @@
         const r = chat.getBoundingClientRect(), top = inp ? inp.getBoundingClientRect().top : r.bottom;
         Object.assign(host.style, { left: r.left + 'px', width: r.width + 'px', right: 'auto', bottom: Math.max(0, window.innerHeight - top) + 'px', height: Math.min(300, Math.max(180, (top - r.top) * 0.55)) + 'px' });
     }
-    window.addEventListener('resize', () => { if (personaMode === 'roam') fitRoam(); });
+    window.addEventListener('resize', () => { if (personaMode === 'roam') fitRoam(); personaGuardSoon(); });
     // When walking, VQ strolls to a new spot now and then, and stays put while answering
     let roamTimer = null, personaBusy = false, roamX = 0;
     function roamWander() {
@@ -3101,6 +3128,24 @@
     }
     function setSky(sky) {
         uiPrefs.scene = sky; uiPrefs.mist = sky !== 'none';
+        setTimeout(syncPersonaToSky, 50);
+    }
+    function wantedPersona() {
+        const pref = uiPrefs.persona;
+        const night = ['night', 'seanight'].includes(uiPrefs.scene);
+        const canLive = innerWidth > 900 && !matchMedia('(prefers-reduced-motion: reduce)').matches && uiPrefs.motion !== 'reduced';
+        if (pref === 'off') return null;
+        if (night && canLive && pref !== 'panel') return 'moon';
+        if (pref) return pref === 'moon' && !night ? 'badge' : pref;
+        return canLive ? 'badge' : null;
+    }
+    let personaReady = false;
+    function syncPersonaToSky() {
+        if (!personaReady) return;
+        const want = wantedPersona();
+        if (want === personaMode) return;
+        if (!want) { stopPersona(); return; }
+        startPersona(want);
     }
     const SKY_LABEL = { mist: 'Mist', clouds: 'Clouds', sunset: 'Sunset', night: 'Night sky', seaday: 'Seashore', seanight: 'Seashore at night', storm: 'Storm', none: 'Still (no sky)' };
 
@@ -3128,8 +3173,9 @@
             sec.appendChild(row);
             box.appendChild(sec);
         };
-        section('VQ himself', 'VQ’s animated robot body. He looks at you, follows the conversation, thinks, speaks and shows moods.', [
-            ['In the header', 'vq in the header'], ['In the side panel', 'show vq'], ['Walking around', 'let vq walk around'], ['Hide VQ', 'hide vq']]);
+        section('VQ himself', 'VQ’s animated robot body. He looks at you, follows the conversation, thinks, speaks and shows moods. On a night sky he sits on the moon and fishes.', [
+            ['In the header', 'vq in the header'], ['In the side panel', 'show vq'], ['Walking around', 'let vq walk around'], ['Flying', 'let vq fly'],
+            ['On the moon, fishing', 'vq on the moon'], ['Hide VQ', 'hide vq']]);
         section('Themes', 'Ten built-in looks, each with matching icons and accent. Or ask VQ to design a new one from any description.',
             CHOICES.theme.map(t => [t, `${t.toLowerCase()} theme`]));
         section('Skies', 'One moving sky at a time, behind everything.',
@@ -3239,6 +3285,7 @@
         if (!sc) return;
         const scene = ['clouds', 'sunset', 'storm', 'night', 'seaday', 'seanight'].includes(uiPrefs.scene) ? uiPrefs.scene : '';
         sc.dataset.scene = scene;
+        if (typeof syncPersonaToSky === 'function') setTimeout(syncPersonaToSky, 0);
         clearTimeout(stormTimer);
         const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches || uiPrefs.motion === 'reduced';
         if (scene === 'storm' && !calm) scheduleLightning(sc);
@@ -4810,12 +4857,14 @@
         const pm = rawMessage.toLowerCase().trim().replace(/[.!?]+$/, '');
         const personaAsk = /^(hide|remove|close|turn off) (vq|vq'?s body|the robot|your body)$|^(vq|robot) off$/.test(pm) ? 'off'
             : /^(?:show|put|move)? ?(?:vq|the robot|your body|yourself)? ?(?:in|into|to) (?:the )?header$|^(?:vq|robot) (?:badge|in the header)$/.test(pm) ? 'badge'
+            : /^(?:put )?(?:vq|the robot)? ?on (?:the )?moon$|^(?:vq|robot) moon$|^(?:vq )?go fishing$|^let (?:vq|the robot) fish$/.test(pm) ? 'moon'
+            : /^(?:let (?:vq|the robot) fly(?: around)?|(?:vq|robot) fly(?:ing)?(?: around)?|fly around)$/.test(pm) ? 'fly'
             : /^(?:let (?:vq|the robot) walk(?: around)?|(?:vq|robot) walk(?:ing)?(?: around)?|walk around|(?:vq|robot) roam(?:ing)?|let (?:vq|the robot) roam)$/.test(pm) ? 'roam'
             : /^(?:show|bring out|summon) (?:vq|the robot|your body|yourself)$|^(?:vq|robot) (?:in|into) (?:the )?panel$|^(?:vq|robot) on$|^show me vq$/.test(pm) ? 'panel' : null;
         if (personaAsk) {
             elements.messageInput.value = '';
             if (personaAsk === 'off') { stopPersona(); uiPrefs.persona = 'off'; saveUIPrefs(); showLocalNote('VQ’s body is hidden'); return; }
-            if (startPersona(personaAsk)) { uiPrefs.persona = personaAsk; saveUIPrefs(); showLocalNote({ panel: 'VQ is here, in the side panel', badge: 'VQ is in the header', roam: 'VQ is walking along the bottom of the screen' }[personaAsk]); }
+            if (startPersona(personaAsk)) { uiPrefs.persona = personaAsk; saveUIPrefs(); showLocalNote({ panel: 'VQ is here, in the side panel', badge: 'VQ is in the header', roam: 'VQ is walking along the bottom of the screen', moon: 'VQ is on the moon, fishing', fly: 'VQ is flying around (he keeps clear of what you’re reading)' }[personaAsk]); }
             return;
         }
         // The complete list of customisations, on request
@@ -5122,6 +5171,7 @@
             isTyping = false;
             artSignal('idle');
             personaDone();
+            personaGuardSoon();
             setTimeout(() => livePortraits('idle'), 400);
             handleInputChange();
             if (window.innerWidth > 768) elements.messageInput.focus();
