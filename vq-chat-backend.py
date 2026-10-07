@@ -1709,6 +1709,8 @@ UI_SYSTEM_NOTE = (
     "cherry blossom), ferns, bushes, reeds, birds, falling petals, grass, mountains, stars, comet, planet, aurora, fireflies, snow, "
     "leaves, TV static, old-TV screen, TV set, mist, clouds, galaxy, nebula, constellations, waves, surf, falling code, orbits, vortex, "
     "tunnel, retro grid, circuit traces, comets, ripples, film grain. If something isn't in this list, say plainly it isn't available yet.\n"
+    "BUILT-IN THEMES: if the user names one of the built-in themes (VQ, Classic, Navy, Charcoal, Midnight, Ocean, Forest, Ember, "
+    "Slate, Plum), switch to it with action style and style.theme. Never design a new theme for a built-in name.\n"
     "DESIGNING A THEME: when the user asks you to make, design or create a WHOLE NEW theme (e.g. 'a theme like a sunrise over the ocean', "
     "'something calm and green'), call ui_action with action create_theme and a theme you design: dark background, a slightly "
     "lighter surface, light text, an accent and its lighter companion, a vivid icon colour, a short evocative name, a matching "
@@ -3437,6 +3439,9 @@ def chat():
                                 print(f"[STREAM] first call with tools failed ({_ce}); answering without tools", flush=True)
                                 tools_disabled = True
                                 kwargs.pop("tools", None); kwargs.pop("tool_choice", None)
+                                kwargs["messages"] = list(kwargs["messages"]) + [{"role": "system", "content": (
+                                    "IMPORTANT: your screen-control tool is unavailable for this reply, so NOTHING on the user's screen was changed. "
+                                    "Never say or imply that you changed anything on screen; if they asked for a change, say it didn't go through.")}]
                                 stream = groq_client.chat.completions.create(**kwargs)
                             else:
                                 # Fall back to a plain answer from what was already found
@@ -3467,6 +3472,10 @@ def chat():
                                     if attempt == 2:
                                         tools_disabled = True
                                         kwargs.pop("tools", None); kwargs.pop("tool_choice", None)
+                                        kwargs["messages"] = list(kwargs["messages"]) + [{"role": "system", "content": (
+                                            "IMPORTANT: your screen-control tool failed, so NOTHING on the user's screen was changed. Do not say or "
+                                            "imply that you changed the theme, colours, effects or layout. Say briefly that the change didn't go "
+                                            "through this time and suggest trying again, or the free shortcut for built-in themes (e.g. 'ocean theme').")}]
                                     st = groq_client.chat.completions.create(**kwargs)
                         for chunk in _chunks(stream):
                             if not chunk.choices:
