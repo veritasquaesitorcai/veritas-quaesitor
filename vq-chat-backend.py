@@ -1452,10 +1452,16 @@ UI_TOOL = {
             "properties": {
                 "action": {"type": "string", "enum": ["text_size", "style", "panel", "focus_mode", "show_reasoning",
                                                        "new_chat", "reset_display", "undo", "panel_view", "add_note",
-                                                       "second_opinion", "swap", "create_theme", "theme_edit"]},
+                                                       "second_opinion", "swap", "create_theme", "theme_edit", "draw"]},
+                "what": {"type": "string", "description": ("For draw: what to draw, as a short concrete visual description of YOUR OWN original design "
+                         "(shape, colours, key details), e.g. 'a red and white hot-air balloon with a wicker basket', 'a small silver passenger plane with a spinning propeller'")},
+                "name": {"type": "string", "description": "For draw: a 1-3 word name for it, e.g. 'hot-air balloon'"},
+                "motion": {"type": "string", "enum": ["fly", "float", "drift", "wander", "swim", "sway", "bob", "spin", "still"],
+                           "description": "For draw: how it moves: fly (planes, birds, across the sky), float (balloons), drift (clouds, boats), wander (creatures), swim (fish), sway (plants, flags), bob, spin, still (buildings)"},
+                "place": {"type": "string", "enum": ["sky", "ground", "anywhere"], "description": "For draw: where it belongs"},
                 "add": {"type": "string", "description": "For theme_edit: ONE element to add, in plain words, e.g. 'butterflies', 'red tulips', 'cherry blossom trees', 'a galaxy', 'snow'"},
                 "remove": {"type": "string", "description": "For theme_edit: ONE element to remove, e.g. 'comet', 'butterflies'"},
-                "count": {"type": "integer", "description": "For theme_edit add: how many (optional)"},
+                "count": {"type": "integer", "description": "For theme_edit add or draw: how many (optional; draw allows 1-6)"},
                 "shade": {"type": "string", "enum": ["darker", "lighter"], "description": "For theme_edit: make the background darker or lighter"},
                 "accent_hex": {"type": "string", "description": "For theme_edit: a new accent colour as #hex (optional)"},
                 "theme": {"type": "object", "description": ("For create_theme: a new theme you design from the user's description. "
@@ -1625,6 +1631,22 @@ def validate_ui_action(args: dict):
             return None, "theme_edit needs something to add, remove or change"
         clean["edit"] = edit
         parts = [f"{k} {v}" for k, v in edit.items()]
+    if action == "draw":
+        what = re.sub(r"[<>{}]", "", str(args.get("what") or "")).strip()[:240]
+        name = re.sub(r"[^\w '\-]", "", str(args.get("name") or "")).strip()[:30] or what[:30]
+        if not what:
+            return None, "draw needs a description of what to draw"
+        motion = str(args.get("motion") or "").lower().strip()
+        place = str(args.get("place") or "").lower().strip()
+        clean["what"] = what
+        clean["name"] = name or "drawing"
+        clean["motion"] = motion if motion in ("fly", "float", "drift", "wander", "swim", "sway", "bob", "spin", "still") else "still"
+        clean["place"] = place if place in ("sky", "ground", "anywhere") else ("sky" if clean["motion"] in ("fly", "float") else "anywhere")
+        try:
+            clean["count"] = max(1, min(6, int(args.get("count") or 1)))
+        except (TypeError, ValueError):
+            clean["count"] = 1
+        parts = [f"drew {clean['name']}"]
     if action == "create_theme":
         th = args.get("theme") if isinstance(args.get("theme"), dict) else {}
         hexok = lambda v: isinstance(v, str) and re.fullmatch(r"#?[0-9a-fA-F]{6}", v.strip()) is not None
@@ -1685,9 +1707,62 @@ def validate_ui_action(args: dict):
         "second_opinion": f"Asked {ENQUIRER_NAME} about the {clean.get('which', 'latest')} answer",
         "create_theme": "Look → " + ", ".join(parts) if action == "create_theme" else "",
         "theme_edit": "Theme edit → " + ", ".join(parts) if action == "theme_edit" else "",
+        "draw": f"Drew {clean.get('name', 'a drawing')}" if action == "draw" else "",
         "swap": ("Swapped back: VQ has the main chat" if clean.get('state') == 'off' else f"Swapped places: {ENQUIRER_NAME} has the main chat"),
     }
     return clean, labels[action]
+
+# ---------- VQ's own drawings: a separate call writes the SVG, so the chat model only decides what to draw ----------
+DRAW_MODEL = os.environ.get("DRAW_MODEL", "openai/gpt-oss-120b")
+DRAW_PROMPT = (
+    "You are VQ's illustrator. Reply with ONE SVG and nothing else (no explanation, no code fence).\n"
+    "Rules:\n"
+    "- <svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\">; the subject fills most of the box, centred.\n"
+    "- Transparent background: never draw a background, sky, ground strip or frame around the subject.\n"
+    "- Side view. Anything that travels (vehicles, animals, birds, fish) faces RIGHT.\n"
+    "- Clean flat illustration, 10-30 shapes. Build form with layers: a base shape, a darker shape for shadow, a lighter one for highlight, then details.\n"
+    "- Only <g>, <path>, <circle>, <ellipse>, <rect>, <polygon>, <polyline>, <line>. Solid fills as fill=\"#rrggbb\"; optional stroke and stroke-width.\n"
+    "- No text, images, gradients, filters, masks, clip paths, patterns, styles, scripts, links or animation tags.\n"
+    "- Natural real-world colours unless the description says otherwise.\n"
+    "- Moving parts: wrap them in <g data-anim=\"KIND\" data-pivot=\"x,y\"> where KIND is spin (propellers, wheels, rotors), "
+    "flap (wings), sway (leaves, flags, tails, flames), flutter, bob, pulse, glow or twinkle (lights, stars), blink (eyes); "
+    "data-pivot is the joint or axle point in the 0-100 box. At most 3 animated groups; leave everything else unwrapped.\n"
+    "- Originality: always your own original design. If the request is for a real person, a known fictional character, a mascot, "
+    "a logo, a brand or any copyrighted design, reply with exactly REFUSE."
+)
+
+def _clean_svg(text: str):
+    """Pull out the SVG and strip anything that isn't plain drawing. The app cleans it again before use."""
+    m = re.search(r"<svg[\s\S]*?</svg>", text or "", re.I)
+    if not m:
+        return None
+    svg = m.group(0)
+    svg = re.sub(r"<(script|style|foreignObject|image|use|a|text|animate\w*|set)\b[\s\S]*?(</\1\s*>|/>)", "", svg, flags=re.I)
+    svg = re.sub(r"\s(on\w+|href|xlink:href|style)\s*=\s*(\"[^\"]*\"|'[^']*')", "", svg, flags=re.I)
+    if re.search(r"javascript:|<script|<foreignObject", svg, re.I) or len(svg) > 24000:
+        return None
+    return svg
+
+def draw_svg(spec: dict):
+    """Returns (svg, None) or (None, reason)."""
+    try:
+        r = groq_client.chat.completions.create(
+            model=DRAW_MODEL,
+            messages=[{"role": "system", "content": DRAW_PROMPT},
+                      {"role": "user", "content": f"Draw: {spec.get('what')}. It will {spec.get('motion', 'stay still')} "
+                                                  f"in the {spec.get('place', 'scene')} of an animated scene, shown about 100 pixels tall."}],
+            temperature=0.6, max_tokens=5000, reasoning_effort="low")
+        text = (r.choices[0].message.content or "").strip()
+    except Exception as e:
+        print(f"[DRAW] failed: {e}", flush=True)
+        return None, "the drawing service didn't respond"
+    if text.upper().startswith("REFUSE"):
+        return None, "that's someone else's character or design, so I can't draw it, but I'd be glad to draw an original design of my own instead"
+    svg = _clean_svg(text)
+    if not svg:
+        return None, "the drawing came back unusable"
+    print(f"[DRAW] {spec.get('name')}: {len(svg)} chars", flush=True)
+    return svg, None
 
 UI_SYSTEM_NOTE = (
     "\n\nSCREEN CONTROLS: You can change this app's display with the ui_action tool, but only when the user asks "
@@ -1708,7 +1783,14 @@ UI_SYSTEM_NOTE = (
     "poppy, lavender, sunflower, wildflower), butterflies (monarch, blue, swallowtail, moth), trees (pine, oak, birch, palm, willow, "
     "cherry blossom), ferns, bushes, reeds, birds, falling petals, grass, mountains, stars, comet, planet, aurora, fireflies, snow, "
     "leaves, TV static, old-TV screen, TV set, mist, clouds, galaxy, nebula, constellations, waves, surf, falling code, orbits, vortex, "
-    "tunnel, retro grid, circuit traces, comets, ripples, film grain. If something isn't in this list, say plainly it isn't available yet.\n"
+    "tunnel, retro grid, circuit traces, comets, ripples, film grain.\n"
+    "DRAWING YOUR OWN: if the user asks to add, draw or make something that is NOT in that list (a plane, a hot-air balloon, a lighthouse, "
+    "a sailboat, a dragon of your own design), call ui_action with action draw: 'what' (a short concrete description of your own "
+    "original design), 'name', 'motion', 'place' and optionally 'count' (1-6). ONE drawing per request. More or fewer of an existing "
+    "drawing, or removing it, is a theme_edit add/remove with its name. NEVER draw real people, known characters (e.g. superheroes, "
+    "cartoon or game characters), mascots, logos or brands: do not call the tool; say plainly in one sentence that you can't draw that "
+    "one because it's someone else's character, and offer an original design of your own instead (e.g. an original masked hero in your "
+    "own colours), drawn only if they say yes.\n"
     "NEVER mention internal tool or action names (ui_action, theme_edit, create_theme) to the user; describe changes in plain words. "
     "If the user asks for a full or complete list of customisations or effects, give a short overview and tell them to say "
     "'show all customisations' to open the complete, tappable list in the app.\n"
@@ -1726,7 +1808,7 @@ UI_SYSTEM_NOTE = (
     "(galaxy, nebula, matrix, grid, tunnel, vortex, orbits, circuit, ripples and more). Choose what fits; two to four in total is plenty. "
     "LIMITS: at most 4 effects and 3 layers per theme. If the user asks for 'as many as possible', choose the best 4-5 in total and "
     "say you picked the strongest combination. If they ask for something that isn't in these lists (e.g. flowers, butterflies, "
-    "dragons), make the theme with the closest available effects and say clearly which parts aren't available yet. For a retro TV look use crt, static and tvset with a phosphor palette: near-black "
+    "dragons), make the theme with the closest available effects, then offer to draw the missing piece as your own drawing. For a retro TV look use crt, static and tvset with a phosphor palette: near-black "
     "background with green, amber or cool white text, and scene none. If the user asks to add an effect to a theme of yours, create the theme again with it included. The app checks and adjusts readability automatically. Then describe the theme in one or two sentences "
     "(the mood and the colours you chose).\n"
     "After a change, confirm it in one short sentence and mention they can say 'undo'. If the user asks what "
@@ -1742,6 +1824,10 @@ UI_SYSTEM_NOTE = (
     "SCENE ELEMENTS, added one at a time, free ('add 6 red tulips', 'remove butterflies'): flowers (daisy, tulip, rose, poppy, "
     "lavender, sunflower, wildflower, lily), butterflies (monarch, blue, swallowtail, moth), trees (pine, oak, birch, palm, willow, "
     "cherry blossom), ferns, bushes, reeds, birds, falling petals. They sway in the wind and react while VQ thinks and answers.\n"
+    "VQ'S OWN DRAWINGS (uses a message): anything else, drawn by VQ as an original animated piece ('draw a hot-air balloon', 'add a "
+    "plane flying past', 'a lighthouse'); propellers spin, wings flap, lights twinkle. Not real people, known characters or brands.\n"
+    "ARRANGE, free: say 'arrange' or tap Arrange under the message box, then drag any element where you like or drop it on the bin "
+    "to remove it.\n"
     "EFFECTS, free ('add a comet'): grass, mountains, stars, comet, planet, aurora, fireflies, snow, falling leaves, TV static, old-TV "
     "screen, wooden TV set; and richer layers: galaxy, nebula, constellations, comets, waves, surf, ripples, falling code, circuits, "
     "retro grid, tunnel, vortex, orbits, film grain. Effects strength high, medium or low (free: 'effects low').\n"
@@ -3572,6 +3658,13 @@ def chat():
                                 continue
                             if c["name"] == "ui_action":
                                 clean_ui, summary = validate_ui_action(args) if (offer_ui and rounds == 1) else (None, "not allowed now")
+                                if clean_ui and clean_ui.get("action") == "draw":
+                                    yield _sse({"status": f"Drawing {clean_ui['name']}", "detail": clean_ui["what"][:60]})
+                                    _svg, _why = draw_svg(clean_ui)
+                                    if _svg:
+                                        clean_ui["svg"] = _svg
+                                    else:
+                                        clean_ui, summary = None, _why
                                 if clean_ui:
                                     yield _sse({"status": "Adjusting your screen", "detail": summary})
                                     yield _sse({"ui": clean_ui})
