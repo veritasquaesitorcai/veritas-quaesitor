@@ -2445,6 +2445,11 @@
         if (['mist', 'clouds', 'sunset', 'night', 'seaday', 'seanight', 'storm', 'none'].includes(raw.scene)) s.scene = raw.scene;
         const fxIn = Array.isArray(raw.effects) ? raw.effects : String(raw.effects || '').split(',');
         s.effects = [...new Set(fxIn.map(x => String(x).trim().toLowerCase()).filter(x => FX_LIST.includes(x)))].slice(0, 4);
+        const okParam = (k, v) => /^[a-z]{2,14}$/i.test(k) && (typeof v === 'number' && isFinite(v) || typeof v === 'boolean' || (typeof v === 'string' && v.length <= 12));
+        s.layers = (Array.isArray(raw.layers) ? raw.layers : []).filter(l => l && TK_TYPES.includes(l.type)).slice(0, 4).map(l => ({
+            type: l.type,
+            params: Object.fromEntries(Object.entries(l.params && typeof l.params === 'object' ? l.params : {}).filter(([k, v]) => okParam(k, v)).slice(0, 10))
+        }));
         return { spec: s, fixes };
     }
 
@@ -2468,14 +2473,14 @@
     }
 
     function themeCode(s) {
-        const short = { n: s.name, b: s.background, u: s.surface, t: s.text, a: s.accent, a2: s.accent2, i: s.icon, s: s.scene || '', e: (s.effects || []).join(',') };
+        const short = { n: s.name, b: s.background, u: s.surface, t: s.text, a: s.accent, a2: s.accent2, i: s.icon, s: s.scene || '', e: (s.effects || []).join(','), l: s.layers && s.layers.length ? s.layers : undefined };
         return 'VQT1-' + btoa(unescape(encodeURIComponent(JSON.stringify(short)))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
     }
     function parseThemeCode(code) {
         try {
             const b64 = code.replace(/^VQT1-/, '').replace(/-/g, '+').replace(/_/g, '/');
             const o = JSON.parse(decodeURIComponent(escape(atob(b64))));
-            return { name: o.n, background: o.b, surface: o.u, text: o.t, accent: o.a, accent2: o.a2, icon: o.i, scene: o.s, effects: o.e || '' };
+            return { name: o.n, background: o.b, surface: o.u, text: o.t, accent: o.a, accent2: o.a2, icon: o.i, scene: o.s, effects: o.e || '', layers: o.l || [] };
         } catch (e) { return null; }
     }
 
@@ -2630,6 +2635,33 @@
         }
     }
 
+
+    // ---------- Visual Toolkit layers: canvas effects (galaxy, nebula, matrix, grid, vortex…) chosen by VQ for a theme ----------
+    const TK_TYPES = ['mist', 'clouds', 'storm', 'stars', 'constellations', 'galaxy', 'nebula', 'aurora', 'waves', 'seashore', 'matrix',
+                      'orbits', 'vortex', 'tunnel', 'grid', 'circuit', 'comets', 'ripples', 'grain'];
+    let tkStudio = null, tkKey = '';
+    function applyToolkitLayers(spec) {
+        const list = (spec && Array.isArray(spec.layers) ? spec.layers : []).filter(l => l && TK_TYPES.includes(l.type)).slice(0, 4);
+        const key = JSON.stringify(list) + '|' + (spec ? spec.icon + spec.accent2 : '');
+        if (key === tkKey) return;
+        tkKey = key;
+        let host = document.querySelector('.vq-visual-host');
+        if (!list.length) { if (tkStudio) { try { tkStudio.run('vq_effect_clear', {}); } catch (e) {} } if (host) host.hidden = true; return; }
+        if (!window.VQVisualToolkit) return;
+        if (!host) { host = el('div', 'vq-visual-host'); host.setAttribute('aria-hidden', 'true'); document.body.appendChild(host); }
+        host.hidden = false;
+        try {
+            if (!tkStudio) tkStudio = window.VQVisualToolkit.create({ root: host, persist: false });
+            tkStudio.run('vq_effect_clear', {});
+            list.forEach((l, i) => {
+                const params = Object.assign({ color: spec.icon, secondary: spec.accent2 }, l.params || {});
+                let r = tkStudio.run('vq_effect_add', { layer: { id: `vq-layer-${i}`, type: l.type, params } });
+                if (!r || !r.ok) r = tkStudio.run('vq_effect_add', { layer: { id: `vq-layer-${i}`, type: l.type, params: { color: spec.icon, secondary: spec.accent2 } } });
+                if (!r || !r.ok) console.warn('Effect layer skipped:', l.type, r && r.error);
+            });
+        } catch (e) { console.warn('Visual toolkit unavailable:', e.message); host.hidden = true; }
+    }
+
     // ---------- The wooden TV set: a cabinet around the app with working knobs ----------
     function buildTvControls() {
         const c = el('div', 'tv-controls');
@@ -2719,6 +2751,7 @@
         THEME_VARS.forEach((v, i) => { if (vals) root.setProperty(v, vals[i]); else root.removeProperty(v); });
         applyCustomIcons(cs);
         renderFx(cs);
+        applyToolkitLayers(cs);
         const before = document.body.dataset.theme;
         document.body.dataset.theme = cs ? 'custom' : vals ? name : 'classic';
         if (cs) document.body.dataset.customTheme = name; else delete document.body.dataset.customTheme;
@@ -4233,7 +4266,10 @@
                     const sp = r.spec || {};
                     used.add('theme'); used.add('accent');
                     const fxNames = { trees: 'swaying trees', grass: 'swaying grass', mountains: 'mountains', stars: 'twinkling stars', comet: 'a passing comet', planet: 'a ringed planet', aurora: 'an aurora', fireflies: 'fireflies', snow: 'falling snow', leaves: 'falling leaves', static: 'TV static', crt: 'an old-TV screen', tvset: 'a wooden TV set with working knobs' };
-                    const fxText = (sp.effects || []).map(f => fxNames[f]).filter(Boolean);
+                    const tkNames = { mist: 'drifting mist', clouds: 'cloud banks', storm: 'a storm', stars: 'a star field', constellations: 'constellations', galaxy: 'a spiral galaxy',
+                        nebula: 'a nebula', aurora: 'aurora curtains', waves: 'flowing waves', seashore: 'surf', matrix: 'falling code', orbits: 'orbital rings', vortex: 'a light vortex',
+                        tunnel: 'a geometric tunnel', grid: 'a perspective grid', circuit: 'circuit traces', comets: 'comets', ripples: 'water ripples', grain: 'film grain' };
+                    const fxText = (sp.effects || []).map(f => fxNames[f]).concat((sp.layers || []).map(l => tkNames[l.type])).filter(Boolean);
                     lines.push(`New theme **${sp.name || 'saved'}** created and saved${sp.scene && sp.scene !== 'none' ? `, with a matching **${sp.scene === 'seaday' ? 'seashore' : sp.scene === 'seanight' ? 'night seashore' : sp.scene}** sky` : ''}` +
                         (fxText.length ? `, and ${fxText.length > 1 ? fxText.slice(0, -1).join(', ') + ' and ' + fxText.slice(-1) : fxText[0]}` : '') + '.' +
                         (r.fixes && r.fixes.length ? ` For readability I ${r.fixes.join(', ')}.` : ''));
