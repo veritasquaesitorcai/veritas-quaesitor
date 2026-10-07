@@ -1,4 +1,4 @@
-(function() { 
+(function() {
     'use strict';
 
     // Drawn icons (replace emoji, which look different on every device)
@@ -2992,7 +2992,7 @@
                     react: flying ? { onThink: { kind: 'glow', amount: 0.35, speed: 0.7 }, onSpeak: { kind: 'pulse', amount: 0.15, speed: 1 } }
                                   : { onThink: { kind: 'glow', amount: 0.25, speed: 0.6 }, onSpeak: { kind: 'sway', amount: 0.25, speed: 1.2 } }
                 }, e);
-            }).map(o => { Object.keys(o).forEach(k => o[k] === undefined && delete o[k]); return o; });
+            }).map(o => { Object.keys(o).forEach(k => o[k] === undefined && delete o[k]); return o; }).map(o => placeDrawing(o, host));
             // Light comes from the sky's own light source; detail follows the effects-strength setting
             const LIGHT = { sunset: { angle: 160, strength: 0.75 }, night: { angle: -135, strength: 0.4 }, seanight: { angle: -135, strength: 0.4 },
                             seaday: { angle: -120, strength: 0.7 }, storm: { angle: -90, strength: 0.35 }, clouds: { angle: -90, strength: 0.5 } };
@@ -3011,6 +3011,34 @@
                 console.warn('Some scene elements were skipped:', r.error || '');
             }
         } catch (e) { console.warn('Art engine unavailable:', e.message); host.hidden = true; }
+    }
+
+    // VQ's drawings are placed by their centre: keep the whole drawing inside the scene (sky things up high,
+    // ground things standing on the ground), unless the user has already placed them by hand
+    function placeDrawing(o, host) {
+        if (o.type !== 'custom' || !host) return o;
+        const r = host.getBoundingClientRect();
+        if (!(r.width > 40 && r.height > 40)) return o;
+        const n = Math.max(0, Math.min(60, o.count == null ? 1 : o.count));
+        const scale = { near: 1.12, mid: 1, far: 0.66 }[o.depth] || 1;
+        const half = (o.size || 100) * scale / 2;
+        const hx = Math.min(0.45, half / r.width), hy = Math.min(0.45, half / r.height);
+        let seed = 0; for (const ch of String(o.name || o.id || '')) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+        const rand = (i, k) => { let t = (seed + i * 7919 + k * 104729) >>> 0; t = Math.imul(t ^ (t >>> 15), 2246822507) >>> 0; t = Math.imul(t ^ (t >>> 13), 3266489909) >>> 0; return ((t ^ (t >>> 16)) >>> 0) / 4294967296; };
+        const area = o.area || 'full', have = Array.isArray(o.positions) ? o.positions : [];
+        const pos = [];
+        for (let i = 0; i < n; i++) {
+            if (have[i]) { pos.push(have[i]); continue; }
+            const x = hx + ((i + rand(i, 1)) / Math.max(1, n)) * (1 - 2 * hx);   // spread across, never off the edge
+            let y;
+            if (area === 'bottom') y = 1 - hy - 0.01;                                       // standing on the ground
+            else if (area === 'top') y = hy + rand(i, 2) * Math.max(0, 0.42 - hy);          // up in the sky
+            else y = hy + rand(i, 2) * Math.max(0, 1 - 2 * hy);
+            pos.push([+Math.min(1, Math.max(0, x)).toFixed(4), +Math.min(1, Math.max(0, y)).toFixed(4)]);
+        }
+        o.positions = pos;
+        o.area = 'full';   // the positions above already keep each drawing in its part of the scene
+        return o;
     }
 
     // One shared "ground" for everything that grows from the bottom (flowers, trees, grass, mountains):
@@ -3143,14 +3171,14 @@
     // same light, depth, wind, dragging, bin and undo as the flowers. Groups marked data-anim move on their own.
     const DRAW_ANIMS = { spin: { amount: 0.6, speed: 1.6 }, rotate: { amount: 0.35, speed: 0.8 }, sway: { amount: 0.35, speed: 0.8 },
         flap: { amount: 0.8, speed: 1.4 }, flutter: { amount: 0.5, speed: 1.4 }, bob: { amount: 0.3, speed: 0.7 }, pulse: { amount: 0.3, speed: 1 },
-        glow: { amount: 0.45, speed: 0.8 }, twinkle: { amount: 0.5, speed: 1.2 }, wobble: { amount: 0.3, speed: 1 }, breathe: { amount: 0.25, speed: 0.6 },
+        glow: { amount: 0.18, speed: 0.8 }, twinkle: { amount: 0.4, speed: 1.2 }, wobble: { amount: 0.3, speed: 1 }, breathe: { amount: 0.25, speed: 0.6 },
         blink: { amount: 0.6, speed: 0.6 } };
     const DRAW_MOTION = {
-        fly:    { path: { kind: 'arc', amount: 0.3, speed: 0.55 }, area: 'top' },
-        float:  { path: { kind: 'wander', amount: 0.45, speed: 0.3 }, area: 'top', anim: { kind: 'bob', amount: 0.25, speed: 0.5 } },
-        drift:  { path: { kind: 'zigzag', amount: 0.12, speed: 0.3 } },
-        wander: { path: { kind: 'wander', amount: 0.7, speed: 0.5 } },
-        swim:   { path: { kind: 'wander', amount: 0.6, speed: 0.45 }, anim: { kind: 'wobble', amount: 0.15, speed: 0.8 } },
+        fly:    { path: { kind: 'arc', amount: 0.15, speed: 0.9 }, area: 'top' },
+        float:  { path: { kind: 'wander', amount: 0.3, speed: 0.45 }, area: 'top', anim: { kind: 'bob', amount: 0.25, speed: 0.5 } },
+        drift:  { path: { kind: 'zigzag', amount: 0.1, speed: 0.45 } },
+        wander: { path: { kind: 'wander', amount: 0.4, speed: 0.75 } },
+        swim:   { path: { kind: 'wander', amount: 0.4, speed: 0.7 }, anim: { kind: 'wobble', amount: 0.15, speed: 0.8 } },
         sway:   { anim: { kind: 'sway', amount: 0.22, speed: 0.6, pivot: [50, 98] } },
         bob:    { anim: { kind: 'bob', amount: 0.3, speed: 0.6 } },
         spin:   { anim: { kind: 'spin', amount: 0.15, speed: 0.3 } },
