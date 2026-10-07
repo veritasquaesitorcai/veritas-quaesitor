@@ -2902,13 +2902,23 @@
     // ---------- VQ Art: animated flowers, butterflies, trees and more, added one at a time ----------
     const ART_TYPES = ['flower', 'butterfly', 'tree', 'fern', 'bush', 'reeds', 'bird', 'falling-petals'];
     let artEngine = null, artKey = '';
-    function artPalette(type, s) {
-        const a = s.accent, a2 = s.accent2, ic = s.icon;
-        return {
-            flower: ['#5f9f6e', a2, a, ic], butterfly: [a, a2, '#2a2622', ic], tree: ['#7a5c45', '#5d8f63', '#8db38a', a2], 'tree:cherry-blossom': ['#6e5242', '#f2a7c3', '#f8c9da', '#ffffff'],
-            fern: ['#4f8a62', '#86b897', '#6c9f7c'], bush: ['#4c7d5b', '#7fae86', a2], reeds: ['#7d8f5a', '#a9b77d', '#5f7046'],
-            bird: ['#d9dde4', a2], 'falling-petals': [a2, a, '#ffffff']
-        }[type] || [a, a2, ic];
+    // Nature keeps its own colours whatever the theme: roses red, sunflowers yellow, leaves green
+    const NATURAL = {
+        flower: { daisy: ['#4f8a4a', '#f7f5ee', '#f2c230'], tulip: ['#4a8a45', '#e2394a', '#ffd27a'], rose: ['#3f7a3e', '#c8102e', '#7a0a1c'],
+                  poppy: ['#4d8a42', '#e8442e', '#1d1d1d'], lavender: ['#5f8a5a', '#9b7fd4', '#7a5fc0'], sunflower: ['#4a7d36', '#f5c518', '#5a3a1a'],
+                  wildflower: ['#558b4a', '#e88fb8', '#f3d34a', '#8fb4e8'], lily: ['#4a8a4a', '#f8f1f4', '#f2a3b5', '#e8b04a'], any: ['#4f8a4a', '#f7f5ee', '#f2c230'] },
+        butterfly: { monarch: ['#2a2622', '#f08a24', '#1d1d1d', '#ffffff'], blue: ['#2a2a3a', '#3a8ee8', '#1a3a7a', '#e8f4ff'],
+                     swallowtail: ['#2a2622', '#f5d64a', '#1d1d1d', '#5a8ae8'], moth: ['#5a4a3a', '#c9b48f', '#7a6a55', '#efe6d2'], any: ['#2a2622', '#f08a24', '#1d1d1d', '#ffffff'] },
+        tree: { pine: ['#5a3f2a', '#2f6b3a', '#3f8a4a'], oak: ['#6b4a2f', '#4f8a3f', '#6fa84f'], birch: ['#e8e4dc', '#7fb85a', '#3a3a3a'],
+                palm: ['#8a6a45', '#3f9a4a', '#6bbf5a'], willow: ['#6b5240', '#7fae5a', '#a6c97a'], 'cherry-blossom': ['#6e5242', '#f2a7c3', '#f8c9da', '#ffffff'],
+                any: ['#6b4a2f', '#4f8a3f', '#6fa84f'] },
+        fern: { any: ['#3f7a42', '#5fa85a', '#7fbf6f'] }, bush: { any: ['#3f6b3a', '#5f9a4f', '#e2394a'] },
+        reeds: { any: ['#7d8f5a', '#a9b77d', '#6b4a2f'] }, bird: { any: ['#e8e8ee', '#3a3a44'] },
+        'falling-petals': { any: ['#f8c9da', '#f2a7c3', '#ffffff'] }
+    };
+    function artPalette(e) {
+        const t = NATURAL[e.type] || {};
+        return t[e.species || e.style || e.kind] || t.any || ['#4f8a4a', '#f7f5ee', '#f2c230'];
     }
     function applyArt(spec) {
         const list = (spec && Array.isArray(spec.art) ? spec.art : []).filter(e => e && ART_TYPES.includes(e.type)).slice(0, 8);
@@ -2958,7 +2968,7 @@
                     size: e.type === 'tree' ? 150 : undefined,
                     seed: 1000 + seedN * 7919,
                     id: 'a' + base + (seen[base] > 1 ? '-' + seen[base] : ''),
-                    colors: artPalette(e.kind === 'cherry-blossom' ? 'tree:cherry-blossom' : e.type, spec),
+                    colors: artPalette(e),
                     spawn: 'grow',
                     // the scene responds to VQ: a soft glow while thinking, a gentle pulse while answering
                     react: flying ? { onThink: { kind: 'glow', amount: 0.35, speed: 0.7 }, onSpeak: { kind: 'pulse', amount: 0.15, speed: 1 } }
@@ -3021,7 +3031,8 @@
         const num = (t.match(/ (\d{1,2}) /) || [])[1];
         const colors = Object.keys(COLOR_WORDS).filter(c => t.includes(' ' + c + ' ')).map(c => COLOR_WORDS[c]);
         const has = (w) => new RegExp(`\\b(${w})\\b`).test(t);
-        const art = (type, extra) => ({ kind: 'art', item: Object.assign({ type }, extra || {}, num ? { count: +num } : {}, colors.length ? { colors: colors.concat(type === 'flower' ? ['#5f9f6e'] : []) } : {}) });
+        const named = (type, extra) => { if (!colors.length) return {}; const nat = artPalette(Object.assign({ type }, extra || {})).slice(); nat[1] = colors[0]; if (colors[1] && nat.length > 2) nat[2] = colors[1]; return { colors: nat }; };
+        const art = (type, extra) => ({ kind: 'art', item: Object.assign({ type }, extra || {}, num ? { count: +num } : {}, named(type, extra)) });
         const species = ['daisy', 'tulip', 'rose', 'poppy', 'lavender', 'sunflower', 'wildflower', 'lily'];
         const sp = species.find(x => has(x + '|' + x + 's|' + x.replace(/y$/, 'ies')));
         if (sp || has('flowers?|blooms?|blossoms') && !has('cherry')) return art('flower', sp ? { species: sp } : {});
