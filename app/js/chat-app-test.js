@@ -2691,7 +2691,7 @@
             return host;
         }
         let host = document.getElementById('persona-roam');
-        if (!host) { host = el('div'); host.id = 'persona-roam'; document.body.appendChild(host); }
+        if (!host) { host = el('div'); host.id = 'persona-roam'; host.style.cssText = 'position:fixed;pointer-events:none;z-index:411'; document.body.appendChild(host); }
         return host;
     }
     function startPersona(mode) {
@@ -2700,7 +2700,9 @@
         const root = personaHost(mode);
         if (!root) return false;
         try {
-            persona = window.VQEmbodiment.mount({ root, src: './vq-full-body.html', mode: mode === 'roam' ? 'roaming' : mode, accent: personaAccent() });
+            // v2: a real walking surface sized to the conversation column (turns into the walk, proper gait)
+            if (mode === 'roam') fitRoam();
+            persona = window.VQEmbodiment.mount({ root, src: './vq-full-body.html', mode: mode === 'roam' ? 'walking' : mode, accent: personaAccent() });
             personaMode = mode;
             personaUnbind = persona.bindComposer(elements.messageInput);
             persona.mood('warm');
