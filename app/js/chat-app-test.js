@@ -2700,9 +2700,29 @@
         }
         host.hidden = false;
         try {
+            const fresh = !artEngine;
             if (!artEngine) artEngine = window.VQArt.create({ root: host });
-            const elements = list.map(e => Object.assign({ colors: artPalette(e.kind === 'cherry-blossom' ? 'tree:cherry-blossom' : e.type, spec) }, e));
-            let r = artEngine.render({ elements });
+            const seen = {};
+            const elements = list.map(e => {
+                const variant = e.species || e.style || e.kind || 'any';
+                const base = `${e.type}-${variant}`.replace(/[^a-zA-Z0-9_-]/g, '-');
+                seen[base] = (seen[base] || 0) + 1;
+                const flying = ['butterfly', 'bird', 'falling-petals'].includes(e.type);
+                return Object.assign({
+                    id: 'a' + base + (seen[base] > 1 ? '-' + seen[base] : ''),
+                    colors: artPalette(e.kind === 'cherry-blossom' ? 'tree:cherry-blossom' : e.type, spec),
+                    spawn: 'grow',
+                    // the scene responds to VQ: a soft glow while thinking, a gentle pulse while answering
+                    react: flying ? { onThink: { kind: 'glow', amount: 0.35, speed: 0.7 }, onSpeak: { kind: 'pulse', amount: 0.15, speed: 1 } }
+                                  : { onThink: { kind: 'glow', amount: 0.25, speed: 0.6 }, onSpeak: { kind: 'sway', amount: 0.25, speed: 1.2 } }
+                }, e);
+            });
+            let r = fresh ? artEngine.render({ elements }) : artEngine.update({ elements });
+            if (!r.ok) {   // an older engine, or a setting it doesn't know: try without the extras
+                const plain = elements.map(({ react, spawn, id, ...rest }) => rest);
+                r = artEngine.render({ elements: plain });
+                if (r.ok) elements.splice(0, elements.length, ...plain);
+            }
             if (!r.ok) {   // keep whichever elements are valid on their own
                 const good = elements.filter(e => { const t = window.VQArt.create({ root: document.createElement('div') }); const ok = t.render({ elements: [e] }).ok; t.dispose(); return ok; });
                 r = artEngine.render({ elements: good });
@@ -2710,6 +2730,8 @@
             }
         } catch (e) { console.warn('Art engine unavailable:', e.message); host.hidden = true; }
     }
+
+    function artSignal(cue) { try { if (artEngine) artEngine.signal(cue); } catch (e) {} }
 
     // Plain words → one element, e.g. "red tulips", "6 monarch butterflies", "cherry blossom trees", "a galaxy"
     const COLOR_WORDS = { red: '#e0484f', pink: '#f28cb8', yellow: '#f5d04a', orange: '#f59a45', purple: '#a06cdc', violet: '#8b6cf0',
@@ -4603,6 +4625,7 @@
                 hideTypingIndicator();
                 hidePending();
                 firstMs = Math.round(performance.now() - t0);
+                artSignal('speak');
                 bubble = createStreamingBubble();
             }
             fillRich(bubble.content, full);
@@ -4650,6 +4673,7 @@
         isTyping = true;
         handleInputChange();
         setStatus('typing', 'Thinking...');
+        artSignal('think');
         showPending('Reading your question');
         startLivePanel(message.replace(/^\[[A-Z ]+\]\s*/, ''));
 
@@ -4739,6 +4763,7 @@
             setTimeout(() => setStatus('online', 'Online'), 3000);
         } finally {
             isTyping = false;
+            artSignal('idle');
             handleInputChange();
             if (window.innerWidth > 768) elements.messageInput.focus();
         }
