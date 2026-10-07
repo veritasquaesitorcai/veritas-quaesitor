@@ -1,4 +1,4 @@
-/* VQ Art v3 — shaded anatomy, depth and traveling wind; v2-compatible. No libraries/network. */
+/* VQ Art v3 — shaded anatomy, depth and traveling wind; v2-compatible. No libraries/network. */ 
 (function(global){'use strict';
 const TYPES=['flower','butterfly','tree','fern','bush','reeds','bird','falling-petals','custom'];
 const SPECIES=['daisy','tulip','rose','poppy','lavender','sunflower','wildflower','lily'];
