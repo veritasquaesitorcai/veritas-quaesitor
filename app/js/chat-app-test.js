@@ -2529,6 +2529,7 @@
         layer.innerHTML = '';
         document.body.classList.toggle('fx-has-planet', want.includes('planet'));
         document.body.classList.toggle('fx-crt', want.includes('crt'));
+        applyNoise((want.includes('static') ? 0.16 : 0) + (want.includes('crt') ? 0.09 : 0));
         document.body.classList.toggle('fx-tv', want.includes('tvset'));
         const oldControls = document.querySelector('.tv-controls');
         if (oldControls) oldControls.remove();
@@ -2584,14 +2585,9 @@
                 }
                 layer.appendChild(f);
             } else if (fx === 'static') {
-                const n = el('div', 'fx-static');
-                n.style.backgroundImage = `url(${getNoiseTile()})`;
-                layer.appendChild(n);
+                /* drawn by applyNoise(), inside the app */
             } else if (fx === 'crt') {
                 // the old-TV screen: scanlines, a rolling bar, curved glass with a dark bezel, and a power-on line
-                const n = el('div', 'fx-crt-noise');
-                n.style.backgroundImage = `url(${getNoiseTile()})`;
-                layer.appendChild(n);
                 layer.insertAdjacentHTML('beforeend', '<div class="fx-crt-lines"></div><div class="fx-crt-roll"></div><div class="fx-crt-glass"></div><div class="fx-crt-on"></div>');
             } else if (fx === 'snow') {
                 layer.insertAdjacentHTML('beforeend', '<div class="fx-snow s1"></div><div class="fx-snow s2"></div>');
@@ -2608,6 +2604,31 @@
         });
     }
 
+
+
+    // TV static lives inside the app: one layer under the chat text, and (unless the text is set to clear) a fainter one over it
+    let noiseStrength = 0;
+    function applyNoise(strength) {
+        if (typeof strength === 'number') noiseStrength = strength;
+        const host = document.getElementById('app-container');
+        if (!host) return;
+        host.querySelectorAll('.app-noise').forEach(n => n.remove());
+        const mode = ['full', 'reduced', 'clear'].includes(uiPrefs.textStatic) ? uiPrefs.textStatic : 'reduced';
+        document.body.classList.toggle('noise-under-text', noiseStrength > 0 && mode !== 'full');
+        if (!noiseStrength) return;
+        const add = (cls, op) => {
+            const n = el('div', 'app-noise ' + cls);
+            n.setAttribute('aria-hidden', 'true');
+            n.style.backgroundImage = `url(${getNoiseTile()})`;
+            n.style.setProperty('--noise-op', op.toFixed(3));
+            host.appendChild(n);
+        };
+        if (mode === 'full') add('over', noiseStrength);                 // one layer over everything, text included
+        else {
+            add('under', noiseStrength * (mode === 'reduced' ? 0.8 : 1));  // under the chat text
+            if (mode === 'reduced') add('over', noiseStrength * 0.3);     // a light touch over the text too
+        }
+    }
 
     // ---------- The wooden TV set: a cabinet around the app with working knobs ----------
     function buildTvControls() {
@@ -2626,8 +2647,8 @@
         c.querySelector('.tv-channel').addEventListener('click', () => {
             ch = (ch + 1) % 12;
             c.querySelector('.tv-channel .tv-cap').style.transform = `rotate(${ch * 30}deg)`;
-            const fx = document.querySelector('.vq-fx');
-            if (fx) { fx.classList.remove('tv-burst'); void fx.offsetWidth; fx.classList.add('tv-burst'); }
+            const host = document.getElementById('app-container');
+            if (host) { host.classList.remove('tv-burst'); void host.offsetWidth; host.classList.add('tv-burst'); }
             showOsd(`CH ${String(ch + 2).padStart(2, '0')}`);
         });
         c.querySelector('.tv-volume').addEventListener('click', () => {
@@ -2811,6 +2832,8 @@
         b.toggle('ui-bubbles', !!uiPrefs.bubbles);
         b.toggle('no-glow', uiPrefs.glow === false);
         b.toggle('no-mist', uiPrefs.mist === false || ['clouds', 'sunset', 'storm', 'night', 'seaday', 'seanight', 'none'].includes(uiPrefs.scene));
+        document.body.dataset.fx = ['low', 'medium', 'high'].includes(uiPrefs.fx) ? uiPrefs.fx : 'high';
+        if (document.getElementById('app-container') && noiseStrength) applyNoise();
         applyScene();
         applyTheme(THEMES.hasOwnProperty(uiPrefs.theme) || customSpec(uiPrefs.theme) ? uiPrefs.theme : 'vq');
         const tv = TITLE_STYLES[uiPrefs.title] || 1;
@@ -2863,6 +2886,8 @@
                 }
                 if (st.glow === 'on' || st.glow === 'off') uiPrefs.glow = st.glow === 'on';
                 if (st.mist === 'on' || st.mist === 'off') { uiPrefs.mist = st.mist === 'on'; if (st.mist === 'on') uiPrefs.scene = 'mist'; }
+                if (['low', 'medium', 'high'].includes(st.effects)) uiPrefs.fx = st.effects;
+                if (['full', 'reduced', 'clear'].includes(st.text_static)) uiPrefs.textStatic = st.text_static;
                 if (['mist', 'clouds', 'sunset', 'storm', 'night', 'seaday', 'seanight', 'none'].includes(st.scene)) { uiPrefs.scene = st.scene; uiPrefs.mist = st.scene !== 'none'; }
                 break;
             }
@@ -4166,6 +4191,10 @@
                     if (st.accent) { used.add('accent'); lines.push(`Accent colour set to **${cap(st.accent)}**. Other colours: ${others(CHOICES.accent, st.accent)}.`); }
                     if (st.title) { used.add('title'); lines.push(`Title style set to **${cap(st.title)}**. The others are ${others(CHOICES.title, st.title).replace(/, ([^,]*)$/, ' and $1')}.`); }
                     if (st.bubbles) { used.add('bubbles'); lines.push(st.bubbles === 'on' ? 'Answers now show **in chat bubbles**. Say “bubbles off” for the open page layout.' : 'Answers now use the **open page layout**. Say “bubbles on” to bring the bubbles back.'); }
+                    if (st.text_static) lines.push({ clear: 'The chat text now sits **clear on top** of the static.', reduced: 'The static on the chat text is now **lighter** than on the background.',
+                        full: 'The chat text now gets the **full** static.' }[st.text_static] + ' Say “text static clear”, “reduced” or “full” any time, free.');
+                    if (st.effects) lines.push({ low: 'Effects turned down to **low**: a gentle hint of movement.', medium: 'Effects set to **medium**.',
+                        high: 'Effects at **full strength**.' }[st.effects] + ' Say “effects low”, “medium” or “high” any time, free.');
                     if (st.scene) lines.push({ mist: 'The **living mist** is back.', clouds: 'Clouds now drift slowly across your screen.',
                         sunset: 'A **sunset** glows in the corner, with clouds drifting past the sun.', night: 'Night falls: a **moon** with drifting clouds and faint stars.', seaday: 'A **seashore by day**: rolling waves, sun sparkling on the water and gulls drifting by.',
                         seanight: 'A **seashore at night**: dark waves with silver crests and the moon’s path across the water.', storm: 'A gentle **sci-fi storm** rolls in: rain, drifting thunderheads and the odd soft flash of lightning.',
@@ -4208,8 +4237,7 @@
                     lines.push(`New theme **${sp.name || 'saved'}** created and saved${sp.scene && sp.scene !== 'none' ? `, with a matching **${sp.scene === 'seaday' ? 'seashore' : sp.scene === 'seanight' ? 'night seashore' : sp.scene}** sky` : ''}` +
                         (fxText.length ? `, and ${fxText.length > 1 ? fxText.slice(0, -1).join(', ') + ' and ' + fxText.slice(-1) : fxText[0]}` : '') + '.' +
                         (r.fixes && r.fixes.length ? ` For readability I ${r.fixes.join(', ')}.` : ''));
-                    if (sp.name) lines.push(`Share it with this code: \`${themeCode(sp)}\` or this link: ${themeShareLink(sp)}`);
-                    lines.push('Say “my themes” to see all your saved themes, or name one to switch back to it.');
+                    lines.push('To share it, say **“my themes”** and use **Copy code** or **Copy link**. Name it any time to switch back to it.');
                     break;
                 }
                 case 'add_note':
@@ -4249,6 +4277,36 @@
         // Simple display commands run on this device: instant, free, and they work even after the daily limit
         const tourAsk = /^\s*(customi[sz](e|ation)( tour)?|personali[sz]e( tour)?|style tour|how (do|can) i change the look\??)\s*$/i.test(rawMessage) ? 'custom'
             : /^\s*(feature tour|usage tour|how (do i|to) use (this|vq chat|the app)\??|show me (the )?features|tour( the)? (app|features)|what can (this app|vq chat) do\??)\s*$/i.test(rawMessage) ? 'use' : null;
+        // How much TV static falls on the chat text, free and instant
+        const tsAsk = (() => {
+            const m = rawMessage.toLowerCase().trim().replace(/[.!?]+$/, '');
+            if (/^(text static|static on (the )?text) (clear|off|none)$|^clear text$|^(no|remove) static on (the )?text$|^text (on top|above( the)? static)$/.test(m)) return 'clear';
+            if (/^(text static|static on (the )?text) (reduced|low|less|lower|light)$|^less static on (the )?text$/.test(m)) return 'reduced';
+            if (/^(text static|static on (the )?text) (full|high|normal|on)$/.test(m)) return 'full';
+            return null;
+        })();
+        if (tsAsk) {
+            elements.messageInput.value = '';
+            uiUndo.push(snapshotUI());
+            uiPrefs.textStatic = tsAsk; saveUIPrefs(); applyUIPrefs(); applyNoise();
+            showLocalNote({ clear: 'Chat text now sits clear on top of the static', reduced: 'Lighter static on the chat text', full: 'Full static on the chat text' }[tsAsk]);
+            return;
+        }
+        // Effects strength, free and instant
+        const fxAsk = (() => {
+            const m = rawMessage.toLowerCase().trim().replace(/[.!?]+$/, '');
+            if (/^(effects?|animations?|movement|background effects?) (low|subtle|gentle|minimal)$|^(less|fewer|softer|calmer) (effects?|animation|movement)$|^tone (it |the effects? |them )?down$/.test(m)) return 'low';
+            if (/^(effects?|animations?|movement|background effects?) (medium|normal|middle)$/.test(m)) return 'medium';
+            if (/^(effects?|animations?|movement|background effects?) (high|full|strong|max)$|^(more|stronger) (effects?|animation|movement)$/.test(m)) return 'high';
+            return null;
+        })();
+        if (fxAsk) {
+            elements.messageInput.value = '';
+            uiUndo.push(snapshotUI());
+            uiPrefs.fx = fxAsk; saveUIPrefs(); applyUIPrefs();
+            showLocalNote(`Effects set to ${fxAsk === 'high' ? 'full strength' : fxAsk}`);
+            return;
+        }
         // Theme codes, "my themes" and switching to a saved theme by name are handled here, free and instant
         const codeMatch = rawMessage.match(/\b(VQT1-[A-Za-z0-9_-]{10,})\b/);
         if (codeMatch) {
