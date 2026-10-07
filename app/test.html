@@ -1199,6 +1199,8 @@
         .app-avatar-small .persona-badge { position: absolute; inset: -14px; width: auto; height: auto; pointer-events: none; }
         .app-avatar-small.has-persona > svg { opacity: 0; }
         #persona-roam { z-index: 411 !important; }
+        /* the robot's page is dark-scheme; matching it keeps the browser from painting an opaque box behind VQ */
+        #persona-roam iframe, #persona-body iframe, .persona-badge iframe { color-scheme: dark; background: transparent !important; }
         @media (max-width: 1279px) { .oria-form { min-width: 0; } }
         @media (max-width: 1279px) { #notes-body, .panel-options { min-width: 0; } .panel-resize { display: none; } }
         /* ---- The Honest Enquirer ---- */
