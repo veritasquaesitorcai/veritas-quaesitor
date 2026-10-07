@@ -86,6 +86,7 @@
         if (window.innerWidth > 768) elements.messageInput.focus();
         const tb = document.getElementById('tour-btn');
         if (tb) tb.addEventListener('click', () => { offerTours('use'); if (window.innerWidth <= 768) document.getElementById('sidebar-scrim')?.click(); });
+        if (['panel', 'badge', 'roam'].includes(uiPrefs.persona)) setTimeout(() => startPersona(uiPrefs.persona), 600);
         if (continued) setTimeout(() => showLocalNote('Continued from the website chat'), 700);
         else setTimeout(showFeaturePrompt, sessionStorage.getItem('vq-app-intro-just-played') ? 5200 : 1800);
         // If this tab is already open, a conversation sent from the website bubble arrives live
@@ -2662,6 +2663,98 @@
     }
 
 
+
+    // ---------- VQ's embodiment: the robot, in the panel, the header or walking along the bottom ----------
+    let persona = null, personaMode = null, personaSaid = 0, personaUnbind = null;
+    function personaAccent() {
+        const cs = customSpec(uiPrefs.theme);
+        const v = getComputedStyle(document.body).getPropertyValue('--vq-eye').trim();
+        const c = cs ? cs.icon : (/^#[0-9a-f]{6}$/i.test(v) ? v : '#23DCDD');
+        return /^#[0-9a-f]{6}$/i.test(c) ? c.toUpperCase() : '#23DCDD';
+    }
+    function personaHost(mode) {
+        if (mode === 'panel') {
+            let host = document.getElementById('persona-body');
+            const tab = document.querySelector('.persona-tab');
+            if (tab) tab.hidden = false;
+            if (!document.body.classList.contains('insight-open')) openPanel(false);
+            setPanelView('persona', false);
+            return host;
+        }
+        if (mode === 'badge') {
+            const av = document.querySelector('#app-header .app-avatar-small');
+            if (!av) return null;
+            let host = av.querySelector('.persona-badge');
+            if (!host) { host = el('div', 'persona-badge'); av.appendChild(host); }
+            av.classList.add('has-persona');
+            return host;
+        }
+        let host = document.getElementById('persona-roam');
+        if (!host) { host = el('div'); host.id = 'persona-roam'; document.body.appendChild(host); }
+        return host;
+    }
+    function startPersona(mode) {
+        stopPersona(true);
+        if (!window.VQEmbodiment) { showLocalNote('VQ’s body isn’t available here'); return false; }
+        const root = personaHost(mode);
+        if (!root) return false;
+        try {
+            persona = window.VQEmbodiment.mount({ root, src: './vq-full-body.html', mode: mode === 'roam' ? 'roaming' : mode, accent: personaAccent() });
+            personaMode = mode;
+            personaUnbind = persona.bindComposer(elements.messageInput);
+            persona.mood('warm');
+            if (mode === 'roam') roamWander();
+            return true;
+        } catch (e) { console.warn('Embodiment failed:', e.message); persona = null; personaMode = null; return false; }
+    }
+    function stopPersona(silent) {
+        clearTimeout(roamTimer);
+        try { if (personaUnbind) personaUnbind(); } catch (e) {}
+        try { if (persona) persona.dispose(); } catch (e) {}
+        persona = null; personaUnbind = null;
+        if (personaMode === 'panel') { const tab = document.querySelector('.persona-tab'); if (tab) tab.hidden = true; setPanelView('details', false); }
+        if (personaMode === 'badge') { const av = document.querySelector('#app-header .app-avatar-small'); if (av) { av.classList.remove('has-persona'); av.querySelector('.persona-badge')?.remove(); } }
+        if (personaMode === 'roam') document.getElementById('persona-roam')?.remove();
+        personaMode = null;
+    }
+    // When walking, VQ strolls to a new spot now and then, and stays put while answering
+    let roamTimer = null, personaBusy = false;
+    function roamWander() {
+        clearTimeout(roamTimer);
+        roamTimer = setTimeout(() => {
+            if (persona && personaMode === 'roam' && !personaBusy && !document.hidden) persona.moveTo(+(Math.random() * 1.4 - 0.7).toFixed(2));
+            if (personaMode === 'roam') roamWander();
+        }, 9000 + Math.random() * 12000);
+    }
+    // A light mood cue from the question itself (VQ's body follows the tone of the conversation)
+    function personaMoodFor(text) {
+        const t = String(text || '').toLowerCase();
+        if (/\b(died|death|dying|grief|grieving|funeral|loss|lost my|pray|prayer|cross|crucifi|resurrection|worship|holy)\b/.test(t)) return 'reverent';
+        if (/\b(joke|funny|laugh|haha|lol|great news|celebrat|birthday|thank you|thanks)\b/.test(t)) return 'joyful';
+        if (/\b(why|how does|how do|what if|wonder|curious|explain)\b/.test(t)) return 'curious';
+        if (/\b(problem|error|wrong|risk|danger|urgent|serious)\b/.test(t)) return 'serious';
+        return 'warm';
+    }
+    function personaThinking(question) {
+        if (!persona) return;
+        personaBusy = true; personaSaid = 0;
+        try { persona.mood(personaMoodFor(question)); persona.state('thinking'); } catch (e) {}
+    }
+    function personaStream(full) {
+        if (!persona) return;
+        const plain = String(full || '');
+        if (plain.length <= personaSaid) return;
+        const delta = plain.slice(personaSaid);
+        try { persona.speak({ text: delta, start: personaSaid === 0 }); } catch (e) {}
+        personaSaid = plain.length;
+    }
+    function personaDone() {
+        personaBusy = false;
+        if (!persona) return;
+        try { if (personaSaid > 0) persona.end(); else persona.state('idle'); } catch (e) {}
+        personaSaid = 0;
+    }
+
     // ---------- VQ Art: animated flowers, butterflies, trees and more, added one at a time ----------
     const ART_TYPES = ['flower', 'butterfly', 'tree', 'fern', 'bush', 'reeds', 'bird', 'falling-petals'];
     let artEngine = null, artKey = '';
@@ -3001,6 +3094,7 @@
         renderFx(cs);
         applyToolkitLayers(cs);
         applyArt(cs);
+        if (persona) { try { persona.accent(personaAccent()); } catch (e) {} }
         const before = document.body.dataset.theme;
         document.body.dataset.theme = cs ? 'custom' : vals ? name : 'classic';
         if (cs) document.body.dataset.customTheme = name; else delete document.body.dataset.customTheme;
@@ -3243,7 +3337,7 @@
 
     // ---------- Panel views: Details / Notes, options bar, width ----------
 
-    const PANEL_VIEWS = ['details', 'notes', 'enquirer', 'cast'];
+    const PANEL_VIEWS = ['details', 'notes', 'enquirer', 'cast', 'persona'];
 
     function setupPanelViews() {
         document.querySelectorAll('.panel-tab').forEach(tab => {
@@ -3253,7 +3347,7 @@
         setupSelectionNotes();
         setupOriaComposer();
         loadNotes();
-        setPanelView(PANEL_VIEWS.includes(uiPrefs.panelView) && uiPrefs.panelView !== 'cast' ? uiPrefs.panelView : 'details', false);
+        setPanelView(PANEL_VIEWS.includes(uiPrefs.panelView) && !['cast', 'persona'].includes(uiPrefs.panelView) ? uiPrefs.panelView : 'details', false);
     }
 
     function setPanelView(view, remember) {
@@ -3268,6 +3362,8 @@
         if (of) of.hidden = view !== 'enquirer';
         const cb = document.getElementById('cast-body');
         if (cb) cb.hidden = view !== 'cast';
+        const pb = document.getElementById('persona-body');
+        if (pb) pb.hidden = view !== 'persona';
         document.body.classList.toggle('casting-view', view === 'cast' && document.body.classList.contains('casting'));
         if (view === 'notes') renderNotes();
         if (view === 'enquirer') renderEnquirer();
@@ -4578,6 +4674,18 @@
         // Simple display commands run on this device: instant, free, and they work even after the daily limit
         const tourAsk = /^\s*(customi[sz](e|ation)( tour)?|personali[sz]e( tour)?|style tour|how (do|can) i change the look\??)\s*$/i.test(rawMessage) ? 'custom'
             : /^\s*(feature tour|usage tour|how (do i|to) use (this|vq chat|the app)\??|show me (the )?features|tour( the)? (app|features)|what can (this app|vq chat) do\??)\s*$/i.test(rawMessage) ? 'use' : null;
+        // VQ's body: "show vq", "vq in the panel", "vq in the header", "let vq walk around", "hide vq"
+        const pm = rawMessage.toLowerCase().trim().replace(/[.!?]+$/, '');
+        const personaAsk = /^(hide|remove|close|turn off) (vq|vq'?s body|the robot|your body)$|^(vq|robot) off$/.test(pm) ? 'off'
+            : /^(?:show|put|move)? ?(?:vq|the robot|your body|yourself)? ?(?:in|into|to) (?:the )?header$|^(?:vq|robot) (?:badge|in the header)$/.test(pm) ? 'badge'
+            : /^(?:let (?:vq|the robot) walk(?: around)?|(?:vq|robot) walk(?:ing)?(?: around)?|walk around|(?:vq|robot) roam(?:ing)?|let (?:vq|the robot) roam)$/.test(pm) ? 'roam'
+            : /^(?:show|bring out|summon) (?:vq|the robot|your body|yourself)$|^(?:vq|robot) (?:in|into) (?:the )?panel$|^(?:vq|robot) on$|^show me vq$/.test(pm) ? 'panel' : null;
+        if (personaAsk) {
+            elements.messageInput.value = '';
+            if (personaAsk === 'off') { stopPersona(); uiPrefs.persona = 'off'; saveUIPrefs(); showLocalNote('VQ’s body is hidden'); return; }
+            if (startPersona(personaAsk)) { uiPrefs.persona = personaAsk; saveUIPrefs(); showLocalNote({ panel: 'VQ is here, in the side panel', badge: 'VQ is in the header', roam: 'VQ is walking along the bottom of the screen' }[personaAsk]); }
+            return;
+        }
         // The complete list of customisations, on request
         if (/^\s*(?:please\s+)?(?:(?:show|list|give)(?: me)?(?: a| the)?(?: full| complete)?(?: list of)? (?:all )?(?:the |your )?(?:customi[sz]ations?|customi[sz]ation options|options|settings|visual effects|effects|themes and effects|things i can change)|what can (?:i|you) (?:change|customi[sz]e)(?: on screen)?|what (?:visual )?effects (?:are there|do you have|can you (?:add|do))|customi[sz]ation list|all customi[sz]ations)\s*\??\s*$/i.test(rawMessage)) {
             elements.messageInput.value = '';
@@ -4742,6 +4850,7 @@
                 bubble = createStreamingBubble();
             }
             fillRich(bubble.content, full);
+            personaStream(bubble.content.innerText || full);
         };
 
         try {
@@ -4787,6 +4896,7 @@
         handleInputChange();
         setStatus('typing', 'Thinking...');
         artSignal('think');
+        personaThinking(message);
         showPending('Reading your question');
         startLivePanel(message.replace(/^\[[A-Z ]+\]\s*/, ''));
 
@@ -4877,6 +4987,7 @@
         } finally {
             isTyping = false;
             artSignal('idle');
+            personaDone();
             handleInputChange();
             if (window.innerWidth > 768) elements.messageInput.focus();
         }
