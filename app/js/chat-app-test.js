@@ -2775,9 +2775,12 @@
         return { name, background: v[0], surface: v[3], text: v[6], accent: a1, accent2: a2, icon: a2, effects: [], layers: [], art: [] };
     }
     function editTheme(edit) {
+        edit = Object.assign({}, edit);
         const sp = currentThemeSpec();
         sp.effects = sp.effects || []; sp.layers = sp.layers || []; sp.art = sp.art || [];
         const out = { added: null, removed: null, missing: null, full: false };
+        const skyAdd = edit.add && !parseItem(edit.add) && skyFrom(edit.add);
+        if (skyAdd) { setSky(skyAdd); out.added = SKY_LABEL[skyAdd] + ' sky'; edit = Object.assign({}, edit, { add: null }); }
         if (edit.add) {
             const it = parseItem(edit.add);
             if (!it) out.missing = edit.add;
@@ -2801,8 +2804,8 @@
             if (it && it.kind === 'art') sp.art = sp.art.filter(e => e.type !== it.item.type || (it.item.species && e.species !== it.item.species) || (it.item.style && e.style !== it.item.style) || (it.item.kind && e.kind !== it.item.kind));
             if (it && it.kind === 'fx') sp.effects = sp.effects.filter(e => e !== it.type);
             if (it && it.kind === 'tk') sp.layers = sp.layers.filter(l => l.type !== it.type);
-            if (/\b(storm|rain|sunset|night|moon|seashore|beach|sea)\b/i.test(edit.remove)) { uiPrefs.scene = 'none'; uiPrefs.mist = false; out.removed = edit.remove; }
             if (sp.art.length + sp.effects.length + sp.layers.length < before) out.removed = edit.remove;
+            else if (/\b(storm|rain|sunset|night|moon|seashore|beach|sea|clouds|mist|sky)\b/i.test(edit.remove)) { uiPrefs.scene = 'none'; uiPrefs.mist = false; out.removed = edit.remove; }
             if (!out.removed) out.missing = out.missing || edit.remove;
         }
         if (edit.shade === 'darker') sp.background = mixHex(sp.background, '#000000', 0.35);
@@ -2865,6 +2868,77 @@
             }
             scheduleComet(layer);
         }, rnd(12000, 25000));
+    }
+
+
+    // ---------- The complete customisation catalogue: always accurate, free, and every chip works ----------
+    const SKY_WORDS = { storm: 'storm', stormy: 'storm', thunderstorm: 'storm', sunset: 'sunset', dusk: 'sunset', night: 'night', 'night sky': 'night',
+        moon: 'night', moonlight: 'night', starry: 'night', clouds: 'clouds', cloudy: 'clouds', mist: 'mist', 'seashore': 'seaday', beach: 'seaday',
+        'seashore day': 'seaday', 'seashore at night': 'seanight', 'beach at night': 'seanight', 'moonlit sea': 'seanight', 'night sea': 'seanight',
+        'no sky': 'none', 'still background': 'none', 'clear sky': 'none' };
+    function skyFrom(text) {
+        const t = String(text || '').toLowerCase().replace(/\b(the|a|an|sky|effect|scene|background|please|turn on|make it|show me)\b/g, ' ').replace(/\s+/g, ' ').trim();
+        if (SKY_WORDS[t]) return SKY_WORDS[t];
+        const two = String(text || '').toLowerCase();
+        for (const k of ['seashore at night', 'beach at night', 'moonlit sea', 'night sea', 'night sky', 'no sky', 'still background']) if (two.includes(k)) return SKY_WORDS[k];
+        return null;
+    }
+    function setSky(sky) {
+        uiPrefs.scene = sky; uiPrefs.mist = sky !== 'none';
+    }
+    const SKY_LABEL = { mist: 'Mist', clouds: 'Clouds', sunset: 'Sunset', night: 'Night sky', seaday: 'Seashore', seanight: 'Seashore at night', storm: 'Storm', none: 'Still (no sky)' };
+
+    function showCatalog() {
+        elements.messagesArea.querySelectorAll('.ft-offer').forEach(o => o.remove());
+        hideWelcomeScreen();
+        elements.chatContainer.classList.add('has-messages');
+        const box = el('div', 'ft-offer catalog');
+        box.appendChild(el('div', 'ft-offer-title', 'Everything you can customise'));
+        box.appendChild(el('div', 'ft-offer-text', 'Tap any item to try it, or type it yourself. Themes, skies, elements, effects, effects strength, text static, bigger/smaller, focus, undo and reset are instant and free; the rest are passed to VQ and use a message.'));
+        const run = (cmd) => { elements.messageInput.value = cmd; sendMessage(); };
+        const section = (title, note, items) => {
+            const sec = el('div', 'cat-sec');
+            sec.appendChild(el('div', 'cat-title', title));
+            if (note) sec.appendChild(el('div', 'cat-note', note));
+            const row = el('div', 'cat-chips');
+            items.forEach(([label, cmd]) => {
+                const b = el('button', 'cat-chip', label); b.type = 'button';
+                if (cmd) b.addEventListener('click', () => run(cmd)); else b.disabled = true;
+                row.appendChild(b);
+            });
+            sec.appendChild(row);
+            box.appendChild(sec);
+        };
+        section('Themes', 'Ten built-in looks, each with matching icons and accent. Or ask VQ to design a new one from any description.',
+            CHOICES.theme.map(t => [t, `${t.toLowerCase()} theme`]));
+        section('Skies', 'One moving sky at a time, behind everything.',
+            ['mist', 'clouds', 'sunset', 'night', 'seaday', 'seanight', 'storm', 'none'].map(k => [SKY_LABEL[k], { mist: 'mist', clouds: 'clouds', sunset: 'sunset', night: 'night sky', seaday: 'seashore', seanight: 'seashore at night', storm: 'storm', none: 'no sky' }[k]]));
+        section('Scene elements', 'Animated and added one at a time. Name a colour or number too: “add 6 red tulips”.', [
+            ['Daisies', 'add daisies'], ['Tulips', 'add tulips'], ['Roses', 'add roses'], ['Poppies', 'add poppies'], ['Lavender', 'add lavender'], ['Sunflowers', 'add sunflowers'], ['Wildflowers', 'add wildflowers'],
+            ['Monarch butterflies', 'add monarch butterflies'], ['Blue butterflies', 'add blue butterflies'], ['Swallowtails', 'add swallowtail butterflies'], ['Moths', 'add moths'],
+            ['Pine trees', 'add pine trees'], ['Oaks', 'add oak trees'], ['Birches', 'add birch trees'], ['Palms', 'add palm trees'], ['Willows', 'add willow trees'], ['Cherry blossom', 'add cherry blossom trees'],
+            ['Ferns', 'add ferns'], ['Bushes', 'add bushes'], ['Reeds', 'add reeds'], ['Birds', 'add birds'], ['Falling petals', 'add falling petals']]);
+        section('Effects', 'Drawn in your theme’s colours.', [
+            ['Grass', 'add grass'], ['Mountains', 'add mountains'], ['Stars', 'add stars'], ['Comet', 'add a comet'], ['Planet', 'add a planet'], ['Aurora', 'add an aurora'],
+            ['Fireflies', 'add fireflies'], ['Snow', 'add snow'], ['Falling leaves', 'add leaves'], ['TV static', 'add static'], ['Old-TV screen', 'add crt'], ['TV set', 'add the tv set']]);
+        section('Light and space', 'Richer canvas layers.', [
+            ['Galaxy', 'add a galaxy'], ['Nebula', 'add a nebula'], ['Constellations', 'add constellations'], ['Comets', 'add comets'], ['Waves', 'add waves'], ['Surf', 'add surf'],
+            ['Ripples', 'add ripples'], ['Falling code', 'add falling code'], ['Circuits', 'add circuits'], ['Retro grid', 'add a grid'], ['Tunnel', 'add a tunnel'], ['Vortex', 'add a vortex'],
+            ['Orbits', 'add orbits'], ['Clouds layer', 'add clouds'], ['Mist layer', 'add mist'], ['Film grain', 'add film grain']]);
+        section('Removing things', null, [['“remove the comet”', null], ['“remove butterflies”', null], ['“no sky”', 'no sky']]);
+        section('Effects strength', 'How strong all the movement is.', [['High', 'effects high'], ['Medium', 'effects medium'], ['Low', 'effects low']]);
+        section('Accent colour', null, CHOICES.accent.map(a => [a, `${a.toLowerCase()} accent`]));
+        section('Fonts', null, CHOICES.font.map(f => [f, `${f.toLowerCase()} font`]));
+        section('Text and layout', null, [['Bigger', 'bigger'], ['Smaller', 'smaller'], ['More line spacing', 'more line spacing'], ['Wider chat', 'wider chat'], ['Narrower chat', 'narrower chat'],
+            ['Bubbles on', 'bubbles on'], ['Bubbles off', 'bubbles off'], ['Focus', 'focus'], ['Unfocus', 'unfocus'], ['High contrast', 'high contrast'], ['Less motion', 'reduce motion']]);
+        section('Icons and static', null, [['Glow on', 'glow on'], ['Glow off', 'glow off'], ['Text over static: clear', 'text static clear'], ['Reduced', 'text static reduced'], ['Full', 'text static full']]);
+        section('Side panel', null, [['Open', 'open the panel'], ['Close', 'close the panel'], ['Wide', 'wide panel'], ['Standard', 'standard panel'], ['Plain details', 'plain details'], ['Technical details', 'technical details'], ['Notes', 'show my notes']]);
+        section('Undo and reset', null, [['Undo', 'undo'], ['Reset everything', 'reset']]);
+        const no = el('button', 'ft-offer-no', 'Close'); no.type = 'button';
+        no.addEventListener('click', () => { box.remove(); if (!conversationHistory.length) showWelcomeScreen(); });
+        box.appendChild(no);
+        elements.messagesArea.appendChild(box);
+        box.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function showMyThemes() {
@@ -4480,6 +4554,21 @@
         // Simple display commands run on this device: instant, free, and they work even after the daily limit
         const tourAsk = /^\s*(customi[sz](e|ation)( tour)?|personali[sz]e( tour)?|style tour|how (do|can) i change the look\??)\s*$/i.test(rawMessage) ? 'custom'
             : /^\s*(feature tour|usage tour|how (do i|to) use (this|vq chat|the app)\??|show me (the )?features|tour( the)? (app|features)|what can (this app|vq chat) do\??)\s*$/i.test(rawMessage) ? 'use' : null;
+        // The complete list of customisations, on request
+        if (/^\s*(?:please\s+)?(?:(?:show|list|give)(?: me)?(?: a| the)?(?: full| complete)?(?: list of)? (?:all )?(?:the |your )?(?:customi[sz]ations?|customi[sz]ation options|options|settings|visual effects|effects|themes and effects|things i can change)|what can (?:i|you) (?:change|customi[sz]e)(?: on screen)?|what (?:visual )?effects (?:are there|do you have|can you (?:add|do))|customi[sz]ation list|all customi[sz]ations)\s*\??\s*$/i.test(rawMessage)) {
+            elements.messageInput.value = '';
+            showCatalog();
+            return;
+        }
+        const skyAsk = /^\s*(?:please\s+)?(?:set |use |show |turn on |make it |switch to |change to |give me )?(?:the |a |an )?([a-z ]{3,24}?)(?: sky| effect| scene| background)?\s*(?:please)?[.!]?\s*$/i.exec(rawMessage);
+        const skyName = skyAsk && skyFrom(skyAsk[1] + (/\bsky\b/i.test(rawMessage) && /night/i.test(skyAsk[1]) ? ' sky' : ''));
+        if (skyName) {
+            elements.messageInput.value = '';
+            uiUndo.push(snapshotUI());
+            setSky(skyName); saveUIPrefs(); applyUIPrefs();
+            showLocalNote(`Sky set to ${SKY_LABEL[skyName]}`);
+            return;
+        }
         // Built-in themes by name ("ocean theme", "forest"), free and instant: never redesigned
         const builtIn = rawMessage.match(/^\s*(?:please\s+)?(?:use |switch to |set |change to |go back to |back to )?(?:the |my )?(vq|classic|navy|charcoal|midnight|ocean|forest|ember|slate|plum|default|original)(?: theme)?\s*(?:please)?[.!]?\s*$/i);
         if (builtIn) {
@@ -4494,7 +4583,7 @@
         // "add …" / "remove …": one element at a time, free and instant when the element is known
         const addM = rawMessage.match(/^\s*(?:please\s+)?(?:add|put|include|bring in|give me)\s+(?:some\s+|a few\s+|a\s+|an\s+|more\s+)?(.{2,40}?)\s*(?:to (?:the |my )?(?:theme|screen|background|scene))?\s*[.!]?\s*$/i);
         const remM = rawMessage.match(/^\s*(?:please\s+)?(?:remove|delete|hide|take away|get rid of|no more)\s+(?:the\s+|all\s+(?:the\s+)?|my\s+)?(.{2,40}?)\s*[.!]?\s*$/i);
-        if ((addM && parseItem(addM[1])) || (remM && (parseItem(remM[1]) || /\b(storm|rain|sunset|night|moon|seashore|beach|sea)\b/i.test(remM[1])))) {
+        if ((addM && (parseItem(addM[1]) || skyFrom(addM[1]))) || (remM && (parseItem(remM[1]) || /\b(storm|rain|sunset|night|moon|seashore|beach|sea|clouds|mist)\b/i.test(remM[1])))) {
             elements.messageInput.value = '';
             uiUndo.push(snapshotUI());
             const r = editTheme(addM ? { add: addM[1] } : { remove: remM[1] });
