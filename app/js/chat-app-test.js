@@ -2728,13 +2728,18 @@
     }
     window.addEventListener('resize', () => { if (personaMode === 'roam') fitRoam(); });
     // When walking, VQ strolls to a new spot now and then, and stays put while answering
-    let roamTimer = null, personaBusy = false;
+    let roamTimer = null, personaBusy = false, roamX = 0;
     function roamWander() {
         clearTimeout(roamTimer);
         roamTimer = setTimeout(() => {
-            if (persona && personaMode === 'roam' && !personaBusy && !document.hidden) persona.moveTo(+(Math.random() * 1.4 - 0.7).toFixed(2));
+            if (persona && personaMode === 'roam' && !personaBusy && !document.hidden) {
+                // a proper stroll: usually to the other side, sometimes a shorter wander nearby
+                const far = Math.random() < 0.65;
+                roamX = far ? (roamX > 0 ? -1 : 1) * (0.45 + Math.random() * 0.25) : Math.max(-0.7, Math.min(0.7, roamX + (Math.random() - 0.5) * 0.6));
+                persona.moveTo(+roamX.toFixed(2));
+            }
             if (personaMode === 'roam') roamWander();
-        }, 9000 + Math.random() * 12000);
+        }, 4500 + Math.random() * 5500);
     }
     // A light mood cue from the question itself (VQ's body follows the tone of the conversation)
     function personaMoodFor(text) {
