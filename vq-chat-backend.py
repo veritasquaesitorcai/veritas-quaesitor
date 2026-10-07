@@ -1330,6 +1330,24 @@ def use_quota(user):
         _guest_counts[ip_key] += 1
         return True, {"tier": "guest", "used": _guest_counts[dev_key], "limit": GUEST_DAILY_LIMIT}
 
+def explain_error(e) -> str:
+    """Say plainly what went wrong, instead of a vague 'something needs attention'."""
+    t = str(e).lower()
+    note = " (That one didn't count towards your daily messages.)"
+    if "tool_use_failed" in t or "tool call" in t or "failed to call a function" in t or "parse" in t and "tool" in t:
+        return ("I tried to do too much in one go there, and the request was too large for my screen tools to carry out. "
+                "Try asking for a bit less at once (for example a theme with three or four effects), and I'll build it." + note)
+    if "rate" in t and "limit" in t or "429" in t or "too many requests" in t:
+        return "I'm getting a lot of requests right now and hit a limit for a moment. Please try again in about a minute." + note
+    if "timeout" in t or "timed out" in t:
+        return "That took too long to answer and timed out. Please try again, or ask in a shorter or simpler way." + note
+    if "context" in t and ("length" in t or "too long" in t) or "maximum context" in t or "413" in t or "too large" in t:
+        return ("This conversation has grown too long for me to take in at once. Start a new chat (your notes and themes stay), "
+                "or ask your question again in fewer words." + note)
+    if "connection" in t or "unavailable" in t or "503" in t or "502" in t:
+        return "I couldn't reach my language model just now; it may be briefly down. Please try again shortly." + note
+    return "Something went wrong on my side while answering, and I couldn't finish. Please try again." + note
+
 def refund_quota(user, quota, ip=None, device=None):
     """Give a message back when VQ failed to answer, so errors never use up someone's daily allowance."""
     try:
@@ -1664,7 +1682,10 @@ UI_SYSTEM_NOTE = (
     "lighter surface, light text, an accent and its lighter companion, a vivid icon colour, a short evocative name, a matching "
     "scene if one fits, and up to three animated effects that bring it to life (trees, grass, mountains, stars, comet, planet, aurora, "
     "fireflies, snow, leaves, static, crt, tvset), plus up to three canvas 'layers' from the visual toolkit for richer scenes "
-    "(galaxy, nebula, matrix, grid, tunnel, vortex, orbits, circuit, ripples and more). Choose what fits; two to four in total is plenty. For a retro TV look use crt, static and tvset with a phosphor palette: near-black "
+    "(galaxy, nebula, matrix, grid, tunnel, vortex, orbits, circuit, ripples and more). Choose what fits; two to four in total is plenty. "
+    "LIMITS: at most 4 effects and 3 layers per theme. If the user asks for 'as many as possible', choose the best 4-5 in total and "
+    "say you picked the strongest combination. If they ask for something that isn't in these lists (e.g. flowers, butterflies, "
+    "dragons), make the theme with the closest available effects and say clearly which parts aren't available yet. For a retro TV look use crt, static and tvset with a phosphor palette: near-black "
     "background with green, amber or cool white text, and scene none. If the user asks to add an effect to a theme of yours, create the theme again with it included. The app checks and adjusts readability automatically. Then describe the theme in one or two sentences "
     "(the mood and the colours you chose); the app shows its name and a code for sharing it.\n"
     "After a change, confirm it in one short sentence and mention they can say 'undo'. If the user asks what "
@@ -3523,7 +3544,7 @@ def chat():
                 except Exception as _e:
                     print(f"[STREAM] error: {_e}", flush=True)
                     refund_quota(*_refund)
-                    yield _sse({"replace": "Friend, something needs attention. Please try again. (That one didn't count towards your daily messages.)", "done": True})
+                    yield _sse({"replace": explain_error(_e), "done": True})
 
             return Response(stream_with_context(_generate()), mimetype="text/event-stream",
                             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
@@ -3616,7 +3637,7 @@ def chat():
             refund_quota(*_refund)
         return jsonify({
             'error': str(e),
-            'response': "Friend, something needs attention. Please try again. (That one didn't count towards your daily messages.)"
+            'response': explain_error(e)
         }), 500
 
 print("Chat route registered", flush=True)
