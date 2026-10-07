@@ -1,4 +1,4 @@
-import os 
+import os
 import sys
 import json
 import re
@@ -1760,38 +1760,67 @@ DRAW_PROMPT = (
 )
 
 def _clean_svg(text: str):
-    """Pull out the SVG and strip anything that isn't plain drawing. The app cleans it again before use."""
-    m = re.search(r"<svg[\s\S]*?</svg>", text or "", re.I)
-    if not m:
-        return None
-    svg = m.group(0)
+    """Pull out the SVG and strip anything that isn't plain drawing. The app cleans it again before use.
+    A drawing cut off part-way (the model ran out of room) is closed off at its last complete shape, so it isn't lost."""
+    text = text or ""
+    m = re.search(r"<svg[\s\S]*?</svg>", text, re.I)
+    if m:
+        svg = m.group(0)
+    else:
+        start = re.search(r"<svg\b", text, re.I)
+        if not start:
+            return None
+        body = text[start.start():]
+        cut = max(body.rfind("/>"), body.rfind("</g>"))
+        if cut < 0:
+            return None
+        body = body[:cut + (2 if body[cut:cut + 2] == "/>" else 4)]
+        opened = len(re.findall(r"<g\b[^>]*[^/]>", body, re.I)) - len(re.findall(r"</g>", body, re.I))
+        svg = body + "</g>" * max(0, opened) + "</svg>"
+        if len(re.findall(r"<(path|circle|ellipse|rect|polygon|polyline|line)\b", svg, re.I)) < 6:
+            return None   # too little survived to be worth showing
     svg = re.sub(r"<(script|style|foreignObject|image|use|a|text|animate\w*|set)\b[\s\S]*?(</\1\s*>|/>)", "", svg, flags=re.I)
     svg = re.sub(r"\s(on\w+|href|xlink:href|style)\s*=\s*(\"[^\"]*\"|'[^']*')", "", svg, flags=re.I)
-    if re.search(r"javascript:|<script|<foreignObject", svg, re.I) or len(svg) > 24000:
+    if re.search(r"javascript:|<script|<foreignObject", svg, re.I) or len(svg) > 40000:
         return None
     return svg
 
+def _draw_once(spec: dict, effort: str):
+    _extra = {"reasoning_effort": effort} if DRAW_MODEL.startswith("openai/gpt-oss") else {}
+    r = groq_client.chat.completions.create(
+        model=DRAW_MODEL, **_extra,
+        messages=[{"role": "system", "content": DRAW_PROMPT},
+                  {"role": "user", "content": f"Draw: {spec.get('what')}. It will {spec.get('motion', 'stay still')} "
+                                              f"in the {spec.get('place', 'scene')} of an animated scene."}],
+        temperature=0.6, max_tokens=16000)
+    msg = r.choices[0].message
+    text = (msg.content or "").strip()
+    # gpt-oss sometimes leaves the finished SVG in its reasoning channel instead of the answer
+    if "<svg" not in text.lower():
+        reasoning = getattr(msg, "reasoning", None) or ""
+        if "<svg" in reasoning.lower():
+            text = reasoning[reasoning.lower().rfind("<svg"):]
+    return text, getattr(r.choices[0], "finish_reason", None)
+
 def draw_svg(spec: dict):
-    """Returns (svg, None) or (None, reason)."""
-    try:
-        _extra = {"reasoning_effort": DRAW_EFFORT} if DRAW_MODEL.startswith("openai/gpt-oss") else {}
-        r = groq_client.chat.completions.create(
-            model=DRAW_MODEL, **_extra,
-            messages=[{"role": "system", "content": DRAW_PROMPT},
-                      {"role": "user", "content": f"Draw: {spec.get('what')}. It will {spec.get('motion', 'stay still')} "
-                                                  f"in the {spec.get('place', 'scene')} of an animated scene, shown about 100 pixels tall."}],
-            temperature=0.6, max_tokens=9000)
-        text = (r.choices[0].message.content or "").strip()
-    except Exception as e:
-        print(f"[DRAW] failed: {e}", flush=True)
-        return None, "the drawing service didn't respond"
-    if text.upper().startswith("REFUSE"):
-        return None, "that's someone else's character or design, so I can't draw it, but I'd be glad to draw an original design of my own instead"
-    svg = _clean_svg(text)
-    if not svg:
-        return None, "the drawing came back unusable"
-    print(f"[DRAW] {spec.get('name')} ({DRAW_MODEL}, effort {DRAW_EFFORT}): {len(svg)} chars\n{svg}", flush=True)
-    return svg, None
+    """Returns (svg, None) or (None, reason). Tries the configured effort, then once more at medium if that fails."""
+    efforts = [DRAW_EFFORT] + (["medium"] if DRAW_EFFORT != "medium" and DRAW_MODEL.startswith("openai/gpt-oss") else [None])
+    for attempt, effort in enumerate(efforts):
+        try:
+            text, finish = _draw_once(spec, effort or DRAW_EFFORT)
+        except Exception as e:
+            print(f"[DRAW] failed: {e}", flush=True)
+            if attempt == len(efforts) - 1:
+                return None, "my drawing tools didn't respond this time; please ask me again in a moment"
+            continue
+        if text.upper().startswith("REFUSE"):
+            return None, "that's someone else's character or design, so I can't draw it, but I'd be glad to draw an original design of my own instead"
+        svg = _clean_svg(text)
+        if svg:
+            print(f"[DRAW] {spec.get('name')} ({DRAW_MODEL}, effort {effort}, finish {finish}): {len(svg)} chars\n{svg}", flush=True)
+            return svg, None
+        print(f"[DRAW] unusable ({DRAW_MODEL}, effort {effort}, finish {finish}, {len(text)} chars): {text[:300]!r}", flush=True)
+    return None, f"my drawing of the {spec.get('name') or 'that'} didn't come out right this time; please ask me again"
 
 UI_SYSTEM_NOTE = (
     "\n\nSCREEN CONTROLS: You can change this app's display with the ui_action tool, but only when the user asks "
