@@ -1472,6 +1472,8 @@ UI_TOOL = {
                         "theme": {"type": "string", "description": "background theme: vq (default, near-black with neon icons), classic (warm charcoal on desktop, navy on phones), navy, charcoal, midnight, ocean, forest, ember, slate or plum"},
                         "glow": {"type": "string", "description": "on (default) or off: the soft glow behind icons"},
                         "mist": {"type": "string", "description": "on (default) or off: the soft mist drifting through the background, in the accent colour"},
+                        "effects": {"type": "string", "description": "strength of the mist, sky and theme effects: low, medium or high (default)"},
+                        "text_static": {"type": "string", "description": "how much TV static falls on the chat text: full, reduced (default) or clear (text sits on top, unaffected)"},
                         "scene": {"type": "string", "description": "the moving sky behind the app: mist (default), clouds, sunset, night (moon and stars), seaday (seashore by day), seanight (seashore at night), storm, or none (still)"}
                     }
                 },
@@ -1493,6 +1495,8 @@ _STYLE_CHOICES = {
     "glow": ["on", "off"],
     "mist": ["on", "off"],
     "scene": ["mist", "clouds", "sunset", "night", "seaday", "seanight", "storm", "none"],
+    "effects": ["low", "medium", "high"],
+    "text_static": ["full", "reduced", "clear"],
 }
 _TITLE_SYNONYMS = {"roman": "inscription", "classic": "inscription", "latin": "inscription", "1": "inscription",
                    "serif": "elegant", "fancy": "elegant", "refined": "elegant", "2": "elegant",
@@ -1530,7 +1534,7 @@ def validate_ui_action(args: dict):
                     style[key] = round(min(hi, max(lo, float(st[key]))), 2)
             except (TypeError, ValueError):
                 pass
-        for key in ("accent", "contrast", "font", "motion", "width", "title", "bubbles", "theme", "glow", "mist", "scene"):
+        for key in ("accent", "contrast", "font", "motion", "width", "title", "bubbles", "theme", "glow", "mist", "scene", "effects", "text_static"):
             val = str(st.get(key) or "").strip().lower()
             if key == "accent":
                 val = _ACCENT_SYNONYMS.get(val, val)
@@ -1544,6 +1548,12 @@ def validate_ui_action(args: dict):
                        "blue": "navy", "deep blue": "navy", "warm": "charcoal", "grey": "slate", "gray": "slate", "sea": "ocean",
                        "teal": "ocean", "green": "forest", "nature": "forest", "fire": "ember", "red": "ember", "cozy": "ember",
                        "purple": "plum", "violet": "plum"}.get(val, val)
+            if key == "text_static":
+                val = {"off": "clear", "none": "clear", "on top": "clear", "less": "reduced", "lower": "reduced", "light": "reduced", "low": "reduced",
+                       "on": "full", "normal": "full", "high": "full"}.get(val, val)
+            if key == "effects":
+                val = {"subtle": "low", "gentle": "low", "minimal": "low", "less": "low", "soft": "low", "normal": "medium", "middle": "medium",
+                       "full": "high", "strong": "high", "max": "high", "maximum": "high", "more": "high"}.get(val, val)
             if key == "scene":
                 val = {"cloud": "clouds", "cloudy": "clouds", "sky": "clouds", "sun": "sunset", "sundown": "sunset", "dusk": "sunset",
                        "sea": "seaday", "seashore": "seaday", "seaside": "seaday", "beach": "seaday", "ocean waves": "seaday", "waves": "seaday", "coast": "seaday", "seashore day": "seaday", "beach day": "seaday", "sea day": "seaday", "seashore night": "seanight", "seashore at night": "seanight", "beach night": "seanight", "beach at night": "seanight", "night sea": "seanight", "sea night": "seanight", "moonlit sea": "seanight", "moon": "night", "moonlight": "night", "stars": "night", "night sky": "night", "starry": "night", "thunder": "storm", "thunderstorm": "storm", "lightning": "storm", "rain": "storm", "fog": "mist", "haze": "mist",
@@ -1639,7 +1649,7 @@ UI_SYSTEM_NOTE = (
     "LOOK: nine themes (VQ, Classic, Navy, Charcoal, Midnight, Ocean, Forest, Ember, Slate, Plum), each with matching icons and accent; "
     "accent colours (orange, gold, teal, rose, violet, green, blue, grey); thirteen fonts (default, readable, serif, mono, script, "
     "handwriting, elegant, classic, inscription, futuristic, retro, playful, rounded); text size ('bigger'/'smaller', free); line spacing; "
-    "chat width; bubbles on/off; icon glow on/off; a moving sky behind the app (mist, drifting clouds, a sunset in the corner, a moonlit night, a seashore by day or at night, a gentle sci-fi storm, or still); higher contrast; reduced motion; focus mode ('focus'/'unfocus').\n"
+    "chat width; bubbles on/off; icon glow on/off; a moving sky behind the app (mist, drifting clouds, a sunset in the corner, a moonlit night, a seashore by day or at night, a gentle sci-fi storm, or still); effects strength low, medium or high (free: 'effects low'); higher contrast; reduced motion; focus mode ('focus'/'unfocus').\n"
     "YOUR OWN THEMES: ask VQ to design a theme from any description ('a theme like a sunrise over the ocean'); it's checked for "
     "readability, named, saved, and can be shared with a theme code.\n"
     "PANEL: open or close it; Details, Notes; Standard or Wide, or drag its edge; Plain or Technical detail.\n"
