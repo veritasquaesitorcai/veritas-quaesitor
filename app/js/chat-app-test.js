@@ -1,4 +1,4 @@
-(function() { 
+(function() {
     'use strict';
 
     // Drawn icons (replace emoji, which look different on every device)
@@ -2924,7 +2924,7 @@
     const ANIMALS = {"tiger":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"feline","ears":"round","eyes":"simple","extras":["whiskers"]},"body":{"shape":"barrel","length":1.2},"legs":{"length":0.45},"tail":{"length":0.9}},"colors":{"base":"#E8892E","underside":"#F7EFE2","detail":"#29251F","eyes":"#354A31"},"pattern":{"kind":"stripes","density":0.7},"type":"assembly","name":"tiger","size":145},"lion":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"feline","ears":"round","extras":["mane","whiskers"]},"body":{"shape":"barrel"},"legs":{"length":0.55},"tail":{"type":"tufted","length":1}},"colors":{"base":"#CCA35C","underside":"#F0D9A2","detail":"#81562F","eyes":"#493928"},"type":"assembly","name":"lion","size":150},"giraffe":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"bovine","ears":"pointed","muzzle":"snout","width":0.72,"extras":["ossicones"]},"neck":{"length":1.65,"thickness":0.85},"body":{"shape":"slender"},"legs":{"type":"hoofed","length":1,"thickness":0.75},"tail":{"type":"tufted"}},"colors":{"base":"#E1B961","underside":"#F3DFAB","detail":"#86532A","eyes":"#2F2923"},"pattern":{"kind":"patches","density":1,"scale":1.2},"type":"assembly","name":"giraffe","size":200},"zebra":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"equine","ears":"pointed","muzzle":"snout","extras":["crest"]},"neck":{"length":0.5,"thickness":1.2},"body":{"shape":"barrel"},"legs":{"type":"hoofed","length":0.7},"tail":{"type":"tufted"}},"colors":{"base":"#EAE7DA","underside":"#F4EFDF","detail":"#323438","eyes":"#292B30"},"pattern":{"kind":"stripes","density":0.8,"scale":0.9,"contrast":1},"type":"assembly","name":"zebra","size":160},"elephant":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"round","ears":"big","muzzle":"trunk","width":1.15,"extras":["tusks"]},"neck":{"length":0,"thickness":1.5},"body":{"shape":"barrel","width":1.35,"length":1.3},"legs":{"length":0.6,"thickness":1.6},"tail":{"type":"tufted","length":0.55}},"colors":{"base":"#91A2A9","underside":"#D8D1B4","detail":"#445764","eyes":"#24303C"},"type":"assembly","name":"elephant","size":190},"horse":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"equine","ears":"pointed","muzzle":"snout","extras":["crest"]},"neck":{"length":0.65,"thickness":1.4},"body":{"shape":"barrel","length":1.15},"legs":{"type":"hoofed","length":0.8,"thickness":0.75},"tail":{"type":"bushy","length":1.1,"curve":-1,"width":0.7}},"colors":{"base":"#936447","underside":"#DECBAA","detail":"#382D2C","eyes":"#28241F"},"type":"assembly","name":"horse","size":165},"cow":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"bovine","ears":"floppy","muzzle":"snout","extras":["curved-horns"]},"neck":{"length":0.2,"thickness":1.35},"body":{"shape":"barrel","width":1.15,"length":1.2},"legs":{"type":"hoofed","length":0.55},"tail":{"type":"tufted"}},"colors":{"base":"#E9E1CD","underside":"#D2AC9B","detail":"#3B3937","eyes":"#272927"},"pattern":{"kind":"patches","density":0.4,"scale":2,"contrast":1},"type":"assembly","name":"cow","size":160},"cat":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"feline","ears":"pointed","extras":["whiskers"],"eyes":"cartoon"},"body":{"shape":"slender"},"legs":{"length":0.45,"thickness":0.75},"tail":{"type":"thin","length":1.15,"curve":0.9}},"colors":{"base":"#B59070","underside":"#EEE0C1","detail":"#614B3A","eyes":"#698457"},"pattern":{"kind":"stripes","density":0.4},"type":"assembly","name":"cat","size":105},"dog":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"canine","ears":"floppy","muzzle":"snout"},"neck":{"length":0.15},"body":{"shape":"long","length":1.1},"legs":{"length":0.45},"tail":{"type":"thin","curve":0.7}},"colors":{"base":"#AF7950","underside":"#EBDDCC","detail":"#523E33","eyes":"#302A25"},"pattern":{"kind":"patches","density":0.25,"scale":2},"type":"assembly","name":"dog","size":125},"fox":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"canine","ears":"pointed","muzzle":"snout","length":0.85},"body":{"shape":"slender"},"legs":{"length":0.5,"thickness":0.65},"tail":{"type":"bushy","length":1.35,"width":1.4,"curve":-0.5}},"colors":{"base":"#BF6736","underside":"#EDE2CE","detail":"#483A35","eyes":"#41372B"},"type":"assembly","name":"fox","size":110},"rabbit":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"rodent","ears":"long","muzzle":"small","extras":["whiskers"]},"body":{"shape":"round","length":0.9},"legs":{"length":0.2,"thickness":1.1},"tail":{"type":"fluffy","length":0.2}},"colors":{"base":"#B6A291","underside":"#E9DFCD","detail":"#786556","eyes":"#3F3531"},"pattern":{"kind":"fur","density":0.7},"type":"assembly","name":"rabbit","size":95},"bear":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"ursine","ears":"round","muzzle":"snout","width":1.2},"neck":{"length":0,"thickness":1.6},"body":{"shape":"barrel","width":1.2},"legs":{"type":"clawed","length":0.35,"thickness":1.5},"tail":{"type":"fluffy","width":0.65,"length":0.1}},"colors":{"base":"#76533C","underside":"#B0956B","detail":"#40372D","eyes":"#282721"},"pattern":{"kind":"fur","density":0.65},"type":"assembly","name":"bear","size":165},"deer":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"oval","ears":"pointed","muzzle":"snout","width":0.8,"extras":["antlers"]},"neck":{"length":0.6,"thickness":0.65},"body":{"shape":"slender"},"legs":{"type":"hoofed","length":0.85,"thickness":0.6},"tail":{"type":"fluffy","width":0.65,"length":0.15}},"colors":{"base":"#AA7F4B","underside":"#EBD8AD","detail":"#66503A","eyes":"#363024"},"pattern":{"kind":"spots","color":"#F5E6BF","density":0.3},"type":"assembly","name":"deer","size":150},"pig":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"round","ears":"floppy","muzzle":"snout","length":0.9},"body":{"shape":"barrel","width":1.2},"legs":{"type":"hoofed","length":0.25,"thickness":1.2},"tail":{"type":"curly","length":0.3}},"colors":{"base":"#DDA69A","underside":"#F1C8B0","detail":"#9A675F","eyes":"#503C38"},"type":"assembly","name":"pig","size":115},"sheep":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"oval","ears":"floppy","muzzle":"small","extras":["spiral-horns"],"width":0.8},"body":{"shape":"round","length":1.25,"width":1.15},"legs":{"type":"hoofed","length":0.4,"thickness":0.7},"tail":{"type":"fluffy","length":0.15}},"colors":{"base":"#DFD7BD","underside":"#F0E9D5","detail":"#8C8066","eyes":"#3A3B34"},"pattern":{"kind":"fur","density":1,"scale":1.5},"type":"assembly","name":"sheep","size":115}};
     const ANIMAL_WORDS = { tiger: 'tigers?', lion: 'lions?|lioness', giraffe: 'giraffes?', zebra: 'zebras?', elephant: 'elephants?', horse: 'horses?|ponies|pony', cow: 'cows?|cattle',
         cat: 'cats?|kittens?|kitty', dog: 'dogs?|pupp(y|ies)|doggy', fox: 'fox(es)?', rabbit: 'rabbits?|bunn(y|ies)|hares?', bear: 'bears?', deer: 'deer|stags?|fawns?', pig: 'pigs?|piglets?', sheep: 'sheep|lambs?|rams?' };
-    let artEngine = null, artKey = '', artIdIndex = {};
+    let artEngine = null, artKey = '', artIdIndex = {}, artFit = null;
     // Nature keeps its own colours whatever the theme: roses red, sunflowers yellow, leaves green
     const NATURAL = {
         flower: { daisy: ['#4f8a4a', '#f7f5ee', '#f2c230'], tulip: ['#4a8a45', '#e2394a', '#ffd27a'], rose: ['#3f7a3e', '#c8102e', '#7a0a1c'],
@@ -2960,7 +2960,7 @@
             (document.getElementById('app-container') || document.body).appendChild(host);
             // The scene fills the conversation area (above the composer, between the sidebar and panel), so plants grow
             // up from just above where you type instead of hiding behind it
-            const fit = () => {
+            const fit = artFit = () => {
                 const g = fitGround();
                 if (g) Object.assign(host.style, { left: g.left + 'px', top: g.top + 'px', width: g.width + 'px', height: g.height + 'px', right: 'auto', bottom: 'auto' });
             };
@@ -3058,7 +3058,9 @@
     function fitGround() {
         const chat = document.getElementById('chat-container'), inp = document.getElementById('input-area');
         if (!chat) return null;
-        const r = chat.getBoundingClientRect(), bottom = inp ? inp.getBoundingClientRect().top : r.bottom;
+        // The ground is the bottom of the screen (the message box stays readable on top), or just above the message box
+        const r = chat.getBoundingClientRect(), boxTop = inp ? inp.getBoundingClientRect().top : r.bottom;
+        const bottom = uiPrefs.ground === 'box' ? boxTop : Math.max(boxTop, innerHeight);
         const g = { left: r.left, top: r.top, width: r.width, height: Math.max(80, bottom - r.top) };
         const st = document.body.style;
         st.setProperty('--ground-left', g.left + 'px'); st.setProperty('--ground-width', g.width + 'px');
@@ -3763,7 +3765,7 @@
             ['Fish', 'draw 3 fish swimming'], ['Lantern', 'draw a glowing lantern'], ['Your own dragon', 'draw a friendly dragon of your own design'],
             ['“remove the plane”', null], ['“more balloons” (say how many)', null], ['“make the rocket bigger”', null], ['“make the kite smaller”', null]]);
         section('Arrange', 'Move anything in the scene by hand: tap ✥ Arrange under the message box (or say “arrange”). Drag a flower, tree, butterfly or drawing where you like; plants stay on the ground. Drop something on the bin to remove it. Every move can be undone; tap Done (or press Esc) when you’re finished. Free.', [
-            ['Arrange now', 'arrange'], ['Undo last move', 'undo']]);
+            ['Arrange now', 'arrange'], ['Undo last move', 'undo'], ['Ground at the screen bottom', 'ground at the bottom'], ['Ground above the message box', 'ground above the message box']]);
         section('Effects', 'Drawn in your theme’s colours.', [
             ['Grass', 'add grass'], ['Mountains', 'add mountains'], ['Stars', 'add stars'], ['Comet', 'add a comet'], ['Planet', 'add a planet'], ['Aurora', 'add an aurora'],
             ['Fireflies', 'add fireflies'], ['Snow', 'add snow'], ['Falling leaves', 'add leaves'], ['TV static', 'add static'], ['Old-TV screen', 'add crt'], ['TV set', 'add the tv set']]);
@@ -3968,6 +3970,8 @@
         b.toggle('no-glow', uiPrefs.glow === false);
         b.toggle('no-mist', uiPrefs.mist === false || ['clouds', 'sunset', 'storm', 'night', 'seaday', 'seanight', 'none'].includes(uiPrefs.scene));
         document.body.dataset.fx = ['low', 'medium', 'high'].includes(uiPrefs.fx) ? uiPrefs.fx : 'high';
+        b.toggle('ground-screen', uiPrefs.ground !== 'box');
+        if (typeof fitGround === 'function') { fitGround(); if (artFit) artFit(); }
         if (typeof applyArt === 'function' && customSpec(uiPrefs.theme)) applyArt(customSpec(uiPrefs.theme));
         if (document.getElementById('app-container') && noiseStrength) applyNoise();
         applyScene();
@@ -5470,6 +5474,16 @@
             elements.messageInput.value = '';
             if (personaAsk === 'off') { stopPersona(); uiPrefs.persona = 'off'; saveUIPrefs(); showLocalNote('VQ’s body is hidden'); return; }
             if (startPersona(personaAsk)) { uiPrefs.persona = personaAsk; saveUIPrefs(); showLocalNote({ panel: 'VQ is here, in the side panel', badge: 'VQ is in the header', roam: 'VQ is walking along the bottom of the screen', moon: 'VQ is on the moon, fishing', fly: 'VQ is flying around (he keeps clear of what you’re reading)' }[personaAsk]); }
+            return;
+        }
+        // Where the ground is: the bottom of the screen, or just above the message box
+        const groundAsk = /^(?:(?:move |put |set )?(?:the )?(?:ground|scene|elements|everything|plants|animals)(?: level)? (?:down )?(?:to|at|on) (?:the )?(?:screen|bottom|screen bottom|bottom of the screen|screen level)|move (?:the )?(?:scene|everything|elements) down|lower the ground|ground at (?:the )?(?:bottom|screen))$/.test(pm) ? 'screen'
+            : /^(?:(?:move |put |set )?(?:the )?(?:ground|scene|elements|everything|plants|animals)(?: level)? (?:up )?(?:above|over) (?:the )?(?:message|text|chat|input|typing) ?(?:box|area|bar)?|raise the ground|move (?:the )?(?:scene|everything|elements) up|ground above (?:the )?(?:message|text|chat) ?box)$/.test(pm) ? 'box' : null;
+        if (groundAsk) {
+            elements.messageInput.value = '';
+            uiUndo.push(snapshotUI());
+            uiPrefs.ground = groundAsk; saveUIPrefs(); applyUIPrefs();
+            showLocalNote(groundAsk === 'screen' ? 'The ground is now the bottom of the screen' : 'The ground is now just above the message box');
             return;
         }
         // Arrange the scene: drag things around, drop them on the bin to remove them
