@@ -4,6 +4,28 @@
     // Drawn icons (replace emoji, which look different on every device)
     const ICONS = {"vq": "<svg class=\"ic vq-mark\" viewBox=\"0 0 32 32\" aria-hidden=\"true\"><line class=\"l vq-antenna\" x1=\"16\" y1=\"4.2\" x2=\"16\" y2=\"8\"/><circle class=\"vq-light\" cx=\"16\" cy=\"3.4\" r=\"2.1\"/><rect class=\"f vq-head\" x=\"5.5\" y=\"8\" width=\"21\" height=\"16.5\" rx=\"6.5\"/><rect class=\"l\" x=\"5.5\" y=\"8\" width=\"21\" height=\"16.5\" rx=\"6.5\"/><rect class=\"vq-visor\" x=\"8.6\" y=\"11.6\" width=\"14.8\" height=\"7.6\" rx=\"3.8\"/><circle class=\"vq-eye\" cx=\"12.6\" cy=\"15.4\" r=\"2\"/><circle class=\"vq-eye\" cx=\"19.4\" cy=\"15.4\" r=\"2\"/><circle class=\"vq-glint\" cx=\"13.2\" cy=\"14.8\" r=\"0.6\"/><circle class=\"vq-glint\" cx=\"20\" cy=\"14.8\" r=\"0.6\"/><path class=\"l vq-mouth\" d=\"M13 21.6c1.9 1 4.1 1 6 0\"/><rect class=\"a vq-ear\" x=\"2.6\" y=\"13.6\" width=\"2.6\" height=\"5.2\" rx=\"1.3\"/><rect class=\"a vq-ear\" x=\"26.8\" y=\"13.6\" width=\"2.6\" height=\"5.2\" rx=\"1.3\"/></svg>", "user": "<svg class=\"ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle class=\"f\" cx=\"12\" cy=\"8.6\" r=\"3.9\"/><path class=\"f\" d=\"M4.8 20.2a7.2 7.2 0 0 1 14.4 0z\"/><circle class=\"l\" cx=\"12\" cy=\"8.6\" r=\"3.9\"/><path class=\"l\" d=\"M4.8 20.2a7.2 7.2 0 0 1 14.4 0\"/></svg>", "chat": "<svg class=\"ic\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path class=\"f\" d=\"M20.2 11.8a8.2 8.2 0 0 1-11.9 7.3L4 20.2l1.1-4.2a8.2 8.2 0 1 1 15.1-4.2z\"/><path class=\"l\" d=\"M20.2 11.8a8.2 8.2 0 0 1-11.9 7.3L4 20.2l1.1-4.2a8.2 8.2 0 1 1 15.1-4.2z\"/><circle class=\"a\" cx=\"8.6\" cy=\"12\" r=\"1\"/><circle class=\"a\" cx=\"12.2\" cy=\"12\" r=\"1\"/><circle class=\"a\" cx=\"15.8\" cy=\"12\" r=\"1\"/></svg>"};
 
+    // Live skies: Vanta.js effects (MIT), bundled in lib/vanta and loaded only when chosen
+    const LIVE_SKIES = {
+        livefog: { label: 'Living fog', fx: 'fog', words: ['fog sky', 'flowing fog', 'live fog'], opts: a => ({ highlightColor: a, midtoneColor: 0x1b2a4a, lowlightColor: 0x0b0f19, baseColor: 0x0b0f19, blurFactor: 0.6, speed: 1.1 }) },
+        lowpolysea: { label: 'Low-poly sea', k: 0.8, fx: 'waves', words: ['low poly sea', 'polygon waves', '3d waves'], opts: a => ({ color: mixInt(a, 0x0b0f19, 0.75), shininess: 30, waveHeight: 15, zoom: 0.9 }) },
+        cloudsky: { label: '3D clouds', k: 0.55, fx: 'clouds', words: ['3d cloud', 'cloudscape', 'fluffy clouds', 'live clouds'], opts: () => ({ skyColor: 0x2a4a6a, cloudColor: 0x6a7fa0, sunColor: 0xff9919, sunGlareColor: 0xff6633, sunlightColor: 0xff9933, speed: 0.8 }) },
+        flock: { label: 'Flock', fx: 'birds', words: ['flock of birds', 'bird flock', 'flocking birds'], opts: a => ({ backgroundColor: 0x0b0f19, color1: a, color2: 0x88ccff, quantity: 3 }) },
+        network: { label: 'Network', fx: 'net', words: ['neural net', 'web of points'], opts: a => ({ color: a, backgroundColor: 0x0b0f19, points: 9, maxDistance: 20, spacing: 17 }) },
+        cells: { label: 'Cells', fx: 'cells', words: ['living cells', 'cell sky'], opts: a => ({ color1: 0x0b2a33, color2: a, size: 1.5, speed: 0.6 }) },
+        dotfield: { label: 'Dot field', fx: 'dots', words: ['dot grid'], opts: a => ({ color: a, color2: 0x88ccff, backgroundColor: 0x0b0f19, size: 3, spacing: 35, showLines: false }) },
+        globe: { label: 'Globe', fx: 'globe', words: ['wire globe', 'world globe'], opts: a => ({ color: a, color2: 0xffffff, backgroundColor: 0x0b0f19, size: 1 }) },
+        halo: { label: 'Halo', fx: 'halo', words: ['glowing halo', 'light ring'], opts: () => ({ baseColor: 0x001a59, backgroundColor: 0x0b0f19, amplitudeFactor: 1, size: 1.2 }) },
+        rings: { label: 'Rings', fx: 'rings', words: ['colour rings', 'color rings', 'orbit rings'], opts: a => ({ backgroundColor: 0x0b0f19, color: a }) },
+        ripple: { label: 'Ripple', fx: 'ripple', words: ['ripples', 'water ripple'], opts: a => ({ color1: 0x0b2a33, color2: a, backgroundColor: 0x0b0f19 }) },
+        flowlines: { label: 'Flow lines', fx: 'topology', words: ['topology', 'flow field', 'flowing lines'], opts: a => ({ color: a, backgroundColor: 0x0b0f19 }) },
+        threads: { label: 'Threads', fx: 'trunk', words: ['thread circle', 'spun threads'], opts: a => ({ color: a, backgroundColor: 0x0b0f19, spacing: 0, chaos: 1 }) }
+    };
+    const SKY_KEYS = ['mist', 'clouds', 'sunset', 'night', 'seaday', 'seanight', 'storm', 'none', ...Object.keys(LIVE_SKIES)];
+    function mixInt(a, b, t) {
+        const ch = (x, s) => (x >> s) & 255, m = s => Math.round(ch(a, s) * (1 - t) + ch(b, s) * t) << s;
+        return m(16) | m(8) | m(0);
+    }
+
     const CONFIG = {
         apiEndpoint: 'https://veritas-quaesitor-production.up.railway.app/chat',
         maxMessageLength: 2000,
@@ -2502,7 +2524,7 @@
         lift('accent', '#ff8c42', 3.2, 'brightened the accent');
         lift('accent2', mixHex(s.accent, '#ffffff', 0.35), 4.5, 'brightened the second accent');
         lift('icon', s.accent2, 4.5, 'brightened the icons');
-        if (['mist', 'clouds', 'sunset', 'night', 'seaday', 'seanight', 'storm', 'none'].includes(raw.scene)) s.scene = raw.scene;
+        if (SKY_KEYS.includes(raw.scene)) s.scene = raw.scene;
         const fxIn = Array.isArray(raw.effects) ? raw.effects : String(raw.effects || '').split(',');
         s.effects = [...new Set(fxIn.map(x => String(x).trim().toLowerCase()).filter(x => FX_LIST.includes(x)))].slice(0, 4);
         const okParam = (k, v) => /^[a-z]{2,14}$/i.test(k) && (typeof v === 'number' && isFinite(v) || typeof v === 'boolean' || (typeof v === 'string' && v.length <= 12));
@@ -3856,11 +3878,13 @@
         moon: 'night', moonlight: 'night', starry: 'night', clouds: 'clouds', cloudy: 'clouds', mist: 'mist', 'seashore': 'seaday', beach: 'seaday',
         'seashore day': 'seaday', 'seashore at night': 'seanight', 'beach at night': 'seanight', 'moonlit sea': 'seanight', 'night sea': 'seanight',
         'no sky': 'none', 'still background': 'none', 'clear sky': 'none' };
+    Object.entries(LIVE_SKIES).forEach(([k, v]) => [k, v.label.toLowerCase(), ...v.words].forEach(w => { SKY_WORDS[w] = k; }));
     function skyFrom(text) {
         const t = String(text || '').toLowerCase().replace(/\b(the|a|an|sky|effect|scene|background|please|turn on|make it|show me)\b/g, ' ').replace(/\s+/g, ' ').trim();
         if (SKY_WORDS[t]) return SKY_WORDS[t];
         const two = String(text || '').toLowerCase();
         for (const k of ['seashore at night', 'beach at night', 'moonlit sea', 'night sea', 'night sky', 'no sky', 'still background']) if (two.includes(k)) return SKY_WORDS[k];
+        for (const [k, v] of Object.entries(LIVE_SKIES)) if ([v.label.toLowerCase(), ...v.words].some(w => w.includes(' ') && two.includes(w))) return k;
         return null;
     }
     function setSky(sky) {
@@ -3885,6 +3909,7 @@
         startPersona(want);
     }
     const SKY_LABEL = { mist: 'Mist', clouds: 'Clouds', sunset: 'Sunset', night: 'Night sky', seaday: 'Seashore', seanight: 'Seashore at night', storm: 'Storm', none: 'Still (no sky)' };
+    Object.keys(LIVE_SKIES).forEach(k => { SKY_LABEL[k] = LIVE_SKIES[k].label; });
 
     // host: the side panel's Customise tab; without one, the list opens in the chat
     function showCatalog(host) {
@@ -3918,7 +3943,8 @@
         section('Themes', 'Ten built-in looks, each with matching icons and accent. Or ask VQ to design a new one from any description.',
             CHOICES.theme.map(t => [t, `${t.toLowerCase()} theme`]));
         section('Skies', 'One moving sky at a time, behind everything.',
-            ['mist', 'clouds', 'sunset', 'night', 'seaday', 'seanight', 'storm', 'none'].map(k => [SKY_LABEL[k], { mist: 'mist', clouds: 'clouds', sunset: 'sunset', night: 'night sky', seaday: 'seashore', seanight: 'seashore at night', storm: 'storm', none: 'no sky' }[k]]));
+            SKY_KEYS.map(k => [SKY_LABEL[k], { mist: 'mist', clouds: 'clouds', sunset: 'sunset', night: 'night sky', seaday: 'seashore', seanight: 'seashore at night', storm: 'storm', none: 'no sky' }[k] || SKY_LABEL[k].toLowerCase() + ' sky']));
+        section('Live sky colours', 'The live skies (living fog to threads) can follow your accent colour or keep their own original colours.', [['Follow my accent', 'sky colours accent'], ['Original colours', 'sky colours original']]);
         section('Scene elements', 'Animated and added one at a time. Name a colour or number too: “add 6 red tulips”.', [
             ['Daisies', 'add daisies'], ['Tulips', 'add tulips'], ['Roses', 'add roses'], ['Poppies', 'add poppies'], ['Lavender', 'add lavender'], ['Sunflowers', 'add sunflowers'], ['Wildflowers', 'add wildflowers'], ['Lilies', 'add lilies'],
             ['Monarch butterflies', 'add monarch butterflies'], ['Blue butterflies', 'add blue butterflies'], ['Swallowtails', 'add swallowtail butterflies'], ['Moths', 'add moths'],
@@ -4050,6 +4076,54 @@
         clearTimeout(stormTimer);
         const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches || uiPrefs.motion === 'reduced';
         if (scene === 'storm' && !calm) scheduleLightning(sc);
+        applyLiveSky();
+    }
+    // A live sky runs behind the app like the face background; one at a time, destroyed when you switch away
+    let liveSky = null, liveKey = '', liveLoading = '';
+    const liveScripts = {};
+    function loadScript(src) {
+        return liveScripts[src] || (liveScripts[src] = new Promise((ok, no) => {
+            const t = document.createElement('script'); t.src = src; t.onload = ok; t.onerror = () => { delete liveScripts[src]; no(new Error(src)); };
+            document.head.appendChild(t);
+        }));
+    }
+    function liveAccent() {
+        const a = getComputedStyle(document.documentElement).getPropertyValue('--ui-accent').trim().replace('#', '');
+        return /^[0-9a-f]{6}$/i.test(a) ? parseInt(a, 16) : 0x2bb5a6;
+    }
+    function stopLiveSky() {
+        if (liveSky) { try { liveSky.destroy(); } catch (e) { } liveSky = null; }
+        liveKey = '';
+        const h = document.querySelector('.vq-live-sky'); if (h) { h.hidden = true; h.innerHTML = ''; }
+    }
+    async function applyLiveSky() {
+        const key = LIVE_SKIES[uiPrefs.scene] ? uiPrefs.scene : '';
+        const calm = matchMedia('(prefers-reduced-motion: reduce)').matches || uiPrefs.motion === 'reduced';
+        const orig = uiPrefs.skyColours === 'original';
+        const want = key && !calm ? key + '|' + (orig ? 'original' : liveAccent()) : '';
+        if (want === liveKey || (want && want === liveLoading)) return;     // already showing, or already on its way
+        stopLiveSky();
+        liveLoading = '';
+        if (!want) return;
+        const def = LIVE_SKIES[key];
+        liveLoading = want;
+        try {
+            await loadScript(def.fx === 'topology' || def.fx === 'trunk' ? 'lib/vanta/p5.min.js' : 'lib/vanta/three.r134.min.js');
+            await loadScript(`lib/vanta/vanta.${def.fx}.min.js`);
+        } catch (e) { console.warn('Live sky failed to load', e); liveLoading = ''; return; }
+        if (liveLoading !== want) return;          // you switched again while it loaded
+        liveLoading = '';
+        let host = document.querySelector('.vq-live-sky');
+        if (!host) { host = document.createElement('div'); host.className = 'vq-live-sky'; host.setAttribute('aria-hidden', 'true'); document.body.prepend(host); }
+        host.hidden = false;
+        host.style.setProperty('--live-k', String(def.k || 1));
+        const fn = window.VANTA && window.VANTA[def.fx.toUpperCase()];
+        if (!fn) return;
+        try {
+            liveSky = fn(Object.assign({ el: host, mouseControls: true, touchControls: true, gyroControls: false, minHeight: 200, minWidth: 200,
+                scale: 1, scaleMobile: 1 }, orig ? {} : def.opts(liveAccent())));
+            liveKey = want;
+        } catch (e) { console.warn('Live sky failed to start', e); stopLiveSky(); }
     }
     // Uneven sun rays (crepuscular): random widths, gaps and strengths, so they never look like a pinwheel
     function buildRays(sc) {
@@ -4145,7 +4219,7 @@
         b.toggle('panel-plain', uiPrefs.panelDetail === 'plain');
         b.toggle('ui-bubbles', !!uiPrefs.bubbles);
         b.toggle('no-glow', uiPrefs.glow === false);
-        b.toggle('no-mist', uiPrefs.mist === false || ['clouds', 'sunset', 'storm', 'night', 'seaday', 'seanight', 'none'].includes(uiPrefs.scene));
+        b.toggle('no-mist', uiPrefs.mist === false || (['clouds', 'sunset', 'storm', 'night', 'seaday', 'seanight', 'none'].includes(uiPrefs.scene) || !!LIVE_SKIES[uiPrefs.scene]));
         document.body.dataset.fx = ['low', 'medium', 'high'].includes(uiPrefs.fx) ? uiPrefs.fx : 'high';
         b.toggle('ground-screen', uiPrefs.ground !== 'box');
         if (typeof applyFaceBg === 'function') applyFaceBg();
@@ -4208,7 +4282,7 @@
                 if (st.mist === 'on' || st.mist === 'off') { uiPrefs.mist = st.mist === 'on'; if (st.mist === 'on') uiPrefs.scene = 'mist'; }
                 if (['low', 'medium', 'high'].includes(st.effects)) uiPrefs.fx = st.effects;
                 if (['full', 'reduced', 'clear'].includes(st.text_static)) uiPrefs.textStatic = st.text_static;
-                if (['mist', 'clouds', 'sunset', 'storm', 'night', 'seaday', 'seanight', 'none'].includes(st.scene)) { uiPrefs.scene = st.scene; uiPrefs.mist = st.scene !== 'none'; }
+                if (SKY_KEYS.includes(st.scene)) { uiPrefs.scene = st.scene; uiPrefs.mist = st.scene !== 'none'; }
                 break;
             }
             case 'panel':
@@ -5536,10 +5610,10 @@
                         full: 'The chat text now gets the **full** static.' }[st.text_static] + ' Say “text static clear”, “reduced” or “full” any time, free.');
                     if (st.effects) lines.push({ low: 'Effects turned down to **low**: a gentle hint of movement.', medium: 'Effects set to **medium**.',
                         high: 'Effects at **full strength**.' }[st.effects] + ' Say “effects low”, “medium” or “high” any time, free.');
-                    if (st.scene) lines.push({ mist: 'The **living mist** is back.', clouds: 'Clouds now drift slowly across your screen.',
+                    if (st.scene) lines.push(({ mist: 'The **living mist** is back.', clouds: 'Clouds now drift slowly across your screen.',
                         sunset: 'A **sunset** glows in the corner, with clouds drifting past the sun.', night: 'Night falls: a **moon** with drifting clouds and faint stars.', seaday: 'A **seashore by day**: rolling waves, sun sparkling on the water and gulls drifting by.',
                         seanight: 'A **seashore at night**: dark waves with silver crests and the moon’s path across the water.', storm: 'A gentle **sci-fi storm** rolls in: rain, drifting thunderheads and the odd soft flash of lightning.',
-                        none: 'The background is now **still**: no mist or sky effects.' }[st.scene] + ' Other skies: mist, clouds, sunset, night, seashore by day or night, storm, or none.');
+                        none: 'The background is now **still**: no mist or sky effects.' }[st.scene] || (LIVE_SKIES[st.scene] ? `A live **${LIVE_SKIES[st.scene].label.toLowerCase()}** sky now moves behind everything.` : 'Sky changed.')) + ' Other skies: mist, clouds, sunset, night, seashore by day or night, storm, or none, plus live skies: ' + Object.values(LIVE_SKIES).map(v => v.label.toLowerCase()).join(', ') + '.');
                     if (st.mist) lines.push(st.mist === 'on' ? 'The warm **mist** is back, drifting through the VQ theme.' : 'The warm mist is **off**: a still, clean background. Say “mist on” to bring it back.');
                     if (st.glow) lines.push(st.glow === 'on' ? 'Icon glow is **on**. Each theme glows in its own colour.' : 'Icon glow is **off**: clean, flat icons. Say “glow on” to bring it back.');
                     if (typeof st.text_scale === 'number') { used.add('size'); lines.push(`Text size set to **${Math.round(st.text_scale * 100)}%**.`); }
@@ -5715,6 +5789,16 @@
             showLocalNote(groundAsk === 'screen' ? 'The ground is now the bottom of the screen' : 'The ground is now just above the message box');
             return;
         }
+        // Live sky colours: your accent, or each effect's own original colours
+        const skyColAsk = /^(?:(?:live )?sky colou?rs? (?:original|default|normal)|(?:original|default) (?:live )?sky colou?rs?|live skies? (?:in )?(?:original|default) colou?rs?)$/.test(pm) ? 'original'
+            : /^(?:(?:live )?sky colou?rs? (?:accent|my accent|theme)|accent (?:live )?sky colou?rs?|live skies? (?:in )?(?:my )?accent colou?rs?)$/.test(pm) ? 'accent' : null;
+        if (skyColAsk) {
+            elements.messageInput.value = '';
+            uiUndo.push(snapshotUI());
+            uiPrefs.skyColours = skyColAsk; saveUIPrefs(); applyUIPrefs();
+            showLocalNote(skyColAsk === 'original' ? 'Live skies now use their original colours' : 'Live skies now follow your accent colour');
+            return;
+        }
         // Arrange the scene: drag things around, drop them on the bin to remove them
         if (/^(?:arrange|rearrange|arrange mode|edit (?:the )?scene|move things(?: around)?|(?:arrange|rearrange|move) (?:the )?(?:scene|elements|things|flowers|drawings|plants)(?: around)?)$/.test(pm)) {
             elements.messageInput.value = '';
@@ -5730,7 +5814,7 @@
             showCatalog();
             return;
         }
-        const skyAsk = /^\s*(?:please\s+)?(?:set |use |show |turn on |make it |switch to |change to |give me )?(?:the |a |an )?([a-z ]{3,24}?)(?: sky| effect| scene| background)?\s*(?:please)?[.!]?\s*$/i.exec(rawMessage);
+        const skyAsk = /^\s*(?:please\s+)?(?:set |use |show |turn on |make it |switch to |change to |give me )?(?:the |a |an )?([a-z0-9 \-]{3,24}?)(?: sky| effect| scene| background)?\s*(?:please)?[.!]?\s*$/i.exec(rawMessage);
         const skyName = skyAsk && skyFrom(skyAsk[1] + (/\bsky\b/i.test(rawMessage) && /night/i.test(skyAsk[1]) ? ' sky' : ''));
         if (skyName) {
             elements.messageInput.value = '';
