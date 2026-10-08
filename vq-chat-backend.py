@@ -1495,7 +1495,7 @@ UI_TOOL = {
                               "accent": {"type": "string", "description": "the main accent (buttons, highlights)"},
                               "accent2": {"type": "string", "description": "a lighter companion to the accent"},
                               "icon": {"type": "string", "description": "icon and VQ-eye colour, light and vivid"},
-                              "scene": {"type": "string", "description": "optional matching sky: mist, clouds, sunset, night, seaday, seanight, storm, none"},
+                              "scene": {"type": "string", "description": "optional matching sky: mist, clouds, sunset, night, seaday, seanight, storm, none, or a live 3D sky: livefog, lowpolysea, cloudsky, flock, network, cells, dotfield, globe, halo, rings, ripple, flowlines, threads"},
                               "layers": {"type": "array", "description": ("optional: up to 3 canvas effect layers from the visual toolkit, each "
                                          "{type, params}. Types: mist, clouds, storm, stars, constellations, galaxy, nebula, aurora, waves, seashore, matrix "
                                          "(falling code), orbits, vortex, tunnel, grid (retro perspective grid), circuit, comets, ripples, grain (film grain). "
@@ -1531,7 +1531,7 @@ UI_TOOL = {
                         "mist": {"type": "string", "description": "on (default) or off: the soft mist drifting through the background, in the accent colour"},
                         "effects": {"type": "string", "description": "strength of the mist, sky and theme effects: low, medium or high (default)"},
                         "text_static": {"type": "string", "description": "how much TV static falls on the chat text: full, reduced (default) or clear (text sits on top, unaffected)"},
-                        "scene": {"type": "string", "description": "the moving sky behind the app: mist (default), clouds, sunset, night (moon and stars), seaday (seashore by day), seanight (seashore at night), storm, or none (still)"}
+                        "scene": {"type": "string", "description": "the moving sky behind the app: mist (default), clouds, sunset, night (moon and stars), seaday (seashore by day), seanight (seashore at night), storm, or none (still). Live 3D skies (animated, follow the accent colour): livefog (flowing fog), lowpolysea (low-poly waves), cloudsky (3D clouds with sun), flock (birds flocking), network (connected points), cells, dotfield, globe (wire globe), halo (glowing ring), rings (colourful rings), ripple, flowlines (flow-field lines), threads (spun thread circle)"}
                     }
                 },
                 "note": {"type": "string", "description": "A few words describing the change, e.g. 'warmer, easier to read'"}
@@ -1551,7 +1551,7 @@ _STYLE_CHOICES = {
     "theme": ["vq", "classic", "navy", "charcoal", "midnight", "ocean", "forest", "ember", "slate", "plum"],
     "glow": ["on", "off"],
     "mist": ["on", "off"],
-    "scene": ["mist", "clouds", "sunset", "night", "seaday", "seanight", "storm", "none"],
+    "scene": ["mist", "clouds", "sunset", "night", "seaday", "seanight", "storm", "none", "livefog", "lowpolysea", "cloudsky", "flock", "network", "cells", "dotfield", "globe", "halo", "rings", "ripple", "flowlines", "threads"],
     "effects": ["low", "medium", "high"],
     "text_static": ["full", "reduced", "clear"],
 }
@@ -1614,7 +1614,7 @@ def validate_ui_action(args: dict):
             if key == "scene":
                 val = {"cloud": "clouds", "cloudy": "clouds", "sky": "clouds", "sun": "sunset", "sundown": "sunset", "dusk": "sunset",
                        "sea": "seaday", "seashore": "seaday", "seaside": "seaday", "beach": "seaday", "ocean waves": "seaday", "waves": "seaday", "coast": "seaday", "seashore day": "seaday", "beach day": "seaday", "sea day": "seaday", "seashore night": "seanight", "seashore at night": "seanight", "beach night": "seanight", "beach at night": "seanight", "night sea": "seanight", "sea night": "seanight", "moonlit sea": "seanight", "moon": "night", "moonlight": "night", "stars": "night", "night sky": "night", "starry": "night", "thunder": "storm", "thunderstorm": "storm", "lightning": "storm", "rain": "storm", "fog": "mist", "haze": "mist",
-                       "off": "none", "still": "none", "nothing": "none", "plain": "none"}.get(val, val)
+                       "off": "none", "still": "none", "nothing": "none", "plain": "none", "living fog": "livefog", "flowing fog": "livefog", "low-poly sea": "lowpolysea", "low poly sea": "lowpolysea", "3d clouds": "cloudsky", "3d waves": "lowpolysea", "birds": "flock", "flocking birds": "flock", "net": "network", "dot field": "dotfield", "dots": "dotfield", "flow lines": "flowlines", "topology": "flowlines", "trunk": "threads"}.get(val, val)
             if key == "mist":
                 val = {"true": "on", "yes": "on", "fog": "on", "haze": "on", "false": "off", "no": "off", "none": "off", "still": "off"}.get(val, val)
             if key == "glow":
@@ -1733,7 +1733,7 @@ def validate_ui_action(args: dict):
         if fx:
             spec["effects"] = fx
         sc = str(th.get("scene") or "").lower().strip()
-        if sc in ("mist", "clouds", "sunset", "night", "seaday", "seanight", "storm", "none"):
+        if sc in ("mist", "clouds", "sunset", "night", "seaday", "seanight", "storm", "none", "livefog", "lowpolysea", "cloudsky", "flock", "network", "cells", "dotfield", "globe", "halo", "rings", "ripple", "flowlines", "threads"):
             spec["scene"] = sc
         clean["theme"] = spec
         parts = [f"new theme “{spec['name']}”"]
@@ -2024,7 +2024,7 @@ UI_SYSTEM_NOTE = (
     "CODE: always put code in a fenced block with its language (```html, ```css, ```javascript, ```python, ```json or ```csv) so the "
     "app can show its Run button. Web examples should be one self-contained HTML block (inline <style> and <script>, no external "
     "files, links or libraries); Python may use numpy and matplotlib only; there is no internet access when code runs.\n"
-    "SKIES are not elements: mist, clouds, sunset, night, seashore (day or night), storm, or none are set with style.scene.\n"
+    "SKIES are not elements: mist, clouds, sunset, night, seashore (day or night), storm, or none are set with style.scene. So are the live 3D skies: livefog, lowpolysea, cloudsky, flock, network, cells, dotfield, globe, halo, rings, ripple, flowlines, threads (they tint to the accent colour).\n"
     "BUILT-IN THEMES: if the user names one of the built-in themes (VQ, Classic, Navy, Charcoal, Midnight, Ocean, Forest, Ember, "
     "Slate, Plum), switch to it with action style and style.theme. Never design a new theme for a built-in name.\n"
     "DESIGNING A THEME: when the user asks you to make, design or create a WHOLE NEW theme (e.g. 'a theme like a sunrise over the ocean', "
@@ -2046,7 +2046,7 @@ UI_SYSTEM_NOTE = (
     "THEMES: ten built-in themes (VQ, Classic, Navy, Charcoal, Midnight, Ocean, Forest, Ember, Slate, Plum), each with matching icons "
     "and accent; say the name, free ('ocean theme'). Or ask VQ to design a new theme from any description ('a theme like a sunrise "
     "over the ocean'); it's checked for readability.\n"
-    "SKIES: one moving sky behind everything: mist, clouds, sunset, night sky, seashore, seashore at night, storm, or none; free "
+    "SKIES: one moving sky behind everything: mist, clouds, sunset, night sky, seashore, seashore at night, storm, or none, plus live 3D skies (living fog, low-poly sea, 3D clouds, flock, network, cells, dot field, globe, halo, rings, ripple, flow lines, threads); free "
     "('sunset', 'storm', 'no sky').\n"
     "SCENE ELEMENTS, added one at a time, free ('add 6 red tulips', 'remove butterflies'): flowers (daisy, tulip, rose, poppy, "
     "lavender, sunflower, wildflower, lily), butterflies (monarch, blue, swallowtail, moth), trees (pine, oak, birch, palm, willow, "
