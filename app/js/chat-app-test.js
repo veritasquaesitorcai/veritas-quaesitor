@@ -3421,6 +3421,54 @@
             return { ok: false, error: 'the drawing couldn’t be converted' };
         } finally { holder.remove(); }
     }
+    // ---------- Sizing any scene element: flowers, trees, animals, drawings ----------
+    let lastArtWord = '';   // what "it" means: the last thing added or changed in the scene
+    const SIZE_WORDS = [
+        [/^(?:much|a lot|way) (?:bigger|larger)$|^(?:much|a lot) more big$/, { mul: 1.7 }], [/^(?:a bit|a little|slightly|bit) (?:bigger|larger)$/, { mul: 1.15 }],
+        [/^(?:bigger|larger|big|large-?r)$/, { mul: 1.3 }], [/^(?:much|a lot|way) smaller$/, { mul: 1 / 1.7 }], [/^(?:a bit|a little|slightly|bit) smaller$/, { mul: 1 / 1.15 }],
+        [/^smaller$/, { mul: 1 / 1.3 }], [/^(?:double(?: size| the size)?|twice as big|twice the size|2x)$/, { mul: 2 }], [/^(?:half(?: size| the size)?|half as big)$/, { mul: 0.5 }],
+        [/^(?:triple(?: size)?|three times as big|3x)$/, { mul: 3 }],
+        [/^(?:tiny|very small)$/, { abs: 0.45 }], [/^small$/, { abs: 0.7 }], [/^(?:medium|normal|normal size|regular|default size|original size)$/, { abs: 1 }],
+        [/^large$/, { abs: 1.5 }], [/^(?:huge|giant|enormous|massive|very big|very large|as big as possible|maximum|max)$/, { abs: 2.2 }]
+    ];
+    function sizeChange(word) {
+        const w = String(word || '').toLowerCase().trim();
+        const pct = /^(\d{2,3})\s*%$/.exec(w);
+        if (pct) return { abs: +pct[1] / 100 };
+        for (const [re, v] of SIZE_WORDS) if (re.test(w)) return v;
+        return null;
+    }
+    function defaultArtSize(e) {
+        try { const d = window.VQArt.capabilities().shared.size.defaults; if (d && d[e.type]) return d[e.type]; } catch (err) {}
+        return { assembly: 140, custom: 120, tree: 150, flower: 60 }[e.type] || 80;
+    }
+    function findArtTarget(art, words) {
+        let w = String(words || '').toLowerCase().replace(/\b(the|my|those|these|all the|all|size of the|size of)\b/g, ' ').replace(/\s+/g, ' ').trim();
+        if (/^(it|them|that|this|those|these|one)$/.test(w) || !w) w = lastArtWord;
+        if (!w) return -1;
+        const d = findDrawing(art, w);
+        if (d >= 0) return d;
+        const it = parseItem(w);
+        if (!it || it.kind !== 'art') return -1;
+        const vk = (e) => (e.type === 'assembly' || e.type === 'custom') ? String(e.name || '').toLowerCase() : (e.species || e.style || e.kind || '');
+        const want = vk(it.item);
+        let i = art.findIndex(e => e.type === it.item.type && (!want || vk(e) === want));
+        if (i < 0) i = art.findIndex(e => e.type === it.item.type);
+        return i;
+    }
+    // Resize one element; returns { name, size, capped } or null
+    function resizeArt(sp, words, how) {
+        const ch = sizeChange(how);
+        const i = ch ? findArtTarget(sp.art || [], words) : -1;
+        if (i < 0) return null;
+        const e = sp.art[i], base = defaultArtSize(e), cur = e.size || base;
+        let next = ch.abs ? base * ch.abs : cur * ch.mul;
+        const capped = next > 300 || next < 8;
+        e.size = Math.round(Math.max(8, Math.min(300, next)));
+        const name = e.name || e.species || e.style || e.kind || e.type;
+        lastArtWord = name;
+        return { name, size: e.size, capped, smaller: e.size < cur };
+    }
     window.VQScene = { engine: () => artEngine, ids: () => Object.assign({}, artIdIndex), arrange: (on) => setArrange(on !== false), convert: svgToCustom };   // for testing and tinkering
     // An animal VQ assembled from the parts kit: checked by the scene engine, then added like any other element
     function addCreature(act) {
@@ -3445,6 +3493,7 @@
         else if (sp.art.length >= 8) return { ok: false, full: true, name: el2.name };
         else sp.art.push(el2);
         const inst = installTheme(sp);
+        lastArtWord = el2.name;
         return { ok: true, name: el2.name, theme: inst.spec.name, count: el2.count, creature: true };
     }
     // Put a drawing into the current theme (replacing an earlier drawing of the same name)
@@ -3459,6 +3508,7 @@
         else if (sp.art.length >= 8) return { ok: false, full: true, name: el2.name };
         else sp.art.push(el2);
         const r = installTheme(sp);
+        lastArtWord = el2.name;
         return { ok: true, name: el2.name, theme: r.spec.name, count: el2.count };
     }
     // Find one of VQ's drawings by the words the user uses ("the plane", "balloons")
@@ -3564,6 +3614,11 @@
             else if (/\b(storm|rain|sunset|night|moon|seashore|beach|sea|clouds|mist|sky)\b/i.test(edit.remove)) { uiPrefs.scene = 'none'; uiPrefs.mist = false; out.removed = edit.remove; }
             if (!out.removed) out.missing = out.missing || edit.remove;
         }
+        if (edit.resize && edit.size) {
+            const r = resizeArt(sp, edit.resize, edit.size);
+            if (r) out.resized = r; else out.missing = out.missing || edit.resize;
+        }
+        if (out.added) lastArtWord = String(out.added);
         if (edit.shade === 'darker') sp.background = mixHex(sp.background, '#000000', 0.35);
         if (edit.shade === 'lighter') sp.background = mixHex(sp.background, '#ffffff', 0.12);
         if (edit.accent_hex) { sp.accent = edit.accent_hex; sp.accent2 = mixHex(edit.accent_hex, '#ffffff', 0.35); }
@@ -5332,6 +5387,7 @@
                     used.add('theme');
                     if (r.added) lines.push(r.full ? `There’s no room for **${r.added}**: a theme holds up to 8 scene elements and 4 effects. Remove something first.` : `Added **${r.added}** to **${r.name}**.`);
                     if (r.removed) lines.push(`Removed **${r.removed}**.`);
+                    if (r.resized) lines.push(r.resized.capped ? `The **${r.resized.name}** is now as ${r.resized.smaller ? 'small' : 'big'} as it can go.` : `Made the **${r.resized.name}** ${r.resized.smaller ? 'smaller' : 'bigger'}.`);
                     if (r.missing) lines.push(`**${r.missing}** isn’t available yet, so I couldn’t add or remove it.`);
                     if ((a.edit || {}).shade) lines.push(`Background made **${a.edit.shade}**.`);
                     if ((a.edit || {}).accent_hex) lines.push('Accent colour changed.');
@@ -5468,17 +5524,27 @@
             showLocalNote(`The ${d.name} is ${{ walk: 'walking around', graze: 'grazing', sit: 'sitting', idle: 'standing still' }[d.motion]}`);
             return;
         }
-        // "make the rocket bigger" / "make the balloons smaller": resize one of VQ's drawings, free
-        const sizeM = pm.match(/^(?:make |can you make )?(?:the |my |those |these )?(.{2,30}?) (bigger|larger|smaller|much bigger|much smaller|a bit bigger|a bit smaller)(?: please)?$/);
-        if (sizeM && findDrawing(drawnArt, sizeM[1]) >= 0) {
-            elements.messageInput.value = '';
-            uiUndo.push(snapshotUI());
-            const sp = currentThemeSpec(), i = findDrawing(sp.art, sizeM[1]), d = sp.art[i];
-            const f = /much/.test(sizeM[2]) ? 1.6 : /a bit/.test(sizeM[2]) ? 1.15 : 1.3;
-            d.size = Math.round(Math.max(40, Math.min(300, (d.size || 140) * (/smaller/.test(sizeM[2]) ? 1 / f : f))));
-            installTheme(sp); saveUIPrefs(); applyUIPrefs();
-            showLocalNote(`Made the ${d.name} ${/smaller/.test(sizeM[2]) ? 'smaller' : 'bigger'}`);
-            return;
+        // Resize anything in the scene, free: "make the tiger huge", "bigger roses", "increase the size of the balloon",
+        // "make the plane 150%", "double the giraffe", "make it smaller" (the last thing added or changed)
+        const SZ = '(much bigger|much larger|a lot bigger|way bigger|a bit bigger|a little bigger|slightly bigger|bit bigger|a bit larger|a little larger|bigger|larger|much smaller|a lot smaller|way smaller|a bit smaller|a little smaller|slightly smaller|bit smaller|smaller|tiny|very small|small|medium|normal size|normal|regular|original size|default size|large|huge|giant|enormous|massive|very big|very large|as big as possible|maximum|double the size|double size|twice as big|twice the size|half the size|half size|half as big|triple size|three times as big|\\d{2,3} ?%)';
+        const rz = pm.match(new RegExp(`^(?:make|turn|set|resize|scale|can you make|please make)? ?(?:the |my |all the |those |these )?(.{1,30}?) (?:size )?(?:to |into |at )?${SZ}(?: please)?$`))
+            || pm.match(new RegExp(`^(?:make |turn )?${SZ} (?:the |my )?(.{2,30})$`))
+            || pm.match(/^(increase|enlarge|grow|scale up|enlarge the size of|increase the size of|decrease|reduce|shrink|scale down|decrease the size of|reduce the size of) (?:the |my )?(.{1,30}?)(?: a bit| a little| a lot| much)?$/);
+        if (rz) {
+            let words, how;
+            if (/^(increase|enlarge|grow|scale up|decrease|reduce|shrink|scale down)/.test(rz[1])) { words = rz[2]; how = /increase|enlarge|grow|up/.test(rz[1]) ? (/ a lot| much$/.test(pm) ? 'much bigger' : / a bit| a little$/.test(pm) ? 'a bit bigger' : 'bigger') : (/ a lot| much$/.test(pm) ? 'much smaller' : / a bit| a little$/.test(pm) ? 'a bit smaller' : 'smaller'); }
+            else if (sizeChange(rz[1]) && !sizeChange(rz[2])) { how = rz[1]; words = rz[2]; }
+            else { words = rz[1]; how = rz[2]; }
+            const sp0 = currentThemeSpec();
+            const textOnly = /^(text|the text|font|letters|words|writing|everything|the screen|chat)$/.test(String(words).trim());
+            if (!textOnly && findArtTarget(sp0.art || [], words) >= 0 && sizeChange(how)) {
+                elements.messageInput.value = '';
+                uiUndo.push(snapshotUI());
+                const r = resizeArt(sp0, words, how);
+                installTheme(sp0); saveUIPrefs(); applyUIPrefs();
+                showLocalNote(r.capped ? `The ${r.name} is as ${r.smaller ? 'small' : 'big'} as it can go for now` : `Made the ${r.name} ${r.smaller ? 'smaller' : 'bigger'}`);
+                return;
+            }
         }
         if ((addM && (parseItem(addM[1]) || skyFrom(addM[1]))) || (remM && (parseItem(remM[1]) || findDrawing(drawnArt, remM[1]) >= 0 || /\b(storm|rain|sunset|night|moon|seashore|beach|sea|clouds|mist)\b/i.test(remM[1])))) {
             elements.messageInput.value = '';
