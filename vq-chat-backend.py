@@ -1462,7 +1462,7 @@ UI_TOOL = {
                 "action": {"type": "string", "enum": ["text_size", "style", "panel", "focus_mode", "show_reasoning",
                                                        "new_chat", "reset_display", "undo", "panel_view", "add_note",
                                                        "second_opinion", "swap", "create_theme", "theme_edit", "draw", "creature"]},
-                "recipe": {"type": "object", "description": ("For creature: a four-legged animal assembled from VQ's parts kit. Fields: name; "
+                "recipe": {"type": "object", "description": ("For creature: a creature assembled from VQ's parts kit. Fields: name; rig (quadruped, bird, fish, insect, serpent, biped, turtle, octopus, crab); "
                            "parts {head {shape, ears, eyes, muzzle, extras[], width, length, roundness}, neck {length, thickness}, body {shape, length, width}, "
                            "legs {type, length, thickness}, tail {type, length, width, curve}}; colors {base, underside, detail, eyes} as #hex (natural colours); "
                            "pattern {kind, density, scale, color}; motion; scale (small, medium, large); count 1-6. Only values from the PARTS KIT list.")},
@@ -1478,6 +1478,9 @@ UI_TOOL = {
                 "add": {"type": "string", "description": "For theme_edit: ONE element to add, in plain words, e.g. 'butterflies', 'red tulips', 'cherry blossom trees', 'a galaxy', 'snow'"},
                 "remove": {"type": "string", "description": "For theme_edit: ONE element to remove, e.g. 'comet', 'butterflies'"},
                 "count": {"type": "integer", "description": "For theme_edit add or draw: how many (optional; draw allows 1-6)"},
+                "who": {"type": "string", "description": "For theme_edit: the creature to give a movement or behaviour to, by name, e.g. 'dog'"},
+                "does": {"type": "string", "description": "For theme_edit with who: walk, run, play, graze, sit, rest, swim, fly, hop, crawl, chase, hunt, flee, follow, herd, pointer-chase, pointer-flee or stop"},
+                "target": {"type": "string", "description": "For theme_edit with who and does chase/flee/follow/play: the other creature, by name"},
                 "resize": {"type": "string", "description": "For theme_edit: ONE scene element to resize, by its name, e.g. 'tiger', 'roses', 'hot-air balloon', or 'it' for the last one added"},
                 "new_size": {"type": "string", "description": "For theme_edit with resize: bigger, much bigger, a bit bigger, smaller, much smaller, a bit smaller, double, half, tiny, small, normal, large, huge, or a percentage like 150%"},
                 "shade": {"type": "string", "enum": ["darker", "lighter"], "description": "For theme_edit: make the background darker or lighter"},
@@ -1643,6 +1646,14 @@ def validate_ui_action(args: dict):
             pass
         if args.get("shade") in ("darker", "lighter"):
             edit["shade"] = args["shade"]
+        for k in ("who", "target"):
+            v = re.sub(r"[^\w '\-]", "", str(args.get(k) or "")).strip()[:40]
+            if v:
+                edit[k] = v
+        dv = str(args.get("does") or "").strip().lower()
+        if dv in ("walk", "run", "play", "graze", "sit", "rest", "idle", "swim", "fly", "hop", "crawl", "slither", "perch", "chase", "hunt", "flee",
+                  "follow", "herd", "pointer-chase", "pointer-flee", "stop"):
+            edit["does"] = dv
         rz = re.sub(r"[^\w ,'\-]", "", str(args.get("resize") or "")).strip()[:40]
         ns = re.sub(r"[^\w %\-]", "", str(args.get("new_size") or "")).strip().lower()[:24]
         ns = {"double": "double size", "half": "half size", "twice": "double size", "biggest": "huge", "max": "huge", "smallest": "tiny",
@@ -1866,52 +1877,71 @@ def draw_svg(spec: dict):
     return None, f"my drawing of the {spec.get('name') or 'that'} didn't come out right this time; please ask me again"
 
 # ---------- VQ's parts kit (VQ Art v5): animals assembled from hand-built parts ----------
-# Copied from the engine's capabilities() (milestone 1, quadruped rig). Refresh when the engine gains rigs and parts.
-ASSEMBLY_CAPS = json.loads('{"parts":{"head":{"shape":{"values":["round","oval","feline","canine","equine","bovine","ursine","rodent"],"default":"feline"},"width":{"min":0.65,"max":1.5,"default":1},"length":{"min":0.65,"max":1.5,"default":1},"roundness":{"min":0,"max":1,"default":0.5},"ears":{"values":["none","round","pointed","long","floppy","big","tufted"],"default":"round"},"eyes":{"values":["cartoon","simple","sleepy","closed"],"default":"simple"},"muzzle":{"values":["none","small","snout","trunk","smile"],"default":"small"},"extras":{"values":["short-horns","curved-horns","spiral-horns","antlers","ossicones","mane","crest","whiskers","tusks"],"default":[],"maxItems":3}},"neck":{"length":{"min":0,"max":1.8,"default":0.15},"thickness":{"min":0.35,"max":1.6,"default":0.8}},"body":{"shape":{"values":["bean","barrel","slender","long","round","woolly"],"default":"bean"},"length":{"min":0.65,"max":1.6,"default":1},"width":{"min":0.65,"max":1.5,"default":1}},"legs":{"type":{"values":["pawed","hoofed","clawed"],"default":"pawed"},"length":{"min":0.2,"max":1,"default":0.5},"thickness":{"min":0.5,"max":1.6,"default":0.9}},"tail":{"type":{"values":["none","thin","tufted","bushy","fluffy","reptile","curly"],"default":"thin"},"length":{"min":0.1,"max":1.4,"default":0.8},"width":{"min":0.5,"max":1.6,"default":1},"curve":{"min":-1,"max":1,"default":0.25}}},"pattern":{"kind":{"values":["none","stripes","spots","patches","rosettes","fur"],"default":"none"},"density":{"min":0,"max":1,"default":0.5},"scale":{"min":0.5,"max":2,"default":1},"contrast":{"min":0,"max":1,"default":0.85},"color":{"format":"#hex","default":"colors.detail"}},"motions":["idle","walk","graze","sit"]}')
-ANIMAL_PRESETS = ["tiger", "lion", "giraffe", "zebra", "elephant", "horse", "cow", "cat", "dog", "fox", "rabbit", "bear", "deer", "pig", "sheep"]
+# Copied from the engine's capabilities() (milestone 2: nine creature rigs). Refresh when the engine gains rigs and parts.
+ASSEMBLY_CAPS = json.loads('{"rigs":{"quadruped":{"motions":["idle","walk","graze","sit","run","play"],"parts":{"head":["round","oval","feline","canine","equine","bovine","ursine","rodent"],"eyes":["cartoon","simple","sleepy","closed"],"body":["bean","barrel","slender","long","round","woolly"],"neck":["standard"],"udder":["none","small"],"muzzle":["none","small","snout","trunk","smile"],"ears":["none","round","pointed","long","floppy","big","tufted","sideways"],"extras":["short-horns","curved-horns","spiral-horns","antlers","ossicones","mane","crest","whiskers","tusks","neck-mane"],"legs":["pawed","hoofed","clawed"],"tail":["none","thin","tufted","bushy","fluffy","reptile","curly"]}},"bird":{"motions":["perch","hop","fly","run","play"],"parts":{"head":["bird","owl","raptor"],"eyes":["cartoon","simple","sleepy","closed"],"body":["round","slender","long","upright"],"neck":["standard"],"muzzle":["beak-short","beak-hooked","beak-long","beak-flat","beak-needle"],"ears":["none"],"extras":["crest","tuft","comb"],"legs":["bird","webbed"],"tail":["none","fan","long-feathers"],"wings":["none","feathered"]}},"fish":{"motions":["swim","idle","play"],"parts":{"head":["fish","shark","whale","dolphin"],"eyes":["cartoon","simple","sleepy","closed"],"body":["streamlined","round","long"],"muzzle":["none","smile"],"ears":["none"],"extras":[],"tail":["fish-fin","whale-fluke"],"fins":["dorsal:rounded","dorsal:triangle","dorsal:tall","dorsal:none","pectoral:pointed","pectoral:rounded","pectoral:flipper","pectoral:none","tail:fork","tail:fan","tail:lunate","tail:fluke"]}},"insect":{"motions":["crawl","fly","idle","run","play"],"parts":{"head":["insect"],"eyes":["cartoon","simple","sleepy","closed"],"body":["segmented","wing-case","slender"],"muzzle":["none","smile"],"ears":["none"],"extras":["antennae"],"legs":["insect"],"tail":["none","stinger"],"wings":["none","clear","butterfly"]}},"serpent":{"motions":["slither","idle","play"],"parts":{"head":["reptile"],"eyes":["cartoon","simple","sleepy","closed"],"body":["serpentine"],"muzzle":["none","small","smile","forked-tongue"],"ears":["none"],"extras":[],"tail":["reptile"]}},"biped":{"motions":["idle","walk","fly","sit","run","play"],"parts":{"head":["dragon","round","oval","reptile"],"eyes":["cartoon","simple","sleepy","closed"],"body":["upright","round"],"neck":["standard"],"muzzle":["none","small","smile","forked-tongue"],"ears":["none","round","pointed","long","floppy","big","tufted","sideways"],"extras":["short-horns","curved-horns","crest","whiskers"],"legs":["pawed","clawed"],"tail":["none","reptile","thin"],"wings":["none","bat","feathered"],"arms":["small","clawed"]}},"turtle":{"motions":["walk","swim","idle","play"],"parts":{"head":["reptile"],"eyes":["cartoon","simple","sleepy","closed"],"body":["shell"],"muzzle":["none","small","smile","forked-tongue"],"ears":["none"],"extras":[],"legs":["clawed","flippers"],"tail":["reptile","none"]}},"octopus":{"motions":["swim","idle","play"],"parts":{"head":["none"],"eyes":["cartoon","simple","sleepy","closed"],"body":["octopus"],"tentacles":["curled","flowing"]}},"crab":{"motions":["walk","idle","run","play"],"parts":{"head":["none"],"eyes":["cartoon","simple","sleepy","closed"],"body":["carapace"],"legs":["crab"],"claws":["rounded","pointed"]}}},"parts":{"head":{"shape":{"values":["round","oval","feline","canine","equine","bovine","ursine","rodent","bird","owl","raptor","fish","shark","whale","dolphin","insect","reptile","dragon","none"],"default":"feline"},"width":{"min":0.65,"max":1.5,"default":1},"length":{"min":0.65,"max":1.5,"default":1},"roundness":{"min":0,"max":1,"default":0.5},"ears":{"values":["none","round","pointed","long","floppy","big","tufted","sideways"],"default":"round"},"eyes":{"values":["cartoon","simple","sleepy","closed"],"default":"simple"},"muzzle":{"values":["none","small","snout","trunk","smile","beak-short","beak-hooked","beak-long","beak-flat","beak-needle","forked-tongue"],"default":"small"},"extras":{"values":["short-horns","curved-horns","spiral-horns","antlers","ossicones","mane","crest","whiskers","tusks","neck-mane","antennae","tuft","comb"],"default":[],"maxItems":3},"size":{"min":0.65,"max":1.3,"default":1}},"neck":{"length":{"min":0,"max":1.8,"default":0.15},"thickness":{"min":0.35,"max":1.6,"default":0.8},"arch":{"min":0,"max":1,"default":0}},"body":{"shape":{"values":["bean","barrel","slender","long","round","woolly","upright","streamlined","segmented","wing-case","serpentine","shell","octopus","carapace"],"default":"bean"},"length":{"min":0.65,"max":1.6,"default":1},"width":{"min":0.65,"max":1.5,"default":1},"udder":{"values":["none","small"],"default":"none"}},"legs":{"type":{"values":["pawed","hoofed","clawed","bird","webbed","insect","flippers","crab"],"default":"pawed"},"length":{"min":0.2,"max":1,"default":0.5},"thickness":{"min":0.5,"max":1.6,"default":0.9}},"tail":{"type":{"values":["none","thin","tufted","bushy","fluffy","reptile","curly","fan","long-feathers","fish-fin","whale-fluke","stinger"],"default":"thin"},"length":{"min":0.1,"max":1.4,"default":0.8},"width":{"min":0.5,"max":1.6,"default":1},"curve":{"min":-1,"max":1,"default":0.25}},"wings":{"type":{"values":["none","feathered","clear","butterfly","bat"],"default":"none"},"pose":{"values":["auto","folded","open"],"default":"auto"},"length":{"min":0.5,"max":1.6,"default":1},"width":{"min":0.5,"max":1.5,"default":1}},"fins":{"dorsal":{"values":["none","rounded","triangle","tall"],"default":"rounded"},"pectoral":{"values":["none","pointed","rounded","flipper"],"default":"rounded"},"tail":{"values":["fork","fan","lunate","fluke"],"default":"fan"},"size":{"min":0.5,"max":1.5,"default":1}},"arms":{"type":{"values":["small","clawed"],"default":"small"},"length":{"min":0.5,"max":1.5,"default":1}},"tentacles":{"type":{"values":["curled","flowing"],"default":"curled"},"length":{"min":0.5,"max":1.5,"default":1}},"claws":{"type":{"values":["rounded","pointed"],"default":"rounded"},"size":{"min":0.5,"max":1.5,"default":1}}},"pattern":{"kind":{"values":["none","stripes","spots","patches","rosettes","fur","scales","feathers","bands"],"default":"none"},"density":{"min":0,"max":1,"default":0.5},"scale":{"min":0.5,"max":2,"default":1},"contrast":{"min":0,"max":1,"default":0.85},"color":{"format":"#hex","default":"colors.detail"}},"fields":{"recipeVersion":{"min":1,"max":1,"default":1},"rig":{"values":["quadruped","bird","fish","insect","serpent","biped","turtle","octopus","crab"],"default":"quadruped"},"name":{"minLength":1,"maxLength":80,"optional":true,"default":"quadruped"},"scale":{"values":["small","medium","large"],"optional":true,"conflictsWith":"size"},"parts":{"optional":true,"default":"All part defaults below"},"motion":{"default":"Per rig","values":["idle","walk","graze","sit","run","play","perch","hop","fly","swim","crawl","slither"]},"gait":{"values":["auto","gallop","bound","trot"],"default":"auto","rigs":["quadruped"]},"posture":{"values":["stand","crouch","sit"],"default":"stand","rigs":["quadruped","biped"]},"material":{"values":["matte","fur","feathers","scales"],"default":"matte"},"rimLight":{"min":0,"max":1,"default":0.28}}}')
+ANIMAL_PRESETS = ["tiger", "lion", "giraffe", "zebra", "elephant", "horse", "cow", "cat", "dog", "fox", "rabbit", "bear", "deer", "pig", "sheep",
+                  "owl", "eagle", "parrot", "duck", "penguin", "flamingo", "hummingbird", "bee", "ladybird", "dragonfly", "ant",
+                  "goldfish", "reef fish", "shark", "whale", "dolphin", "turtle", "octopus", "crab", "snake", "dragon", "flying dragon"]
+# Which registry field each rig-level slot list constrains
+_RIG_SLOT = {"head": ("head", "shape"), "eyes": ("head", "eyes"), "muzzle": ("head", "muzzle"), "ears": ("head", "ears"),
+             "extras": ("head", "extras"), "body": ("body", "shape"), "legs": ("legs", "type"), "tail": ("tail", "type"), "wings": ("wings", "type")}
 
 def _caps_line():
-    p = ASSEMBLY_CAPS["parts"]
     out = []
-    for part, fields in p.items():
-        bits = []
-        for f, spec in fields.items():
-            if "values" in spec:
-                bits.append(f"{f}: " + "/".join(spec["values"]))
-            else:
-                bits.append(f"{f}: {spec['min']}-{spec['max']}")
-        out.append(f"{part} ({'; '.join(bits)})")
+    for rig, info in ASSEMBLY_CAPS["rigs"].items():
+        bits = [f"{slot}: " + "/".join(vals) for slot, vals in (info.get("parts") or {}).items() if vals]
+        out.append(f"{rig} [motions {'/'.join(info['motions'])}; " + "; ".join(bits) + "]")
+    nums = []
+    for part, fields in ASSEMBLY_CAPS["parts"].items():
+        n = [f"{f} {spec['min']}-{spec['max']}" for f, spec in fields.items() if "min" in spec]
+        if n:
+            nums.append(f"{part} ({', '.join(n)})")
     pat = ASSEMBLY_CAPS["pattern"]
-    out.append("pattern (kind: " + "/".join(pat["kind"]["values"]) + "; density 0-1; scale 0.5-2)")
-    out.append("motion: " + "/".join(ASSEMBLY_CAPS["motions"]))
-    return "; ".join(out)
+    return (" RIGS: " + " | ".join(out) + ". NUMBERS: " + "; ".join(nums) + ". PATTERN kind: " + "/".join(pat["kind"]["values"]) +
+            ", density 0-1, scale 0.5-2. fins use 'dorsal', 'pectoral' and 'tail' keys inside parts.fins.")
 
 def clean_recipe(r):
-    """Keep only known parts and values; clamp numbers. Returns (recipe, problems)."""
+    """Keep only parts and values the chosen rig accepts; clamp numbers. Returns (recipe, problems)."""
     if not isinstance(r, dict):
         return None, ["no recipe"]
-    probs, out = [], {"type": "assembly", "rig": "quadruped", "recipeVersion": 1}
+    rig = r.get("rig") if r.get("rig") in ASSEMBLY_CAPS["rigs"] else "quadruped"
+    allowed = ASSEMBLY_CAPS["rigs"][rig].get("parts") or {}
+    probs, out = [], {"type": "assembly", "rig": rig, "recipeVersion": 1}
     hexok = lambda v: isinstance(v, str) and re.fullmatch(r"#?[0-9a-fA-F]{6}", v.strip()) is not None
+    def ok_for_rig(part, field, val):
+        for slot, (p2, f2) in _RIG_SLOT.items():
+            if p2 == part and f2 == field and slot in allowed:
+                return val in allowed[slot]
+        if part == "fins" and "fins" in allowed:
+            return f"{field}:{val}" in allowed["fins"]
+        return True
     parts = {}
     for part, fields in ASSEMBLY_CAPS["parts"].items():
         src = (r.get("parts") or {}).get(part) if isinstance(r.get("parts"), dict) else None
         if not isinstance(src, dict):
             continue
         dst = {}
-        for f, spec in fields.items():
-            if f not in src:
+        for f, v in src.items():
+            spec = fields.get(f)
+            if part == "fins" and f in ("dorsal", "pectoral", "tail"):
+                if ok_for_rig("fins", f, v):
+                    dst[f] = v
+                else:
+                    probs.append(f"fins.{f}={v!r}")
                 continue
-            v = src[f]
+            if not spec:
+                probs.append(f"{part}.{f}")
+                continue
             if "values" in spec and f == "extras":
-                vals = [x for x in (v if isinstance(v, list) else [v]) if x in spec["values"]][:spec.get("maxItems", 3)]
+                vals = [x for x in (v if isinstance(v, list) else [v]) if x in spec["values"] and ok_for_rig(part, f, x)][:spec.get("maxItems", 3)]
                 if vals:
                     dst[f] = list(dict.fromkeys(vals))
             elif "values" in spec:
-                if v in spec["values"]:
+                if v in spec["values"] and ok_for_rig(part, f, v):
                     dst[f] = v
                 else:
                     probs.append(f"{part}.{f}={v!r}")
-            else:
+            elif "min" in spec:
                 try:
                     dst[f] = round(min(spec["max"], max(spec["min"], float(v))), 2)
                 except (TypeError, ValueError):
@@ -1937,9 +1967,13 @@ def clean_recipe(r):
         if hexok(pat.get("color")):
             pp["color"] = "#" + pat["color"].strip().lstrip("#")
         out["pattern"] = pp
-    if r.get("motion") in ASSEMBLY_CAPS["motions"]:
+    if r.get("motion") in ASSEMBLY_CAPS["rigs"][rig]["motions"]:
         out["motion"] = r["motion"]
-    out["size"] = {"small": 95, "medium": 140, "large": 185}.get(str(r.get("scale") or "").lower(), 140)
+    for k in ("posture", "material", "gait"):
+        spec = ASSEMBLY_CAPS["fields"].get(k) or {}
+        if r.get(k) in spec.get("values", []) and (not spec.get("rigs") or rig in spec["rigs"]):
+            out[k] = r[k]
+    out["size"] = {"tiny": 60, "small": 95, "medium": 140, "large": 200, "huge": 300}.get(str(r.get("scale") or "").lower(), 140)
     try:
         out["count"] = max(1, min(6, int(r.get("count") or 1)))
     except (TypeError, ValueError):
@@ -1970,11 +2004,13 @@ UI_SYSTEM_NOTE = (
     "RESIZING: to make one scene element bigger or smaller (flowers, trees, animals, drawings), call ui_action with action theme_edit, "
     "resize (its name) and new_size (bigger, much bigger, smaller, tiny, large, huge, double, half or a percentage). The largest size has a "
     "limit; if the user wants it bigger still, say it's as big as it can go for now.\n"
-    "ANIMALS: these are built in and free: " + ", ".join(ANIMAL_PRESETS) + ". For one of these, use theme_edit add with its name "
-    "(e.g. add 'giraffe', or 'walking tiger'), never draw. For any OTHER four-legged animal (wolf, hippo, rhino, camel, goat, donkey, "
-    "panda, cheetah, kangaroo is NOT four-legged), call ui_action with action creature and a recipe built only from the PARTS KIT: "
-    + _caps_line() + ". Think about what makes the animal recognisable (proportions, ears, tail, pattern, horns) and use natural "
-    "colours. Birds, fish, insects and other non-four-legged creatures: use draw for now.\n"
+    "ANIMALS AND CREATURES: these are built in and free: " + ", ".join(ANIMAL_PRESETS) + ". For one of these, use theme_edit add with its name "
+    "(e.g. add 'giraffe', 'swimming shark'), never draw. For any OTHER creature (wolf, hippo, seagull, jellyfish, beetle, lizard), call ui_action "
+    "with action creature and a recipe built only from the PARTS KIT; pick the rig that fits the body plan:" + _caps_line() + " Think about what makes "
+    "it recognisable (proportions, ears, tail, pattern, horns, beak, fins) and use natural colours. Use draw only for things no rig fits (objects, vehicles, buildings).\n"
+    "WHAT CREATURES DO: theme_edit with who (name) and does: a movement (walk, run, play, graze, sit, rest, swim, fly, hop, crawl), or chase/hunt/flee/follow/play "
+    "with target (another creature's name), herd, pointer-chase, pointer-flee, or stop. These are also free if the user types them directly "
+    "('the dog chases the cat').\n"
     "DRAWING YOUR OWN: if the user asks to add, draw or make something that is NOT in that list (a plane, a hot-air balloon, a lighthouse, "
     "a sailboat, a dragon of your own design), call ui_action with action draw: 'what' (a short concrete description of your own "
     "original design), 'name', 'motion', 'place', 'scale' (tiny, small, medium, large or huge, judged from its real-world size) and optionally 'count' (1-6). ONE drawing per request. More or fewer of an existing "
