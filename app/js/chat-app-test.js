@@ -2901,12 +2901,91 @@
         if (/\b(problem|error|wrong|risk|danger|urgent|serious)\b/.test(t)) return 'serious';
         return 'warm';
     }
+    // ---------- VQ's character face (two styles: VQ's robot, with O.R.I.A., or the human face), in the panel or as a background ----------
+    const FACE_SRC = { robot: 'vq-face-robot.html?embed', human: 'vq-face-human.html?embed' };
+    let facePanel = null, faceBg = null, faceSaid = 0;
+    const faceStyle = () => (uiPrefs.faceStyle === 'human' ? 'human' : 'robot');
+    function faceFrames() { return [facePanel, faceBg].filter(f => f && f.contentWindow && f.contentWindow.VQFace); }
+    function faceCall(fn, ...args) { faceFrames().forEach(f => { try { const api = f.contentWindow.VQFace; if (typeof api[fn] === 'function') api[fn](...args); } catch (e) {} }); }
+    function faceColour(f) {
+        // the faces follow your accent: mint for teal and green, amber for orange and gold, ice for blue and violet, white for grey
+        try {
+            const sel = f.contentDocument.getElementById('colour'); if (!sel) return;
+            const a = uiPrefs.accent === 'theme' ? 'teal' : uiPrefs.accent;
+            sel.value = { orange: 'amber', gold: 'amber', rose: 'amber', teal: 'mint', green: 'mint', blue: 'ice', violet: 'ice', grey: 'mono' }[a] || 'mint';
+            sel.dispatchEvent(new Event('change'));
+        } catch (e) {}
+    }
+    function makeFaceFrame(cls) {
+        const f = document.createElement('iframe');
+        f.className = cls; f.title = 'VQ’s face'; f.setAttribute('aria-hidden', 'true'); f.tabIndex = -1;
+        f.src = FACE_SRC[faceStyle()];
+        f.addEventListener('load', () => faceColour(f));
+        return f;
+    }
+    function mountPanelFace() {
+        const host = document.getElementById('face-body');
+        if (!host) return;
+        if (facePanel && host.contains(facePanel) && facePanel.dataset.style === faceStyle()) return;
+        host.textContent = '';
+        facePanel = makeFaceFrame('face-frame'); facePanel.dataset.style = faceStyle();
+        const bar = el('div', 'face-bar');
+        [['VQ robot', 'robot face'], ['Human face', 'human face'], [uiPrefs.faceBg ? 'Background off' : 'As background', uiPrefs.faceBg ? 'face background off' : 'face background']].forEach(([l, c]) => {
+            const b = el('button', 'look-btn', l); b.type = 'button'; b.addEventListener('click', () => runFreeCommand(c)); bar.appendChild(b);
+        });
+        host.append(facePanel, bar);
+    }
+    function unmountPanelFace() { if (facePanel) { facePanel.remove(); facePanel = null; } const h = document.getElementById('face-body'); if (h) h.textContent = ''; }
+    function applyFaceBg() {
+        const want = !!uiPrefs.faceBg;
+        if (!want) { if (faceBg) { faceBg.remove(); faceBg = null; } return; }
+        if (faceBg && faceBg.dataset.style === faceStyle()) return;
+        if (faceBg) faceBg.remove();
+        faceBg = makeFaceFrame('vq-face-bg'); faceBg.dataset.style = faceStyle();
+        document.body.appendChild(faceBg);
+    }
+    // In the background the face sits behind everything, so pass the pointer through to it: its eyes follow you around the screen
+    let faceMoveT = 0;
+    window.addEventListener('pointermove', (ev) => {
+        if (!faceBg || !faceBg.contentDocument || performance.now() - faceMoveT < 40) return;
+        faceMoveT = performance.now();
+        try {
+            const c = faceBg.contentDocument.getElementById('portrait'); if (!c) return;
+            c.dispatchEvent(new faceBg.contentWindow.PointerEvent('pointermove', { clientX: ev.clientX, clientY: ev.clientY, bubbles: true }));
+        } catch (e) {}
+    }, { passive: true });
+    function faceThinking() { faceSaid = 0; faceCall('setSpeaker', 'vq'); faceCall('setState', 'thinking'); }
+    function faceStream(full) {
+        const text = String(full || '');
+        if (text.length <= faceSaid) return;
+        faceFrames().forEach(f => {
+            const api = f.contentWindow.VQFace;
+            try {
+                if (api.beginResponse) { if (faceSaid === 0) api.beginResponse({ speaker: 'vq' }); api.appendText(text.slice(faceSaid)); }
+                else if (faceSaid === 0) api.setState('speaking');
+            } catch (e) {}
+        });
+        faceSaid = text.length;
+    }
+    function faceDone() {
+        const spoke = faceSaid > 0;   // no answer text (a limit, an error, a stopped reply): just go back to rest
+        faceFrames().forEach(f => { const api = f.contentWindow.VQFace; try { if (spoke && api.endResponse) api.endResponse(); else api.setState('idle'); } catch (e) {} });
+        faceSaid = 0;
+    }
+    function faceOria(text) {   // O.R.I.A. answers: the robot face becomes hers for that reply, then returns to VQ
+        faceFrames().forEach(f => {
+            const api = f.contentWindow.VQFace;
+            try { if (api.respond) api.respond({ speaker: 'oria', text: String(text || '').slice(0, 1200) }).then(() => { try { api.setSpeaker('vq'); } catch (e) {} }); } catch (e) {}
+        });
+    }
     function personaThinking(question) {
+        faceThinking();
         if (!persona) return;
         personaBusy = true; personaSaid = 0;
         try { persona.mood(personaMoodFor(question)); persona.state('thinking'); } catch (e) {}
     }
     function personaStream(full) {
+        faceStream(full);
         if (!persona) return;
         const plain = String(full || '');
         if (plain.length <= personaSaid) return;
@@ -2915,6 +2994,7 @@
         personaSaid = plain.length;
     }
     function personaDone() {
+        faceDone();
         personaBusy = false;
         if (!persona) return;
         try { if (personaSaid > 0) persona.end(); else persona.state('idle'); } catch (e) {}
@@ -3833,6 +3913,8 @@
         section('VQ himself', 'VQ’s animated robot body. He looks at you, follows the conversation, thinks, speaks and shows moods. On a night sky he sits on the moon and fishes.', [
             ['In the header', 'vq in the header'], ['In the side panel', 'show vq'], ['Walking around', 'let vq walk around'], ['Flying', 'let vq fly'],
             ['On the moon, fishing', 'vq on the moon'], ['Hide VQ', 'hide vq']]);
+        section('VQ’s face', 'A living face drawn entirely in text characters. It thinks while VQ works, speaks as his answer streams in, blinks and follows your pointer. The robot style also becomes O.R.I.A. when she speaks. Free.', [
+            ['Face in the panel', 'show the face'], ['As the background', 'face background'], ['Background off', 'face background off'], ['VQ robot style', 'robot face'], ['Human style', 'human face']]);
         section('Themes', 'Ten built-in looks, each with matching icons and accent. Or ask VQ to design a new one from any description.',
             CHOICES.theme.map(t => [t, `${t.toLowerCase()} theme`]));
         section('Skies', 'One moving sky at a time, behind everything.',
@@ -4066,6 +4148,9 @@
         b.toggle('no-mist', uiPrefs.mist === false || ['clouds', 'sunset', 'storm', 'night', 'seaday', 'seanight', 'none'].includes(uiPrefs.scene));
         document.body.dataset.fx = ['low', 'medium', 'high'].includes(uiPrefs.fx) ? uiPrefs.fx : 'high';
         b.toggle('ground-screen', uiPrefs.ground !== 'box');
+        if (typeof applyFaceBg === 'function') applyFaceBg();
+        if (typeof faceColour === 'function') [facePanel, faceBg].forEach(f => f && faceColour(f));
+        document.documentElement.style.setProperty('--face-bg-opacity', String({ low: 0.18, medium: 0.26, high: 0.34 }[uiPrefs.fx] || 0.34));
         if (typeof fitGround === 'function') { fitGround(); if (artFit) artFit(); }
         if (typeof applyArt === 'function' && customSpec(uiPrefs.theme)) applyArt(customSpec(uiPrefs.theme));
         if (document.getElementById('app-container') && noiseStrength) applyNoise();
@@ -4205,7 +4290,7 @@
 
     // ---------- Panel views: Details / Notes, options bar, width ----------
 
-    const PANEL_VIEWS = ['details', 'notes', 'customise', 'enquirer', 'cast', 'persona'];
+    const PANEL_VIEWS = ['details', 'notes', 'customise', 'enquirer', 'cast', 'persona', 'face'];
 
     function setupPanelViews() {
         document.querySelectorAll('.panel-tab').forEach(tab => {
@@ -4232,6 +4317,8 @@
         if (cb) cb.hidden = view !== 'cast';
         const pb = document.getElementById('persona-body');
         if (pb) pb.hidden = view !== 'persona';
+        const fb = document.getElementById('face-body');
+        if (fb) { fb.hidden = view !== 'face'; if (view === 'face') mountPanelFace(); else unmountPanelFace(); }
         const cu = document.getElementById('customise-body');
         if (cu) { cu.hidden = view !== 'customise'; if (view === 'customise' && !cu.firstChild) showCatalog(cu); }
         document.body.classList.toggle('casting-view', view === 'cast' && document.body.classList.contains('casting'));
@@ -4615,6 +4702,7 @@
             if (!res.ok || !data.text) {
                 thread.push({ role: 'oria', content: data.response || 'My circuits hiccupped. Try me again in a moment?', error: true, at: Date.now() });
             } else {
+                faceOria(data.text);
                 thread.push({ role: 'oria', content: data.text, mode, about: mode === 'chat' ? null : about,
                               deeper: !!data.deeper, model: data.model, ms: data.ms, at: Date.now() });
             }
@@ -5599,6 +5687,24 @@
                 return;
             }
         }
+        // VQ's character face: in the panel, as a background, robot or human style
+        const faceAsk = /^(?:show |open )?(?:vq'?s |your |the )?(?:character )?face(?: in the panel| panel)?$|^(?:show|open) (?:the )?face (?:tab|view)$/.test(pm) ? 'panel'
+            : /^(?:(?:vq'?s |your |the )?face (?:as )?(?:the )?(?:background|backdrop|wallpaper)|(?:use |put |set )?(?:vq'?s |your |the )?face (?:as|in) (?:the )?background|face background(?: on)?)$/.test(pm) ? 'bg-on'
+            : /^(?:face background off|(?:remove|hide|turn off) (?:the )?face background|no face background)$/.test(pm) ? 'bg-off'
+            : /^(?:robot face|vq robot face|face robot|robot style face)$/.test(pm) ? 'robot'
+            : /^(?:human face|face human|human style face|the human face)$/.test(pm) ? 'human' : null;
+        if (faceAsk) {
+            elements.messageInput.value = '';
+            if (faceAsk === 'panel') { openPanel(true); setPanelView('face', true); showLocalNote('VQ’s face is in the side panel'); return; }
+            uiUndo.push(snapshotUI());
+            if (faceAsk === 'bg-on') uiPrefs.faceBg = true;
+            if (faceAsk === 'bg-off') uiPrefs.faceBg = false;
+            if (faceAsk === 'robot' || faceAsk === 'human') uiPrefs.faceStyle = faceAsk;
+            saveUIPrefs(); applyUIPrefs();
+            if (uiPrefs.panelView === 'face') { unmountPanelFace(); mountPanelFace(); }
+            showLocalNote({ 'bg-on': 'VQ’s face is now in the background', 'bg-off': 'Face background off', robot: 'Face style: VQ’s robot (O.R.I.A. appears when she speaks)', human: 'Face style: human' }[faceAsk]);
+            return;
+        }
         // Where the ground is: the bottom of the screen, or just above the message box
         const groundAsk = /^(?:(?:move |put |set )?(?:the )?(?:ground|scene|elements|everything|plants|animals)(?: level)? (?:down )?(?:to|at|on) (?:the )?(?:screen|bottom|screen bottom|bottom of the screen|screen level)|move (?:the )?(?:scene|everything|elements) down|lower the ground|ground at (?:the )?(?:bottom|screen))$/.test(pm) ? 'screen'
             : /^(?:(?:move |put |set )?(?:the )?(?:ground|scene|elements|everything|plants|animals)(?: level)? (?:up )?(?:above|over) (?:the )?(?:message|text|chat|input|typing) ?(?:box|area|bar)?|raise the ground|move (?:the )?(?:scene|everything|elements) up|ground above (?:the )?(?:message|text|chat) ?box)$/.test(pm) ? 'box' : null;
@@ -5853,6 +5959,8 @@
             }
         } finally {
             finished = true;
+            // A reply that arrived all at once never got a paint frame: give VQ's body and face the complete text now
+            if (full && typeof personaSaid === 'number' && personaSaid === 0) personaStream(full);
             if (bubble) bubble.div.remove();
         }
         const text = cleanReply(full).trim();
