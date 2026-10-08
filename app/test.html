@@ -1247,6 +1247,13 @@
             padding: 0.12rem 0.6rem; font: inherit; font-size: 0.74rem; cursor: pointer; }
         .look-btn:hover { color: #fff; border-color: rgba(var(--ui-accent-rgb),0.6); }
         .look-btn[hidden] { display: none; }
+        /* ---- VQ's character face: in the panel, or as a living background ---- */
+        #face-body[hidden] { display: none !important; }
+        #face-body { display: flex; flex-direction: column; gap: 0.6rem; padding: 0.6rem; height: 100%; min-height: 0; }
+        #face-body .face-frame { flex: 1; min-height: 320px; width: 100%; border: 0; border-radius: 14px; background: radial-gradient(ellipse at 50% 40%, rgba(28,50,53,0.35), transparent 70%); color-scheme: dark; }
+        #face-body .face-bar { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+        .vq-face-bg { position: fixed; inset: 0; width: 100vw; height: 100vh; border: 0; z-index: 2; pointer-events: none; opacity: var(--face-bg-opacity, 0.32); color-scheme: dark; background: transparent; transition: opacity .6s; }
+        .vq-face-bg[hidden] { display: none; }
         .look-btn[aria-pressed="true"] { color: #fff; border-color: rgba(var(--ui-accent-rgb),0.8); background: rgba(var(--ui-accent-rgb),0.18); }
         /* ---- Arrange mode: the scene comes to the front, the chat fades back ---- */
         body.arranging .vq-art-host { z-index: 420 !important; pointer-events: auto !important; opacity: 1 !important; cursor: grab; touch-action: none;
@@ -1458,6 +1465,9 @@
                     <button type="button" role="tab" class="panel-tab persona-tab" data-view="persona" aria-selected="false" hidden title="VQ, present in the conversation">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="6" width="14" height="11" rx="4"/><path d="M12 6V3"/><circle cx="9.5" cy="11.5" r="1.2" fill="currentColor"/><circle cx="14.5" cy="11.5" r="1.2" fill="currentColor"/></svg><span class="tab-label">VQ</span>
                     </button>
+                    <button type="button" role="tab" class="panel-tab face-tab" data-view="face" aria-selected="false" title="VQ's face, drawn in characters">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="12" rx="7" ry="9"/><path d="M9 10h.01M15 10h.01M9.5 15c1.5 1 3.5 1 5 0"/></svg><span class="tab-label">Face</span>
+                    </button>
                     <button type="button" role="tab" class="panel-tab cast-tab" data-view="cast" aria-selected="false" hidden title="What's showing in the panel">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M10 9l4 2-4 2z" fill="currentColor"/></svg><span class="tab-label">Now showing</span>
                     </button>
@@ -1472,6 +1482,7 @@
             <div id="cast-body" role="tabpanel" hidden></div>
             <div id="persona-body" role="tabpanel" hidden></div>
             <div id="customise-body" role="tabpanel" hidden></div>
+            <div id="face-body" role="tabpanel" hidden></div>
             <form id="oria-form" class="oria-form" hidden>
                 <label for="oria-input" class="sr-only">Message O.R.I.A.</label>
                 <textarea id="oria-input" rows="1" placeholder="Talk to O.R.I.A.…" maxlength="2000"></textarea>
@@ -1548,6 +1559,6 @@
     <script src="js/vq-portraits.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-persona-bridge.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-run.js?v=2026-10-08-run"></script>
-    <script src="js/chat-app-test.js?v=2026-10-08-m2"></script>
+    <script src="js/chat-app-test.js?v=2026-10-08-face"></script>
 </body>
 </html>
