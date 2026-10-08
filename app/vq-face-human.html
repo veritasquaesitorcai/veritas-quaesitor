@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VQ · Character face panel</title>
+<script>if(/[?&]embed\b/.test(location.search))document.documentElement.classList.add('embed')</script>
+<style>html.embed,html.embed body{background:transparent!important}html.embed main{max-width:none;padding:0;margin:0}
+html.embed header,html.embed .intro,html.embed nav,html.embed .controls,html.embed footer,html.embed .hud,html.embed .persona-label{display:none!important}
+html.embed .workspace{display:block}html.embed .panel{border:0!important;background:transparent!important;border-radius:0;max-width:none}
+html.embed .stage{height:100vh!important;background:none!important}html.embed body{overflow:hidden}</style>
+
+<style>
+:root{color-scheme:dark;--accent:#8adbd1;--ink:#dcece9;--muted:#879b9c;--line:#263a3b}*{box-sizing:border-box}body{margin:0;background:#080f13;color:var(--ink);font:14px system-ui,sans-serif}main{max-width:1080px;margin:auto;padding:28px}header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}h1{font-family:Georgia,serif;font-weight:400;font-size:27px;margin:6px 0}small,.muted{color:var(--muted)}.eyebrow{font-size:10px;letter-spacing:3px;color:var(--accent)}.workspace{display:grid;grid-template-columns:1fr 410px;gap:22px}.intro{padding:36px 20px}.intro h2{font-size:35px;line-height:1.15;font-weight:400;max-width:420px}.intro p{line-height:1.8;color:#9cb0b2;max-width:420px}.tag{border:1px solid var(--line);border-radius:30px;padding:7px 12px;font-size:11px;color:var(--accent)}.panel{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:linear-gradient(155deg,#142124b0,#0b1319c0)}nav{display:flex;padding:12px;gap:5px;border-bottom:1px solid var(--line)}button,select,input{font:inherit}button{cursor:pointer;color:#a7b9bb;background:transparent;border:1px solid transparent;border-radius:9px;padding:9px 12px}button:hover{background:#203237}button[aria-selected=true],button.active{background:#25433f;color:#c6fff0;border-color:#40635b}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.pane[hidden]{display:none}.stage{height:405px;position:relative;background:radial-gradient(ellipse at 50% 40%,#1c32353d,transparent 68%)}canvas{width:100%;height:100%;display:block}.hud{position:absolute;left:20px;right:20px;bottom:15px;display:flex;justify-content:space-between;font:10px monospace;letter-spacing:1px;color:var(--accent);pointer-events:none}.dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--accent);margin-right:7px}.controls{padding:20px;border-top:1px solid var(--line)}label{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:14px;gap:12px}select{max-width:190px;background:#0e1b20;color:var(--ink);border:1px solid var(--line);padding:7px;border-radius:7px}input[type=range]{width:150px;accent-color:var(--accent)}.modes{display:flex;gap:4px;flex-wrap:wrap;margin:14px 0}.modes button{padding:7px 10px;font-size:11px;border-color:var(--line)}.actions{display:flex;gap:8px;margin-top:16px}.actions button{border-color:var(--line)}textarea{width:100%;height:65px;background:#0c191d;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical;font:12px system-ui}.content{padding:24px;line-height:1.75;min-height:500px}.content h2{font-size:20px;font-weight:400;color:var(--accent)}code{font-size:11px;color:var(--accent);overflow-wrap:anywhere}.content pre{white-space:pre-wrap;background:#071114;padding:14px;border-radius:8px}.content textarea{height:200px}footer{margin-top:20px;color:var(--muted);font-size:11px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}@media(max-width:760px){main{padding:16px}.workspace{display:block}.intro{padding:0 4px 16px}.intro h2{font-size:24px}.intro p{margin-bottom:18px}.panel{max-width:460px;margin:auto}.stage{height:390px}}@media(prefers-reduced-motion:reduce){.dot{animation:none}}
+</style></head><body><main><header><div><div class="eyebrow">VERITAS QUAESITOR</div><h1>Presence, in characters.</h1></div><span class="tag">FACE / PROTOTYPE</span></header><div class="workspace"><section class="intro"><h2>A face that moves with the conversation.</h2><p>A continuous character portrait: shaded contours, eyes that follow your pointer, natural blinks, and expressions that ease into one another.</p><p>Choose an expression or conversation state. Try the speaking demo to see the mouth articulate. Every visible mark on the face is a text character.</p><small>Offline · no camera · no external assets</small></section><aside class="panel" aria-label="Companion panel"><nav role="tablist" aria-label="Panel views"><button role="tab" id="tab-details" aria-controls="details" aria-selected="false" tabindex="-1">Details</button><button role="tab" id="tab-notes" aria-controls="notes" aria-selected="false" tabindex="-1">Notes</button><button role="tab" id="tab-face" aria-controls="face" aria-selected="true">Face</button></nav>
+<section class="pane" id="face" role="tabpanel" aria-labelledby="tab-face"><div class="stage"><canvas id="portrait" role="img" aria-label="Animated humanoid face rendered entirely as text characters"></canvas><div class="hud"><span><i class="dot"></i><span id="status">IDLE</span></span><span id="fps">LIVE</span></div></div><div class="controls"><label>Expression<select id="expression"><option value="neutral">Neutral</option><option value="warm">Warm / smiling</option><option value="curious">Curious</option><option value="concerned">Concerned</option><option value="surprised">Surprised</option></select></label><label>Character density<input id="density" type="range" min="55" max="110" value="86"></label><label>Movement<input id="motion" type="range" min="0" max="100" value="65"></label><label>Colour<select id="colour"><option value="mint">Mint</option><option value="amber">Amber</option><option value="ice">Ice</option><option value="mono">White</option></select></label><div class="modes" aria-label="Conversation state"><button class="active" data-state="idle" aria-pressed="true">Idle</button><button data-state="listening" aria-pressed="false">Listening</button><button data-state="thinking" aria-pressed="false">Thinking</button><button data-state="speaking" aria-pressed="false">Speaking</button></div><textarea id="speech" aria-label="Speaking demo text">Hello. I'm here to explore ideas with you. What shall we look at together?</textarea><div class="actions"><button id="demo">Speak demo</button><button id="pause" aria-pressed="false">Pause</button><button id="reset">Reset</button></div><p class="muted" style="font-size:11px;line-height:1.6;margin-bottom:0">Pointer-following gaze · automatic blinks<br>Speaking demo simulates articulation; it does not generate audio.</p><span class="sr" id="announcement" aria-live="polite"></span></div></section>
+<section class="pane content" id="details" role="tabpanel" aria-labelledby="tab-details" hidden><h2>Character face engine</h2><p>This prototype builds a shaded facial surface mathematically, projects it in 3D, and draws only monospace glyphs. It uses no images, videos, models, or network requests.</p><p>Continuous animation includes head rotation, saccades, eyelids, eye direction, breathing, brows and mouth. Expressions blend rather than jump.</p><h2>Connect to VQ</h2><p>Move the Face pane and its renderer into your existing tab system. Connect chat events using the public API:</p><pre><code>VQFace.setState('thinking');
+VQFace.setExpression('curious');
+VQFace.setState('speaking');
+VQFace.speakText('Your response text');
+VQFace.setMouth(0.6); // audio amplitude, 0–1
+VQFace.setState('idle');
+VQFace.pause(true);</code></pre><p>Or dispatch a page event:</p><pre><code>window.dispatchEvent(new CustomEvent(
+  'vq-face', {detail: {
+    state: 'listening',
+    expression: 'warm'
+  }}
+));</code></pre><p>True lip-sync needs audio timing or phoneme cues. Text articulation here is a visual approximation. This file is a standalone integration prototype; your live app has not been modified.</p></section>
+<section class="pane content" id="notes" role="tabpanel" aria-labelledby="tab-notes" hidden><h2>Prototype notes</h2><p>Use this space to jot down expression or appearance ideas. Notes stay in this page session.</p><textarea aria-label="Prototype notes" placeholder="What should this companion feel like?"></textarea></section></aside></div><footer>Procedural character portrait · Standalone Face tab prototype</footer></main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),canvas=$('portrait'),ctx=canvas.getContext('2d'),ramp=' .,:;i!lI+tfLCG08@';
+const expressions={neutral:[0,0,0,0],warm:[1,.15,0,.25],curious:[.1,.8,0,0],concerned:[-.45,-.6,0,-.1],surprised:[0,1,1,0]};
+let expr='neutral',state='idle',blend=[0,0,0,0],yaw=0,pitch=0,gazeX=0,gazeY=0,pointer=null,blinkStart=-10,nextBlink=2.2,time=0,last=performance.now(),paused=false,active=true,mouthOverride=null,speechEnd=0,speechStart=0,speechText='',cols=86,motion=.65,width=410,height=405,lastDraw=0,frames=0,fpsStart=0;
+const gauss=(x,y,cx,cy,sx,sy)=>Math.exp(-((x-cx)**2/sx**2+(y-cy)**2/sy**2));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const palettes={mint:[135,231,211],amber:[249,191,114],ice:[146,199,255],mono:[226,237,243]};let rgb=palettes.mint;
+function resize(){const box=canvas.getBoundingClientRect();if(!box.width)return;width=box.width;height=box.height;const dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0)}
+new ResizeObserver(resize).observe(canvas);
+function setState(v){if(!['idle','listening','thinking','speaking'].includes(v))return;state=v;$('status').textContent=v.toUpperCase();document.querySelectorAll('[data-state]').forEach(b=>{let on=b.dataset.state===v;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on)});if(v!=='speaking'){speechEnd=0;mouthOverride=null}announce(v)}
+function setExpression(v){if(!expressions[v])return;expr=v;$('expression').value=v;announce(v+' expression')}
+function announce(s){$('announcement').textContent=s}
+function pause(v){paused=!!v;$('pause').textContent=paused?'Resume':'Pause';$('pause').setAttribute('aria-pressed',paused);announce(paused?'Animation paused':'Animation resumed')}
+function speakText(text){speechText=String(text).slice(0,10000);speechStart=time;speechEnd=time+clamp(speechText.length*.052,1,35);setState('speaking')}
+window.VQFace=Object.freeze({setState,setExpression,speakText,pause,setMouth(v){mouthOverride=clamp(Number(v)||0,0,1)}});
+window.addEventListener('vq-face',e=>{const d=e.detail||{};if(d.state)setState(d.state);if(d.expression)setExpression(d.expression);if(typeof d.text==='string')speakText(d.text);if(typeof d.mouth==='number')window.VQFace.setMouth(d.mouth)});
+canvas.addEventListener('pointermove',e=>{const b=canvas.getBoundingClientRect();pointer={x:clamp((e.clientX-b.left)/b.width*2-1,-1,1),y:clamp((e.clientY-b.top)/b.height*2-1,-1,1)}});canvas.addEventListener('pointerleave',()=>pointer=null);
+$('expression').onchange=e=>setExpression(e.target.value);$('density').oninput=e=>cols=+e.target.value;$('motion').oninput=e=>motion=+e.target.value/100;$('colour').onchange=e=>{rgb=palettes[e.target.value];document.documentElement.style.setProperty('--accent',`rgb(${rgb.join(',')})`)};
+document.querySelectorAll('[data-state]').forEach(b=>b.onclick=()=>setState(b.dataset.state));$('demo').onclick=()=>speakText($('speech').value);$('pause').onclick=()=>pause(!paused);$('reset').onclick=()=>{setState('idle');setExpression('neutral');pause(false);motion=.65;cols=86;$('motion').value=65;$('density').value=86;rgb=palettes.mint;$('colour').value='mint';document.documentElement.style.setProperty('--accent','#8adbd1')};
+function tab(id){document.querySelectorAll('[role=tab]').forEach(b=>{const on=b.id==='tab-'+id;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1});document.querySelectorAll('.pane').forEach(p=>p.hidden=p.id!==id);active=id==='face';if(active)resize()}
+const tabs=Array.from(document.querySelectorAll('[role=tab]'));tabs.forEach((b,i)=>{b.onclick=()=>tab(b.getAttribute('aria-controls'));b.onkeydown=e=>{let j=i;if(e.key==='ArrowRight')j=(i+1)%tabs.length;else if(e.key==='ArrowLeft')j=(i+tabs.length-1)%tabs.length;else if(e.key==='Home')j=0;else if(e.key==='End')j=tabs.length-1;else return;e.preventDefault();tab(tabs[j].getAttribute('aria-controls'));tabs[j].focus()}});
+if(matchMedia('(prefers-reduced-motion: reduce)').matches){motion=0;$('motion').value=0;pause(true)}
+function surface(x,y){
+const rr=x*x/.69**2+y*y/1.04**2;if(rr>=1)return null;
+let z=.53*Math.sqrt(1-rr);
+// Sculpt facial volumes: forehead, recessed sockets, cheeks, bridge, nose, chin.
+z+=.06*gauss(x,y,0,-.56,.48,.33)+.06*gauss(x,y,0,.77,.32,.18);
+for(const s of [-1,1]){z-=.10*gauss(x,y,s*.275,-.20,.19,.15);z+=.064*gauss(x,y,s*.34,.22,.22,.24)}
+z+=.10*gauss(x,y,0,-.06,.08,.32)+.20*gauss(x,y,0,.19,.12,.13)+.045*gauss(x,y,0,.33,.18,.055);
+z+=.035*gauss(x,y,0,.49,.27,.10);return z}
+function draw(dt){const t=time,m=motion;
+const target=expressions[expr];for(let i=0;i<4;i++)blend[i]+=(target[i]-blend[i])*(1-Math.exp(-dt*5));
+let gy=pointer?pointer.y*.09:Math.sin(t*.73)*.025*m,gx=pointer?pointer.x*.10:Math.sin(t*.57)*.035*m;
+if(state==='thinking'){gx+=.045;gy-=.055}gazeX+=(gx-gazeX)*.12;gazeY+=(gy-gazeY)*.12;
+yaw+=((pointer?pointer.x*.16:Math.sin(t*.45)*.13*m)-yaw)*.045;pitch+=((pointer?pointer.y*.08:Math.sin(t*.62)*.045*m)-pitch)*.045;
+if(t>nextBlink){blinkStart=t;nextBlink=t+2.4+Math.random()*3.4}let blink=Math.max(0,Math.sin(clamp((t-blinkStart)/.18,0,1)*Math.PI));
+let mouth=blend[2]*.085;if(state==='speaking'){let syllable=Math.max(0,Math.sin(t*15)+.45*Math.sin(t*23));mouth+=.10*clamp(syllable,0,1);if(speechEnd){let ch=speechText[Math.floor((t-speechStart)/.052)]||' ';if(/[\s.,!?]/.test(ch))mouth*=.18;if(t>speechEnd)setState('idle')}}if(mouthOverride!==null)mouth=.14*mouthOverride;
+const smile=blend[0],brow=blend[1],cell=width/cols,step=2.05/cols,rowStep=step*1.55,scale=Math.min(width*.59,height*.41),font=cell*1.38;
+ctx.clearRect(0,0,width,height);ctx.font=`${font}px "Courier New",monospace`;ctx.textAlign='center';ctx.textBaseline='middle';
+const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch),roll=Math.sin(t*.38)*.022*m+(expr==='curious'?.045:0),cr=Math.cos(roll),sr=Math.sin(roll),pixels=[];
+for(let y=-1.04;y<1.04;y+=rowStep)for(let x=-.70;x<.70;x+=step){let z=surface(x,y);if(z===null)continue;let zdx=surface(x+.006,y),zdy=surface(x,y+.006);if(zdx===null||zdy===null)continue;let nx=-(zdx-z)/.006,ny=-(zdy-z)/.006,nz=1,nl=Math.hypot(nx,ny,nz);nx/=nl;ny/=nl;nz/=nl;
+let light=clamp(.28+(nx*(-.36)+ny*(-.43)+nz*.79)*.67,0,1),glyph=null;
+// Ocular surface and eyelids, independent of the head rotation.
+for(const s of [-1,1]){const ex=s*.276,ey=-.215+gazeY*.13,dx=x-ex,dy=y-ey,eyeOpen=Math.max(.007,(.058+blend[2]*.021-blend[3]*.014)*(1-blink));let eye=dx*dx/.158**2+dy*dy/eyeOpen**2;
+if(eye<1){z+=.037;const iris=Math.hypot((dx-gazeX)*1.05,dy-gazeY*.20);light=iris<.021?.08:iris<.048?.36:.94;if(iris<.014)glyph='@';else if(iris<.048)glyph='o';else glyph='·';if(Math.hypot(dx-gazeX+.012,dy-gazeY*.2+.014)<.011){light=1;glyph='*'}}
+let lidY=ey-eyeOpen*Math.sqrt(Math.max(0,1-dx*dx/.158**2));if(Math.abs(dx)<.16&&Math.abs(y-lidY)<rowStep*.48){light=.25;glyph='-'}
+let browY=-.385-brow*.045+(s===1&&expr==='curious'?-.03:0)+.045*(dx/.17)**2+(expr==='concerned'?s*dx*.19:0);if(Math.abs(dx)<.175&&Math.abs(y-browY)<.019){light=.20;glyph='='}
+if(gauss(x,y,s*.073,.29,.036,.018)>.58){light=.13;glyph=','}}
+let lipY=.51-smile*.085*(x/.245)**2,lipW=.255+smile*.025;
+if(Math.abs(x)<lipW){let edge=Math.sqrt(Math.max(0,1-(x/lipW)**2)),gap=(.008+mouth)*edge,dy=y-lipY;if(Math.abs(dy)<gap){light=.07;glyph='@';z-=.018;if(mouth>.055&&dy<-.015){light=.82;glyph='='}}else if(Math.abs(Math.abs(dy)-gap)<.019*edge){light=dy>0?.63:.28;glyph=dy>0?'~':'='}}
+// Rim and cheek accents retain a face silhouette at small panel widths.
+if(y<-.74&&Math.abs(x)>.20)light*=.70;
+let xx=x*cy+z*sy,zz=-x*sy+z*cy,yy=y*cp-zz*sp;zz=y*sp+zz*cp;let xr=xx*cr-yy*sr,yr=xx*sr+yy*cr;const persp=3.8/(3.8-zz);
+const px=width/2+xr*scale*persp,py=height*.46+yr*scale*persp+Math.sin(t*1.1)*1.2*m;
+const alpha=clamp(.16+light*.82,.13,1);pixels.push({x:px,y:py,z:zz,g:glyph||ramp[Math.floor(light*(ramp.length-1))],a:alpha})}
+pixels.sort((a,b)=>a.z-b.z);for(const p of pixels){ctx.fillStyle=`rgba(${rgb.join(',')},${p.a})`;ctx.fillText(p.g,p.x,p.y)}
+}
+function loop(now){const dt=Math.min((now-last)/1000,.05);last=now;if(!document.hidden&&active){if(!paused)time+=dt;if(now-lastDraw>32){draw(paused?0:dt);lastDraw=now;frames++;if(now-fpsStart>1000){$('fps').textContent=paused?'PAUSED':Math.round(frames*1000/(now-fpsStart))+' FPS';frames=0;fpsStart=now}}}requestAnimationFrame(loop)}resize();requestAnimationFrame(loop);
+})();
+</script></body></html>

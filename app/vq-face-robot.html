@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VQ · Character face panel</title>
+<script>if(/[?&]embed\b/.test(location.search))document.documentElement.classList.add('embed')</script>
+<style>html.embed,html.embed body{background:transparent!important}html.embed main{max-width:none;padding:0;margin:0}
+html.embed header,html.embed .intro,html.embed nav,html.embed .controls,html.embed footer,html.embed .hud,html.embed .persona-label{display:none!important}
+html.embed .workspace{display:block}html.embed .panel{border:0!important;background:transparent!important;border-radius:0;max-width:none}
+html.embed .stage{height:100vh!important;background:none!important}html.embed body{overflow:hidden}</style>
+
+<style>
+:root{color-scheme:dark;--accent:#8adbd1;--ink:#dcece9;--muted:#879b9c;--line:#263a3b}*{box-sizing:border-box}body{margin:0;background:#080f13;color:var(--ink);font:14px system-ui,sans-serif}main{max-width:1080px;margin:auto;padding:28px}header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}h1{font-family:Georgia,serif;font-weight:400;font-size:27px;margin:6px 0}small,.muted{color:var(--muted)}.eyebrow{font-size:10px;letter-spacing:3px;color:var(--accent)}.workspace{display:grid;grid-template-columns:1fr 410px;gap:22px}.intro{padding:36px 20px}.intro h2{font-size:35px;line-height:1.15;font-weight:400;max-width:420px}.intro p{line-height:1.8;color:#9cb0b2;max-width:420px}.tag{border:1px solid var(--line);border-radius:30px;padding:7px 12px;font-size:11px;color:var(--accent)}.panel{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:linear-gradient(155deg,#142124b0,#0b1319c0)}nav{display:flex;padding:12px;gap:5px;border-bottom:1px solid var(--line)}button,select,input{font:inherit}button{cursor:pointer;color:#a7b9bb;background:transparent;border:1px solid transparent;border-radius:9px;padding:9px 12px}button:hover{background:#203237}button[aria-selected=true],button.active{background:#25433f;color:#c6fff0;border-color:#40635b}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.pane[hidden]{display:none}.stage{height:450px;position:relative;background:radial-gradient(ellipse at 50% 40%,#1c32353d,transparent 68%)}canvas{width:100%;height:100%;display:block}.hud{position:absolute;left:20px;right:20px;bottom:15px;display:flex;justify-content:space-between;font:10px monospace;letter-spacing:1px;color:var(--accent);pointer-events:none}.dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--accent);margin-right:7px}.controls{padding:20px;border-top:1px solid var(--line)}label{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:14px;gap:12px}select{max-width:190px;background:#0e1b20;color:var(--ink);border:1px solid var(--line);padding:7px;border-radius:7px}input[type=range]{width:150px;accent-color:var(--accent)}.modes{display:flex;gap:4px;flex-wrap:wrap;margin:14px 0}.modes button{padding:7px 10px;font-size:11px;border-color:var(--line)}.actions{display:flex;gap:8px;margin-top:16px}.actions button{border-color:var(--line)}textarea{width:100%;height:65px;background:#0c191d;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical;font:12px system-ui}.content{padding:24px;line-height:1.75;min-height:500px}.content h2{font-size:20px;font-weight:400;color:var(--accent)}code{font-size:11px;color:var(--accent);overflow-wrap:anywhere}.content pre{white-space:pre-wrap;background:#071114;padding:14px;border-radius:8px}.content textarea{height:200px}footer{margin-top:20px;color:var(--muted);font-size:11px}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}@media(max-width:760px){main{padding:16px}.workspace{display:block}.intro{padding:0 4px 16px}.intro h2{font-size:24px}.intro p{margin-bottom:18px}.panel{max-width:460px;margin:auto}.stage{height:430px}}@media(prefers-reduced-motion:reduce){.dot{animation:none}}
+.demo-chat{border:1px solid var(--line);padding:18px;border-radius:14px;background:#0e191d}.demo-chat button{border-color:var(--line)}#transcript{max-height:360px;overflow:auto;margin-top:18px}.message{margin:12px 0;padding:12px;border-left:2px solid var(--accent);background:#15252a;border-radius:0 8px 8px 0}.message strong{font-size:11px;letter-spacing:1px;color:var(--accent)}.message p{font-size:14px;margin:8px 0;line-height:1.7;color:var(--ink)}.persona-label{position:absolute;left:20px;top:18px;font-size:11px;letter-spacing:2px;color:var(--accent)}
+</style></head><body><main><header><div><div class="eyebrow">VERITAS QUAESITOR</div><h1>Presence, in characters.</h1></div><span class="tag">FACE / PROTOTYPE</span></header><div class="workspace"><section class="intro"><h2>Your robot, present in the conversation.</h2><p>Two distinct character-built robots. VQ retains his cyan face and magenta antenna; O.R.I.A. has a pearl-violet shell, tapered silhouette, luminous almond eyes and sculpted facial details.</p><p>Run a scripted chat scene below. The active robot, expression and mouth follow the response as it streams. These are demo lines, not live AI answers.</p><div class="demo-chat"><label>Chat scene<select id="scene"><option value="welcome">Welcome</option><option value="curious">Exploring an idea</option><option value="concern">Offering support</option><option value="playful">O.R.I.A.’s playful reply</option><option value="exchange">Two voices, one conversation</option></select></label><button id="run-scene">Run chat scene</button><button id="stop-scene">Stop</button><div id="transcript" role="log" aria-label="Scripted chat demo"></div><p class="muted" id="scene-status">Choose a scene to see the face respond.</p></div><small>Offline · no camera · no external assets</small></section><aside class="panel" aria-label="Companion panel"><nav role="tablist" aria-label="Panel views"><button role="tab" id="tab-details" aria-controls="details" aria-selected="false" tabindex="-1">Details</button><button role="tab" id="tab-notes" aria-controls="notes" aria-selected="false" tabindex="-1">Notes</button><button role="tab" id="tab-face" aria-controls="face" aria-selected="true">Face</button></nav>
+<section class="pane" id="face" role="tabpanel" aria-labelledby="tab-face"><div class="stage"><span class="persona-label" id="persona-name">VQ · ATTENTIVE</span><canvas id="portrait" role="img" aria-label="Animated robot face rendered entirely as text characters"></canvas><div class="hud"><span><i class="dot"></i><span id="status">IDLE</span></span><span id="fps">LIVE</span></div></div><div class="controls"><label>Robot persona<select id="persona"><option value="vq">VQ</option><option value="oria">O.R.I.A.</option></select></label><label>Expression<select id="expression"><option value="neutral">Neutral</option><option value="warm">Warm / smiling</option><option value="curious">Curious</option><option value="concerned">Concerned</option><option value="surprised">Surprised</option><option value="serious">Serious</option><option value="playful">Playful</option></select></label><label>Character density<input id="density" type="range" min="90" max="180" value="132"></label><label>Movement<input id="motion" type="range" min="0" max="100" value="65"></label><label>Colour<select id="colour"><option value="mint">Mint</option><option value="amber">Amber</option><option value="ice">Ice</option><option value="mono">White</option></select></label><div class="modes" aria-label="Conversation state"><button class="active" data-state="idle" aria-pressed="true">Idle</button><button data-state="listening" aria-pressed="false">Listening</button><button data-state="thinking" aria-pressed="false">Thinking</button><button data-state="speaking" aria-pressed="false">Speaking</button></div><textarea id="speech" aria-label="Speaking demo text">Hello. I'm here to explore ideas with you. What shall we look at together?</textarea><div class="actions"><button id="demo">Speak demo</button><button id="pause" aria-pressed="false">Pause</button><button id="reset">Reset</button></div><p class="muted" style="font-size:11px;line-height:1.6;margin-bottom:0">Robot silhouette · persona-specific mannerisms<br>Speaking demo simulates articulation; it does not generate audio.</p><span class="sr" id="announcement" aria-live="polite"></span></div></section>
+<section class="pane content" id="details" role="tabpanel" aria-labelledby="tab-details" hidden><h2>Robot + persona</h2><p>VQ echoes your cyan robot avatar with a machined shell, layered optical eyes and magenta antenna. O.R.I.A. has her own feminine robot design: a tapered pearl-violet shell, almond optics, fine lashes, rose mouth and crown panels. Both are rendered entirely in characters; all features move with the head.</p><h2>Connect your chat events</h2><pre><code>// Typing / request begins:
+VQFace.setSpeaker('vq'); // or 'oria'
+VQFace.setState('listening');
+VQFace.setState('thinking');
+
+// Start streaming an actual answer:
+VQFace.beginResponse({speaker:'oria', cues:[
+  {at:0, expression:'curious'},
+  {at:70, expression:'warm'}
+]});
+VQFace.appendText(chunk); // each text delta
+VQFace.endResponse();    // stream finished
+
+// Or animate a complete response:
+VQFace.respond({speaker:'vq', text:answer,
+ cues:[{at:0, expression:'serious'}]});
+
+// Optional audio mouth input:
+VQFace.setMouth(0.6); // 0–1
+VQFace.setMouth(null); // back to text
+VQFace.pause(true);</code></pre><p>Cue offsets count JavaScript string characters from the start of the response. Supply them from structured response metadata; they take priority over the conservative text-tone fallback. The demo scenes use explicit cues.</p><p>Existing <code>vq-face</code> page events accept speaker, state, expression, text and mouth. <code>respond</code> returns a Promise that completes after visual articulation.</p><p>Text mouth animation approximates speech. Audio amplitude improves opening timing; accurate lip-sync needs phoneme timing. This standalone file does not modify your live chat or connect to an AI service.</p></section>
+<section class="pane content" id="notes" role="tabpanel" aria-labelledby="tab-notes" hidden><h2>Prototype notes</h2><p>Use this space to jot down expression or appearance ideas. Notes stay in this page session.</p><textarea aria-label="Prototype notes" placeholder="What should this companion feel like?"></textarea></section></aside></div><footer>Persona-driven character robot · Standalone Face tab prototype</footer></main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),canvas=$('portrait'),ctx=canvas.getContext('2d'),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const expressions={neutral:[.2,0,0,0],warm:[.9,.15,0,.2],curious:[.25,.8,0,0],concerned:[-.35,-.55,0,0],surprised:[0,1,1,0],serious:[0,-.2,0,0],playful:[1,.6,0,.4]};
+const personas={vq:{name:'VQ',tag:'ATTENTIVE',speed:.72,tilt:.035,base:'warm',blink:3.6},oria:{name:'O.R.I.A.',tag:'CURIOUS',speed:1.3,tilt:.09,base:'playful',blink:2.7}};
+const palettes={mint:[105,240,227],amber:[249,191,114],ice:[146,199,255],mono:[226,237,243]};
+let persona='vq',expr='warm',state='idle',blend=[.2,0,0,0],yaw=0,pitch=0,gazeX=0,gazeY=0,pointer=null,blinkStart=-10,nextBlink=2,time=0,last=performance.now(),paused=false,active=true,mouthOverride=null,cols=132,motion=.65,width=410,height=405,lastDraw=0,frames=0,fpsStart=0,rgb=palettes.mint,response=null,serial=0,sceneSerial=0;
+function resize(){const b=canvas.getBoundingClientRect();if(!b.width)return;width=b.width;height=b.height;const d=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(width*d);canvas.height=Math.round(height*d);ctx.setTransform(d,0,0,d,0,0)}new ResizeObserver(resize).observe(canvas);
+function announce(s){$('announcement').textContent=s}
+function setExpression(v){if(!expressions[v])return;expr=v;$('expression').value=v;announce(v+' expression')}
+function setSpeaker(v){v=String(v).toLowerCase().replace(/[^a-z]/g,'');if(!personas[v])return;persona=v;$('persona').value=v;const p=personas[v];$('persona-name').textContent=p.name+' · '+p.tag;setExpression(p.base);canvas.setAttribute('aria-label',p.name+' animated robot face rendered in characters')}
+function cancelResponse(){if(response){const old=response;response=null;old.resolve?.({cancelled:true})}}
+function setState(v,internal=false){if(!['idle','listening','thinking','speaking'].includes(v))return;if(!internal&&v!=='speaking')cancelResponse();state=v;$('status').textContent=v.toUpperCase();document.querySelectorAll('[data-state]').forEach(b=>{const on=b.dataset.state===v;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on)});if(v!=='speaking')mouthOverride=null;if(v==='thinking')setExpression('curious');if(v==='listening')setExpression('neutral');announce(personas[persona].name+' '+v)}
+function pause(v){paused=!!v;$('pause').textContent=paused?'Resume':'Pause';$('pause').setAttribute('aria-pressed',paused);announce(paused?'Animation paused':'Animation resumed')}
+function fallback(text){if(/\b(sorry|difficult|hurting|grief|afraid)\b/i.test(text))return 'concerned';if(/\b(evidence|uncertain|verify|careful)\b/i.test(text))return 'serious';if(/\?|\b(explore|wonder|question)\b/i.test(text))return 'curious';if(/\b(welcome|thank|together|glad)\b/i.test(text))return 'warm';return personas[persona].base}
+function beginResponse(d={}){cancelResponse();if(d.speaker)setSpeaker(d.speaker);const cues=Array.isArray(d.cues)?d.cues.filter(c=>c&&Number.isFinite(c.at)&&expressions[c.expression]).map(c=>({at:Math.max(0,c.at),expression:c.expression})).sort((a,b)=>a.at-b.at):[];response={id:++serial,text:'',cursor:0,next:time,cues,cue:0,ended:false,resolve:null,onProgress:typeof d.onProgress==='function'?d.onProgress:null};setState('speaking',true);return response.id}
+function appendText(text){if(!response)beginResponse();response.text+=String(text).slice(0,50000-response.text.length);if(!response.cues.length)setExpression(fallback(response.text))}
+function endResponse(){if(response)response.ended=true}
+function respond(d={}){beginResponse(d);appendText(d.text||'');endResponse();return new Promise(resolve=>{response.resolve=resolve})}
+function speakText(text){return respond({speaker:persona,text:String(text)})}
+function setMouth(v){mouthOverride=v==null?null:clamp(Number(v)||0,0,1)}
+window.VQFace=Object.freeze({setSpeaker,setState,setExpression,beginResponse,appendText,endResponse,respond,speakText,setMouth,pause});
+window.addEventListener('vq-face',e=>{const d=e.detail||{};if(d.speaker)setSpeaker(d.speaker);if(d.state)setState(d.state);if(typeof d.text==='string')respond(d);if(d.expression)setExpression(d.expression);if('mouth' in d)setMouth(d.mouth)});
+canvas.addEventListener('pointermove',e=>{const b=canvas.getBoundingClientRect();pointer={x:clamp((e.clientX-b.left)/b.width*2-1,-1,1),y:clamp((e.clientY-b.top)/b.height*2-1,-1,1)}});canvas.addEventListener('pointerleave',()=>pointer=null);
+$('persona').onchange=e=>{cancelResponse();setSpeaker(e.target.value);setState('idle')};$('expression').onchange=e=>setExpression(e.target.value);$('density').oninput=e=>cols=+e.target.value;$('motion').oninput=e=>motion=+e.target.value/100;$('colour').onchange=e=>{rgb=palettes[e.target.value];document.documentElement.style.setProperty('--accent',`rgb(${rgb.join(',')})`)};
+document.querySelectorAll('[data-state]').forEach(b=>b.onclick=()=>setState(b.dataset.state));$('demo').onclick=()=>speakText($('speech').value);$('pause').onclick=()=>pause(!paused);$('reset').onclick=()=>{sceneSerial++;cancelResponse();setSpeaker('vq');setState('idle');pause(false);motion=.65;cols=132;$('motion').value=65;$('density').value=132;rgb=palettes.mint;$('colour').value='mint';document.documentElement.style.setProperty('--accent','#8adbd1')};
+function tab(id){document.querySelectorAll('[role=tab]').forEach(b=>{const on=b.id==='tab-'+id;b.setAttribute('aria-selected',on);b.tabIndex=on?0:-1});document.querySelectorAll('.pane').forEach(p=>p.hidden=p.id!==id);active=id==='face';if(active)resize()}
+const tabs=Array.from(document.querySelectorAll('[role=tab]'));tabs.forEach((b,i)=>{b.onclick=()=>tab(b.getAttribute('aria-controls'));b.onkeydown=e=>{let j=i;if(e.key==='ArrowRight')j=(i+1)%tabs.length;else if(e.key==='ArrowLeft')j=(i+tabs.length-1)%tabs.length;else if(e.key==='Home')j=0;else if(e.key==='End')j=tabs.length-1;else return;e.preventDefault();tab(tabs[j].getAttribute('aria-controls'));tabs[j].focus()}});
+const scenes={welcome:[{speaker:'vq',text:"Welcome. I'm glad you're here. We can explore the question together, one step at a time.",cues:[{at:0,expression:'warm'},{at:43,expression:'curious'},{at:75,expression:'warm'}]}],curious:[{speaker:'vq',text:"That's an interesting question. Which part would you like to explore? Let's examine the evidence carefully before drawing a conclusion.",cues:[{at:0,expression:'curious'},{at:73,expression:'serious'}]}],concern:[{speaker:'vq',text:"That sounds difficult. Thank you for sharing it. We can slow down and think through what would help you next.",cues:[{at:0,expression:'concerned'},{at:48,expression:'warm'}]}],playful:[{speaker:'oria',text:"A storm in our chat? Well, that is one way to make an entrance! Now you've made me curious. What shall we investigate?",cues:[{at:0,expression:'surprised'},{at:21,expression:'playful'},{at:64,expression:'curious'}]}],exchange:[{speaker:'vq',text:"Let's look carefully at the claim. We should distinguish what the evidence shows from what we are assuming.",cues:[{at:0,expression:'serious'},{at:70,expression:'curious'}]},{speaker:'oria',text:"I'll bring the questions! What would change our minds? That seems like a useful place to start.",cues:[{at:0,expression:'playful'},{at:25,expression:'curious'},{at:55,expression:'warm'}]}]};
+function addMessage(name){const div=document.createElement('div'),strong=document.createElement('strong'),p=document.createElement('p');div.className='message';strong.textContent=name;div.append(strong,p);$('transcript').append(div);return p}
+$('run-scene').onclick=async()=>{const run=++sceneSerial;cancelResponse();tab('face');pause(false);$('transcript').replaceChildren();for(const line of scenes[$('scene').value]||scenes.welcome){if(run!==sceneSerial)return;setSpeaker(line.speaker);setState('thinking');$('scene-status').textContent=personas[persona].name+' is preparing a reply…';await new Promise(r=>setTimeout(r,650));if(run!==sceneSerial)return;const p=addMessage(personas[line.speaker].name);$('scene-status').textContent='Scripted response · expressions follow the text';const result=await respond({...line,onProgress:text=>{p.textContent=text;$('transcript').scrollTop=$('transcript').scrollHeight}});if(run!==sceneSerial||result.cancelled)return}$('scene-status').textContent='Scene complete · face returns to idle'};
+$('stop-scene').onclick=()=>{sceneSerial++;cancelResponse();setState('idle');setExpression(personas[persona].base);$('scene-status').textContent='Scene stopped'};
+if(matchMedia('(prefers-reduced-motion: reduce)').matches){motion=0;$('motion').value=0;pause(true)}
+// Rounded robotic shell and inset faceplate. Coordinates are a real 3D surface.
+function geometry(x,y,f){const power=f?2.7:4, w=f?.73*(1-.18*clamp((y+.12)/.9,0,1)):.78;return {outer:(Math.abs(x)/w)**power+(Math.abs(y)/(f?.76:.66))**power,inner:(Math.abs(x)/(w-(f?.075:.105)))**power+(Math.abs(y+.015)/(f?.635:.54))**power}}
+function shell(x,y){const rr=geometry(x,y,persona==='oria').outer;if(rr>=1)return null;return .14+.23*Math.sqrt(1-rr)}
+function advance(){if(!response)return;const r=response;if(time>=r.next&&r.cursor<r.text.length){const ch=r.text[r.cursor++];r.next=time+(/[.!?]/.test(ch)?.26:/[,;:]/.test(ch)?.13:/\s/.test(ch)?.032:.043);while(r.cue<r.cues.length&&r.cursor>=r.cues[r.cue].at)setExpression(r.cues[r.cue++].expression);r.onProgress?.(r.text.slice(0,r.cursor))}if(r.ended&&r.cursor>=r.text.length&&time>r.next+.25){response=null;setState('idle',true);r.resolve?.({cancelled:false});}}
+function draw(dt){if(!paused)advance();const t=time,p=personas[persona],m=motion,rate=1-Math.exp(-dt*5);for(let i=0;i<4;i++)blend[i]+=(expressions[expr][i]-blend[i])*rate;
+const follow=1-Math.exp(-dt*7),saccade=Math.sin(Math.floor(t*p.speed*1.7)*12.9)*.024*m;
+let gx=pointer?pointer.x*.072:Math.sin(t*.51*p.speed)*.035*m+saccade,gy=pointer?pointer.y*.055:Math.sin(t*.69*p.speed)*.025*m;if(state==='thinking'){gx+=.065;gy-=.07}if(state==='listening'){gx*=.6;gy*=.6}gazeX+=(gx-gazeX)*follow;gazeY+=(gy-gazeY)*follow;
+yaw+=((pointer?pointer.x*.18:Math.sin(t*.6*p.speed)*.14*m)-yaw)*follow*.4;pitch+=((pointer?pointer.y*.1:Math.sin(t*.75*p.speed)*.055*m)-pitch)*follow*.4;
+if(t>nextBlink){blinkStart=t;nextBlink=t+p.blink+Math.random()*2.3}let blink=Math.sin(clamp((t-blinkStart)/.20,0,1)*Math.PI);
+let mouth=blend[2]*.07;if(state==='speaking'){const ch=response?.text[Math.max(0,response.cursor-1)]||'a';mouth+=/[\s.,!?;:]/.test(ch)?.005:(/[aeiou]/i.test(ch)?.10:.045)*(.6+.4*Math.sin(t*21)**2)}if(mouthOverride!==null)mouth=.14*mouthOverride;
+const smile=blend[0],brow=blend[1],step=2.1/cols,rowStep=step*1.43,scale=Math.min(width*.47,height*.32),font=width/cols*1.22,cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch),roll=Math.sin(t*.46*p.speed)*p.tilt*m+blend[1]*p.tilt*.45,cr=Math.cos(roll),sr=Math.sin(roll),pixels=[];
+ctx.clearRect(0,0,width,height);ctx.font=`${font}px "Courier New",monospace`;ctx.textAlign='center';ctx.textBaseline='middle';
+function mark(x,y,z,g,c,a){let xx=x*cy+z*sy,zz=-x*sy+z*cy,yy=y*cp-zz*sp;zz=y*sp+zz*cp;const xr=xx*cr-yy*sr,yr=xx*sr+yy*cr,k=3.8/(3.8-zz);pixels.push({x:width/2+xr*scale*k,y:height*.49+yr*scale*k+Math.sin(t*1.05)*1.1*m,z:zz,g,c,a})}
+const female=persona==='oria',optic=female?[199,169,255]:rgb,shellColor=female?[190,186,229]:[108,173,185],trim=female?[246,184,219]:[245,116,219],ramp=' .,:;i!lI+tfLCG08@';
+for(let y=-1.12;y<1.25;y+=rowStep)for(let x=-1.08;x<1.08;x+=step){let z=shell(x,y),g='·',c=rgb,a=.24;
+if(z!==null){const geom=geometry(x,y,female),inner=geom.inner,outer=geom.outer;
+const light=clamp(.55-.24*x-.22*y+.16*Math.sqrt(1-outer),.12,.95);
+const contour=Math.sqrt(outer);c=shellColor;a=light;g=ramp[Math.floor(light*(ramp.length-1))];
+if(inner>.90){
+// Bevel highlights, engraved shell seams and recessed screw heads.
+if(inner<1.06){c=optic;a=.96;g='+'}else if(outer>.94){c=trim;a=.7;g=':'}
+if(Math.abs(y-(female?-.53:-.44))<.012&&Math.abs(x)>.48){a=.25;g='='}
+if(Math.abs(Math.abs(x)-(female?.62:.68))<.020&&Math.abs(y-.36)<.022){c=[239,241,250];a=.95;g='o'}
+}else{
+z-=.025;c=optic;a=.075+.055*(1-inner);g='.';
+// Quiet circuit traces and glass reflections within the faceplate.
+if(Math.abs(x)>.49&&Math.abs(y)<.35&&Math.sin(y*24+x*8)>.96){a=.26;g=':'}
+if(y<-.29&&y>-.42&&x<-.18){a=.13;g='/'}
+}
+for(const side of [-1,1]){const ex=side*(female?.265:.275),ey=female?-.15:-.14,dx=x-ex-gazeX,dy=y-ey-gazeY,ew=female?.15:.122;
+const eyeH=Math.max(.006,(female?.078:.116)*(1-blink)*(1+blend[2]*.40-blend[3]*.16));
+const shape=female?Math.max(0,1-(dx/ew)**2):Math.sqrt(Math.max(0,1-(dx/ew)**2));
+if(Math.abs(dx)<ew&&Math.abs(dy)<eyeH*shape){
+z+=.035;const iris=Math.hypot(dx,dy*1.04),ir=female?.057:.067;c=optic;a=.55+.35*(1-Math.abs(dx)/ew);g=':';
+if(iris<ir){const phase=Math.atan2(dy,dx);a=.68+.22*Math.sin(phase*12+iris*130)**2;g='o';if(iris>ir*.83){a=.98;g='*'}if(iris<ir*.43){a=.18;g='@'}if(Math.hypot(dx+.017,dy+.024)<.016){a=1;c=[245,250,255];g='@'}}else{c=female?[207,195,255]:[193,255,244];g='·'}
+}
+// Eyeliner and lashes remain part of the animated eye geometry.
+if(Math.abs(dx)<ew&&Math.abs(dy+eyeH*shape)<.012){c=optic;a=.88;g='=';z+=.03}
+if(female&&blink<.7){const out=side*(x-ex);for(let lash=0;lash<3;lash++){const lx=.112+lash*.027,ly=ey-eyeH*.55-lash*.009;if(Math.abs(out-lx)<.010&&Math.abs(y-(ly-(out-lx)*1.5))<.031){a=.83;c=optic;g=side<0?'\\':'/';z+=.03}}}
+const browY=(female?-.335:-.34)-brow*.045+(side===1&&female?-.02*blend[1]:0)+.052*((x-ex)/.15)**2+(expr==='concerned'?side*(x-ex)*.18:0);
+if(Math.abs(x-ex)<(female?.15:.135)&&Math.abs(y-browY)<(female?.013:.020)){c=optic;a=.80;g=female?'~':'=';z+=.025}
+// Engraved cheek arcs and compact smile sensors.
+const cheek=Math.hypot((x-side*.38)*1.1,y-.20);if(cheek>.095&&cheek<.109&&side*x>.34&&y>.17&&y<.29){c=trim;a=female?.42:.22;g=':'}
+}
+// Small sculpted nose ridge gives O.R.I.A. an individual face.
+if(female){const nose=Math.exp(-(x*x/.048**2+(y-.055)**2/.13**2));if(nose>.2){z+=.043*nose;a=.18+.28*nose;c=shellColor;g=':'}if(Math.abs(x)<.042&&Math.abs(y-.17)<.009){c=trim;a=.42;g='~'}}
+const lipW=female?.225+smile*.024:.25+smile*.025,lipY=(female?.33:.27)-smile*.10*(x/lipW)**2;
+if(Math.abs(x)<lipW){const edge=Math.sqrt(Math.max(0,1-(x/lipW)**2)),gap=mouth*edge;
+if(Math.abs(y-lipY)<.012+gap){a=.92;c=female?trim:optic;g=mouth>.04?'o':'=';z+=.02;if(mouth>.04&&Math.abs(y-lipY)<gap*.63){a=.11;g='.'}}
+if(female&&Math.abs(y-(lipY+.028*edge))<.009&&edge>.3){c=trim;a=.68;g='~';z+=.019}}
+// O.R.I.A.'s swept crown panels are a different head construction.
+if(female&&y<-.45){const sweep=-.62+.14*(x/.65)**2;if(Math.abs(y-sweep)<.018||Math.abs(y-(sweep-.055))<.012){c=trim;a=.67;g='/'}if(x<-.20&&y<-.57){c=[214,208,246];a=Math.max(a,.72)}}
+}else {
+const earX=female?.79:.88,earY=female?.03:-.04,earH=female?.155:.20,earW=female?.061:.078;
+const ear=((Math.abs(x)-earX)/earW)**2+((y-earY)/earH)**2;
+if(ear<1){z=.08;c=trim;a=.35+.55*Math.sqrt(1-ear);g=ear>.7?':':'#';if(Math.abs(y-earY)<.017){c=optic;a=.95;g='='}}
+else if(!female&&Math.abs(x)<.012&&y<-.66&&y>-.93){z=.10;c=trim;a=.8;g='|'}
+else if(!female&&x*x+(y+.97)**2<.052**2){z=.12;c=trim;a=.93;g='@'}
+else if(female&&Math.abs(Math.abs(x)-.47)<.04&&y<-.70&&y>-.90){z=.04;c=trim;a=.42;g=':'}
+// Mechanical neck and shoulder collar, also made from characters.
+else if(Math.abs(x)<(female?.17:.20)&&y>.73&&y<.93){z=.02;c=shellColor;a=.42;g=Math.sin(y*95)>.15?'=':':'}
+else if(y>.92&&y<1.12&&Math.abs(x)<.46-.30*(y-.92)){z=-.04;c=shellColor;a=.34;g=':';if(y<.95||Math.abs(y-(1.045+.045*Math.cos(x*6)))<.012){c=optic;a=.72;g='+'}}
+else continue;
+}mark(x,y,z,g,c,a)}
+// Identification engraving follows head rotation, rather than floating in front.
+const badge=female?'O R I A':'V Q';for(let k=0;k<badge.length;k++){const x=(k-(badge.length-1)/2)*.022,y=female?-.49:-.45;mark(x,y,.35,badge[k],female?trim:optic,.72)}
+pixels.sort((a,b)=>a.z-b.z);for(const v of pixels){ctx.fillStyle=`rgba(${v.c.join(',')},${v.a})`;ctx.fillText(v.g,v.x,v.y)}}
+function loop(now){const dt=Math.min((now-last)/1000,.06);last=now;if(!document.hidden&&active&&now-lastDraw>32){const elapsed=Math.min((now-lastDraw)/1000,.08);lastDraw=now;if(!paused)time+=elapsed;draw(paused?0:elapsed);frames++;if(now-fpsStart>1000){$('fps').textContent=paused?'PAUSED':Math.round(frames*1000/(now-fpsStart))+' FPS';frames=0;fpsStart=now}}requestAnimationFrame(loop)}
+setSpeaker('vq');resize();requestAnimationFrame(loop);
+})();
+
+</script></body></html>
