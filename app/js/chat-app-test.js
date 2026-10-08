@@ -1,4 +1,4 @@
-(function() {
+(function() { 
     'use strict';
 
     // Drawn icons (replace emoji, which look different on every device)
