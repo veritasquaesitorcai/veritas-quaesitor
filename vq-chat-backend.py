@@ -1452,7 +1452,11 @@ UI_TOOL = {
             "properties": {
                 "action": {"type": "string", "enum": ["text_size", "style", "panel", "focus_mode", "show_reasoning",
                                                        "new_chat", "reset_display", "undo", "panel_view", "add_note",
-                                                       "second_opinion", "swap", "create_theme", "theme_edit", "draw"]},
+                                                       "second_opinion", "swap", "create_theme", "theme_edit", "draw", "creature"]},
+                "recipe": {"type": "object", "description": ("For creature: a four-legged animal assembled from VQ's parts kit. Fields: name; "
+                           "parts {head {shape, ears, eyes, muzzle, extras[], width, length, roundness}, neck {length, thickness}, body {shape, length, width}, "
+                           "legs {type, length, thickness}, tail {type, length, width, curve}}; colors {base, underside, detail, eyes} as #hex (natural colours); "
+                           "pattern {kind, density, scale, color}; motion; scale (small, medium, large); count 1-6. Only values from the PARTS KIT list.")},
                 "what": {"type": "string", "description": ("For draw: what to draw, as a short concrete visual description of YOUR OWN original design "
                          "(shape, colours, key details), e.g. 'a red and white hot-air balloon with a wicker basket', 'a small silver passenger plane with a spinning propeller'")},
                 "name": {"type": "string", "description": "For draw: a 1-3 word name for it, e.g. 'hot-air balloon'"},
@@ -1658,6 +1662,15 @@ def validate_ui_action(args: dict):
         except (TypeError, ValueError):
             clean["count"] = 1
         parts = [f"drew {clean['name']}"]
+    if action == "creature":
+        rec, probs = clean_recipe(args.get("recipe"))
+        if not rec:
+            return None, "that animal recipe was incomplete (" + ", ".join(probs[:3]) + ")"
+        if probs:
+            print(f"[CREATURE] dropped unknown values: {probs}", flush=True)
+        clean["recipe"] = rec
+        clean["name"] = rec["name"]
+        parts = [f"assembled {rec['name']}"]
     if action == "create_theme":
         th = args.get("theme") if isinstance(args.get("theme"), dict) else {}
         hexok = lambda v: isinstance(v, str) and re.fullmatch(r"#?[0-9a-fA-F]{6}", v.strip()) is not None
@@ -1719,6 +1732,7 @@ def validate_ui_action(args: dict):
         "create_theme": "Look → " + ", ".join(parts) if action == "create_theme" else "",
         "theme_edit": "Theme edit → " + ", ".join(parts) if action == "theme_edit" else "",
         "draw": f"Drew {clean.get('name', 'a drawing')}" if action == "draw" else "",
+        "creature": f"Assembled {clean.get('name', 'an animal')} from the parts kit" if action == "creature" else "",
         "swap": ("Swapped back: VQ has the main chat" if clean.get('state') == 'off' else f"Swapped places: {ENQUIRER_NAME} has the main chat"),
     }
     return clean, labels[action]
@@ -1742,6 +1756,11 @@ DRAW_PROMPT = (
     "- Moving parts: wrap them in <g data-anim=\"KIND\" data-pivot=\"x,y\"> where KIND is spin (propellers, wheels, rotors), "
     "flap (wings), sway (leaves, flags, tails, flames), flutter, bob, pulse, glow or twinkle (lights, stars), blink (eyes); "
     "data-pivot is the joint or axle point in the 0-100 box. At most 3 animated groups; leave everything else unwrapped.\n"
+    "- ANIMALS AND CREATURES: use a friendly simplified cartoon style, never realistic anatomy: a big rounded head (about a third "
+    "of the body height) with two large eyes facing the viewer, a smooth bean-shaped body, short simple legs as rounded rectangles, and "
+    "then the one or two signature features that make it instantly recognisable, drawn boldly (tiger: orange body, white muzzle, "
+    "bold black stripes on body and head, striped tail; giraffe: very long neck, tall legs, brown patches, small ossicones; zebra: "
+    "black and white stripes; elephant: trunk and big ears). Recognisability beats realism.\n"
     "- Draw ONLY the subject asked for: no planets, ground, water, sky or extra scenery unless the request names them.\n"
     "- Method: first decide the silhouette and its main parts with coordinates (e.g. a space station = central module, two long "
     "solar-panel wings, a docking ring, an antenna); then draw the big parts, then shading, then details. Use 18-30 shapes; "
@@ -1785,10 +1804,13 @@ def _clean_svg(text: str):
         return None
     return svg
 
-def _draw_once(spec: dict, effort: str):
-    _extra = {"reasoning_effort": effort} if DRAW_MODEL.startswith("openai/gpt-oss") else {}
+DRAW_FALLBACK = "openai/gpt-oss-120b"
+
+def _draw_once(spec: dict, effort: str, model: str = None):
+    model = model or DRAW_MODEL
+    _extra = {"reasoning_effort": effort} if model.startswith("openai/gpt-oss") else {}
     r = groq_client.chat.completions.create(
-        model=DRAW_MODEL, **_extra,
+        model=model, **_extra,
         messages=[{"role": "system", "content": DRAW_PROMPT},
                   {"role": "user", "content": f"Draw: {spec.get('what')}. It will {spec.get('motion', 'stay still')} "
                                               f"in the {spec.get('place', 'scene')} of an animated scene."}],
@@ -1804,23 +1826,109 @@ def _draw_once(spec: dict, effort: str):
 
 def draw_svg(spec: dict):
     """Returns (svg, None) or (None, reason). Tries the configured effort, then once more at medium if that fails."""
-    efforts = [DRAW_EFFORT] + (["medium"] if DRAW_EFFORT != "medium" and DRAW_MODEL.startswith("openai/gpt-oss") else [None])
-    for attempt, effort in enumerate(efforts):
+    # Plan: the chosen model, then (if that isn't gpt-oss) gpt-oss as a fallback, then gpt-oss at medium effort
+    plan = [(DRAW_MODEL, DRAW_EFFORT)]
+    if not DRAW_MODEL.startswith("openai/gpt-oss"):
+        plan.append((DRAW_FALLBACK, "high"))
+    plan.append((DRAW_FALLBACK, "medium"))
+    for attempt, (model, effort) in enumerate(plan):
         try:
-            text, finish = _draw_once(spec, effort or DRAW_EFFORT)
+            text, finish = _draw_once(spec, effort, model)
         except Exception as e:
-            print(f"[DRAW] failed: {e}", flush=True)
-            if attempt == len(efforts) - 1:
+            print(f"[DRAW] {model} failed: {str(e)[:300]}", flush=True)
+            if attempt == len(plan) - 1:
                 return None, "my drawing tools didn't respond this time; please ask me again in a moment"
             continue
         if text.upper().startswith("REFUSE"):
             return None, "that's someone else's character or design, so I can't draw it, but I'd be glad to draw an original design of my own instead"
         svg = _clean_svg(text)
         if svg:
-            print(f"[DRAW] {spec.get('name')} ({DRAW_MODEL}, effort {effort}, finish {finish}): {len(svg)} chars\n{svg}", flush=True)
+            print(f"[DRAW] {spec.get('name')} ({model}, effort {effort}, finish {finish}): {len(svg)} chars\n{svg}", flush=True)
             return svg, None
-        print(f"[DRAW] unusable ({DRAW_MODEL}, effort {effort}, finish {finish}, {len(text)} chars): {text[:300]!r}", flush=True)
+        print(f"[DRAW] unusable ({model}, effort {effort}, finish {finish}, {len(text)} chars): {text[:300]!r}", flush=True)
     return None, f"my drawing of the {spec.get('name') or 'that'} didn't come out right this time; please ask me again"
+
+# ---------- VQ's parts kit (VQ Art v5): animals assembled from hand-built parts ----------
+# Copied from the engine's capabilities() (milestone 1, quadruped rig). Refresh when the engine gains rigs and parts.
+ASSEMBLY_CAPS = json.loads('{"parts":{"head":{"shape":{"values":["round","oval","feline","canine","equine","bovine","ursine","rodent"],"default":"feline"},"width":{"min":0.65,"max":1.5,"default":1},"length":{"min":0.65,"max":1.5,"default":1},"roundness":{"min":0,"max":1,"default":0.5},"ears":{"values":["none","round","pointed","long","floppy","big","tufted"],"default":"round"},"eyes":{"values":["cartoon","simple","sleepy","closed"],"default":"simple"},"muzzle":{"values":["none","small","snout","trunk","smile"],"default":"small"},"extras":{"values":["short-horns","curved-horns","spiral-horns","antlers","ossicones","mane","crest","whiskers","tusks"],"default":[],"maxItems":3}},"neck":{"length":{"min":0,"max":1.8,"default":0.15},"thickness":{"min":0.35,"max":1.6,"default":0.8}},"body":{"shape":{"values":["bean","barrel","slender","long","round","woolly"],"default":"bean"},"length":{"min":0.65,"max":1.6,"default":1},"width":{"min":0.65,"max":1.5,"default":1}},"legs":{"type":{"values":["pawed","hoofed","clawed"],"default":"pawed"},"length":{"min":0.2,"max":1,"default":0.5},"thickness":{"min":0.5,"max":1.6,"default":0.9}},"tail":{"type":{"values":["none","thin","tufted","bushy","fluffy","reptile","curly"],"default":"thin"},"length":{"min":0.1,"max":1.4,"default":0.8},"width":{"min":0.5,"max":1.6,"default":1},"curve":{"min":-1,"max":1,"default":0.25}}},"pattern":{"kind":{"values":["none","stripes","spots","patches","rosettes","fur"],"default":"none"},"density":{"min":0,"max":1,"default":0.5},"scale":{"min":0.5,"max":2,"default":1},"contrast":{"min":0,"max":1,"default":0.85},"color":{"format":"#hex","default":"colors.detail"}},"motions":["idle","walk","graze","sit"]}')
+ANIMAL_PRESETS = ["tiger", "lion", "giraffe", "zebra", "elephant", "horse", "cow", "cat", "dog", "fox", "rabbit", "bear", "deer", "pig", "sheep"]
+
+def _caps_line():
+    p = ASSEMBLY_CAPS["parts"]
+    out = []
+    for part, fields in p.items():
+        bits = []
+        for f, spec in fields.items():
+            if "values" in spec:
+                bits.append(f"{f}: " + "/".join(spec["values"]))
+            else:
+                bits.append(f"{f}: {spec['min']}-{spec['max']}")
+        out.append(f"{part} ({'; '.join(bits)})")
+    pat = ASSEMBLY_CAPS["pattern"]
+    out.append("pattern (kind: " + "/".join(pat["kind"]["values"]) + "; density 0-1; scale 0.5-2)")
+    out.append("motion: " + "/".join(ASSEMBLY_CAPS["motions"]))
+    return "; ".join(out)
+
+def clean_recipe(r):
+    """Keep only known parts and values; clamp numbers. Returns (recipe, problems)."""
+    if not isinstance(r, dict):
+        return None, ["no recipe"]
+    probs, out = [], {"type": "assembly", "rig": "quadruped", "recipeVersion": 1}
+    hexok = lambda v: isinstance(v, str) and re.fullmatch(r"#?[0-9a-fA-F]{6}", v.strip()) is not None
+    parts = {}
+    for part, fields in ASSEMBLY_CAPS["parts"].items():
+        src = (r.get("parts") or {}).get(part) if isinstance(r.get("parts"), dict) else None
+        if not isinstance(src, dict):
+            continue
+        dst = {}
+        for f, spec in fields.items():
+            if f not in src:
+                continue
+            v = src[f]
+            if "values" in spec and f == "extras":
+                vals = [x for x in (v if isinstance(v, list) else [v]) if x in spec["values"]][:spec.get("maxItems", 3)]
+                if vals:
+                    dst[f] = list(dict.fromkeys(vals))
+            elif "values" in spec:
+                if v in spec["values"]:
+                    dst[f] = v
+                else:
+                    probs.append(f"{part}.{f}={v!r}")
+            else:
+                try:
+                    dst[f] = round(min(spec["max"], max(spec["min"], float(v))), 2)
+                except (TypeError, ValueError):
+                    probs.append(f"{part}.{f}={v!r}")
+        if dst:
+            parts[part] = dst
+    if parts:
+        out["parts"] = parts
+    cols = r.get("colors") if isinstance(r.get("colors"), dict) else {}
+    colors = {k: "#" + cols[k].strip().lstrip("#") for k in ("base", "underside", "detail", "eyes") if hexok(cols.get(k))}
+    if "base" not in colors:
+        return None, probs + ["colors.base missing"]
+    out["colors"] = colors
+    pat = r.get("pattern") if isinstance(r.get("pattern"), dict) else {}
+    if pat.get("kind") in ASSEMBLY_CAPS["pattern"]["kind"]["values"]:
+        pp = {"kind": pat["kind"]}
+        for k, lo, hi in (("density", 0, 1), ("scale", 0.5, 2), ("contrast", 0, 1)):
+            try:
+                if k in pat:
+                    pp[k] = round(min(hi, max(lo, float(pat[k]))), 2)
+            except (TypeError, ValueError):
+                pass
+        if hexok(pat.get("color")):
+            pp["color"] = "#" + pat["color"].strip().lstrip("#")
+        out["pattern"] = pp
+    if r.get("motion") in ASSEMBLY_CAPS["motions"]:
+        out["motion"] = r["motion"]
+    out["size"] = {"small": 95, "medium": 140, "large": 185}.get(str(r.get("scale") or "").lower(), 140)
+    try:
+        out["count"] = max(1, min(6, int(r.get("count") or 1)))
+    except (TypeError, ValueError):
+        out["count"] = 1
+    out["name"] = re.sub(r"[^\w '\-]", "", str(r.get("name") or "animal"))[:30].strip() or "animal"
+    return out, probs
 
 UI_SYSTEM_NOTE = (
     "\n\nSCREEN CONTROLS: You can change this app's display with the ui_action tool, but only when the user asks "
@@ -1842,6 +1950,11 @@ UI_SYSTEM_NOTE = (
     "cherry blossom), ferns, bushes, reeds, birds, falling petals, grass, mountains, stars, comet, planet, aurora, fireflies, snow, "
     "leaves, TV static, old-TV screen, TV set, mist, clouds, galaxy, nebula, constellations, waves, surf, falling code, orbits, vortex, "
     "tunnel, retro grid, circuit traces, comets, ripples, film grain.\n"
+    "ANIMALS: these are built in and free: " + ", ".join(ANIMAL_PRESETS) + ". For one of these, use theme_edit add with its name "
+    "(e.g. add 'giraffe', or 'walking tiger'), never draw. For any OTHER four-legged animal (wolf, hippo, rhino, camel, goat, donkey, "
+    "panda, cheetah, kangaroo is NOT four-legged), call ui_action with action creature and a recipe built only from the PARTS KIT: "
+    + _caps_line() + ". Think about what makes the animal recognisable (proportions, ears, tail, pattern, horns) and use natural "
+    "colours. Birds, fish, insects and other non-four-legged creatures: use draw for now.\n"
     "DRAWING YOUR OWN: if the user asks to add, draw or make something that is NOT in that list (a plane, a hot-air balloon, a lighthouse, "
     "a sailboat, a dragon of your own design), call ui_action with action draw: 'what' (a short concrete description of your own "
     "original design), 'name', 'motion', 'place', 'scale' (tiny, small, medium, large or huge, judged from its real-world size) and optionally 'count' (1-6). ONE drawing per request. More or fewer of an existing "
@@ -3716,6 +3829,11 @@ def chat():
                                 continue
                             if c["name"] == "ui_action":
                                 clean_ui, summary = validate_ui_action(args) if (offer_ui and rounds == 1) else (None, "not allowed now")
+                                if not clean_ui and args.get("action") == "creature" and offer_ui and rounds == 1:
+                                    # the recipe didn't fit the parts kit: draw the animal instead
+                                    _nm = re.sub(r"[^\w '\-]", "", str((args.get("recipe") or {}).get("name") or args.get("name") or "animal"))[:30] or "animal"
+                                    clean_ui, summary = validate_ui_action({"action": "draw", "what": f"a friendly {_nm}", "name": _nm,
+                                                                            "motion": "wander", "place": "ground", "scale": "medium"})
                                 if clean_ui and clean_ui.get("action") == "draw":
                                     yield _sse({"status": f"Drawing {clean_ui['name']}", "detail": clean_ui["what"][:60]})
                                     _svg, _why = draw_svg(clean_ui)
