@@ -1254,6 +1254,11 @@
         #face-body .face-bar { display: flex; flex-wrap: wrap; gap: 0.35rem; }
         .vq-face-bg { position: fixed; inset: 0; width: 100vw; height: 100vh; border: 0; z-index: 2; pointer-events: none; opacity: var(--face-bg-opacity, 0.32); color-scheme: dark; background: transparent; transition: opacity .6s; }
         .vq-face-bg[hidden] { display: none; }
+        /* Live skies glow through the app as light (screen blend), so dark panels stay dark and text stays readable */
+        .vq-live-sky { position: fixed; inset: 0; z-index: 2; pointer-events: none; mix-blend-mode: screen; opacity: calc(0.6 * var(--live-k, 1)); transition: opacity .6s; }
+        .vq-live-sky[hidden] { display: none; }
+        body[data-fx="medium"] .vq-live-sky { opacity: calc(0.42 * var(--live-k, 1)); }
+        body[data-fx="low"] .vq-live-sky { opacity: calc(0.25 * var(--live-k, 1)); }
         .look-btn[aria-pressed="true"] { color: #fff; border-color: rgba(var(--ui-accent-rgb),0.8); background: rgba(var(--ui-accent-rgb),0.18); }
         /* ---- Arrange mode: the scene comes to the front, the chat fades back ---- */
         body.arranging .vq-art-host { z-index: 420 !important; pointer-events: auto !important; opacity: 1 !important; cursor: grab; touch-action: none;
@@ -1559,6 +1564,6 @@
     <script src="js/vq-portraits.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-persona-bridge.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-run.js?v=2026-10-08-run"></script>
-    <script src="js/chat-app-test.js?v=2026-10-08-face"></script>
+    <script src="js/chat-app-test.js?v=2026-10-08-live2"></script>
 </body>
 </html>
