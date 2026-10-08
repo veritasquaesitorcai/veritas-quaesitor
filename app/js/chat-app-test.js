@@ -2510,10 +2510,18 @@
             const o = { type: e.type };
             ['species', 'style', 'kind', 'area'].forEach(k => { if (typeof e[k] === 'string' && /^[a-z\-]{2,20}$/.test(e[k])) o[k] = e[k]; });
             ['count', 'size', 'speed', 'density'].forEach(k => { if (typeof e[k] === 'number' && isFinite(e[k])) o[k] = e[k]; });
-            if (Array.isArray(e.colors)) o.colors = e.colors.filter(isHex).slice(0, 6).map(c => '#' + c.replace('#', ''));
+            if (Array.isArray(e.colors) && e.type !== 'assembly') o.colors = e.colors.filter(isHex).slice(0, 6).map(c => '#' + c.replace('#', ''));
             if (['near', 'mid', 'far', 'auto'].includes(e.depth)) o.depth = e.depth;
             // Arranged by hand: where each one stands (fractions of the scene)
             if (Array.isArray(e.positions)) o.positions = e.positions.slice(0, 80).map(p => Array.isArray(p) && p.length === 2 && p.every(v => typeof v === 'number' && v >= 0 && v <= 1) ? [p[0], p[1]] : null);
+            if (e.type === 'assembly') {   // an animal from the parts kit: the scene engine checks the recipe in full
+                if (typeof e.name === 'string') o.name = e.name.replace(/[^\w '\-]/g, '').slice(0, 40) || 'animal';
+                ['rig', 'motion', 'posture'].forEach(k => { if (typeof e[k] === 'string' && /^[a-z\-]{2,20}$/.test(e[k])) o[k] = e[k]; });
+                if (typeof e.recipeVersion === 'number') o.recipeVersion = e.recipeVersion;
+                ['parts', 'colors', 'pattern'].forEach(k => { if (e[k] && typeof e[k] === 'object') o[k] = JSON.parse(JSON.stringify(e[k])); });
+                delete o.species; delete o.style; delete o.kind;
+                if (!o.colors || !o.name) return null;
+            }
             if (e.type === 'custom') {   // one of VQ's drawings: its shapes are checked again by the scene engine before drawing
                 if (typeof e.name === 'string') o.name = e.name.replace(/[^\w '\-]/g, '').slice(0, 40) || 'drawing';
                 if (typeof e.what === 'string') o.what = e.what.slice(0, 240);
@@ -2911,7 +2919,11 @@
     }
 
     // ---------- VQ Art: animated flowers, butterflies, trees and more, added one at a time ----------
-    const ART_TYPES = ['flower', 'butterfly', 'tree', 'fern', 'bush', 'reeds', 'bird', 'falling-petals', 'custom'];
+    const ART_TYPES = ['flower', 'butterfly', 'tree', 'fern', 'bush', 'reeds', 'bird', 'falling-petals', 'custom', 'assembly'];
+    // Animals built from the coder's parts kit (VQ Art v5): free, instant presets; VQ can assemble others from the same parts
+    const ANIMALS = {"tiger":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"feline","ears":"round","eyes":"simple","extras":["whiskers"]},"body":{"shape":"barrel","length":1.2},"legs":{"length":0.45},"tail":{"length":0.9}},"colors":{"base":"#E8892E","underside":"#F7EFE2","detail":"#29251F","eyes":"#354A31"},"pattern":{"kind":"stripes","density":0.7},"type":"assembly","name":"tiger","size":145},"lion":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"feline","ears":"round","extras":["mane","whiskers"]},"body":{"shape":"barrel"},"legs":{"length":0.55},"tail":{"type":"tufted","length":1}},"colors":{"base":"#CCA35C","underside":"#F0D9A2","detail":"#81562F","eyes":"#493928"},"type":"assembly","name":"lion","size":150},"giraffe":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"bovine","ears":"pointed","muzzle":"snout","width":0.72,"extras":["ossicones"]},"neck":{"length":1.65,"thickness":0.85},"body":{"shape":"slender"},"legs":{"type":"hoofed","length":1,"thickness":0.75},"tail":{"type":"tufted"}},"colors":{"base":"#E1B961","underside":"#F3DFAB","detail":"#86532A","eyes":"#2F2923"},"pattern":{"kind":"patches","density":1,"scale":1.2},"type":"assembly","name":"giraffe","size":200},"zebra":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"equine","ears":"pointed","muzzle":"snout","extras":["crest"]},"neck":{"length":0.5,"thickness":1.2},"body":{"shape":"barrel"},"legs":{"type":"hoofed","length":0.7},"tail":{"type":"tufted"}},"colors":{"base":"#EAE7DA","underside":"#F4EFDF","detail":"#323438","eyes":"#292B30"},"pattern":{"kind":"stripes","density":0.8,"scale":0.9,"contrast":1},"type":"assembly","name":"zebra","size":160},"elephant":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"round","ears":"big","muzzle":"trunk","width":1.15,"extras":["tusks"]},"neck":{"length":0,"thickness":1.5},"body":{"shape":"barrel","width":1.35,"length":1.3},"legs":{"length":0.6,"thickness":1.6},"tail":{"type":"tufted","length":0.55}},"colors":{"base":"#91A2A9","underside":"#D8D1B4","detail":"#445764","eyes":"#24303C"},"type":"assembly","name":"elephant","size":190},"horse":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"equine","ears":"pointed","muzzle":"snout","extras":["crest"]},"neck":{"length":0.65,"thickness":1.4},"body":{"shape":"barrel","length":1.15},"legs":{"type":"hoofed","length":0.8,"thickness":0.75},"tail":{"type":"bushy","length":1.1,"curve":-1,"width":0.7}},"colors":{"base":"#936447","underside":"#DECBAA","detail":"#382D2C","eyes":"#28241F"},"type":"assembly","name":"horse","size":165},"cow":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"bovine","ears":"floppy","muzzle":"snout","extras":["curved-horns"]},"neck":{"length":0.2,"thickness":1.35},"body":{"shape":"barrel","width":1.15,"length":1.2},"legs":{"type":"hoofed","length":0.55},"tail":{"type":"tufted"}},"colors":{"base":"#E9E1CD","underside":"#D2AC9B","detail":"#3B3937","eyes":"#272927"},"pattern":{"kind":"patches","density":0.4,"scale":2,"contrast":1},"type":"assembly","name":"cow","size":160},"cat":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"feline","ears":"pointed","extras":["whiskers"],"eyes":"cartoon"},"body":{"shape":"slender"},"legs":{"length":0.45,"thickness":0.75},"tail":{"type":"thin","length":1.15,"curve":0.9}},"colors":{"base":"#B59070","underside":"#EEE0C1","detail":"#614B3A","eyes":"#698457"},"pattern":{"kind":"stripes","density":0.4},"type":"assembly","name":"cat","size":105},"dog":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"canine","ears":"floppy","muzzle":"snout"},"neck":{"length":0.15},"body":{"shape":"long","length":1.1},"legs":{"length":0.45},"tail":{"type":"thin","curve":0.7}},"colors":{"base":"#AF7950","underside":"#EBDDCC","detail":"#523E33","eyes":"#302A25"},"pattern":{"kind":"patches","density":0.25,"scale":2},"type":"assembly","name":"dog","size":125},"fox":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"canine","ears":"pointed","muzzle":"snout","length":0.85},"body":{"shape":"slender"},"legs":{"length":0.5,"thickness":0.65},"tail":{"type":"bushy","length":1.35,"width":1.4,"curve":-0.5}},"colors":{"base":"#BF6736","underside":"#EDE2CE","detail":"#483A35","eyes":"#41372B"},"type":"assembly","name":"fox","size":110},"rabbit":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"rodent","ears":"long","muzzle":"small","extras":["whiskers"]},"body":{"shape":"round","length":0.9},"legs":{"length":0.2,"thickness":1.1},"tail":{"type":"fluffy","length":0.2}},"colors":{"base":"#B6A291","underside":"#E9DFCD","detail":"#786556","eyes":"#3F3531"},"pattern":{"kind":"fur","density":0.7},"type":"assembly","name":"rabbit","size":95},"bear":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"ursine","ears":"round","muzzle":"snout","width":1.2},"neck":{"length":0,"thickness":1.6},"body":{"shape":"barrel","width":1.2},"legs":{"type":"clawed","length":0.35,"thickness":1.5},"tail":{"type":"fluffy","width":0.65,"length":0.1}},"colors":{"base":"#76533C","underside":"#B0956B","detail":"#40372D","eyes":"#282721"},"pattern":{"kind":"fur","density":0.65},"type":"assembly","name":"bear","size":165},"deer":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"oval","ears":"pointed","muzzle":"snout","width":0.8,"extras":["antlers"]},"neck":{"length":0.6,"thickness":0.65},"body":{"shape":"slender"},"legs":{"type":"hoofed","length":0.85,"thickness":0.6},"tail":{"type":"fluffy","width":0.65,"length":0.15}},"colors":{"base":"#AA7F4B","underside":"#EBD8AD","detail":"#66503A","eyes":"#363024"},"pattern":{"kind":"spots","color":"#F5E6BF","density":0.3},"type":"assembly","name":"deer","size":150},"pig":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"round","ears":"floppy","muzzle":"snout","length":0.9},"body":{"shape":"barrel","width":1.2},"legs":{"type":"hoofed","length":0.25,"thickness":1.2},"tail":{"type":"curly","length":0.3}},"colors":{"base":"#DDA69A","underside":"#F1C8B0","detail":"#9A675F","eyes":"#503C38"},"type":"assembly","name":"pig","size":115},"sheep":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"oval","ears":"floppy","muzzle":"small","extras":["spiral-horns"],"width":0.8},"body":{"shape":"round","length":1.25,"width":1.15},"legs":{"type":"hoofed","length":0.4,"thickness":0.7},"tail":{"type":"fluffy","length":0.15}},"colors":{"base":"#DFD7BD","underside":"#F0E9D5","detail":"#8C8066","eyes":"#3A3B34"},"pattern":{"kind":"fur","density":1,"scale":1.5},"type":"assembly","name":"sheep","size":115}};
+    const ANIMAL_WORDS = { tiger: 'tigers?', lion: 'lions?|lioness', giraffe: 'giraffes?', zebra: 'zebras?', elephant: 'elephants?', horse: 'horses?|ponies|pony', cow: 'cows?|cattle',
+        cat: 'cats?|kittens?|kitty', dog: 'dogs?|pupp(y|ies)|doggy', fox: 'fox(es)?', rabbit: 'rabbits?|bunn(y|ies)|hares?', bear: 'bears?', deer: 'deer|stags?|fawns?', pig: 'pigs?|piglets?', sheep: 'sheep|lambs?|rams?' };
     let artEngine = null, artKey = '', artIdIndex = {};
     // Nature keeps its own colours whatever the theme: roses red, sunflowers yellow, leaves green
     const NATURAL = {
@@ -2965,7 +2977,7 @@
             // gets a modest number (fewer when several types share the space) so nothing smothers the rest
             const PLANTS = ['tree', 'bush', 'fern', 'reeds', 'flower'];
             const plantTypes = list.filter(e => PLANTS.includes(e.type)).length || 1;
-            const DEPTH = { tree: 'far', bush: 'mid', fern: 'mid', reeds: 'mid', flower: 'near' };
+            const DEPTH = { tree: 'far', bush: 'mid', fern: 'mid', reeds: 'mid', flower: 'near', assembly: 'mid' };
             const BASE = { flower: 12, tree: 4, fern: 8, bush: 5, reeds: 14, butterfly: 6, bird: 10, 'falling-petals': 28 };
             const share = (type) => PLANTS.includes(type) ? Math.max(type === 'tree' ? 2 : 4, Math.round(BASE[type] / Math.sqrt(plantTypes))) : BASE[type];
             let seedN = 0;
@@ -2975,7 +2987,7 @@
                 e = Object.assign({}, e);
                 delete e.what;   // VQ's own description of a drawing: kept for the theme, not for the engine
                 if (Array.isArray(e.positions) && typeof e.count === 'number') e.positions = e.positions.slice(0, e.count);
-                const variant = e.type === 'custom' ? String(e.name || 'drawing').toLowerCase() : (e.species || e.style || e.kind || 'any');
+                const variant = (e.type === 'custom' || e.type === 'assembly') ? String(e.name || e.type).toLowerCase() : (e.species || e.style || e.kind || 'any');
                 const base = `${e.type}-${variant}`.replace(/[^a-zA-Z0-9_-]/g, '-');
                 seen[base] = (seen[base] || 0) + 1;
                 const flying = ['butterfly', 'bird', 'falling-petals', 'custom'].includes(e.type);
@@ -2986,10 +2998,10 @@
                     size: e.type === 'tree' ? 150 : undefined,
                     seed: 1000 + seedN * 7919,
                     id: 'a' + base + (seen[base] > 1 ? '-' + seen[base] : ''),
-                    colors: e.type === 'custom' ? undefined : artPalette(e),
+                    colors: (e.type === 'custom' || e.type === 'assembly') ? undefined : artPalette(e),
                     spawn: 'grow',
                     // the scene responds to VQ: a soft glow while thinking, a gentle pulse while answering
-                    react: flying ? { onThink: { kind: 'glow', amount: 0.35, speed: 0.7 }, onSpeak: { kind: 'pulse', amount: 0.15, speed: 1 } }
+                    react: e.type === 'assembly' ? undefined : flying ? { onThink: { kind: 'glow', amount: 0.35, speed: 0.7 }, onSpeak: { kind: 'pulse', amount: 0.15, speed: 1 } }
                                   : { onThink: { kind: 'glow', amount: 0.25, speed: 0.6 }, onSpeak: { kind: 'sway', amount: 0.25, speed: 1.2 } }
                 }, e);
             }).map(o => { Object.keys(o).forEach(k => o[k] === undefined && delete o[k]); return o; }).map(o => placeDrawing(o, host));
@@ -3410,6 +3422,31 @@
         } finally { holder.remove(); }
     }
     window.VQScene = { engine: () => artEngine, ids: () => Object.assign({}, artIdIndex), arrange: (on) => setArrange(on !== false), convert: svgToCustom };   // for testing and tinkering
+    // An animal VQ assembled from the parts kit: checked by the scene engine, then added like any other element
+    function addCreature(act) {
+        const r = act.recipe && typeof act.recipe === 'object' ? JSON.parse(JSON.stringify(act.recipe)) : null;
+        if (!r) return { ok: false, name: act.name || 'that animal', error: 'the recipe was missing' };
+        const el2 = Object.assign({ type: 'assembly', rig: 'quadruped', recipeVersion: 1, count: 1, size: 150, motion: 'idle' }, r, { type: 'assembly' });
+        el2.name = String(el2.name || act.name || 'animal').replace(/[^\w '\-]/g, '').slice(0, 40) || 'animal';
+        if (window.VQArt) {
+            const probe = document.createElement('div');
+            probe.style.cssText = 'position:fixed;left:-10000px;top:0;width:300px;height:200px;';
+            document.body.appendChild(probe);
+            try {
+                const t = window.VQArt.create({ root: probe }), res = t.render({ elements: [Object.assign({ id: 'probe' }, el2)] });
+                t.dispose();
+                if (!res.ok) return { ok: false, name: el2.name, error: 'its recipe didn’t fit my parts (' + String(res.error || '').slice(0, 140) + ')' };
+            } finally { probe.remove(); }
+        }
+        const sp = currentThemeSpec();
+        sp.art = sp.art || [];
+        const same = sp.art.findIndex(e => e.type === 'assembly' && String(e.name || '').toLowerCase() === el2.name.toLowerCase());
+        if (same >= 0) sp.art[same] = el2;
+        else if (sp.art.length >= 8) return { ok: false, full: true, name: el2.name };
+        else sp.art.push(el2);
+        const inst = installTheme(sp);
+        return { ok: true, name: el2.name, theme: inst.spec.name, count: el2.count, creature: true };
+    }
     // Put a drawing into the current theme (replacing an earlier drawing of the same name)
     function addDrawing(act) {
         const conv = svgToCustom(act.svg, { name: act.name, motion: act.motion, place: act.place, count: act.count, size: act.draw_size });
@@ -3429,7 +3466,7 @@
         const w = String(words || '').toLowerCase().replace(/\b(the|a|an|my|your|some|all)\b/g, ' ').replace(/[^a-z0-9 \-']/g, ' ').trim();
         if (!w) return -1;
         const stem = s => s.replace(/(es|s)$/, '');
-        return (art || []).findIndex(e => e && e.type === 'custom' && (() => {
+        return (art || []).findIndex(e => e && (e.type === 'custom' || e.type === 'assembly') && (() => {
             const n = String(e.name || '').toLowerCase();
             return n === w || stem(n) === stem(w) || n.split(/\s+/).some(t => t.length > 2 && w.split(/\s+/).some(u => stem(u) === stem(t)));
         })());
@@ -3445,6 +3482,14 @@
         const has = (w) => new RegExp(`\\b(${w})\\b`).test(t);
         const named = (type, extra) => { if (!colors.length) return {}; const nat = artPalette(Object.assign({ type }, extra || {})).slice(); nat[1] = colors[0]; if (colors[1] && nat.length > 2) nat[2] = colors[1]; return { colors: nat }; };
         const art = (type, extra) => ({ kind: 'art', item: Object.assign({ type }, extra || {}, num ? { count: +num } : {}, named(type, extra)) });
+        const animal = Object.keys(ANIMAL_WORDS).find(k => has(ANIMAL_WORDS[k]));
+        if (animal) {
+            const item = JSON.parse(JSON.stringify(ANIMALS[animal]));
+            if (num) item.count = Math.max(1, Math.min(6, +num));
+            const mo = has('walking|walk|roaming') ? 'walk' : has('grazing|graze|eating') ? 'graze' : has('sitting|sit') ? 'sit' : null;
+            if (mo) item.motion = mo;
+            return { kind: 'art', item };
+        }
         const species = ['daisy', 'tulip', 'rose', 'poppy', 'lavender', 'sunflower', 'wildflower', 'lily'];
         const sp = species.find(x => has(x + '|' + x + 's|' + x.replace(/y$/, 'ies')));
         if (sp || has('flowers?|blooms?|blossoms') && !has('cherry')) return art('flower', sp ? { species: sp } : {});
@@ -3493,7 +3538,8 @@
             } else if (!it) out.missing = edit.add;
             else if (it.kind === 'art') {
                 if (edit.count) it.item.count = edit.count;
-                const same = sp.art.findIndex(e => e.type === it.item.type && (e.species || e.style || e.kind || '') === (it.item.species || it.item.style || it.item.kind || ''));
+                const vkey = (e) => (e.type === 'assembly' || e.type === 'custom') ? String(e.name || '').toLowerCase() : (e.species || e.style || e.kind || '');
+                const same = sp.art.findIndex(e => e.type === it.item.type && vkey(e) === vkey(it.item));
                 if (same >= 0) sp.art[same] = Object.assign(sp.art[same], it.item);
                 else if (sp.art.length >= 8) out.full = true; else sp.art.push(it.item);
                 out.added = edit.add;
@@ -3508,9 +3554,10 @@
         if (edit.remove) {
             const it = parseItem(edit.remove);
             const before = sp.art.length + sp.effects.length + sp.layers.length;
-            const dIdx = findDrawing(sp.art, edit.remove);
+            const dIdx = it ? -1 : findDrawing(sp.art, edit.remove);
             if (dIdx >= 0) sp.art.splice(dIdx, 1);
-            if (it && it.kind === 'art') sp.art = sp.art.filter(e => e.type !== it.item.type || (it.item.species && e.species !== it.item.species) || (it.item.style && e.style !== it.item.style) || (it.item.kind && e.kind !== it.item.kind));
+            if (it && it.kind === 'art' && it.item.type === 'assembly') sp.art = sp.art.filter(e => !(e.type === 'assembly' && String(e.name).toLowerCase() === it.item.name));
+            else if (it && it.kind === 'art') sp.art = sp.art.filter(e => e.type !== it.item.type || (it.item.species && e.species !== it.item.species) || (it.item.style && e.style !== it.item.style) || (it.item.kind && e.kind !== it.item.kind));
             if (it && it.kind === 'fx') sp.effects = sp.effects.filter(e => e !== it.type);
             if (it && it.kind === 'tk') sp.layers = sp.layers.filter(l => l.type !== it.type);
             if (sp.art.length + sp.effects.length + sp.layers.length < before) out.removed = edit.remove;
@@ -3651,6 +3698,10 @@
             ['Monarch butterflies', 'add monarch butterflies'], ['Blue butterflies', 'add blue butterflies'], ['Swallowtails', 'add swallowtail butterflies'], ['Moths', 'add moths'],
             ['Pine trees', 'add pine trees'], ['Oaks', 'add oak trees'], ['Birches', 'add birch trees'], ['Palms', 'add palm trees'], ['Willows', 'add willow trees'], ['Cherry blossom', 'add cherry blossom trees'],
             ['Ferns', 'add ferns'], ['Bushes', 'add bushes'], ['Reeds', 'add reeds'], ['Birds', 'add birds'], ['Falling petals', 'add falling petals']]);
+        section('Animals', 'Animated animals built from VQ’s parts kit: they breathe, blink, look around and can walk, graze or sit. Free and instant. Ask VQ for other four-legged animals (“a wolf”, “a hippo”) and he assembles one from the same parts. Birds, fish and insects are coming next.', [
+            ['Tiger', 'add a tiger'], ['Lion', 'add a lion'], ['Giraffe', 'add a giraffe'], ['Zebra', 'add a zebra'], ['Elephant', 'add an elephant'], ['Horse', 'add a horse'], ['Cow', 'add a cow'],
+            ['Cat', 'add a cat'], ['Dog', 'add a dog'], ['Fox', 'add a fox'], ['Rabbit', 'add a rabbit'], ['Bear', 'add a bear'], ['Deer', 'add a deer'], ['Pig', 'add a pig'], ['Sheep', 'add a sheep'],
+            ['“make the tiger walk”', null], ['“let the cow graze”', null], ['“the dog should sit”', null], ['“make the giraffe bigger”', null], ['“remove the lion”', null]]);
         section('VQ draws his own', 'Want something that isn’t in the lists? Ask VQ to draw it. He designs his own original version, and its parts move: propellers spin, wings flap, lights twinkle. Say what it is, and optionally how many and where (“2 hot-air balloons in the sky”). He picks a size that suits it (a butterfly small, a lighthouse large); say “make the … bigger” or “smaller” to adjust it, free. One drawing per request; each uses a message. He can’t draw real people, known characters or brands, but he can make an original one of his own.', [
             ['Hot-air balloon', 'draw a hot-air balloon'], ['Plane flying past', 'draw a small plane flying past'], ['Lighthouse', 'draw a lighthouse'],
             ['Sailboat', 'draw a sailboat'], ['Kite', 'draw a kite'], ['Windmill', 'draw a windmill'], ['Little cottage', 'draw a little cottage'],
@@ -3950,6 +4001,11 @@
             }
             case 'theme_edit': {
                 act._edit = editTheme(act.edit || {});
+                break;
+            }
+            case 'creature': {
+                act._draw = addCreature(act);
+                if (!act._draw.ok) uiUndo.pop();
                 break;
             }
             case 'draw': {
@@ -5282,11 +5338,13 @@
                     lines.push('Add or remove one thing at a time, for example “add butterflies” or “remove the comet”.');
                     break;
                 }
+                case 'creature':
                 case 'draw': {
                     const r = a._draw || {};
                     used.add('theme');
                     if (r.ok) {
-                        lines.push(`I drew **${r.name}**${r.count > 1 ? ` (${r.count} of them)` : ''} and added it to **${r.theme}**. It’s my own design, so it may look a little hand-made.`);
+                        lines.push(r.creature ? `I put together **${r.name}**${r.count > 1 ? ` (${r.count} of them)` : ''} from my animal parts and added it to **${r.theme}**. Say “make the ${r.name} walk”, “graze” or “sit” to change what it does.`
+                            : `I drew **${r.name}**${r.count > 1 ? ` (${r.count} of them)` : ''} and added it to **${r.theme}**. It’s my own design, so it may look a little hand-made.`);
                         lines.push('Tap **✥ Arrange** under the message box (or say “arrange”) to drag it where you like, or drop it on the bin to remove it.');
                     } else if (r.full) lines.push(`There’s no room for **${r.name}**: a theme holds up to 8 scene elements. Remove something first.`);
                     else lines.push(`I tried to draw **${r.name || 'that'}**, but ${r.error || 'it didn’t work'}. Try describing it a little more simply.`);
@@ -5394,9 +5452,22 @@
             return;
         }
         // "add …" / "remove …": one element at a time, free and instant when the element is known
-        const addM = rawMessage.match(/^\s*(?:please\s+)?(?:add|put|include|bring in|give me)\s+(?:some\s+|a few\s+|a\s+|an\s+|more\s+)?(.{2,40}?)\s*(?:to (?:the |my )?(?:theme|screen|background|scene))?\s*[.!]?\s*$/i);
+        const addM = rawMessage.match(/^\s*(?:please\s+)?(?:add|put|include|bring in|give me|draw|paint|sketch)\s+(?:some\s+|a few\s+|a\s+|an\s+|more\s+)?(.{2,40}?)\s*(?:to (?:the |my )?(?:theme|screen|background|scene))?\s*[.!]?\s*$/i);
         const remM = rawMessage.match(/^\s*(?:please\s+)?(?:remove|delete|hide|take away|get rid of|no more)\s+(?:the\s+|all\s+(?:the\s+)?|my\s+)?(.{2,40}?)\s*[.!]?\s*$/i);
         const drawnArt = (customSpec(uiPrefs.theme) || {}).art || [];
+        // "make the tiger walk" / "let the giraffe graze" / "the lion should sit": how an animal moves, free
+        const moveM = pm.match(/^(?:make |let |have )?(?:the |my )?(.{2,30}?) (?:should )?(walk|walk around|roam|graze|eat|sit|sit down|stand|stand still|stop|idle|rest)(?: please)?$/);
+        const moveIdx = moveM ? drawnArt.findIndex(e => e.type === 'assembly' && findDrawing([e], moveM[1]) === 0) : -1;
+        if (moveM && moveIdx >= 0) {
+            elements.messageInput.value = '';
+            uiUndo.push(snapshotUI());
+            const sp = currentThemeSpec(), d = sp.art[moveIdx];
+            const w = moveM[2];
+            d.motion = /walk|roam/.test(w) ? 'walk' : /graze|eat/.test(w) ? 'graze' : /sit/.test(w) ? 'sit' : 'idle';
+            installTheme(sp); saveUIPrefs(); applyUIPrefs();
+            showLocalNote(`The ${d.name} is ${{ walk: 'walking around', graze: 'grazing', sit: 'sitting', idle: 'standing still' }[d.motion]}`);
+            return;
+        }
         // "make the rocket bigger" / "make the balloons smaller": resize one of VQ's drawings, free
         const sizeM = pm.match(/^(?:make |can you make )?(?:the |my |those |these )?(.{2,30}?) (bigger|larger|smaller|much bigger|much smaller|a bit bigger|a bit smaller)(?: please)?$/);
         if (sizeM && findDrawing(drawnArt, sizeM[1]) >= 0) {
