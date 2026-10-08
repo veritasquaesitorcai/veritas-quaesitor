@@ -1,4 +1,4 @@
-/* VQ Art v5.0.0-m1 — Parts Kit milestone 1: quadrupeds. Full v4 API. No libraries/network. */
+/* VQ Art v5.0.0-m1 — Parts Kit milestone 1: quadrupeds. Full v4 API. No libraries/network. */ 
 (function(global){'use strict';
 const TYPES=['flower','butterfly','tree','fern','bush','reeds','bird','falling-petals','custom','assembly'];
 const SPECIES=['daisy','tulip','rose','poppy','lavender','sunflower','wildflower','lily'];
