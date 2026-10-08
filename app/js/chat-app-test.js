@@ -2516,7 +2516,10 @@
             if (Array.isArray(e.positions)) o.positions = e.positions.slice(0, 80).map(p => Array.isArray(p) && p.length === 2 && p.every(v => typeof v === 'number' && v >= 0 && v <= 1) ? [p[0], p[1]] : null);
             if (e.type === 'assembly') {   // an animal from the parts kit: the scene engine checks the recipe in full
                 if (typeof e.name === 'string') o.name = e.name.replace(/[^\w '\-]/g, '').slice(0, 40) || 'animal';
-                ['rig', 'motion', 'posture'].forEach(k => { if (typeof e[k] === 'string' && /^[a-z\-]{2,20}$/.test(e[k])) o[k] = e[k]; });
+                if (e.social && typeof e.social === 'object' && ['chase', 'flee', 'follow', 'play', 'herd'].includes(e.social.kind))
+                    o.social = { kind: e.social.kind, target: String(e.social.target || '').slice(0, 40), style: e.social.style === 'hunt' ? 'hunt' : 'playful' };
+                if (e.pointer === 'chase' || e.pointer === 'flee') o.pointer = e.pointer;
+                ['rig', 'motion', 'posture', 'gait', 'material'].forEach(k => { if (typeof e[k] === 'string' && /^[a-z\-]{2,20}$/.test(e[k])) o[k] = e[k]; });
                 if (typeof e.recipeVersion === 'number') o.recipeVersion = e.recipeVersion;
                 ['parts', 'colors', 'pattern'].forEach(k => { if (e[k] && typeof e[k] === 'object') o[k] = JSON.parse(JSON.stringify(e[k])); });
                 delete o.species; delete o.style; delete o.kind;
@@ -2921,9 +2924,27 @@
     // ---------- VQ Art: animated flowers, butterflies, trees and more, added one at a time ----------
     const ART_TYPES = ['flower', 'butterfly', 'tree', 'fern', 'bush', 'reeds', 'bird', 'falling-petals', 'custom', 'assembly'];
     // Animals built from the coder's parts kit (VQ Art v5): free, instant presets; VQ can assemble others from the same parts
-    const ANIMALS = {"tiger":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"feline","ears":"round","eyes":"simple","extras":["whiskers"]},"body":{"shape":"barrel","length":1.2},"legs":{"length":0.45},"tail":{"length":0.9}},"colors":{"base":"#E8892E","underside":"#F7EFE2","detail":"#29251F","eyes":"#354A31"},"pattern":{"kind":"stripes","density":0.7},"type":"assembly","name":"tiger","size":145},"lion":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"feline","ears":"round","extras":["mane","whiskers"]},"body":{"shape":"barrel"},"legs":{"length":0.55},"tail":{"type":"tufted","length":1}},"colors":{"base":"#CCA35C","underside":"#F0D9A2","detail":"#81562F","eyes":"#493928"},"type":"assembly","name":"lion","size":150},"giraffe":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"bovine","ears":"pointed","muzzle":"snout","width":0.72,"extras":["ossicones"]},"neck":{"length":1.65,"thickness":0.85},"body":{"shape":"slender"},"legs":{"type":"hoofed","length":1,"thickness":0.75},"tail":{"type":"tufted"}},"colors":{"base":"#E1B961","underside":"#F3DFAB","detail":"#86532A","eyes":"#2F2923"},"pattern":{"kind":"patches","density":1,"scale":1.2},"type":"assembly","name":"giraffe","size":200},"zebra":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"equine","ears":"pointed","muzzle":"snout","extras":["crest"]},"neck":{"length":0.5,"thickness":1.2},"body":{"shape":"barrel"},"legs":{"type":"hoofed","length":0.7},"tail":{"type":"tufted"}},"colors":{"base":"#EAE7DA","underside":"#F4EFDF","detail":"#323438","eyes":"#292B30"},"pattern":{"kind":"stripes","density":0.8,"scale":0.9,"contrast":1},"type":"assembly","name":"zebra","size":160},"elephant":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"round","ears":"big","muzzle":"trunk","width":1.15,"extras":["tusks"]},"neck":{"length":0,"thickness":1.5},"body":{"shape":"barrel","width":1.35,"length":1.3},"legs":{"length":0.6,"thickness":1.6},"tail":{"type":"tufted","length":0.55}},"colors":{"base":"#91A2A9","underside":"#D8D1B4","detail":"#445764","eyes":"#24303C"},"type":"assembly","name":"elephant","size":190},"horse":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"equine","ears":"pointed","muzzle":"snout","extras":["crest"]},"neck":{"length":0.65,"thickness":1.4},"body":{"shape":"barrel","length":1.15},"legs":{"type":"hoofed","length":0.8,"thickness":0.75},"tail":{"type":"bushy","length":1.1,"curve":-1,"width":0.7}},"colors":{"base":"#936447","underside":"#DECBAA","detail":"#382D2C","eyes":"#28241F"},"type":"assembly","name":"horse","size":165},"cow":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"bovine","ears":"floppy","muzzle":"snout","extras":["curved-horns"]},"neck":{"length":0.2,"thickness":1.35},"body":{"shape":"barrel","width":1.15,"length":1.2},"legs":{"type":"hoofed","length":0.55},"tail":{"type":"tufted"}},"colors":{"base":"#E9E1CD","underside":"#D2AC9B","detail":"#3B3937","eyes":"#272927"},"pattern":{"kind":"patches","density":0.4,"scale":2,"contrast":1},"type":"assembly","name":"cow","size":160},"cat":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"feline","ears":"pointed","extras":["whiskers"],"eyes":"cartoon"},"body":{"shape":"slender"},"legs":{"length":0.45,"thickness":0.75},"tail":{"type":"thin","length":1.15,"curve":0.9}},"colors":{"base":"#B59070","underside":"#EEE0C1","detail":"#614B3A","eyes":"#698457"},"pattern":{"kind":"stripes","density":0.4},"type":"assembly","name":"cat","size":105},"dog":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"canine","ears":"floppy","muzzle":"snout"},"neck":{"length":0.15},"body":{"shape":"long","length":1.1},"legs":{"length":0.45},"tail":{"type":"thin","curve":0.7}},"colors":{"base":"#AF7950","underside":"#EBDDCC","detail":"#523E33","eyes":"#302A25"},"pattern":{"kind":"patches","density":0.25,"scale":2},"type":"assembly","name":"dog","size":125},"fox":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"canine","ears":"pointed","muzzle":"snout","length":0.85},"body":{"shape":"slender"},"legs":{"length":0.5,"thickness":0.65},"tail":{"type":"bushy","length":1.35,"width":1.4,"curve":-0.5}},"colors":{"base":"#BF6736","underside":"#EDE2CE","detail":"#483A35","eyes":"#41372B"},"type":"assembly","name":"fox","size":110},"rabbit":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"rodent","ears":"long","muzzle":"small","extras":["whiskers"]},"body":{"shape":"round","length":0.9},"legs":{"length":0.2,"thickness":1.1},"tail":{"type":"fluffy","length":0.2}},"colors":{"base":"#B6A291","underside":"#E9DFCD","detail":"#786556","eyes":"#3F3531"},"pattern":{"kind":"fur","density":0.7},"type":"assembly","name":"rabbit","size":95},"bear":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"ursine","ears":"round","muzzle":"snout","width":1.2},"neck":{"length":0,"thickness":1.6},"body":{"shape":"barrel","width":1.2},"legs":{"type":"clawed","length":0.35,"thickness":1.5},"tail":{"type":"fluffy","width":0.65,"length":0.1}},"colors":{"base":"#76533C","underside":"#B0956B","detail":"#40372D","eyes":"#282721"},"pattern":{"kind":"fur","density":0.65},"type":"assembly","name":"bear","size":165},"deer":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"oval","ears":"pointed","muzzle":"snout","width":0.8,"extras":["antlers"]},"neck":{"length":0.6,"thickness":0.65},"body":{"shape":"slender"},"legs":{"type":"hoofed","length":0.85,"thickness":0.6},"tail":{"type":"fluffy","width":0.65,"length":0.15}},"colors":{"base":"#AA7F4B","underside":"#EBD8AD","detail":"#66503A","eyes":"#363024"},"pattern":{"kind":"spots","color":"#F5E6BF","density":0.3},"type":"assembly","name":"deer","size":150},"pig":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"round","ears":"floppy","muzzle":"snout","length":0.9},"body":{"shape":"barrel","width":1.2},"legs":{"type":"hoofed","length":0.25,"thickness":1.2},"tail":{"type":"curly","length":0.3}},"colors":{"base":"#DDA69A","underside":"#F1C8B0","detail":"#9A675F","eyes":"#503C38"},"type":"assembly","name":"pig","size":115},"sheep":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"oval","ears":"floppy","muzzle":"small","extras":["spiral-horns"],"width":0.8},"body":{"shape":"round","length":1.25,"width":1.15},"legs":{"type":"hoofed","length":0.4,"thickness":0.7},"tail":{"type":"fluffy","length":0.15}},"colors":{"base":"#DFD7BD","underside":"#F0E9D5","detail":"#8C8066","eyes":"#3A3B34"},"pattern":{"kind":"fur","density":1,"scale":1.5},"type":"assembly","name":"sheep","size":115}};
+    const ANIMALS = {"tiger":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"feline","ears":"round","eyes":"simple","extras":["whiskers"]},"body":{"shape":"barrel","length":1.2},"legs":{"length":0.45},"tail":{"length":0.9}},"colors":{"base":"#E8892E","underside":"#F7EFE2","detail":"#29251F","eyes":"#354A31"},"pattern":{"kind":"stripes","density":0.7},"motion":"idle","type":"assembly","name":"tiger","size":145},"lion":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"feline","ears":"round","extras":["mane","whiskers"]},"body":{"shape":"barrel"},"legs":{"length":0.55},"tail":{"type":"tufted","length":1}},"colors":{"base":"#CCA35C","underside":"#F0D9A2","detail":"#81562F","eyes":"#493928"},"motion":"idle","type":"assembly","name":"lion","size":150},"giraffe":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"bovine","ears":"pointed","muzzle":"snout","width":0.72,"extras":["ossicones"]},"neck":{"length":1.65,"thickness":0.85},"body":{"shape":"slender"},"legs":{"type":"hoofed","length":1,"thickness":0.75},"tail":{"type":"tufted"}},"colors":{"base":"#E1B961","underside":"#F3DFAB","detail":"#86532A","eyes":"#2F2923"},"pattern":{"kind":"patches","density":1,"scale":1.2},"motion":"idle","type":"assembly","name":"giraffe","size":200},"zebra":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"equine","ears":"pointed","muzzle":"snout","extras":["crest"]},"neck":{"length":0.5,"thickness":1.2},"body":{"shape":"barrel"},"legs":{"type":"hoofed","length":0.7},"tail":{"type":"tufted"}},"colors":{"base":"#EAE7DA","underside":"#F4EFDF","detail":"#323438","eyes":"#292B30"},"pattern":{"kind":"stripes","density":0.8,"scale":0.9,"contrast":1},"motion":"idle","type":"assembly","name":"zebra","size":160},"elephant":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"round","ears":"big","muzzle":"trunk","width":1.15,"extras":["tusks"]},"neck":{"length":0,"thickness":1.5},"body":{"shape":"barrel","width":1.35,"length":1.3},"legs":{"length":0.6,"thickness":1.6},"tail":{"type":"tufted","length":0.55}},"colors":{"base":"#91A2A9","underside":"#D8D1B4","detail":"#445764","eyes":"#24303C"},"motion":"idle","type":"assembly","name":"elephant","size":190},"horse":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"equine","ears":"pointed","muzzle":"snout","extras":["neck-mane"],"length":1.35},"neck":{"length":0.85,"thickness":1.3,"arch":0.85},"body":{"shape":"barrel","length":1.15},"legs":{"type":"hoofed","length":0.8,"thickness":0.75},"tail":{"type":"bushy","length":1.2,"curve":-0.7,"width":1.35}},"colors":{"base":"#936447","underside":"#DECBAA","detail":"#382D2C","eyes":"#28241F"},"motion":"idle","type":"assembly","name":"horse","size":165},"cow":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"bovine","ears":"sideways","muzzle":"snout","extras":["short-horns"]},"neck":{"length":0.2,"thickness":1.35},"body":{"shape":"barrel","width":1.15,"length":1.2,"udder":"small"},"legs":{"type":"hoofed","length":0.55},"tail":{"type":"tufted"}},"colors":{"base":"#E9E1CD","underside":"#D2AC9B","detail":"#3B3937","eyes":"#272927"},"pattern":{"kind":"patches","density":0.4,"scale":2,"contrast":1},"motion":"idle","type":"assembly","name":"cow","size":160},"cat":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"feline","ears":"pointed","extras":["whiskers"],"eyes":"cartoon"},"body":{"shape":"slender"},"legs":{"length":0.45,"thickness":0.75},"tail":{"type":"thin","length":1.15,"curve":0.9}},"colors":{"base":"#B59070","underside":"#EEE0C1","detail":"#614B3A","eyes":"#698457"},"pattern":{"kind":"stripes","density":0.4},"motion":"idle","type":"assembly","name":"cat","size":105},"dog":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"canine","ears":"floppy","muzzle":"snout","size":0.76,"width":0.92},"neck":{"length":0.15},"body":{"shape":"long","length":1.22},"legs":{"length":0.45},"tail":{"type":"thin","curve":0.7}},"colors":{"base":"#AF7950","underside":"#EBDDCC","detail":"#523E33","eyes":"#302A25"},"pattern":{"kind":"patches","density":0.25,"scale":2},"motion":"idle","type":"assembly","name":"dog","size":125},"fox":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"canine","ears":"pointed","muzzle":"snout","length":0.85},"body":{"shape":"slender"},"legs":{"length":0.5,"thickness":0.65},"tail":{"type":"bushy","length":1.35,"width":1.4,"curve":-0.5}},"colors":{"base":"#BF6736","underside":"#EDE2CE","detail":"#483A35","eyes":"#41372B"},"motion":"idle","type":"assembly","name":"fox","size":110},"rabbit":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"rodent","ears":"long","muzzle":"small","extras":["whiskers"]},"body":{"shape":"round","length":0.9,"width":1.15},"legs":{"length":0.25,"thickness":1.25},"tail":{"type":"fluffy","length":0.2}},"colors":{"base":"#B6A291","underside":"#E9DFCD","detail":"#786556","eyes":"#3F3531"},"pattern":{"kind":"fur","density":0.7},"motion":"idle","posture":"crouch","type":"assembly","name":"rabbit","size":95},"bear":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"ursine","ears":"round","muzzle":"snout","width":1.2},"neck":{"length":0,"thickness":1.6},"body":{"shape":"barrel","width":1.2},"legs":{"type":"clawed","length":0.35,"thickness":1.5},"tail":{"type":"fluffy","width":0.65,"length":0.1}},"colors":{"base":"#76533C","underside":"#B0956B","detail":"#40372D","eyes":"#282721"},"pattern":{"kind":"fur","density":0.65},"motion":"idle","type":"assembly","name":"bear","size":165},"deer":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"oval","ears":"pointed","muzzle":"snout","width":0.8,"extras":["antlers"]},"neck":{"length":0.6,"thickness":0.65},"body":{"shape":"slender"},"legs":{"type":"hoofed","length":0.85,"thickness":0.6},"tail":{"type":"fluffy","width":0.65,"length":0.15}},"colors":{"base":"#AA7F4B","underside":"#EBD8AD","detail":"#66503A","eyes":"#363024"},"pattern":{"kind":"spots","color":"#F5E6BF","density":0.3},"motion":"idle","type":"assembly","name":"deer","size":150},"pig":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"round","ears":"floppy","muzzle":"snout","length":0.9},"body":{"shape":"barrel","width":1.2},"legs":{"type":"hoofed","length":0.25,"thickness":1.2},"tail":{"type":"curly","length":0.3}},"colors":{"base":"#DDA69A","underside":"#F1C8B0","detail":"#9A675F","eyes":"#503C38"},"motion":"idle","type":"assembly","name":"pig","size":115},"sheep":{"rig":"quadruped","recipeVersion":1,"parts":{"head":{"shape":"oval","ears":"floppy","muzzle":"small","extras":["spiral-horns"],"width":0.8},"body":{"shape":"round","length":1.25,"width":1.15},"legs":{"type":"hoofed","length":0.4,"thickness":0.7},"tail":{"type":"fluffy","length":0.15}},"colors":{"base":"#DFD7BD","underside":"#F0E9D5","detail":"#8C8066","eyes":"#3A3B34"},"pattern":{"kind":"fur","density":1,"scale":1.5},"motion":"idle","type":"assembly","name":"sheep","size":115},"owl":{"rig":"bird","recipeVersion":1,"parts":{"head":{"shape":"owl","eyes":"cartoon","muzzle":"beak-short","extras":["tuft"]},"body":{"shape":"round"},"legs":{"length":0.2},"wings":{"type":"feathered"},"tail":{"type":"fan","length":0.3}},"colors":{"base":"#92704A","underside":"#D9C69A","detail":"#57472F","eyes":"#403325"},"pattern":{"kind":"feathers","density":0.4},"motion":"perch","type":"assembly","name":"owl","size":100},"eagle":{"rig":"bird","recipeVersion":1,"parts":{"head":{"shape":"raptor","muzzle":"beak-hooked"},"body":{"shape":"slender","width":0.85},"wings":{"type":"feathered","length":1.15},"legs":{"length":0.5}},"colors":{"base":"#785338","underside":"#EDE5CF","detail":"#B18C43","eyes":"#272B2A"},"motion":"fly","type":"assembly","name":"eagle","size":140},"parrot":{"rig":"bird","recipeVersion":1,"parts":{"head":{"shape":"bird","muzzle":"beak-hooked","extras":["crest"]},"body":{"shape":"slender"},"tail":{"type":"long-feathers"},"wings":{"type":"feathered"}},"colors":{"base":"#478D78","underside":"#E3C278","detail":"#3D577C","eyes":"#273330"},"motion":"perch","type":"assembly","name":"parrot","size":100},"duck":{"rig":"bird","recipeVersion":1,"parts":{"head":{"shape":"bird","muzzle":"beak-flat"},"body":{"shape":"long","width":0.75},"neck":{"length":0.1},"legs":{"type":"webbed","length":0.2},"wings":{"type":"feathered"}},"colors":{"base":"#699680","underside":"#E7DEBF","detail":"#C69A51","eyes":"#273834"},"motion":"perch","type":"assembly","name":"duck","size":100},"penguin":{"rig":"bird","recipeVersion":1,"parts":{"head":{"shape":"bird","muzzle":"beak-short"},"body":{"shape":"upright","width":1.05},"neck":{"length":0},"legs":{"type":"webbed","length":0.2},"wings":{"type":"feathered","pose":"folded","length":0.65,"width":0.55},"tail":{"type":"none"}},"colors":{"base":"#364555","underside":"#ECE8D5","detail":"#CC9758","eyes":"#18232D"},"motion":"perch","type":"assembly","name":"penguin","size":110},"flamingo":{"rig":"bird","recipeVersion":1,"parts":{"head":{"shape":"bird","width":0.7,"length":0.85,"muzzle":"beak-hooked"},"neck":{"length":0.6,"thickness":0.65},"body":{"shape":"slender","width":0.7,"length":1.15},"legs":{"length":1,"thickness":0.6},"wings":{"type":"feathered"}},"colors":{"base":"#D8A29C","underside":"#F0CEAF","detail":"#625164","eyes":"#31313A"},"motion":"perch","type":"assembly","name":"flamingo","size":145},"hummingbird":{"rig":"bird","recipeVersion":1,"parts":{"head":{"shape":"bird","muzzle":"beak-needle","size":0.7},"body":{"shape":"slender","width":0.75},"wings":{"type":"feathered","length":0.8,"width":0.6},"tail":{"type":"fan"},"legs":{"length":0.2}},"colors":{"base":"#61998D","underside":"#C2C095","detail":"#524E72","eyes":"#233C3B"},"motion":"fly","type":"assembly","name":"hummingbird","size":70},"bee":{"rig":"insect","recipeVersion":1,"parts":{"body":{"shape":"segmented","length":1.1},"wings":{"type":"clear","length":0.75},"tail":{"type":"stinger"}},"colors":{"base":"#D4AD55","underside":"#E3EDDC","detail":"#4B4033","eyes":"#252B29"},"pattern":{"kind":"stripes","density":0.8,"scale":1.5},"motion":"fly","type":"assembly","name":"bee","size":60},"ladybird":{"rig":"insect","recipeVersion":1,"parts":{"body":{"shape":"wing-case"},"wings":{"type":"clear","pose":"folded"},"head":{"extras":["antennae"]}},"colors":{"base":"#C57060","underside":"#DCCB9A","detail":"#3A3935","eyes":"#253231"},"pattern":{"kind":"spots","density":0.65,"scale":1.25},"motion":"crawl","type":"assembly","name":"ladybird","size":60},"dragonfly":{"rig":"insect","recipeVersion":1,"parts":{"body":{"shape":"slender","length":1.3},"wings":{"type":"clear","length":1.25,"width":0.65},"head":{"extras":["antennae"],"eyes":"cartoon"}},"colors":{"base":"#679D9A","underside":"#DAE8D8","detail":"#3A6070","eyes":"#2E3941"},"motion":"fly","type":"assembly","name":"dragonfly","size":80},"butterfly":{"rig":"insect","recipeVersion":1,"parts":{"body":{"shape":"slender","length":0.7},"wings":{"type":"butterfly","length":1.15},"head":{"extras":["antennae"]}},"colors":{"base":"#718CAF","underside":"#D4CBA5","detail":"#354456","eyes":"#222F3D"},"motion":"fly","type":"assembly","name":"butterfly","size":80},"ant":{"rig":"insect","recipeVersion":1,"parts":{"body":{"shape":"segmented","length":0.85,"width":0.75},"wings":{"type":"none"},"head":{"extras":["antennae"]}},"colors":{"base":"#936A50","underside":"#BC9675","detail":"#5A4335","eyes":"#282723"},"motion":"crawl","type":"assembly","name":"ant","size":55},"goldfish":{"rig":"fish","recipeVersion":1,"parts":{"head":{"shape":"fish","muzzle":"smile"},"body":{"shape":"round"},"fins":{"dorsal":"rounded","pectoral":"rounded","tail":"fan","size":1.15}},"colors":{"base":"#D7A04D","underside":"#ECD8A8","detail":"#BE7A43","eyes":"#393735"},"pattern":{"kind":"scales","density":0.45},"motion":"swim","type":"assembly","name":"goldfish","size":90},"shark":{"rig":"fish","recipeVersion":1,"parts":{"head":{"shape":"shark"},"body":{"shape":"streamlined","length":1.1},"fins":{"dorsal":"tall","pectoral":"pointed","tail":"lunate"}},"colors":{"base":"#829DA7","underside":"#DCE2D2","detail":"#586E7B","eyes":"#28373C"},"motion":"swim","type":"assembly","name":"shark","size":190},"whale":{"rig":"fish","recipeVersion":1,"parts":{"head":{"shape":"whale"},"body":{"shape":"long","length":1.1,"width":1.3},"tail":{"type":"whale-fluke"},"fins":{"dorsal":"none","pectoral":"flipper","tail":"fluke","size":1.2}},"colors":{"base":"#668C9B","underside":"#C9D8CC","detail":"#415E72","eyes":"#233340"},"motion":"swim","type":"assembly","name":"whale","size":260},"dolphin":{"rig":"fish","recipeVersion":1,"parts":{"head":{"shape":"dolphin"},"body":{"shape":"streamlined","width":0.8},"tail":{"type":"whale-fluke"},"fins":{"dorsal":"triangle","pectoral":"flipper","tail":"fluke"}},"colors":{"base":"#8CA6AE","underside":"#DBE0CF","detail":"#607E91","eyes":"#263943"},"motion":"swim","type":"assembly","name":"dolphin","size":160},"reef fish":{"rig":"fish","recipeVersion":1,"parts":{"head":{"shape":"fish"},"body":{"shape":"round","length":0.85},"fins":{"dorsal":"rounded","pectoral":"rounded","tail":"fan"}},"colors":{"base":"#709F9E","underside":"#EBDBC0","detail":"#D6C09D","eyes":"#26393D"},"pattern":{"kind":"bands","color":"#EBDBC0","density":0.7},"motion":"swim","type":"assembly","name":"reef fish","size":90},"turtle":{"rig":"turtle","recipeVersion":1,"parts":{"head":{"shape":"reptile","muzzle":"smile"},"body":{"shape":"shell"},"legs":{"type":"flippers"},"tail":{"type":"reptile","length":0.2}},"colors":{"base":"#83A085","underside":"#D0CBA2","detail":"#546D5B","eyes":"#293C34"},"pattern":{"kind":"scales","density":0.25},"motion":"swim","type":"assembly","name":"turtle","size":130},"octopus":{"rig":"octopus","recipeVersion":1,"parts":{"body":{"shape":"octopus"},"head":{"eyes":"cartoon"},"tentacles":{"type":"curled","length":1.1}},"colors":{"base":"#B98792","underside":"#E2B9AE","detail":"#815C71","eyes":"#342B3B"},"pattern":{"kind":"spots","density":0.2},"motion":"swim","type":"assembly","name":"octopus","size":120},"crab":{"rig":"crab","recipeVersion":1,"parts":{"body":{"shape":"carapace"},"head":{"eyes":"cartoon"},"claws":{"type":"pointed","size":1.15}},"colors":{"base":"#BB8265","underside":"#E9C4A1","detail":"#885940","eyes":"#39302B"},"motion":"walk","type":"assembly","name":"crab","size":90},"snake":{"rig":"serpent","recipeVersion":1,"parts":{"head":{"shape":"reptile","muzzle":"forked-tongue"},"body":{"shape":"serpentine"},"tail":{"type":"reptile"}},"colors":{"base":"#88A084","underside":"#D1CE9F","detail":"#506D56","eyes":"#2C362F"},"pattern":{"kind":"scales","density":0.65},"motion":"slither","type":"assembly","name":"snake","size":150},"dragon":{"rig":"biped","recipeVersion":1,"parts":{"head":{"shape":"dragon","eyes":"cartoon","muzzle":"smile","ears":"pointed","extras":["short-horns"]},"body":{"shape":"upright"},"wings":{"type":"bat","pose":"folded","length":0.75},"tail":{"type":"reptile","length":1},"arms":{"type":"clawed"}},"colors":{"base":"#7DA89C","underside":"#E0CEA5","detail":"#466878","eyes":"#283940"},"pattern":{"kind":"scales","density":0.3},"motion":"idle","type":"assembly","name":"dragon","size":160},"flying dragon":{"rig":"biped","recipeVersion":1,"parts":{"head":{"shape":"dragon","eyes":"cartoon","muzzle":"smile","ears":"pointed","extras":["short-horns"]},"body":{"shape":"upright"},"wings":{"type":"bat","pose":"open","length":1.15},"tail":{"type":"reptile","length":1},"arms":{"type":"clawed"}},"colors":{"base":"#7DA89C","underside":"#E0CEA5","detail":"#466878","eyes":"#283940"},"pattern":{"kind":"scales","density":0.3},"motion":"fly","type":"assembly","name":"flying dragon","size":170}};
     const ANIMAL_WORDS = { tiger: 'tigers?', lion: 'lions?|lioness', giraffe: 'giraffes?', zebra: 'zebras?', elephant: 'elephants?', horse: 'horses?|ponies|pony', cow: 'cows?|cattle',
-        cat: 'cats?|kittens?|kitty', dog: 'dogs?|pupp(y|ies)|doggy', fox: 'fox(es)?', rabbit: 'rabbits?|bunn(y|ies)|hares?', bear: 'bears?', deer: 'deer|stags?|fawns?', pig: 'pigs?|piglets?', sheep: 'sheep|lambs?|rams?' };
+        cat: 'cats?|kittens?|kitty', dog: 'dogs?|pupp(y|ies)|doggy', fox: 'fox(es)?', rabbit: 'rabbits?|bunn(y|ies)|hares?', bear: 'bears?', deer: 'deer|stags?|fawns?', pig: 'pigs?|piglets?', sheep: 'sheep|lambs?|rams?',
+        owl: 'owls?', eagle: 'eagles?|hawks?|falcons?', parrot: 'parrots?|macaws?', duck: 'ducks?|ducklings?', penguin: 'penguins?', flamingo: 'flamingos?|flamingoes', hummingbird: 'hummingbirds?',
+        bee: 'bees?|bumblebees?', ladybird: 'ladybirds?|ladybugs?', dragonfly: 'dragonfl(y|ies)', ant: 'ants?', 'reef fish': 'reef fish|tropical fish|clownfish|striped fish',
+        goldfish: 'goldfish|fish(es)?', shark: 'sharks?', whale: 'whales?', dolphin: 'dolphins?', turtle: 'turtles?|tortoises?', octopus: 'octop(us|uses|i)', crab: 'crabs?',
+        snake: 'snakes?|serpents?', 'flying dragon': 'flying dragons?', dragon: 'dragons?' };
+    const RIG_MOTIONS = { quadruped: ['idle', 'walk', 'graze', 'sit', 'run', 'play'], bird: ['perch', 'hop', 'fly', 'run', 'play'], fish: ['swim', 'idle', 'play'],
+        insect: ['crawl', 'fly', 'idle', 'run', 'play'], serpent: ['slither', 'idle', 'play'], biped: ['idle', 'walk', 'fly', 'sit', 'run', 'play'],
+        turtle: ['walk', 'swim', 'idle', 'play'], octopus: ['swim', 'idle', 'play'], crab: ['walk', 'idle', 'run', 'play'] };
+    // Plain words → a motion the creature's body can do ("walk" for a fish becomes "swim"; "stand still" becomes its resting pose)
+    function motionFor(rig, word) {
+        const m = RIG_MOTIONS[rig] || RIG_MOTIONS.quadruped, w = String(word || '').toLowerCase();
+        const want = /run|race|sprint|gallop|dash/.test(w) ? 'run' : /play|frolic|romp/.test(w) ? 'play' : /graze|eat/.test(w) ? 'graze' : /sit/.test(w) ? 'sit'
+            : /swim/.test(w) ? 'swim' : /fly|soar/.test(w) ? 'fly' : /hop|jump/.test(w) ? 'hop' : /crawl/.test(w) ? 'crawl' : /slither/.test(w) ? 'slither'
+            : /perch/.test(w) ? 'perch' : /walk|roam|wander|move/.test(w) ? 'walk' : 'rest';
+        if (m.includes(want)) return want;
+        if (want === 'walk') return ['walk', 'swim', 'crawl', 'slither', 'hop'].find(x => m.includes(x)) || null;
+        if (want === 'rest') return ['idle', 'perch'].find(x => m.includes(x)) || null;
+        return null;
+    }
     let artEngine = null, artKey = '', artIdIndex = {}, artFit = null;
     // Nature keeps its own colours whatever the theme: roses red, sunflowers yellow, leaves green
     const NATURAL = {
@@ -2985,7 +3006,7 @@
             const elements = list.map((e, li) => {
                 seedN++;
                 e = Object.assign({}, e);
-                delete e.what;   // VQ's own description of a drawing: kept for the theme, not for the engine
+                delete e.what; delete e.social; delete e.pointer;   // VQ's own description of a drawing: kept for the theme, not for the engine
                 if (Array.isArray(e.positions) && typeof e.count === 'number') e.positions = e.positions.slice(0, e.count);
                 const variant = (e.type === 'custom' || e.type === 'assembly') ? String(e.name || e.type).toLowerCase() : (e.species || e.style || e.kind || 'any');
                 const base = `${e.type}-${variant}`.replace(/[^a-zA-Z0-9_-]/g, '-');
@@ -3005,6 +3026,33 @@
                                   : { onThink: { kind: 'glow', amount: 0.25, speed: 0.6 }, onSpeak: { kind: 'sway', amount: 0.25, speed: 1.2 } }
                 }, e);
             }).map(o => { Object.keys(o).forEach(k => o[k] === undefined && delete o[k]); return o; }).map(o => placeDrawing(o, host));
+            // Keep creatures to a number that stays smooth (the engine allows 24, but 12 is kinder to phones): trim the biggest groups first
+            const CREATURE_CAP = 12;
+            const herdOf = () => elements.filter(o => o.type === 'assembly');
+            let total = herdOf().reduce((n, o) => n + (o.count == null ? 1 : o.count), 0);
+            while (total > CREATURE_CAP) {
+                const big = herdOf().sort((x, y) => (y.count || 1) - (x.count || 1))[0];
+                if (!big || (big.count || 1) <= 1) break;
+                big.count = (big.count || 1) - 1;
+                if (Array.isArray(big.positions)) big.positions = big.positions.slice(0, big.count);
+                total--;
+            }
+            // Creatures that chase, flee, follow, herd or play with each other (by name), or chase or shy away from the pointer
+            list.forEach((src, li) => {
+                const el = elements[li];
+                if (!el || src.type !== 'assembly') return;
+                const so = src.social;
+                if (so && so.kind === 'herd') el.behaviours = { herd: true };
+                else if (so && so.target) {
+                    const ti = list.findIndex((x, j) => j !== li && x.type === 'assembly' && String(x.name || '').toLowerCase() === String(so.target).toLowerCase());
+                    if (ti >= 0) {
+                        const tid = elements[ti].id;
+                        el.behaviours = so.kind === 'chase' ? { chase: { target: tid, style: so.style === 'hunt' ? 'hunt' : 'playful' } }
+                            : so.kind === 'flee' ? { flee: { from: tid } } : so.kind === 'follow' ? { follow: { target: tid } } : { playWith: tid };
+                    }
+                }
+                if (src.pointer === 'chase' || src.pointer === 'flee') el.react = { onPointer: src.pointer, onThink: { kind: 'glow', amount: 0.25, speed: 0.6 } };
+            });
             // Light comes from the sky's own light source; detail follows the effects-strength setting
             const LIGHT = { sunset: { angle: 160, strength: 0.75 }, night: { angle: -135, strength: 0.4 }, seanight: { angle: -135, strength: 0.4 },
                             seaday: { angle: -120, strength: 0.7 }, storm: { angle: -90, strength: 0.35 }, clouds: { angle: -90, strength: 0.5 } };
@@ -3431,7 +3479,9 @@
         [/^smaller$/, { mul: 1 / 1.3 }], [/^(?:double(?: size| the size)?|twice as big|twice the size|2x)$/, { mul: 2 }], [/^(?:half(?: size| the size)?|half as big)$/, { mul: 0.5 }],
         [/^(?:triple(?: size)?|three times as big|3x)$/, { mul: 3 }],
         [/^(?:tiny|very small)$/, { abs: 0.45 }], [/^small$/, { abs: 0.7 }], [/^(?:medium|normal|normal size|regular|default size|original size)$/, { abs: 1 }],
-        [/^large$/, { abs: 1.5 }], [/^(?:huge|giant|enormous|massive|very big|very large|as big as possible|maximum|max)$/, { abs: 2.2 }]
+        [/^large$/, { abs: 1.5 }], [/^(?:huge|giant|enormous|massive|very big|very large)$/, { abs: 2.4 }],
+        [/^(?:fill the scene|fill the screen|as big as the screen|full screen|as big as possible|maximum|max)$/, { screen: 0.85 }],
+        [/^(?:half the scene|half the screen|half screen)$/, { screen: 0.5 }], [/^(?:a quarter of the (?:scene|screen)|quarter screen)$/, { screen: 0.25 }]
     ];
     function sizeChange(word) {
         const w = String(word || '').toLowerCase().trim();
@@ -3464,12 +3514,36 @@
         const i = ch ? findArtTarget(sp.art || [], words) : -1;
         if (i < 0) return null;
         const e = sp.art[i], base = defaultArtSize(e), cur = e.size || base;
-        let next = ch.abs ? base * ch.abs : cur * ch.mul;
-        const capped = next > 300 || next < 8;
-        e.size = Math.round(Math.max(8, Math.min(300, next)));
+        const host = document.querySelector('.vq-art-host');
+        const H = host ? host.getBoundingClientRect().height : innerHeight;
+        let next = ch.screen ? H * ch.screen : ch.abs ? base * ch.abs : cur * ch.mul;
+        const capped = next > 1000 || next < 8;
+        delete e.sizeRelative; delete e.scale;
+        e.size = Math.round(Math.max(8, Math.min(1000, next)));
         const name = e.name || e.species || e.style || e.kind || e.type;
         lastArtWord = name;
         return { name, size: e.size, capped, smaller: e.size < cur };
+    }
+    // Creatures together: chase, flee, follow, play, herd, pointer; or stop. Edits sp in place; returns a note, or null if it doesn't apply.
+    function socialEdit(sp, soc) {
+        const art = sp.art || [];
+        const ai = (w) => { const i = findArtTarget(art, w); return i >= 0 && art[i].type === 'assembly' ? i : -1; };
+        const wi = ai(soc.who), ti = soc.target ? ai(soc.target) : -2;
+        if (wi < 0 || ti === -1 || ti === wi) return null;
+        const a = art[wi], b = ti >= 0 ? art[ti] : null;
+        let note;
+        if (soc.kind === 'stop') { delete a.social; delete a.pointer; if (['run', 'play'].includes(a.motion)) a.motion = motionFor(a.rig, 'walk') || a.motion; note = `The ${a.name} stopped`; }
+        else if (soc.kind === 'pointer-chase' || soc.kind === 'pointer-flee') { a.pointer = soc.kind === 'pointer-chase' ? 'chase' : 'flee'; note = soc.kind === 'pointer-chase' ? `The ${a.name} will chase your pointer` : `The ${a.name} will shy away from your pointer`; }
+        else if (soc.kind === 'herd') { a.social = { kind: 'herd' }; a.motion = motionFor(a.rig, 'graze') || motionFor(a.rig, 'walk') || a.motion; if ((a.count || 1) < 3) a.count = 4; note = `The ${a.name} are keeping together`; }
+        else if (['chase', 'flee', 'follow', 'play'].includes(soc.kind) && b) {
+            a.social = { kind: soc.kind, target: b.name, style: soc.style || 'playful' };
+            const mv = motionFor(a.rig, soc.kind === 'follow' ? 'walk' : soc.kind === 'play' ? 'play' : 'run');
+            if (mv) a.motion = mv;
+            if (soc.both || soc.kind === 'play') { b.social = { kind: 'play', target: a.name }; const mb = motionFor(b.rig, 'play'); if (mb) b.motion = mb; }
+            note = { chase: `The ${a.name} is chasing the ${b.name}`, flee: `The ${a.name} runs away from the ${b.name}`, follow: `The ${a.name} follows the ${b.name}`, play: `The ${a.name} and the ${b.name} are playing` }[soc.kind];
+        } else return null;
+        lastArtWord = a.name;
+        return note;
     }
     window.VQScene = { engine: () => artEngine, ids: () => Object.assign({}, artIdIndex), arrange: (on) => setArrange(on !== false), convert: svgToCustom };   // for testing and tinkering
     // An animal VQ assembled from the parts kit: checked by the scene engine, then added like any other element
@@ -3538,7 +3612,8 @@
         if (animal) {
             const item = JSON.parse(JSON.stringify(ANIMALS[animal]));
             if (num) item.count = Math.max(1, Math.min(6, +num));
-            const mo = has('walking|walk|roaming') ? 'walk' : has('grazing|graze|eating') ? 'graze' : has('sitting|sit') ? 'sit' : null;
+            const mw = (t.match(/\b(walking|walk|roaming|grazing|graze|eating|sitting|sit|running|run|playing|play|swimming|swim|flying|fly|hopping|hop|crawling|crawl|perching|perched)\b/) || [])[1];
+            const mo = mw && motionFor(item.rig, mw);
             if (mo) item.motion = mo;
             return { kind: 'art', item };
         }
@@ -3615,6 +3690,18 @@
             if (sp.art.length + sp.effects.length + sp.layers.length < before) out.removed = edit.remove;
             else if (/\b(storm|rain|sunset|night|moon|seashore|beach|sea|clouds|mist|sky)\b/i.test(edit.remove)) { uiPrefs.scene = 'none'; uiPrefs.mist = false; out.removed = edit.remove; }
             if (!out.removed) out.missing = out.missing || edit.remove;
+        }
+        if (edit.who && edit.does) {
+            const d = String(edit.does).toLowerCase();
+            if (['chase', 'hunt', 'flee', 'follow', 'play', 'herd', 'stop', 'pointer-chase', 'pointer-flee'].includes(d)) {
+                const n = socialEdit(sp, { who: edit.who, kind: d === 'hunt' ? 'chase' : d, target: edit.target, style: d === 'hunt' ? 'hunt' : 'playful' });
+                if (n) out.did = n; else out.missing = out.missing || edit.who;
+            } else {
+                const i = findArtTarget(sp.art || [], edit.who), a = i >= 0 ? sp.art[i] : null;
+                const mo = a && a.type === 'assembly' ? motionFor(a.rig, d) : null;
+                if (mo) { a.motion = mo; out.did = `The ${a.name} is now ${{ walk: 'walking', run: 'running', play: 'playing', graze: 'grazing', sit: 'sitting', idle: 'resting', swim: 'swimming', fly: 'flying', hop: 'hopping', crawl: 'crawling', slither: 'slithering', perch: 'perched' }[mo]}`; lastArtWord = a.name; }
+                else out.missing = out.missing || edit.who;
+            }
         }
         if (edit.resize && edit.size) {
             const r = resizeArt(sp, edit.resize, edit.size);
@@ -3755,10 +3842,18 @@
             ['Monarch butterflies', 'add monarch butterflies'], ['Blue butterflies', 'add blue butterflies'], ['Swallowtails', 'add swallowtail butterflies'], ['Moths', 'add moths'],
             ['Pine trees', 'add pine trees'], ['Oaks', 'add oak trees'], ['Birches', 'add birch trees'], ['Palms', 'add palm trees'], ['Willows', 'add willow trees'], ['Cherry blossom', 'add cherry blossom trees'],
             ['Ferns', 'add ferns'], ['Bushes', 'add bushes'], ['Reeds', 'add reeds'], ['Birds', 'add birds'], ['Falling petals', 'add falling petals']]);
-        section('Animals', 'Animated animals built from VQ’s parts kit: they breathe, blink, look around and can walk, graze or sit. Free and instant. Ask VQ for other four-legged animals (“a wolf”, “a hippo”) and he assembles one from the same parts. Birds, fish and insects are coming next.', [
+        section('Animals', 'Living creatures built from VQ’s parts kit: they breathe, blink and look around, and can walk, run, play, swim or fly. Free and instant. Ask VQ for others (“a wolf”, “a hippo”, “a seagull”) and he assembles one from the same parts.', [
             ['Tiger', 'add a tiger'], ['Lion', 'add a lion'], ['Giraffe', 'add a giraffe'], ['Zebra', 'add a zebra'], ['Elephant', 'add an elephant'], ['Horse', 'add a horse'], ['Cow', 'add a cow'],
-            ['Cat', 'add a cat'], ['Dog', 'add a dog'], ['Fox', 'add a fox'], ['Rabbit', 'add a rabbit'], ['Bear', 'add a bear'], ['Deer', 'add a deer'], ['Pig', 'add a pig'], ['Sheep', 'add a sheep'],
-            ['“make the tiger walk”', null], ['“let the cow graze”', null], ['“the dog should sit”', null], ['“make the giraffe bigger”', null], ['“remove the lion”', null]]);
+            ['Cat', 'add a cat'], ['Dog', 'add a dog'], ['Fox', 'add a fox'], ['Rabbit', 'add a rabbit'], ['Bear', 'add a bear'], ['Deer', 'add a deer'], ['Pig', 'add a pig'], ['Sheep', 'add a sheep']]);
+        section('Birds, bugs and creatures', null, [
+            ['Owl', 'add an owl'], ['Eagle', 'add an eagle'], ['Parrot', 'add a parrot'], ['Duck', 'add a duck'], ['Penguin', 'add a penguin'], ['Flamingo', 'add a flamingo'], ['Hummingbird', 'add a hummingbird'],
+            ['Bee', 'add a bee'], ['Ladybird', 'add a ladybird'], ['Dragonfly', 'add a dragonfly'], ['Ant', 'add an ant'], ['Snake', 'add a snake'], ['Dragon', 'add a dragon'], ['Flying dragon', 'add a flying dragon']]);
+        section('Sea life', 'Best with a seashore sky.', [
+            ['Goldfish', 'add a goldfish'], ['Reef fish', 'add a reef fish'], ['Shark', 'add a shark'], ['Whale', 'add a whale'], ['Dolphin', 'add a dolphin'], ['Turtle', 'add a turtle'], ['Octopus', 'add an octopus'], ['Crab', 'add a crab']]);
+        section('What they do', 'Free and instant. Say it with the animal’s name.', [
+            ['“make the dog run”', null], ['“let the cat play”', null], ['“the cow should graze”', null], ['“the eagle should fly”', null], ['“the dog chases the cat”', null], ['“the rabbit runs away from the fox”', null],
+            ['“the duck follows the cow”', null], ['“let the dog and the cat play”', null], ['“the sheep herd together”', null], ['“the cat chases my pointer”', null], ['“the dog stops chasing”', null],
+            ['“make the whale fill the scene”', null], ['“make the shark huge”', null], ['“remove the snake”', null]]);
         section('VQ draws his own', 'Want something that isn’t in the lists? Ask VQ to draw it. He designs his own original version, and its parts move: propellers spin, wings flap, lights twinkle. Say what it is, and optionally how many and where (“2 hot-air balloons in the sky”). He picks a size that suits it (a butterfly small, a lighthouse large); say “make the … bigger” or “smaller” to adjust it, free. One drawing per request; each uses a message. He can’t draw real people, known characters or brands, but he can make an original one of his own.', [
             ['Hot-air balloon', 'draw a hot-air balloon'], ['Plane flying past', 'draw a small plane flying past'], ['Lighthouse', 'draw a lighthouse'],
             ['Sailboat', 'draw a sailboat'], ['Kite', 'draw a kite'], ['Windmill', 'draw a windmill'], ['Little cottage', 'draw a little cottage'],
@@ -5391,6 +5486,7 @@
                     used.add('theme');
                     if (r.added) lines.push(r.full ? `There’s no room for **${r.added}**: a theme holds up to 8 scene elements and 4 effects. Remove something first.` : `Added **${r.added}** to **${r.name}**.`);
                     if (r.removed) lines.push(`Removed **${r.removed}**.`);
+                    if (r.did) lines.push(r.did + '.');
                     if (r.resized) lines.push(r.resized.capped ? `The **${r.resized.name}** is now as ${r.resized.smaller ? 'small' : 'big'} as it can go.` : `Made the **${r.resized.name}** ${r.resized.smaller ? 'smaller' : 'bigger'}.`);
                     if (r.missing) lines.push(`**${r.missing}** isn’t available yet, so I couldn’t add or remove it.`);
                     if ((a.edit || {}).shade) lines.push(`Background made **${a.edit.shade}**.`);
@@ -5476,6 +5572,33 @@
             if (startPersona(personaAsk)) { uiPrefs.persona = personaAsk; saveUIPrefs(); showLocalNote({ panel: 'VQ is here, in the side panel', badge: 'VQ is in the header', roam: 'VQ is walking along the bottom of the screen', moon: 'VQ is on the moon, fishing', fly: 'VQ is flying around (he keeps clear of what you’re reading)' }[personaAsk]); }
             return;
         }
+        // Creatures together, free: "the dog chases the cat", "the sheep flee from the wolf", "the duck follows the cow",
+        // "let the dog and cat play", "the sheep herd together", "the cat chases my pointer", "the dog stops chasing"
+        const soc = (() => {
+            const N = '(?:the |my |a )?([a-z][a-z \'\\-]{1,28}?)';
+            let m;
+            if ((m = pm.match(new RegExp(`^(?:make |let |have )?${N} (?:stops?|quit|quits) (?:chasing|following|fleeing|running away|playing|herding)(?: .*)?$`)))) return { who: m[1], kind: 'stop' };
+            if ((m = pm.match(new RegExp(`^(?:make |let |have )?${N} (?:chases?|chasing|hunts?|hunting|goes? after|runs? after) (?:after )?(?:the |my )?(pointer|mouse|cursor|me)$`)))) return { who: m[1], kind: 'pointer-chase' };
+            if ((m = pm.match(new RegExp(`^(?:make |let |have )?${N} (?:runs? away|flees?|hides?|shies away|is scared) (?:from )?(?:the |my )?(pointer|mouse|cursor|me)$`)))) return { who: m[1], kind: 'pointer-flee' };
+            if ((m = pm.match(new RegExp(`^(?:make |let |have )?${N} (chases?|chasing|hunts?|hunting|goes? after|runs? after) ${N}$`)))) return { who: m[1], kind: 'chase', target: m[3], style: /hunt/.test(m[2]) ? 'hunt' : 'playful' };
+            if ((m = pm.match(new RegExp(`^(?:make |let |have )?${N} (?:runs? away from|flees?(?: from)?|hides? from|is scared of|is afraid of|avoids?) ${N}$`)))) return { who: m[1], kind: 'flee', target: m[2] };
+            if ((m = pm.match(new RegExp(`^(?:make |let |have )?${N} (?:follows?|goes? behind|walks? behind|tags? along (?:with|behind)) ${N}$`)))) return { who: m[1], kind: 'follow', target: m[2] };
+            if ((m = pm.match(new RegExp(`^(?:make |let |have )?${N} (?:and|&) ${N} play(?: together| with each other)?$`)))) return { who: m[1], kind: 'play', target: m[2], both: true };
+            if ((m = pm.match(new RegExp(`^(?:make |let |have )?${N} plays? with ${N}$`)))) return { who: m[1], kind: 'play', target: m[2], both: true };
+            if ((m = pm.match(new RegExp(`^(?:make |let |have )?${N} (?:herd|flock|stay|stick|group|move) together$|^herd ${N}(?: together)?$`)))) return { who: m[1] || m[2], kind: 'herd' };
+            return null;
+        })();
+        if (soc) {
+            const sp = currentThemeSpec();
+            const note = socialEdit(sp, soc);
+            if (note) {
+                elements.messageInput.value = '';
+                uiUndo.push(snapshotUI());
+                installTheme(sp); saveUIPrefs(); applyUIPrefs();
+                showLocalNote(note);
+                return;
+            }
+        }
         // Where the ground is: the bottom of the screen, or just above the message box
         const groundAsk = /^(?:(?:move |put |set )?(?:the )?(?:ground|scene|elements|everything|plants|animals)(?: level)? (?:down )?(?:to|at|on) (?:the )?(?:screen|bottom|screen bottom|bottom of the screen|screen level)|move (?:the )?(?:scene|everything|elements) down|lower the ground|ground at (?:the )?(?:bottom|screen))$/.test(pm) ? 'screen'
             : /^(?:(?:move |put |set )?(?:the )?(?:ground|scene|elements|everything|plants|animals)(?: level)? (?:up )?(?:above|over) (?:the )?(?:message|text|chat|input|typing) ?(?:box|area|bar)?|raise the ground|move (?:the )?(?:scene|everything|elements) up|ground above (?:the )?(?:message|text|chat) ?box)$/.test(pm) ? 'box' : null;
@@ -5526,21 +5649,23 @@
         const remM = rawMessage.match(/^\s*(?:please\s+)?(?:remove|delete|hide|take away|get rid of|no more)\s+(?:the\s+|all\s+(?:the\s+)?|my\s+)?(.{2,40}?)\s*[.!]?\s*$/i);
         const drawnArt = (customSpec(uiPrefs.theme) || {}).art || [];
         // "make the tiger walk" / "let the giraffe graze" / "the lion should sit": how an animal moves, free
-        const moveM = pm.match(/^(?:make |let |have )?(?:the |my )?(.{2,30}?) (?:should )?(walk|walk around|roam|graze|eat|sit|sit down|stand|stand still|stop|idle|rest)(?: please)?$/);
+        const moveM = pm.match(/^(?:make |let |have )?(?:the |my )?(.{2,30}?) (?:should |can )?(walk|walk around|roam|wander|graze|eat|sit|sit down|stand|stand still|stop|stop moving|idle|rest|run|run around|race around|play|play around|swim|swim around|fly|fly around|hop|hop around|crawl|crawl around|slither|perch)(?: please)?$/);
         const moveIdx = moveM ? drawnArt.findIndex(e => e.type === 'assembly' && findDrawing([e], moveM[1]) === 0) : -1;
         if (moveM && moveIdx >= 0) {
             elements.messageInput.value = '';
             uiUndo.push(snapshotUI());
             const sp = currentThemeSpec(), d = sp.art[moveIdx];
-            const w = moveM[2];
-            d.motion = /walk|roam/.test(w) ? 'walk' : /graze|eat/.test(w) ? 'graze' : /sit/.test(w) ? 'sit' : 'idle';
+            const mo = motionFor(d.rig, moveM[2]);
+            if (!mo) { uiUndo.pop(); showLocalNote(`A ${d.name} can't do that; it can ${(RIG_MOTIONS[d.rig] || []).join(', ')}`); return; }
+            d.motion = mo;
+            if (/stop/.test(moveM[2])) delete d.social;
             installTheme(sp); saveUIPrefs(); applyUIPrefs();
-            showLocalNote(`The ${d.name} is ${{ walk: 'walking around', graze: 'grazing', sit: 'sitting', idle: 'standing still' }[d.motion]}`);
+            showLocalNote(`The ${d.name} is ${{ walk: 'walking around', graze: 'grazing', sit: 'sitting', idle: 'resting', run: 'running', play: 'playing', swim: 'swimming', fly: 'flying', hop: 'hopping', crawl: 'crawling', slither: 'slithering', perch: 'perched' }[mo]}`);
             return;
         }
         // Resize anything in the scene, free: "make the tiger huge", "bigger roses", "increase the size of the balloon",
         // "make the plane 150%", "double the giraffe", "make it smaller" (the last thing added or changed)
-        const SZ = '(much bigger|much larger|a lot bigger|way bigger|a bit bigger|a little bigger|slightly bigger|bit bigger|a bit larger|a little larger|bigger|larger|much smaller|a lot smaller|way smaller|a bit smaller|a little smaller|slightly smaller|bit smaller|smaller|tiny|very small|small|medium|normal size|normal|regular|original size|default size|large|huge|giant|enormous|massive|very big|very large|as big as possible|maximum|double the size|double size|twice as big|twice the size|half the size|half size|half as big|triple size|three times as big|\\d{2,3} ?%)';
+        const SZ = '(much bigger|much larger|a lot bigger|way bigger|a bit bigger|a little bigger|slightly bigger|bit bigger|a bit larger|a little larger|bigger|larger|fill the scene|fill the screen|as big as the screen|full screen|half the scene|half the screen|a quarter of the scene|much smaller|a lot smaller|way smaller|a bit smaller|a little smaller|slightly smaller|bit smaller|smaller|tiny|very small|small|medium|normal size|normal|regular|original size|default size|large|huge|giant|enormous|massive|very big|very large|as big as possible|maximum|double the size|double size|twice as big|twice the size|half the size|half size|half as big|triple size|three times as big|\\d{2,3} ?%)';
         const rz = pm.match(new RegExp(`^(?:make|turn|set|resize|scale|can you make|please make)? ?(?:the |my |all the |those |these )?(.{1,30}?) (?:size )?(?:to |into |at )?${SZ}(?: please)?$`))
             || pm.match(new RegExp(`^(?:make |turn )?${SZ} (?:the |my )?(.{2,30})$`))
             || pm.match(/^(increase|enlarge|grow|scale up|enlarge the size of|increase the size of|decrease|reduce|shrink|scale down|decrease the size of|reduce the size of) (?:the |my )?(.{1,30}?)(?: a bit| a little| a lot| much)?$/);
