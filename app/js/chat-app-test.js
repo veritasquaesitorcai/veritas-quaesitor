@@ -3737,7 +3737,7 @@
         lastArtWord = a.name;
         return note;
     }
-    window.VQScene = { history: (o) => showHistory(o), moment: (m) => startMoment(m), endMoment: () => endMoment(), engine: () => artEngine, ids: () => Object.assign({}, artIdIndex), arrange: (on) => setArrange(on !== false), convert: svgToCustom,
+    window.VQScene = { results: () => showResultsStage(), history: (o) => showHistory(o), moment: (m) => startMoment(m), endMoment: () => endMoment(), engine: () => artEngine, ids: () => Object.assign({}, artIdIndex), arrange: (on) => setArrange(on !== false), convert: svgToCustom,
         particles: (r) => { setParticles(typeof r === 'string' ? { preset: r } : r); saveUIPrefs(); return applyParticles(); }, particleBox: () => particleBox, celebrate: (k) => celebrate(k) };   // for testing and tinkering
     // An animal VQ assembled from the parts kit: checked by the scene engine, then added like any other element
     function addCreature(act) {
@@ -4098,6 +4098,176 @@
     }
     const histDate = t => t ? new Date(t).toLocaleString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Not recorded';
     const histAgo = t => { if (!t) return ''; const s = (Date.now() - t) / 1000; return s < 90 ? 'just now' : s < 3600 ? Math.round(s / 60) + ' min ago' : s < 86400 ? Math.round(s / 3600) + ' h ago' : Math.round(s / 86400) + ' d ago'; };
+
+    // ---------- Results stage: search cards (news, films, books, papers, videos, layouts) full screen, live-synced with the chat ----------
+    // The stage is a window onto the chat, not a copy of it: what you type here is sent as a normal chat message,
+    // new answers and cards in the chat appear here as they arrive, and card buttons press the real buttons in the chat.
+    const RS_CARD = '.pcard, .news-card, .movie-card, .paper-card, .book-card, .video-card, .verse-card';
+    let rsOpen = null;
+    function resultSets() {
+        const area = elements.messagesArea || document; const sets = [];
+        area.querySelectorAll('.message').forEach(m => {
+            if (m.closest('.rs')) return;
+            const rows = [...m.querySelectorAll('.media-row, .present')].filter(r => !r.parentElement.closest('.media-row, .present') && r.querySelector(RS_CARD));
+            if (!rows.length) return;
+            let q = '', prev = m.previousElementSibling;
+            while (prev && !prev.classList.contains('user')) prev = prev.previousElementSibling;
+            if (prev) q = (prev.querySelector('.message-content')?.innerText || '').trim();
+            sets.push({ msg: m, rows, q });
+        });
+        return sets;
+    }
+    function lastReplyText() {
+        const ms = [...(elements.messagesArea || document).querySelectorAll('.message.assistant, .message.vq, .message:not(.user)')].filter(m => !m.closest('.rs'));
+        const m = ms[ms.length - 1]; if (!m) return '';
+        const c = m.querySelector('.message-content')?.cloneNode(true); if (!c) return '';
+        c.querySelectorAll('.media-row, .present, button, .cite').forEach(n => n.remove());
+        return c.innerText.replace(/\s+/g, ' ').trim();
+    }
+    function showResultsStage(opts = {}) {
+        if (rsOpen) { rsOpen.sync(true); return; }
+        const ov = el('div', 'rs fs-iris'); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Results, full screen');
+        ov.innerHTML = `
+          <div class="rs-glow" aria-hidden="true"></div>
+          <header class="rs-top"><div><span class="hist-eyebrow">VQ · results</span><h2 class="rs-h"></h2></div><button type="button" class="hist-close" aria-label="Close">✕</button></header>
+          <div class="rs-sets"></div>
+          <div class="rs-lens" aria-hidden="true"></div>
+          <form class="rs-bar vq-console" autocomplete="off"><div class="vc-log" role="log" aria-live="polite"></div><label class="vc-prompt"><span aria-hidden="true">VQ&gt;</span><input type="text" maxlength="2000" aria-label="Talk to VQ" placeholder="ask anything — it goes into your chat · “zoom in on 2” · “close”"><i class="vc-caret" aria-hidden="true"></i></label></form>
+          <div class="vq-stage-hint rs-hint">Esc or “close” to return to the chat</div>`;
+        document.body.appendChild(ov); document.body.classList.add('rs-on');
+        const setsEl = ov.querySelector('.rs-sets'), log = ov.querySelector('.vc-log'), inp = ov.querySelector('.rs-bar input'), head = ov.querySelector('.rs-h');
+        let zoomed = null, sig = '', cards = [];
+        const say = (t) => { log.textContent = t; };
+        const pressOriginal = (clone, orig, target) => {
+            const sel = 'button, a, .pcard-toggle';
+            const i = [...clone.querySelectorAll(sel)].indexOf(target), o = [...orig.querySelectorAll(sel)][i];
+            if (o) o.click();
+        };
+        const fish = (on) => cards.forEach(c => {
+            if (!on || c === zoomed) { c.style.removeProperty('--fe'); c.style.removeProperty('--fb'); c.style.removeProperty('--fl'); return; }
+            const r = c.getBoundingClientRect(), cx = innerWidth / 2, cy = innerHeight / 2;
+            const dx = (r.left + r.width / 2 - cx) / cx, dy = (r.top + r.height / 2 - cy) / cy, d = Math.min(1, Math.hypot(dx, dy) / 1.4);
+            c.style.setProperty('--fe', `translate(${(-dx * 40 * d).toFixed(1)}px, ${(-dy * 30 * d).toFixed(1)}px) perspective(900px) rotateY(${(dx * 26).toFixed(1)}deg) rotateX(${(-dy * 20).toFixed(1)}deg) scale(${(1.12 - 0.4 * d * d).toFixed(3)})`);
+            c.style.setProperty('--fb', (0.6 + d * 3).toFixed(2) + 'px'); c.style.setProperty('--fl', (0.72 - d * 0.32).toFixed(2));
+        });
+        const zoom = async (card) => {
+            if (zoomed === card) return unzoom();
+            const others = cards.filter(c => c !== card);
+            await Promise.all([pixelFade(card, 'out', 150), ...(zoomed ? [] : others.map(c => pixelFade(c, 'out', 150)))]);
+            if (zoomed) { zoomed.classList.remove('zoom', 'expanded'); zoomed._ph?.remove(); }
+            const ph = el('div', 'rs-ph'); ph.style.height = card.offsetHeight + 'px'; card.before(ph); card._ph = ph;
+            zoomed = card; card.classList.add('zoom', 'expanded'); ov.classList.add('zooming'); fish(true);
+            await Promise.all([pixelFade(card, 'in', 260, 18), ...others.map(c => pixelFade(c, 'in', 220))]);
+            say(`Zoomed in on “${card._t}”. Say “back” to see them all, or ask me about it.`);
+        };
+        const unzoom = () => {
+            if (!zoomed) return false; const c = zoomed; zoomed = null;
+            Promise.all(cards.map(n => pixelFade(n, 'out', 140))).then(() => {
+                fish(false); c.classList.remove('zoom', 'expanded'); c._ph?.remove(); ov.classList.remove('zooming');
+                return Promise.all(cards.map(n => pixelFade(n, 'in', 220)));
+            });
+            return true;
+        };
+        const build = (sets) => {
+            zoomed = null; ov.classList.remove('zooming'); setsEl.innerHTML = ''; cards = [];
+            if (!sets.length) { head.textContent = 'No cards in this chat yet'; setsEl.appendChild(el('p', 'rs-empty', 'Ask for news, films, books, papers or videos below and they’ll appear here as cards.')); return; }
+            const latest = sets[sets.length - 1];
+            head.textContent = latest.q ? str(latest.q, 140) : 'Your results';
+            sets.slice().reverse().forEach((set, si) => {
+                const sec = el('section', 'rs-set' + (si ? ' older' : ''));
+                if (si) sec.appendChild(el('div', 'rs-q', set.q ? '“' + str(set.q, 120) + '”' : 'Earlier'));
+                set.rows.forEach(row => {
+                    const tEl = row.querySelector(':scope > .present-title')?.cloneNode(true); tEl?.querySelector('.rs-open')?.remove(); const title = tEl ? tEl.textContent.trim() : '';
+                    if (title) sec.appendChild(el('div', 'rs-row-t', title));
+                    const grid = el('div', 'rs-grid');
+                    row.querySelectorAll(RS_CARD).forEach(orig => {
+                        const c = orig.cloneNode(true); c.classList.remove('expanded'); c.classList.add('rs-card');
+                        c.querySelectorAll('.cast-btn, .rs-open').forEach(n => n.remove());
+                        c.removeAttribute('role'); c.tabIndex = 0;
+                        c._t = (orig.querySelector('.pcard-title, .news-title, .movie-title, .paper-title, .book-title, .video-title, h3, h4, strong')?.textContent || 'this card').trim();
+                        c.addEventListener('click', (e) => {
+                            const t = e.target.closest('button, a, .pcard-toggle');
+                            if (t && t.tagName === 'A' && t.getAttribute('href')) return;          // real links open as normal
+                            e.preventDefault(); e.stopPropagation();
+                            if (t && !t.classList.contains('pcard-toggle')) { pressOriginal(c, orig, t); if (t.classList.contains('pcard-ask')) say(`Asking about “${c._t}” in your chat…`); return; }
+                            zoom(c);
+                        });
+                        c.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target === c) { e.preventDefault(); zoom(c); } });
+                        grid.appendChild(c); cards.push(c);
+                    });
+                    sec.appendChild(grid);
+                });
+                setsEl.appendChild(sec);
+            });
+            cards.forEach((c, i) => c.dataset.n = i + 1);
+        };
+        // Live sync with the chat
+        let lastText = '';
+        const sync = (force) => {
+            const sets = resultSets();
+            const s2 = sets.map(x => x.rows.map(r => r.querySelectorAll(RS_CARD).length).join(',')).join('|') + ':' + sets.length;
+            if (force || s2 !== sig) {
+                const fresh = sig !== '' && s2 !== sig; sig = s2; build(sets);
+                if (fresh) { cards.forEach(c => pixelFade(c, 'in', 300)); setsEl.scrollTo({ top: 0, behavior: 'smooth' }); }
+            }
+            const t = isTyping ? 'VQ is thinking…' : lastReplyText();
+            if (t !== lastText) { lastText = t; if (t) say(str(t, 420) + (t.length > 420 ? '…' : '')); }
+        };
+        let tm = 0; const mo = new MutationObserver(() => { clearTimeout(tm); tm = setTimeout(() => sync(false), 200); });
+        mo.observe(elements.messagesArea || document.body, { childList: true, subtree: true, characterData: true });
+        const typingPoll = setInterval(() => sync(false), 700);
+        sync(true);
+        if (!lastText) say('These are the cards from this chat. Ask anything — it goes into your chat and new cards land here.');
+        const close = () => {
+            if (!rsOpen) return; rsOpen = null; mo.disconnect(); clearInterval(typingPoll);
+            document.removeEventListener('keydown', key); document.body.classList.remove('rs-on');
+            ov.classList.remove('in'); setTimeout(() => ov.remove(), 650);
+            setTimeout(() => elements.messagesArea?.scrollTo?.({ top: elements.messagesArea.scrollHeight, behavior: 'smooth' }), 300);
+        };
+        const key = (e) => { if (e.key === 'Escape') { if (!unzoom()) close(); } };
+        document.addEventListener('keydown', key);
+        ov.querySelector('.hist-close').addEventListener('click', close);
+        ov.querySelector('.rs-lens').addEventListener('click', unzoom);
+        ov.querySelector('.rs-bar').addEventListener('submit', (e) => {
+            e.preventDefault(); const raw = inp.value.trim(); if (!raw) return; inp.value = '';
+            const q = raw.toLowerCase().replace(/[.!?]+$/, '').replace(/^(?:(?:please|pls|can you|could you)\s+)+/, '').replace(/\s+please$/, '');
+            if (/^(?:close|exit|done|back to (?:the )?chat|leave|quit|small screen|exit full ?screen)$/.test(q)) return close();
+            if (/^(?:back|zoom out|show (?:them )?all|all cards|unzoom)$/.test(q)) { if (!unzoom()) say('Already showing them all.'); return; }
+            const zm = q.match(/^(?:zoom(?: in)?(?: on)?|open|show(?: me)?|expand|look at)\s+(?:the\s+|card\s+|number\s+|#)?(.+)$/);
+            if (zm) {
+                const w = zm[1].replace(/^(?:first|1st)( one)?$/, '1').replace(/^(?:second|2nd)( one)?$/, '2').replace(/^(?:third|3rd)( one)?$/, '3').replace(/^(?:last)( one)?$/, String(cards.length)).replace(/ one$/, '');
+                const hit = /^\d+$/.test(w) ? cards[+w - 1] : cards.find(c => c._t.toLowerCase().includes(w));
+                if (hit) { hit.scrollIntoView({ block: 'center' }); setTimeout(() => zoom(hit), 120); return; }
+            }
+            // Everything else is a normal chat message: same chat, same history, same answer
+            const ask = zoomed && /\b(?:this|it|that one|this one)\b/.test(q) ? `${raw} (about “${zoomed._t}”)` : raw;
+            say('Sent to your chat: “' + str(raw, 120) + '”');
+            elements.messageInput.value = ask; sendMessage();
+        });
+        rsOpen = { ov, sync, close };
+        ov.getBoundingClientRect(); requestAnimationFrame(() => requestAnimationFrame(() => ov.classList.add('in')));
+        setTimeout(() => inp.focus({ preventScroll: true }), 500);
+    }
+    // A ⤢ button on every card row in the chat opens the stage
+    function addStageButtons(root) {
+        (root || document).querySelectorAll('.media-row > .present-title, .present > .present-title').forEach(t => {
+            if (t.closest('.rs') || t.querySelector('.rs-open') || !t.parentElement.querySelector(RS_CARD)) return;
+            const b = el('button', 'rs-open', '⤢ Full screen'); b.type = 'button'; b.title = 'Show these cards full screen (or say “full screen”)';
+            b.addEventListener('click', (e) => { e.stopPropagation(); showResultsStage(); });
+            t.appendChild(b);
+        });
+    }
+    let rsAutoSig = 0;
+    setTimeout(() => {
+        const area = elements.messagesArea; if (!area) return;
+        let t = 0;
+        new MutationObserver(() => { clearTimeout(t); t = setTimeout(() => {
+            addStageButtons(area);
+            if (uiPrefs.autoStage && !rsOpen && !isTyping) { const n = resultSets().length; if (n > rsAutoSig && rsAutoSig !== -1) showResultsStage(); rsAutoSig = n; }
+        }, 250); }).observe(area, { childList: true, subtree: true });
+        addStageButtons(area); rsAutoSig = resultSets().length;
+    }, 600);
+
     let histOpen = null;
     function showHistory(opts = {}) {
         closeHistory(true);
@@ -4259,6 +4429,7 @@
 
     // ---------- "Just say it": VQ teaches the app in words people can type (and, later, speak) ----------
     const GUIDE = [
+        { k: 'results search cards news films movies books papers videos full screen big', more: ['zoom in on 2', 'tell me more about this one', 'always open results full screen', 'close'], t: 'New: search cards, full screen', d: 'News, films, books, papers and videos fill the screen. Keep talking in the box: it is your chat, and new cards land as they arrive.', say: ['full screen', 'show the results full screen'], free: true, isNew: true },
         { k: 'chats history conversations past', more: ['continue the python chat', 'when did I ask about the empty tomb?', 'which chat had the plotting stuff?'], t: 'New: your chats, full screen', d: 'All your conversations as cards with dates, questions and VQ’s last answer, plus a console to ask about them.', say: ['show my chats', 'chat history', 'open the bayes one'], free: true, isNew: true },
         { k: 'moments celebrate celebration fireworks confetti full screen', more: ['fireworks', 'confetti rain', 'stardust moment', 'face moment', 'moment: elephant'], t: 'New: full-screen moments', d: 'VQ takes the whole screen until you click.', say: ['celebrate', 'night show moment', 'moment: castle', 'a moment with a giant dragon under the stars'], isNew: true },
         { k: 'particles embers snow stars sparkles', more: ['starfield particles', 'constellations particles', 'blue snow drifting sideways', 'a star map that reacts to my pointer'], t: 'New: particles VQ designs', d: 'A layer of light behind everything; ask for any kind.', say: ['embers particles', 'slow golden embers rising', 'particles off'], isNew: true },
@@ -4272,7 +4443,7 @@
     ];
     let guideOpen = null;
     function showGuide(onlyNew, from) {
-        closeGuide(true);
+        closeGuide(true); document.body.classList.add('guide-on');
         const ov = el('div', 'gd'); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Just say it');
         // the reveal grows out of wherever it was asked from: the message box, or a tapped button
         const src = { left: innerWidth / 2, top: innerHeight / 2, width: 0, height: 0 };   // every full-screen view opens from the centre of the display
@@ -4385,7 +4556,7 @@
     }
     function closeGuide(instant) {
         if (!guideOpen) return;
-        const { ov, key } = guideOpen; guideOpen = null;
+        const { ov, key } = guideOpen; guideOpen = null; document.body.classList.remove('guide-on');
         document.removeEventListener('keydown', key);
         if (!histOpen) document.body.classList.remove('hist-on');
         ov.classList.remove('in'); ov.classList.add('out');
@@ -6787,6 +6958,12 @@
         // The spoken-style guide: "help", "what can you do", "what's new"
         if (/^(?:help|guide|tips|commands|what can (?:you|i) do|what can i (?:say|type|ask)|how do i use (?:this|the app|vq)|how does this work|show me (?:the )?(?:help|guide|tips))$/.test(pm)) { elements.messageInput.value = ''; showGuide(false); return; }
         if (/^(?:what'?s new|whats new|what is new|new features|show (?:me )?(?:the )?new features|anything new)$/.test(pm)) { elements.messageInput.value = ''; showGuide(true); return; }
+        // Search cards, full screen (synced with this chat)
+        if (/^(?:(?:show|open|put|make|view|see)(?: me)? )?(?:the |these |those |my |all )?(?:results?|cards?|search results?|news|films?|movies|books|papers|videos|it|them|this|that)? ?(?:in |on |to )?(?:full ?screen|big screen|the big screen|large|big)(?: mode)?$|^(?:results|cards) stage$/.test(pm) && pm.length > 2) {
+            elements.messageInput.value = ''; showResultsStage(); return;
+        }
+        if (/^(?:always )?(?:open|show) (?:search )?(?:results|cards) (?:in )?full ?screen(?: automatically)?$|^auto(?:matic)? full ?screen(?: results)? on$/.test(pm)) { elements.messageInput.value = ''; uiPrefs.autoStage = true; saveUIPrefs(); showLocalNote('New search cards will open full screen'); return; }
+        if (/^(?:stop|don'?t|do not) (?:auto(?:matically )?)?(?:opening|open|showing|show) (?:search )?(?:results|cards) (?:in )?full ?screen$|^auto(?:matic)? full ?screen(?: results)? off$/.test(pm)) { elements.messageInput.value = ''; uiPrefs.autoStage = false; saveUIPrefs(); showLocalNote('Search cards stay in the chat'); return; }
         // Your chats, presented full screen
         if (/^(?:(?:show|open|see|list|view)(?: me)? (?:my |all my |all |the )?(?:recent |past |previous |old |saved )?(?:chats|conversations|chat history|history)|(?:my )?(?:recent |past |previous )?(?:chats|conversations)|chat history|history)$/.test(pm)) {
             elements.messageInput.value = '';
