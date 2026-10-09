@@ -1657,6 +1657,32 @@
         }
         @media (max-width: 768px) { :root { --sidebar-width: 280px; } .insight-toggle { right: 0.6rem; } #app-header .header-right { padding-right: 2.9rem; } }
         @media (prefers-reduced-motion: reduce) { #insight-panel, .cl-cursor, .status-pulse, .insight-entry.fresh { transition: none; animation: none; } }
+        /* ---- The VQ console: the standard text box in every full-screen view. Black and white, with live TV static behind fully readable text ---- */
+        .vq-console { position: relative; overflow: hidden; border-radius: 14px; background: #060606 !important; border: 1px solid rgba(255,255,255,0.22) !important;
+            box-shadow: 0 16px 44px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(0,0,0,0.6) !important; color: #f2f2f2 !important; text-shadow: none !important;
+            font-family: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace !important; isolation: isolate; }
+        .vq-console::before { content: ""; position: absolute; inset: -40px; z-index: -2; background-image: var(--tv-static, none); background-size: 160px 160px;
+            opacity: 0.16; animation: tvStatic .45s steps(6) infinite; pointer-events: none; }
+        .vq-console::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; mix-blend-mode: normal !important;
+            background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), repeating-linear-gradient(to bottom, transparent 0 2px, rgba(255,255,255,0.035) 2px 3px) !important; }
+        @keyframes tvStatic { 0% { transform: translate(0,0); } 20% { transform: translate(-37px,21px); } 40% { transform: translate(18px,-33px); } 60% { transform: translate(-22px,-9px); } 80% { transform: translate(31px,14px); } 100% { transform: translate(-6px,35px); } }
+        .vq-console .vc-log, .vq-console .hist-log { padding: 0.5rem 0.9rem 0.15rem; font-size: 0.82rem; line-height: 1.5; color: #d9d9d9; white-space: pre-wrap; max-height: 7rem; overflow: auto;
+            text-shadow: 0 0 4px rgba(0,0,0,0.9), 0 0 1px #000 !important; scrollbar-color: rgba(255,255,255,0.3) transparent; }
+        .vq-console .hist-line.you { color: #ffffff; opacity: 0.75; }
+        .vq-console .hist-line.sys { color: #a8a8a8; }
+        .vq-console .vc-prompt, .vq-console .hist-prompt { display: flex; align-items: center; gap: 0.55rem; padding: 0.45rem 0.9rem 0.6rem; border-top: 1px dashed rgba(255,255,255,0.18) !important; cursor: text; }
+        .vq-console .vc-prompt span, .vq-console .hist-prompt span { font-weight: 700; color: #fff; letter-spacing: 0.04em; text-shadow: 0 0 6px rgba(255,255,255,0.35) !important; }
+        .vq-console input { flex: 1; min-width: 0; background: transparent !important; border: 0; outline: 0; color: #fff !important; font: inherit; font-size: 0.9rem; caret-color: transparent;
+            text-shadow: 0 0 3px rgba(0,0,0,0.9) !important; }
+        .vq-console input::placeholder { color: rgba(255,255,255,0.42) !important; }
+        .vq-console .vc-caret, .vq-console .hist-caret { width: 0.6rem; height: 1.05rem; background: #fff !important; box-shadow: 0 0 8px rgba(255,255,255,0.6) !important; animation: caret 1s steps(1) infinite; }
+        .vq-console .vc-prompt:not(:focus-within) .vc-caret { opacity: 0.35; animation: none; }
+        .vq-console:focus-within { border-color: rgba(255,255,255,0.5) !important; }
+        .gd-bar.vq-console { position: fixed; display: block; padding: 0; border-radius: 14px; width: min(52rem, calc(100vw - 24px)); }
+        .stage-bar.vq-console { bottom: 44px; }
+        @media (prefers-reduced-motion: reduce) { .vq-console::before { animation: none; } }
+        @media (max-width: 640px) { .vq-console input { font-size: 16px; } .vq-console .vc-log { max-height: 4.5rem; } }
+        .look-btn.dim { opacity: 0.6; }
     </style>
     <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23667eea%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23764ba2%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2216%22%20fill%3D%22url%28%23g%29%22/%3E%3Cg%20transform%3D%22translate%284.8%205.2%29%20scale%280.7%29%22%3E%3Cline%20x1%3D%2216%22%20y1%3D%224.2%22%20x2%3D%2216%22%20y2%3D%228%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%223.4%22%20r%3D%222.1%22%20fill%3D%22%23ff8c42%22/%3E%3Crect%20x%3D%225.5%22%20y%3D%228%22%20width%3D%2221%22%20height%3D%2216.5%22%20rx%3D%226.5%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.18%29%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Crect%20x%3D%228.6%22%20y%3D%2211.6%22%20width%3D%2214.8%22%20height%3D%227.6%22%20rx%3D%223.8%22%20fill%3D%22%231b1340%22/%3E%3Ccircle%20cx%3D%2212.6%22%20cy%3D%2215.4%22%20r%3D%222%22%20fill%3D%22%237fe0ff%22/%3E%3Ccircle%20cx%3D%2219.4%22%20cy%3D%2215.4%22%20r%3D%222%22%20fill%3D%22%237fe0ff%22/%3E%3Cpath%20d%3D%22M13%2021.6c1.9%201%204.1%201%206%200%22%20stroke%3D%22%23fff%22%20stroke-width%3D%221.8%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3C/g%3E%3C/svg%3E">
 </head>
@@ -1904,10 +1930,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.4.16/purify.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js"></script>
     <script src="js/vq-visual-toolkit.js?v=2026-10-07-edit"></script>
-    <script src="js/vq-art-engine.js?v=2026-10-09-v5m3"></script>
+    <script src="js/vq-art-engine.js?v=2026-10-09-v5m4"></script>
     <script src="js/vq-portraits.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-persona-bridge.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-run.js?v=2026-10-08-run"></script>
-    <script src="js/chat-app-test.js?v=2026-10-09-fisheye"></script>
+    <script src="js/chat-app-test.js?v=2026-10-09-m4console"></script>
 </body>
 </html>
