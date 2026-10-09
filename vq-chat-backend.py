@@ -1461,7 +1461,7 @@ UI_TOOL = {
             "properties": {
                 "action": {"type": "string", "enum": ["text_size", "style", "panel", "focus_mode", "show_reasoning",
                                                        "new_chat", "reset_display", "undo", "panel_view", "add_note",
-                                                       "second_opinion", "swap", "create_theme", "theme_edit", "draw", "creature", "particles", "celebrate", "moment"]},
+                                                       "second_opinion", "swap", "create_theme", "theme_edit", "draw", "creature", "particles", "celebrate", "moment", "history"]},
                 "particles": {"type": "object", "description": ("A particle layer VQ designs himself, drawn over the sky. Fields (all optional): name (2-4 words); preset (start from one: starfield, constellations, embers, fireflies, snowfall, bubbles, dust, orbs, warp, geometry, hearts, starlight; other fields then change it); "
                            "shape (circle, star, square, triangle, hexagon, line, glyph); glyph (1-2 characters when shape is glyph, e.g. ♥ ✦ ❄); colors (1-6 #hex, or 'accent' for the app accent); "
                            "count (0-200); size [min,max] in px (0.5-60); opacity [min,max] (0.03-1); speed (0-12; 0.1 drifting, 1 gentle, 5 fast, 10 streaking); "
@@ -1785,6 +1785,8 @@ def validate_ui_action(args: dict):
                 return None, "particles needs a preset or some design fields"
             clean["particles"] = pc
             parts = [pc.get("name") or pc.get("preset") or "custom particles"]
+    if action == "history":
+        parts = ["your chats"]
     if action == "moment":
         ms = args.get("moment_spec") if isinstance(args.get("moment_spec"), dict) else {}
         out = {}
@@ -1896,6 +1898,7 @@ def validate_ui_action(args: dict):
         "draw": f"Drew {clean.get('name', 'a drawing')}" if action == "draw" else "",
         "creature": f"Assembled {clean.get('name', 'an animal')} from the parts kit" if action == "creature" else "",
         "particles": ("Particles → " + ", ".join(parts)) if action == "particles" else "",
+        "history": "Opened your chats, full screen",
         "moment": ("Moment → " + ", ".join(parts)) if action == "moment" else "",
         "celebrate": f"Celebrated with {clean.get('moment', 'fireworks').replace('-', ' ')}" if action == "celebrate" else "",
         "swap": ("Swapped back: VQ has the main chat" if clean.get('state') == 'off' else f"Swapped places: {ENQUIRER_NAME} has the main chat"),
@@ -2228,6 +2231,7 @@ UI_SYSTEM_NOTE = (
     "embers; blue snow drifting sideways -> preset snowfall, colors [#9fd0ff,#e0f0ff], direction down-right, drift 0.6; star map that reacts to "
     "the pointer -> preset constellations, pointer grab. To change the current particles, send the whole recipe again with the change. "
     "action particles with state off removes them. Built-ins are also free if the user types 'embers particles' or 'particles off'.\n"
+    "YOUR CHATS: when the user asks to see their recent chats, chat history or past conversations, call ui_action with action history: the app opens a full-screen gallery of their chats with details. Don't list them in text.\n"
     "MOMENTS: when the user asks for something big and full-screen ('a giant dragon under the stars', 'surprise me', 'a moment to celebrate my exam'), "
     "call ui_action with action moment and a moment_spec you compose from the parts: a sky, a particles recipe, a burst, up to 3 giant heroes "
     "(built-in animals, vehicles, buildings and landscapes, sized as a fraction of the screen), your face speaking a short line, and a title. "
