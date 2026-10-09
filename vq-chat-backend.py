@@ -2206,6 +2206,9 @@ UI_SYSTEM_NOTE = (
     "cherry blossom), ferns, bushes, reeds, birds, falling petals, grass, mountains, stars, comet, planet, aurora, fireflies, snow, "
     "leaves, TV static, old-TV screen, TV set, mist, clouds, galaxy, nebula, constellations, waves, surf, falling code, orbits, vortex, "
     "tunnel, retro grid, circuit traces, comets, ripples, film grain.\n"
+    "SINGLE OBJECT vs LAYER: 'mist', 'clouds', 'stars' etc. in that list are faint background layers. When the user asks to create, draw or make ONE object "
+    "('create a cloud', 'draw a big fluffy cloud', 'make a rainbow', 'a sun'), they want a visible object: use action draw, not a layer. Use the layer only for "
+    "'cloudy sky', 'add clouds to the background' and the like.\n"
     "RESIZING: to make one scene element bigger or smaller (flowers, trees, animals, drawings), call ui_action with action theme_edit, "
     "resize (its name) and new_size (bigger, much bigger, smaller, tiny, large, huge, double, half or a percentage). The largest size has a "
     "limit; if the user wants it bigger still, say it's as big as it can go for now.\n"
@@ -3070,7 +3073,35 @@ def movie_search(query: str) -> dict:
     family = bool(re.search(r"\b(family|kids?|children|child-friendly|clean|wholesome)\b", ql))
     named = False
     try:
-        if re.search(r"\b(upcoming|coming soon|next month|releasing soon)\b", ql) and not tv:
+        # Genre, era and "top rated" requests: the right list, not just this month's popular releases
+        GENRES = {"sci-?fi|science fiction|scifi": (878, 10765), "horror": (27, 9648), "comed(?:y|ies)|funny": (35, 35), "action": (28, 10759),
+                  "romance|romantic": (10749, 18), "animat(?:ed|ion)|cartoons?": (16, 16), "documentar(?:y|ies)": (99, 99), "drama": (18, 18),
+                  "thriller": (53, 80), "fantasy": (14, 10765), "war": (10752, 10768), "westerns?": (37, 37), "crime": (80, 80),
+                  "myster(?:y|ies)": (9648, 9648), "famil(?:y|ies)": (10751, 10751), "adventure": (12, 10759), "musicals?": (10402, 10402), "histor(?:y|ical)": (36, 36)}
+        genre = next((g[1] if tv else g[0] for k, g in GENRES.items() if re.search(r"\b(?:" + k + r")\b", ql)), None)
+        top = bool(re.search(r"\b(top[- ]rated|highest[- ]rated|best (?:of all time|ever)|greatest|all[- ]time|acclaimed|masterpieces?|must[- ]see|classics?)\b", ql))
+        old = bool(re.search(r"\b(old|older|classics?|vintage|retro)\b", ql))
+        dec = re.search(r"\b(?:19|20)?([0-9])0'?s\b", ql)
+        yr0 = yr1 = None
+        if dec:
+            d = int(dec.group(1)); century = 1900 if d >= 3 else 2000
+            m = re.search(r"\b(19|20)[0-9]0'?s\b", ql)
+            if m: century = int(m.group(1)) * 100
+            yr0, yr1 = century + d * 10, century + d * 10 + 9
+        elif old:
+            yr0, yr1 = 1950, 2005
+        if (genre or top or old or dec) and not re.search(r"\b(upcoming|coming soon)\b", ql):
+            datef = "first_air_date" if tv else "primary_release_date"
+            params = {"sort_by": "vote_average.desc" if (top or old or dec) else "popularity.desc", "include_adult": "false", "language": "en-US",
+                      "vote_count.gte": 1500 if (top or old or dec) else 200}
+            if genre: params["with_genres"] = str(genre)
+            if yr0: params[datef + ".gte"] = f"{yr0}-01-01"; params[datef + ".lte"] = f"{yr1}-12-31"
+            elif not (top or old): params[datef + ".gte"] = _time.strftime("%Y-%m-%d", _time.gmtime(_time.time() - 3 * 365 * 86400))
+            params[datef + ".lte"] = params.get(datef + ".lte") or today
+            if not tv: params.update({"certification_country": "US", "certification.lte": "PG" if family else "PG-13"})
+            res = _tmdb("/discover/tv" if tv else "/discover/movie", **params)
+            kind = "top" if (top or old or dec) else "genre"
+        elif re.search(r"\b(upcoming|coming soon|next month|releasing soon)\b", ql) and not tv:
             res = _tmdb("/movie/upcoming", region="US", language="en-US")
             kind = "upcoming"
         elif re.search(r"\b(latest|new|newest|now playing|playing|showing|on now|what'?s on|in (?:cinemas?|theat(?:er|re)s)|at the (?:cinema|movies)|"
