@@ -4093,7 +4093,11 @@
           <div class="hist-body">
             <div class="hist-list" role="list"></div>
             <aside class="hist-detail" aria-live="polite"><div class="hist-empty-detail">Pick a chat to see its details.</div></aside>
-          </div>`;
+          </div>
+          <form class="hist-console" autocomplete="off">
+            <div class="hist-log" role="log" aria-live="polite"></div>
+            <label class="hist-prompt"><span aria-hidden="true">VQ&gt;</span><input type="text" maxlength="400" placeholder="ask about your chats: “open the python one”, “when did I ask about Bayes?”" aria-label="Ask VQ about your chats"><i class="hist-caret" aria-hidden="true"></i></label>
+          </form>`;
         const list = ov.querySelector('.hist-list'), detail = ov.querySelector('.hist-detail'), input = ov.querySelector('.hist-search input');
         let selected = null, topic = '';
         const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -4127,24 +4131,68 @@
         const render = () => {
             const q = input.value.trim().toLowerCase();
             list.textContent = '';
-            let last = '', n = 0;
+            let last = '', n = 0, col = list;
             all.forEach((c, i) => {
                 const hay = (c.title + ' ' + c.questions.join(' ') + ' ' + c.last + ' ' + c.topics.join(' ')).toLowerCase();
                 if (q && !hay.includes(q)) return;
                 if (topic && !c.topics.includes(topic)) return;
                 const g = histWhen(c.updated);
-                if (g !== last) { last = g; list.appendChild(el('div', 'hist-group', g)); }
+                if (g !== last) { last = g; col = el('div', 'hist-col'); col.appendChild(el('div', 'hist-group', g)); list.appendChild(col); }
                 const card = el('button', 'hist-card' + (c.active ? ' active' : '')); card.type = 'button'; card.dataset.id = c.id; card.setAttribute('role', 'listitem');
                 card.style.animationDelay = Math.min(n, 14) * 35 + 'ms';
                 card.innerHTML = `<span class="hist-c-title">${esc(c.title)}</span><span class="hist-c-first">${esc(c.first || '…')}</span>
                   <span class="hist-c-meta"><span>${histAgo(c.updated)}</span><span>${c.count} messages</span>${c.code ? '<span>code</span>' : ''}${c.active ? '<span class="hist-now">open now</span>' : ''}</span>`;
                 card.addEventListener('click', () => showDetail(c));
                 card.addEventListener('dblclick', () => { closeHistory(); switchChat(c.id); });
-                list.appendChild(card); n++;
+                col.appendChild(card); n++;
             });
             if (!n) list.appendChild(el('div', 'hist-none', all.length ? 'Nothing matches that search.' : 'Start a conversation and it will appear here.'));
         };
         input.addEventListener('input', render);
+        // The console: ask VQ to find, open or explain a chat. Simple "open …" requests are matched here for free;
+        // anything else goes to VQ (one message), who answers in the same console.
+        const con = ov.querySelector('.hist-console'), log = ov.querySelector('.hist-log'), cin = ov.querySelector('.hist-prompt input');
+        const say = (text, cls) => new Promise(res => {
+            const line = el('div', 'hist-line ' + (cls || 'vq'));
+            log.appendChild(line); log.scrollTop = log.scrollHeight;
+            if (cls === 'you' || matchMedia('(prefers-reduced-motion: reduce)').matches) { line.textContent = text; log.scrollTop = log.scrollHeight; return res(); }
+            let i = 0; const step = () => { i = Math.min(text.length, i + 2 + Math.floor(Math.random() * 3)); line.textContent = text.slice(0, i); log.scrollTop = log.scrollHeight; if (i < text.length) setTimeout(step, 14); else res(); };
+            step();
+        });
+        const tokens = t => String(t).toLowerCase().split(/[^a-z0-9\u00c0-\u024f]+/).filter(w => w.length > 2 && !HIST_STOP.has(w) && !['open', 'chat', 'chats', 'conversation', 'one', 'show', 'about', 'continue', 'take', 'back'].includes(w));
+        const best = q => {
+            const qs = tokens(q); if (!qs.length) return null;
+            const scored = all.map(c => { const hay = (c.title + ' ' + c.questions.join(' ') + ' ' + c.topics.join(' ')).toLowerCase(); return [c, qs.reduce((n, w) => n + (c.title.toLowerCase().includes(w) ? 3 : hay.includes(w) ? 1 : 0), 0)]; })
+                .filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]);
+            return scored.length && (scored.length === 1 || scored[0][1] > scored[1][1]) ? scored[0][0] : null;
+        };
+        const go = (c, msg) => { showDetail(c); list.querySelector(`.hist-card[data-id="${c.id}"]`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); return say(msg || `Found it: “${c.title}”. Opening…`).then(() => setTimeout(() => { closeHistory(); switchChat(c.id); }, 900)); };
+        let busy = false;
+        con.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const q = cin.value.trim(); if (!q || busy) return;
+            cin.value = ''; busy = true; con.classList.add('busy');
+            await say('> ' + q, 'you');
+            try {
+                const local = /^(?:open|show|go to|continue|take me to|resume)\b/i.test(q) ? best(q) : null;
+                if (local) { await go(local); return; }
+                if (!all.length) { await say('No chats yet. Start one and I will remember it here.'); return; }
+                const index = all.map((c, i) => ({ n: i + 1, title: c.title, created: c.created ? new Date(c.created).toISOString().slice(0, 16) : 'unknown', updated: new Date(c.updated).toISOString().slice(0, 16),
+                    count: c.count, questions: c.questions, last: c.last.slice(0, 200) }));
+                const wait = el('div', 'hist-line sys', 'searching your chats'); log.appendChild(wait);
+                const dots = setInterval(() => { wait.textContent = wait.textContent.length > 26 ? 'searching your chats' : wait.textContent + '.'; }, 260);
+                let data = {};
+                try {
+                    const res = await fetch(CONFIG.apiEndpoint.replace(/\/chat$/, '/history-ask'), { method: 'POST', headers: requestHeaders(), body: JSON.stringify({ question: q, index }) });
+                    data = await res.json().catch(() => ({}));
+                } catch (err) { data = { text: 'Signal lost. Check your connection and try again.' }; }
+                clearInterval(dots); wait.remove();
+                const target = data.open && all[data.open - 1];
+                await say(data.text || 'No reply came back. Try again?');
+                if (target) await go(target, `Opening “${target.title}”…`);
+            } finally { busy = false; con.classList.remove('busy'); cin.focus(); }
+        });
+        say(all.length ? `${all.length} chats on file. Ask me to open one, or ask about what we discussed.` : 'No chats on file yet.', 'sys');
         ov.querySelectorAll('.hist-topic').forEach(b => b.addEventListener('click', () => { topic = topic === b.dataset.t ? '' : b.dataset.t; ov.querySelectorAll('.hist-topic').forEach(x => x.classList.toggle('on', x.dataset.t === topic)); render(); }));
         ov.querySelector('.hist-close').addEventListener('click', () => { if (ov.classList.contains('reading')) ov.classList.remove('reading'); else closeHistory(); });
         const key = (e) => { if (e.key === 'Escape') { if (ov.classList.contains('reading')) ov.classList.remove('reading'); else closeHistory(); } };
@@ -4155,7 +4203,7 @@
         requestAnimationFrame(() => ov.classList.add('in'));
         const pick = (opts.select && all.find(c => c.id === opts.select)) || (innerWidth >= 760 && all[0]);
         if (pick) showDetail(pick);
-        setTimeout(() => input.focus({ preventScroll: true }), 300);
+        setTimeout(() => (innerWidth >= 760 ? cin : input).focus({ preventScroll: true }), 300);
         histOpen = { ov, key };
         return all.length;
     }
@@ -4166,6 +4214,69 @@
         document.body.classList.remove('hist-on');
         ov.classList.remove('in');
         setTimeout(() => ov.remove(), instant ? 0 : 320);
+    }
+
+    // ---------- "Just say it": VQ teaches the app in words people can type (and, later, speak) ----------
+    const GUIDE = [
+        { t: 'New: your chats, full screen', d: 'All your conversations as cards with dates, questions and VQ’s last answer, plus a console to ask about them.', say: ['show my chats', 'chat history', 'open the bayes one'], free: true, isNew: true },
+        { t: 'New: full-screen moments', d: 'VQ takes the whole screen until you click.', say: ['celebrate', 'night show moment', 'moment: castle', 'a moment with a giant dragon under the stars'], isNew: true },
+        { t: 'New: particles VQ designs', d: 'A layer of light behind everything; ask for any kind.', say: ['embers particles', 'slow golden embers rising', 'particles off'], isNew: true },
+        { t: 'New: vehicles and buildings', d: 'Cars, planes, boats, castles, waterfalls; animals can chase them.', say: ['add a castle', 'add a car', 'the dog chases the car'], free: true, isNew: true },
+        { t: 'Skies and themes', d: 'One moving sky at a time, or a whole new look.', say: ['night sky', 'living fog sky', 'ocean theme', 'make me a theme like a quiet forest at dawn'] },
+        { t: 'Scene and animals', d: 'Add things one at a time; tell them what to do.', say: ['add 6 red tulips', 'add a tiger', 'make the dog run', 'arrange'] },
+        { t: 'Reading and layout', d: 'Size, spacing, fonts, focus.', say: ['bigger', 'serif font', 'focus', 'bubbles on'], free: true },
+        { t: 'Settings that affect everything', d: 'Or tap ⚙ Settings under the message box.', say: ['effects low', 'reduce motion', 'glow off', 'ground at the bottom'], free: true },
+        { t: 'VQ himself', d: 'His robot body and his face.', say: ['show the face', 'face background', 'let vq fly'], free: true },
+        { t: 'Undo anything', d: 'Every change can be taken back.', say: ['undo', 'reset'], free: true }
+    ];
+    let guideOpen = null;
+    function showGuide(onlyNew, from) {
+        closeGuide(true);
+        const ov = el('div', 'gd'); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Just say it');
+        // the reveal grows out of wherever it was asked from: the message box, or a tapped button
+        const src = (from && from.getBoundingClientRect) ? from.getBoundingClientRect() : (document.getElementById('message-input')?.getBoundingClientRect() || { left: innerWidth / 2, top: innerHeight, width: 0, height: 0 });
+        ov.style.setProperty('--ox', Math.round(src.left + src.width / 2) + 'px');
+        ov.style.setProperty('--oy', Math.round(src.top + src.height / 2) + 'px');
+        const items = GUIDE.filter(g => !onlyNew || g.isNew);
+        ov.innerHTML = `<div class="gd-aura" aria-hidden="true"></div>
+          <header class="gd-top"><div><span class="hist-eyebrow">VQ · ${onlyNew ? 'what’s new' : 'how to use me'}</span><h2>Just say it</h2>
+            <p>Everything works by typing what you want in plain words, the way you’d say it out loud. Tap a phrase to put it in the message box, or ▶ to do it now. <b>Free</b> ones cost no messages.</p></div>
+            <button type="button" class="hist-close gd-close" aria-label="Close">✕</button></header>
+          <div class="gd-grid"></div>
+          <footer class="gd-foot">${onlyNew ? 'Say <kbd>help</kbd> for everything' : 'Say <kbd>what’s new</kbd> for the latest'} · <kbd>show all customisations</kbd> for the full list · or just ask me <kbd>how do I …?</kbd></footer>`;
+        const grid = ov.querySelector('.gd-grid');
+        items.forEach((g, i) => {
+            const card = el('section', 'gd-card' + (g.isNew ? ' new' : ''));
+            card.style.setProperty('--i', i);
+            const h = el('div', 'guide-h'); h.appendChild(el('span', null, g.t.replace(/^New: (.)/, (m, c) => c.toUpperCase()))); if (g.isNew) h.appendChild(el('span', 'gd-new', 'new')); if (g.free) h.appendChild(el('span', 'guide-free', 'free'));
+            card.append(h, el('div', 'guide-d', g.d));
+            const row = el('div', 'guide-says');
+            g.say.forEach(ph => {
+                const chip = el('span', 'guide-say');
+                const q = el('button', 'guide-q', '“' + ph + '”'); q.type = 'button'; q.title = 'Put this in the message box';
+                q.addEventListener('click', () => { closeGuide(); elements.messageInput.value = ph; elements.messageInput.focus(); try { elements.messageInput.dispatchEvent(new Event('input')); } catch (e) { } });
+                const go = el('button', 'guide-go', '▶'); go.type = 'button'; go.title = 'Do it now'; go.setAttribute('aria-label', 'Do it now: ' + ph);
+                go.addEventListener('click', () => { closeGuide(true); elements.messageInput.value = ph; sendMessage(); });
+                chip.append(q, go); row.appendChild(chip);
+            });
+            card.appendChild(row); grid.appendChild(card);
+        });
+        const key = (e) => { if (e.key === 'Escape') closeGuide(); };
+        ov.querySelector('.gd-close').addEventListener('click', () => closeGuide());
+        document.addEventListener('keydown', key);
+        document.body.appendChild(ov);
+        document.body.classList.add('hist-on');
+        requestAnimationFrame(() => requestAnimationFrame(() => ov.classList.add('in')));
+        guideOpen = { ov, key };
+        setTimeout(() => ov.querySelector('.guide-q')?.focus({ preventScroll: true }), 650);
+    }
+    function closeGuide(instant) {
+        if (!guideOpen) return;
+        const { ov, key } = guideOpen; guideOpen = null;
+        document.removeEventListener('keydown', key);
+        if (!histOpen) document.body.classList.remove('hist-on');
+        ov.classList.remove('in'); ov.classList.add('out');
+        setTimeout(() => ov.remove(), instant ? 0 : 520);
     }
 
     // ---------- Quick settings: the switches that affect everything ----------
@@ -6462,7 +6573,10 @@
         const tourAsk = /^\s*(customi[sz](e|ation)( tour)?|personali[sz]e( tour)?|style tour|how (do|can) i change the look\??)\s*$/i.test(rawMessage) ? 'custom'
             : /^\s*(feature tour|usage tour|how (do i|to) use (this|vq chat|the app)\??|show me (the )?features|tour( the)? (app|features)|what can (this app|vq chat) do\??)\s*$/i.test(rawMessage) ? 'use' : null;
         // VQ's body: "show vq", "vq in the panel", "vq in the header", "let vq walk around", "hide vq"
-        const pm = rawMessage.toLowerCase().trim().replace(/[.!?]+$/, '');
+        // Commands are plain sentences: polite wrappers are ignored, so "could you please show my chats for me" works like "show my chats"
+        const pm = rawMessage.toLowerCase().trim().replace(/[.!?]+$/, '')
+            .replace(/^(?:(?:hey|hi|ok|okay)\s+)?(?:vq[,:]?\s+)?(?:(?:please|pls|could you|can you|would you|will you|kindly|go ahead and|i want to|i'd like to|i would like to|let me|i wanna)\s+)*/, '')
+            .replace(/(?:\s+(?:please|pls|for me|now|thanks|thank you|vq))+$/, '').trim();
         const personaAsk = /^(hide|remove|close|turn off) (vq|vq'?s body|the robot|your body)$|^(vq|robot) off$/.test(pm) ? 'off'
             : /^(?:show|put|move)? ?(?:vq|the robot|your body|yourself)? ?(?:in|into|to) (?:the )?header$|^(?:vq|robot) (?:badge|in the header)$/.test(pm) ? 'badge'
             : /^(?:put )?(?:vq|the robot)? ?on (?:the )?moon$|^(?:vq|robot) moon$|^(?:vq )?go fishing$|^let (?:vq|the robot) fish$/.test(pm) ? 'moon'
@@ -6540,6 +6654,9 @@
             showLocalNote(skyColAsk === 'original' ? 'Live skies now use their original colours' : 'Live skies now follow your accent colour');
             return;
         }
+        // The spoken-style guide: "help", "what can you do", "what's new"
+        if (/^(?:help|guide|tips|commands|what can (?:you|i) do|what can i (?:say|type|ask)|how do i use (?:this|the app|vq)|how does this work|show me (?:the )?(?:help|guide|tips))$/.test(pm)) { elements.messageInput.value = ''; showGuide(false); return; }
+        if (/^(?:what'?s new|whats new|what is new|new features|show (?:me )?(?:the )?new features|anything new)$/.test(pm)) { elements.messageInput.value = ''; showGuide(true); return; }
         // Your chats, presented full screen
         if (/^(?:(?:show|open|see|list|view)(?: me)? (?:my |all my |all |the )?(?:recent |past |previous |old |saved )?(?:chats|conversations|chat history|history)|(?:my )?(?:recent |past |previous )?(?:chats|conversations)|chat history|history)$/.test(pm)) {
             elements.messageInput.value = '';
@@ -6549,10 +6666,13 @@
         // Quick settings, free and instant
         const QUICK_SET = { 'effects high': ['fx', 'high'], 'effects medium': ['fx', 'medium'], 'effects low': ['fx', 'low'], 'normal motion': ['motion', 'normal'], 'reduce motion': ['motion', 'reduced'],
             'glow on': ['glow', true], 'glow off': ['glow', false], 'text static clear': ['textStatic', 'clear'], 'text static reduced': ['textStatic', 'reduced'], 'text static full': ['textStatic', 'full'] };
-        if (QUICK_SET[pm]) {
+        const pq = pm.replace(/^(?:make|set|turn|switch|put)\s+(?:the\s+|my\s+)?/, '').replace(/\s+(?:to|on to)\s+/, ' ').replace(/^(?:effects?|animations?) (?:down|lower)$/, 'effects low').replace(/^(?:effects?|animations?) (?:up|higher|full)$/, 'effects high')
+            .replace(/^(?:less|fewer|lower|calm(?:er)?) (?:effects?|animations?)$/, 'effects low').replace(/^(?:less|reduced?|calm(?:er)?) motion$|^stop (?:the )?animations?$/, 'reduce motion').replace(/^effect /, 'effects ').replace(/^(?:the )?/, '');
+        const qk = QUICK_SET[pm] ? pm : QUICK_SET[pq] ? pq : null;
+        if (qk) {
             elements.messageInput.value = '';
             uiUndo.push(snapshotUI());
-            const [k, v] = QUICK_SET[pm]; uiPrefs[k] = v; saveUIPrefs(); applyUIPrefs();
+            const [k, v] = QUICK_SET[qk]; uiPrefs[k] = v; saveUIPrefs(); applyUIPrefs();
             showLocalNote({ fx: `Effects: ${v}`, motion: v === 'reduced' ? 'Motion reduced' : 'Normal motion', glow: v ? 'Icon glow on' : 'Icon glow off', textStatic: `Static on text: ${v}` }[k]);
             return;
         }
