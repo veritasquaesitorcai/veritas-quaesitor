@@ -1461,13 +1461,17 @@ UI_TOOL = {
             "properties": {
                 "action": {"type": "string", "enum": ["text_size", "style", "panel", "focus_mode", "show_reasoning",
                                                        "new_chat", "reset_display", "undo", "panel_view", "add_note",
-                                                       "second_opinion", "swap", "create_theme", "theme_edit", "draw", "creature", "particles", "celebrate"]},
+                                                       "second_opinion", "swap", "create_theme", "theme_edit", "draw", "creature", "particles", "celebrate", "moment"]},
                 "particles": {"type": "object", "description": ("A particle layer VQ designs himself, drawn over the sky. Fields (all optional): name (2-4 words); preset (start from one: starfield, constellations, embers, fireflies, snowfall, bubbles, dust, orbs, warp, geometry, hearts, starlight; other fields then change it); "
                            "shape (circle, star, square, triangle, hexagon, line, glyph); glyph (1-2 characters when shape is glyph, e.g. ♥ ✦ ❄); colors (1-6 #hex, or 'accent' for the app accent); "
                            "count (0-200); size [min,max] in px (0.5-60); opacity [min,max] (0.03-1); speed (0-12; 0.1 drifting, 1 gentle, 5 fast, 10 streaking); "
                            "direction (none, up, down, left, right, up-left, up-right, down-left, down-right, outward); drift 0-1 (sideways wobble); twinkle 0-1; glow 0-1; spin 0-1; gravity -2..3; "
                            "links {distance 40-260, opacity 0.04-0.6, color} to join nearby particles with lines; pointer (none, repulse, attract, grab, bubble, connect); "
                            "emit {from: bottom, top, left, right, center or random; rate 1-30 per second} for a steady stream instead of a fixed count.")},
+                "moment_spec": {"type": "object", "description": ("For moment: a full-screen moment you compose; it stays until the user clicks. Fields (all optional): "
+                                "template (celebrate, night show, stardust, giant, face) to start from; title (a few words shown large); sky (any sky name); particles (a particles recipe); "
+                                "burst (fireworks, confetti or confetti-rain); heroes: up to 3 {name: any built-in animal, vehicle, building or landscape; size 0.15-1.4 of screen height; "
+                                "motion; x 0-1; y 0-1 (where it stands, 0.9 near the bottom)}; face {line: what VQ's face says, style robot or human, expression}.")},
                 "moment": {"type": "string", "enum": ["fireworks", "confetti", "confetti-rain"], "description": "For celebrate: a few seconds of fireworks, a confetti burst, or confetti rain"},
                 "recipe": {"type": "object", "description": ("For creature: a creature assembled from VQ's parts kit. Fields: name; rig (quadruped, bird, fish, insect, serpent, biped, turtle, octopus, crab); "
                            "parts {head {shape, ears, eyes, muzzle, extras[], width, length, roundness}, neck {length, thickness}, body {shape, length, width}, "
@@ -1781,6 +1785,39 @@ def validate_ui_action(args: dict):
                 return None, "particles needs a preset or some design fields"
             clean["particles"] = pc
             parts = [pc.get("name") or pc.get("preset") or "custom particles"]
+    if action == "moment":
+        ms = args.get("moment_spec") if isinstance(args.get("moment_spec"), dict) else {}
+        out = {}
+        if str(ms.get("template") or "") in ("celebrate", "night show", "stardust", "giant", "face"):
+            out["template"] = ms["template"]
+        t = re.sub(r"[<>{}]", "", str(ms.get("title") or ""))[:60].strip()
+        if t: out["title"] = t
+        sky = str(ms.get("sky") or "").lower().strip()
+        if sky in _STYLE_CHOICES["scene"]: out["sky"] = sky
+        pc = clean_particles(ms.get("particles")) if ms.get("particles") else None
+        if pc: out["particles"] = pc
+        b = str(ms.get("burst") or "").lower().strip()
+        if b in ("fireworks", "confetti", "confetti-rain"): out["burst"] = b
+        heroes = []
+        for h in (ms.get("heroes") if isinstance(ms.get("heroes"), list) else ([ms["hero"]] if isinstance(ms.get("hero"), dict) else []))[:3]:
+            if not isinstance(h, dict): continue
+            nm = re.sub(r"[^\w '\-]", "", str(h.get("name") or "")).lower().strip()[:30]
+            if not nm: continue
+            hh = {"name": nm}
+            for k, lo, hi in (("size", 0.15, 1.4), ("x", 0, 1), ("y", 0.1, 0.98)):
+                try:
+                    if k in h: hh[k] = round(min(hi, max(lo, float(h[k]))), 3)
+                except (TypeError, ValueError): pass
+            if isinstance(h.get("motion"), str): hh["motion"] = h["motion"][:12]
+            heroes.append(hh)
+        if heroes: out["heroes"] = heroes
+        if isinstance(ms.get("face"), dict):
+            f = ms["face"]
+            out["face"] = {"line": re.sub(r"[<>]", "", str(f.get("line") or ""))[:160], "style": "human" if f.get("style") == "human" else "robot", "expression": str(f.get("expression") or "")[:20]}
+        if not out:
+            out["template"] = "celebrate"
+        clean["moment_spec"] = out
+        parts = [out.get("title") or out.get("template") or "a moment"]
     if action == "celebrate":
         m = str(args.get("moment") or "fireworks").lower().strip()
         clean["moment"] = {"confetti rain": "confetti-rain", "rain": "confetti-rain", "party": "confetti"}.get(m, m) if m in ("fireworks", "confetti", "confetti-rain", "confetti rain", "rain", "party") else "fireworks"
@@ -1859,6 +1896,7 @@ def validate_ui_action(args: dict):
         "draw": f"Drew {clean.get('name', 'a drawing')}" if action == "draw" else "",
         "creature": f"Assembled {clean.get('name', 'an animal')} from the parts kit" if action == "creature" else "",
         "particles": ("Particles → " + ", ".join(parts)) if action == "particles" else "",
+        "moment": ("Moment → " + ", ".join(parts)) if action == "moment" else "",
         "celebrate": f"Celebrated with {clean.get('moment', 'fireworks').replace('-', ' ')}" if action == "celebrate" else "",
         "swap": ("Swapped back: VQ has the main chat" if clean.get('state') == 'off' else f"Swapped places: {ENQUIRER_NAME} has the main chat"),
     }
@@ -2190,6 +2228,10 @@ UI_SYSTEM_NOTE = (
     "embers; blue snow drifting sideways -> preset snowfall, colors [#9fd0ff,#e0f0ff], direction down-right, drift 0.6; star map that reacts to "
     "the pointer -> preset constellations, pointer grab. To change the current particles, send the whole recipe again with the change. "
     "action particles with state off removes them. Built-ins are also free if the user types 'embers particles' or 'particles off'.\n"
+    "MOMENTS: when the user asks for something big and full-screen ('a giant dragon under the stars', 'surprise me', 'a moment to celebrate my exam'), "
+    "call ui_action with action moment and a moment_spec you compose from the parts: a sky, a particles recipe, a burst, up to 3 giant heroes "
+    "(built-in animals, vehicles, buildings and landscapes, sized as a fraction of the screen), your face speaking a short line, and a title. "
+    "The app fades away and it stays until the user clicks. Compose with taste: one clear idea, a hero or two, not everything at once.\n"
     "CELEBRATIONS: when the user asks to celebrate, or for fireworks or confetti, call ui_action with action celebrate and moment "
     "fireworks, confetti or confetti-rain. It lasts a few seconds. Never celebrate unasked.\n"
     "NEVER mention internal tool or action names (ui_action, theme_edit, create_theme) to the user; describe changes in plain words. "
