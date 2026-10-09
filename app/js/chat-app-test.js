@@ -4099,6 +4099,32 @@
     const histDate = t => t ? new Date(t).toLocaleString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Not recorded';
     const histAgo = t => { if (!t) return ''; const s = (Date.now() - t) / 1000; return s < 90 ? 'just now' : s < 3600 ? Math.round(s / 60) + ' min ago' : s < 86400 ? Math.round(s / 3600) + ' h ago' : Math.round(s / 86400) + ' d ago'; };
 
+
+    // Any full-screen console can talk to VQ: what it can't handle itself goes into the chat as a normal message,
+    // and the screen stays full: a thinking state, then VQ's answer (and any cards) fill the results stage.
+    // New full-screen views register a closer here so they join in automatically.
+    const FS_VIEWS = {
+        guide: { open: () => !!guideOpen, close: (i) => closeGuide(i) },
+        history: { open: () => !!histOpen, close: (i) => closeHistory(i) },
+        moment: { open: () => document.body.classList.contains('moment-on'), close: (i) => endMoment(i) },
+        results: { open: () => !!rsOpen, close: () => rsOpen && rsOpen.close() }
+    };
+    function fsAsk(text, from) {
+        const before = Object.keys(FS_VIEWS).filter(k => FS_VIEWS[k].open());
+        elements.messageInput.value = text; sendMessage();
+        let tries = 0;
+        const check = () => {
+            if (isTyping) {                                         // VQ is answering: hand over to the results stage
+                showResultsStage({ q: text, thinking: true });
+                setTimeout(() => Object.keys(FS_VIEWS).forEach(k => k !== 'results' && FS_VIEWS[k].open() && FS_VIEWS[k].close(true)), 750);
+                return;
+            }
+            const opened = Object.keys(FS_VIEWS).filter(k => FS_VIEWS[k].open() && !before.includes(k));
+            if (opened.length) { if (from && !opened.includes(from) && FS_VIEWS[from]) setTimeout(() => FS_VIEWS[from].close(true), 700); return; }   // a local command opened another full screen
+            if (++tries < 12) setTimeout(check, 50);
+        };
+        setTimeout(check, 30);
+    }
     // ---------- Results stage: search cards (news, films, books, papers, videos, layouts) full screen, live-synced with the chat ----------
     // The stage is a window onto the chat, not a copy of it: what you type here is sent as a normal chat message,
     // new answers and cards in the chat appear here as they arrive, and card buttons press the real buttons in the chat.
@@ -4117,6 +4143,14 @@
         });
         return sets;
     }
+    function lastExchange() {
+        const ms = [...(elements.messagesArea || document).querySelectorAll('.message')].filter(m => !m.closest('.rs'));
+        let i = ms.length - 1; while (i >= 0 && ms[i].classList.contains('user')) i--;
+        const msg = ms[i]; let j = i - 1; while (j >= 0 && !ms[j].classList.contains('user')) j--;
+        const q = j >= 0 ? (ms[j].querySelector('.message-content')?.innerText || '').trim() : '';
+        const c = msg?.querySelector('.message-content');
+        return { msg, q, html: c ? c.innerHTML : '', len: c ? c.textContent.length : 0 };
+    }
     function lastReplyText() {
         const ms = [...(elements.messagesArea || document).querySelectorAll('.message.assistant, .message.vq, .message:not(.user)')].filter(m => !m.closest('.rs'));
         const m = ms[ms.length - 1]; if (!m) return '';
@@ -4125,18 +4159,21 @@
         return c.innerText.replace(/\s+/g, ' ').trim();
     }
     function showResultsStage(opts = {}) {
-        if (rsOpen) { rsOpen.sync(true); return; }
+        if (rsOpen) { if (opts.thinking) rsOpen.think(opts.q); rsOpen.sync(true); return; }
         const ov = el('div', 'rs fs-iris'); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Results, full screen');
         ov.innerHTML = `
           <div class="rs-glow" aria-hidden="true"></div>
           <header class="rs-top"><div><span class="hist-eyebrow">VQ · results</span><h2 class="rs-h"></h2></div><button type="button" class="hist-close" aria-label="Close">✕</button></header>
+          <div class="rs-think" aria-live="polite"><div class="rs-think-q"></div><div class="rs-think-scan"><i></i></div><div class="rs-think-t">VQ is thinking<span>.</span><span>.</span><span>.</span></div></div>
           <div class="rs-sets"></div>
           <div class="rs-lens" aria-hidden="true"></div>
           <form class="rs-bar vq-console" autocomplete="off"><div class="vc-log" role="log" aria-live="polite"></div><label class="vc-prompt"><span aria-hidden="true">VQ&gt;</span><input type="text" maxlength="2000" aria-label="Talk to VQ" placeholder="ask anything — it goes into your chat · “zoom in on 2” · “close”"><i class="vc-caret" aria-hidden="true"></i></label></form>
           <div class="vq-stage-hint rs-hint">Esc or “close” to return to the chat</div>`;
         document.body.appendChild(ov); document.body.classList.add('rs-on');
         const setsEl = ov.querySelector('.rs-sets'), log = ov.querySelector('.vc-log'), inp = ov.querySelector('.rs-bar input'), head = ov.querySelector('.rs-h');
-        let zoomed = null, sig = '', cards = [];
+        let zoomed = null, sig = '', cards = [], wasTyping = false;
+        const think = (q) => { ov.classList.add('thinking'); log.textContent = 'VQ is thinking…'; ov.querySelector('.rs-think-q').textContent = q ? '“' + str(q, 160) + '”' : ''; head.textContent = q ? str(q, 140) : head.textContent; };
+        if (opts.thinking) think(opts.q);
         const say = (t) => { log.textContent = t; };
         const pressOriginal = (clone, orig, target) => {
             const sel = 'button, a, .pcard-toggle';
@@ -4152,6 +4189,7 @@
         });
         const zoom = async (card) => {
             if (zoomed === card) return unzoom();
+            ov.classList.add('snap');
             const others = cards.filter(c => c !== card);
             await Promise.all([pixelFade(card, 'out', 150), ...(zoomed ? [] : others.map(c => pixelFade(c, 'out', 150)))]);
             if (zoomed) { zoomed.classList.remove('zoom', 'expanded'); zoomed._ph?.remove(); }
@@ -4170,10 +4208,20 @@
         };
         const build = (sets) => {
             zoomed = null; ov.classList.remove('zooming'); setsEl.innerHTML = ''; cards = [];
-            if (!sets.length) { head.textContent = 'No cards in this chat yet'; setsEl.appendChild(el('p', 'rs-empty', 'Ask for news, films, books, papers or videos below and they’ll appear here as cards.')); return; }
+            const ex = lastExchange();
+            if (ex.q && !(sets.length && sets[sets.length - 1].msg === ex.msg)) {
+                // the latest answer has no cards: it gets the stage itself, earlier cards sit below it
+                head.textContent = str(ex.q, 140);
+                const a = el('section', 'rs-answer'); a.appendChild(el('div', 'rs-row-t', 'VQ'));
+                const body = el('div', 'rs-answer-body'); body.innerHTML = ex.html; body.querySelectorAll('.message-actions, button, .media-row, .present').forEach(n => n.remove());
+                a.appendChild(body); setsEl.appendChild(a);
+                if (!sets.length) return;
+            } else if (!sets.length) { head.textContent = 'No cards in this chat yet'; setsEl.appendChild(el('p', 'rs-empty', 'Ask for news, films, books, papers or videos below and they’ll appear here as cards.')); return; }
             const latest = sets[sets.length - 1];
-            head.textContent = latest.q ? str(latest.q, 140) : 'Your results';
+            if (!setsEl.querySelector('.rs-answer')) head.textContent = latest.q ? str(latest.q, 140) : 'Your results';
+            const answerShown = !!setsEl.querySelector('.rs-answer');
             sets.slice().reverse().forEach((set, si) => {
+                si += answerShown ? 1 : 0;
                 const sec = el('section', 'rs-set' + (si ? ' older' : ''));
                 if (si) sec.appendChild(el('div', 'rs-q', set.q ? '“' + str(set.q, 120) + '”' : 'Earlier'));
                 set.rows.forEach(row => {
@@ -4205,10 +4253,14 @@
         let lastText = '';
         const sync = (force) => {
             const sets = resultSets();
-            const s2 = sets.map(x => x.rows.map(r => r.querySelectorAll(RS_CARD).length).join(',')).join('|') + ':' + sets.length;
-            if (force || s2 !== sig) {
-                const fresh = sig !== '' && s2 !== sig; sig = s2; build(sets);
-                if (fresh) { cards.forEach(c => pixelFade(c, 'in', 300)); setsEl.scrollTo({ top: 0, behavior: 'smooth' }); }
+            if (isTyping) { if (!wasTyping) { wasTyping = true; think(lastExchange().q); } }
+            const ex = lastExchange();
+            const s2 = sets.map(x => x.rows.map(r => r.querySelectorAll(RS_CARD).length).join(',')).join('|') + ':' + sets.length + ':' + (isTyping ? 'T' : ex.len);
+            if (isTyping) { sig = s2; return; }
+            if (force || s2 !== sig || wasTyping) {
+                const fresh = (sig !== '' && s2 !== sig) || wasTyping; sig = s2; build(sets);
+                if (wasTyping || ov.classList.contains('thinking')) { wasTyping = false; ov.classList.remove('thinking'); }
+                if (fresh) { pixelFade(setsEl, 'in', 360, 16); setsEl.scrollTo({ top: 0 }); }
             }
             const t = isTyping ? 'VQ is thinking…' : lastReplyText();
             if (t !== lastText) { lastText = t; if (t) say(str(t, 420) + (t.length > 420 ? '…' : '')); }
@@ -4244,7 +4296,7 @@
             say('Sent to your chat: “' + str(raw, 120) + '”');
             elements.messageInput.value = ask; sendMessage();
         });
-        rsOpen = { ov, sync, close };
+        rsOpen = { ov, sync, close, think };
         ov.getBoundingClientRect(); requestAnimationFrame(() => requestAnimationFrame(() => ov.classList.add('in')));
         setTimeout(() => inp.focus({ preventScroll: true }), 500);
     }
@@ -4344,7 +4396,7 @@
                 if (g !== last) { last = g; col = el('div', 'hist-col'); col.appendChild(el('div', 'hist-group', g)); list.appendChild(col); }
                 const card = el('button', 'hist-card' + (c.active ? ' active' : '')); card.type = 'button'; card.dataset.id = c.id; card.setAttribute('role', 'listitem');
                 card.style.animationDelay = Math.min(n, 14) * 35 + 'ms';
-                card.innerHTML = `<span class="hist-c-title">${esc(c.title)}</span><span class="hist-c-first">${esc(c.first || '…')}</span>
+                card.innerHTML = `<span class="hist-c-title"><span class="hist-ic" aria-hidden="true">${ICONS.chat}</span>${esc(c.title)}</span><span class="hist-c-first">${esc(c.first || '…')}</span>
                   <span class="hist-c-meta"><span>${histAgo(c.updated)}</span><span>${c.count} messages</span>${c.code ? '<span>code</span>' : ''}${c.active ? '<span class="hist-now">open now</span>' : ''}</span>`;
                 card.addEventListener('click', () => showDetail(c));
                 card.addEventListener('dblclick', () => { closeHistory(); switchChat(c.id); });
@@ -4380,7 +4432,8 @@
             try {
                 const local = /^(?:open|show|go to|continue|take me to|resume)\b/i.test(q) ? best(q) : null;
                 if (local) { await go(local); return; }
-                if (!all.length) { await say('No chats yet. Start one and I will remember it here.'); return; }
+                const aboutChats = /\b(?:chats?|conversations?|talked|discussed|spoke|asked|said|mentioned|history|last time|earlier|yesterday|when did|which one|that one|the one)\b/i.test(q);
+                if (!aboutChats || !all.length) { await say('Asking VQ…', 'sys'); fsAsk(q, 'history'); return; }
                 const index = all.map((c, i) => ({ n: i + 1, title: c.title, created: c.created ? new Date(c.created).toISOString().slice(0, 16) : 'unknown', updated: new Date(c.updated).toISOString().slice(0, 16),
                     count: c.count, questions: c.questions, last: c.last.slice(0, 200) }));
                 const wait = el('div', 'hist-line sys', 'searching your chats'); log.appendChild(wait);
@@ -4396,8 +4449,9 @@
                     // VQ couldn't be reached: answer from the chats on this device instead
                     const ws = tokens(q), hits = all.filter(c => ws.some(w => (c.title + ' ' + c.questions.join(' ') + ' ' + c.last).toLowerCase().includes(w)));
                     data = { text: hits.length ? `Offline search: ${hits.length} chat${hits.length > 1 ? 's' : ''} match.\n` + hits.slice(0, 5).map(c => `#${all.indexOf(c) + 1} ${c.title} (${histAgo(c.updated)})`).join('\n') + (hits.length === 1 ? '' : '\nSay “open” and a name to open one.')
-                        : 'VQ is out of reach and nothing on this device matches. Try other words.', open: hits.length === 1 && /^(?:open|show|go to|continue)/i.test(q) ? all.indexOf(hits[0]) + 1 : null };
+                        : '', open: hits.length === 1 && /^(?:open|show|go to|continue)/i.test(q) ? all.indexOf(hits[0]) + 1 : null };
                 }
+                if (!data.text) { await say('Nothing in your chats matches. Asking VQ…', 'sys'); fsAsk(q, 'history'); return; }
                 const target = data.open && all[data.open - 1];
                 await say(data.text);
                 if (target) await go(target, `Opening “${target.title}”…`);
@@ -4409,6 +4463,21 @@
         const key = (e) => { if (e.key === 'Escape') { if (ov.classList.contains('reading')) ov.classList.remove('reading'); else closeHistory(); } };
         document.addEventListener('keydown', key);
         render();
+        // Match the sidebar's chat list exactly, whatever theme or accent is on
+        try {
+            const side = document.querySelector('.chat-history-item.active') || document.querySelector('.chat-history-item');
+            const ic = document.querySelector('.chat-history-item .chat-item-icon');
+            const rgba = (c) => (c || '').match(/[\d.]+/g)?.map(Number) || null;
+            const bg = side && rgba(getComputedStyle(side).backgroundColor), icc = ic && rgba(getComputedStyle(ic).color);
+            if (bg && (bg[3] === undefined || bg[3] > 0.02)) {
+                const al = bg[3] === undefined ? 1 : bg[3];
+                ov.style.setProperty('--hc-active', `rgba(${bg[0]},${bg[1]},${bg[2]},${Math.min(0.9, al * 1.1)})`);
+                ov.style.setProperty('--hc-bg', `rgba(${bg[0]},${bg[1]},${bg[2]},${(al * 0.45).toFixed(3)})`);
+                ov.style.setProperty('--hc-line', `rgba(${bg[0]},${bg[1]},${bg[2]},${Math.min(0.9, al * 1.6).toFixed(3)})`);
+                ov.style.setProperty('--hc-line-strong', `rgba(${bg[0]},${bg[1]},${bg[2]},${Math.min(1, al * 3).toFixed(3)})`);
+            }
+            if (icc) { ov.style.setProperty('--hc-icon', `rgb(${icc[0]},${icc[1]},${icc[2]})`); ov.style.setProperty('--hc-icon-soft', `rgba(${icc[0]},${icc[1]},${icc[2]},0.35)`); }
+        } catch (e) {}
         document.body.appendChild(ov);
         document.body.classList.add('hist-on');
         void ov.offsetWidth; requestAnimationFrame(() => requestAnimationFrame(() => ov.classList.add('in')));
@@ -4490,6 +4559,7 @@
         let zoomed = null;
         const zoom = async (card) => {
             if (zoomed === card) return unzoom();
+            ov.classList.add('snap');
             const others = [ov.querySelector('.gd-top'), ...grid.children].filter(n => n && n !== card && !n.classList.contains('gd-ph'));
             await Promise.all([pixelFade(card, 'out', 150), ...(zoomed ? [] : others.map(n => pixelFade(n, 'out', 150)))]);
             if (zoomed) { zoomed.classList.remove('zoom'); zoomed._ph?.remove(); }
@@ -4543,7 +4613,7 @@
             const hit = cards.map(c => [c, words.reduce((n, w) => n + ((c._g.t + ' ' + (c._g.k || '')).toLowerCase().includes(w) ? 1 : 0), 0)]).sort((a, b) => b[1] - a[1])[0];
             const zoomish = zq !== q || words.length <= 3;
             if (hit && hit[1] > 0 && zoomish && !GUIDE.some(g => g.say.concat(g.more || []).some(p => p.toLowerCase() === q))) { zoom(hit[0]); reply(`Zoomed in on “${hit[0]._g.t.replace(/^New: /, '')}”. Say “back” for all cards.`); return; }
-            closeGuide(true); elements.messageInput.value = raw; sendMessage();
+            reply('Asking VQ…'); fsAsk(raw, 'guide');
         });
         const key = (e) => { if (e.key === 'Escape') { if (!unzoom()) closeGuide(); } };
         ov.querySelector('.gd-close').addEventListener('click', () => closeGuide());
@@ -5218,7 +5288,7 @@
             bar.querySelector('input').value = '';
             if (/^(?:exit|close|stop|done|back|enough|that'?s enough|end)$/.test(q)) { endMoment(); return; }
             if (/^(?:more |again|another )?(fireworks|confetti|confetti rain)(?: again)?$/.test(q)) { const k = q.match(/fireworks|confetti rain|confetti/)[0].replace(' ', '-'); layers.appendChild(burstFrame(k)); bar.querySelector('.vc-log').textContent = 'More ' + k.replace('-', ' ') + '!'; return; }
-            endMoment(); elements.messageInput.value = raw; sendMessage();
+            bar.querySelector('.vc-log').textContent = 'Asking VQ…'; fsAsk(raw, 'moment');
         });
         stage.appendChild(bar);
         document.body.appendChild(stage);
