@@ -1381,6 +1381,81 @@
         /* Particle layer: VQ's own designs, glowing through the app like the live skies */
         .vq-particles { position: fixed; inset: 0; z-index: 3; pointer-events: none; mix-blend-mode: screen; opacity: 0.9; transition: opacity .6s; }
         .vq-particles[hidden] { display: none; }
+        /* ---- Your chats, full screen ---- */
+        .nav-label-row { display: flex; align-items: center; justify-content: space-between; }
+        .hist-launch { border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: var(--text-tertiary); font: inherit; font-size: 0.68rem; letter-spacing: 0.04em;
+            padding: 0.15rem 0.5rem; border-radius: 999px; cursor: pointer; text-transform: none; }
+        .hist-launch:hover { color: #fff; border-color: rgba(var(--ui-accent-rgb),0.6); }
+        body.hist-on #app-container { filter: blur(6px) brightness(0.5); transition: filter .35s; }
+        .hist { position: fixed; inset: 0; z-index: 2400; display: flex; flex-direction: column; padding: clamp(14px, 3vw, 36px); gap: 1rem; color: var(--text-primary);
+            background: radial-gradient(1200px 600px at 15% -10%, rgba(var(--ui-accent-rgb),0.16), transparent 60%), rgba(8,8,11,0.86);
+            backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2); opacity: 0; transform: scale(1.015); transition: opacity .32s ease, transform .4s cubic-bezier(.2,.8,.2,1); }
+        .hist.in { opacity: 1; transform: none; }
+        .hist-glow { position: absolute; inset: auto -10% -40% auto; width: 60vw; height: 60vw; border-radius: 50%; background: radial-gradient(circle, rgba(var(--ui-accent-rgb),0.08), transparent 65%); pointer-events: none; }
+        .hist-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; max-width: 1240px; width: 100%; margin: 0 auto; }
+        .hist-eyebrow { font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgb(var(--ui-accent-rgb)); }
+        .hist-brand h2 { margin: 0.3rem 0 0; font-family: "Cinzel", Georgia, serif; font-size: clamp(1.25rem, 3vw, 2rem); font-weight: 700; letter-spacing: 0.01em; }
+        .hist-close { flex: none; width: 2.6rem; height: 2.6rem; border-radius: 50%; border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.05); color: #fff; font-size: 1rem; cursor: pointer; }
+        .hist-close:hover { background: rgba(255,255,255,0.12); }
+        .hist-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.6rem; max-width: 1240px; width: 100%; margin: 0 auto; }
+        .hist-stat { padding: 0.7rem 0.9rem; border-radius: 14px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+        .hist-stat b { display: block; font-size: clamp(1.1rem, 2.4vw, 1.6rem); font-weight: 700; font-variant-numeric: tabular-nums; }
+        .hist-stat span { font-size: 0.74rem; color: var(--text-tertiary); }
+        .hist-tools { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; max-width: 1240px; width: 100%; margin: 0 auto; }
+        .hist-search { flex: 1 1 18rem; display: flex; align-items: center; gap: 0.5rem; height: 2.6rem; padding: 0 0.9rem; border-radius: 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); }
+        .hist-search:focus-within { border-color: rgba(var(--ui-accent-rgb),0.6); box-shadow: 0 0 0 3px rgba(var(--ui-accent-rgb),0.15); }
+        .hist-search svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; color: var(--text-tertiary); }
+        .hist-search input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; color: inherit; font: inherit; font-size: 0.92rem; }
+        .hist-topics { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+        .hist-topic { border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); color: var(--text-secondary); font: inherit; font-size: 0.76rem; padding: 0.3rem 0.65rem; border-radius: 999px; cursor: pointer; }
+        .hist-topic:hover, .hist-topic.on { color: #fff; border-color: rgba(var(--ui-accent-rgb),0.7); background: rgba(var(--ui-accent-rgb),0.16); }
+        .hist-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 1rem; max-width: 1240px; width: 100%; margin: 0 auto; }
+        .hist-list { overflow: auto; padding: 0.2rem 0.35rem 1.5rem 0.1rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 0.6rem; align-content: start; }
+        .hist-group { grid-column: 1 / -1; margin: 0.6rem 0.1rem 0.1rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--text-tertiary); }
+        .hist-card { display: flex; flex-direction: column; gap: 0.35rem; text-align: left; padding: 0.85rem 0.9rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
+            background: linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)); color: inherit; font: inherit; cursor: pointer; min-height: 7.4rem;
+            transition: transform .18s, border-color .2s, box-shadow .2s, background .2s; animation: histIn .45s cubic-bezier(.2,.8,.2,1) both; }
+        @keyframes histIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+        .hist-card:hover { transform: translateY(-3px); border-color: rgba(var(--ui-accent-rgb),0.45); box-shadow: 0 12px 28px rgba(0,0,0,0.35); }
+        .hist-card.sel { border-color: rgba(var(--ui-accent-rgb),0.9); background: linear-gradient(160deg, rgba(var(--ui-accent-rgb),0.16), rgba(255,255,255,0.03)); box-shadow: 0 0 0 1px rgba(var(--ui-accent-rgb),0.35), 0 14px 32px rgba(0,0,0,0.4); }
+        .hist-card:focus-visible { outline: 2px solid rgba(var(--ui-accent-rgb),0.8); outline-offset: 2px; }
+        .hist-c-title { font-weight: 650; font-size: 0.95rem; line-height: 1.3; }
+        .hist-c-first { font-size: 0.8rem; color: var(--text-tertiary); line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .hist-c-meta { margin-top: auto; display: flex; flex-wrap: wrap; gap: 0.35rem; font-size: 0.68rem; color: var(--text-tertiary); }
+        .hist-c-meta span { padding: 0.1rem 0.45rem; border-radius: 999px; background: rgba(255,255,255,0.05); }
+        .hist-c-meta .hist-now { background: rgba(var(--ui-accent-rgb),0.25); color: #fff; }
+        .hist-detail { overflow: auto; padding: 1.1rem 1.2rem 1.4rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.09); background: rgba(14,14,18,0.72); }
+        .hist-empty-detail, .hist-none { color: var(--text-tertiary); font-size: 0.9rem; padding: 1rem 0.2rem; }
+        .hist-d-head h3 { margin: 0.25rem 0 0.8rem; font-size: clamp(1.1rem, 2.2vw, 1.45rem); line-height: 1.3; }
+        .hist-when { font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgb(var(--ui-accent-rgb)); }
+        .hist-when em { font-style: normal; color: #fff; }
+        .hist-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin: 0 0 0.9rem; }
+        .hist-meta div { padding: 0.55rem 0.7rem; border-radius: 12px; background: rgba(255,255,255,0.04); }
+        .hist-meta dt { font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-tertiary); }
+        .hist-meta dd { margin: 0.15rem 0 0; font-size: 0.86rem; }
+        .hist-meta small { color: var(--text-tertiary); }
+        .hist-d-topics { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.9rem; }
+        .hist-d-topics span { font-size: 0.74rem; padding: 0.2rem 0.6rem; border-radius: 999px; border: 1px solid rgba(var(--ui-accent-rgb),0.4); color: var(--text-secondary); }
+        .hist-sec h4 { margin: 0.6rem 0 0.4rem; font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-tertiary); }
+        .hist-sec ol { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.35rem; font-size: 0.88rem; line-height: 1.45; }
+        .hist-sec blockquote { margin: 0; padding: 0.7rem 0.9rem; border-left: 3px solid rgb(var(--ui-accent-rgb)); background: rgba(255,255,255,0.03); border-radius: 0 12px 12px 0; font-size: 0.86rem; line-height: 1.55; color: var(--text-secondary); }
+        .hist-more { font-size: 0.78rem; color: var(--text-tertiary); margin: 0.35rem 0 0; }
+        .hist-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.1rem; }
+        .hist-actions button { font: inherit; font-size: 0.85rem; padding: 0.6rem 1rem; border-radius: 12px; cursor: pointer; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: var(--text-primary); }
+        .hist-actions .hist-open { background: rgb(var(--ui-accent-rgb)); color: #121212; border-color: transparent; font-weight: 650; }
+        .hist-actions .hist-sum:hover { border-color: rgba(var(--ui-accent-rgb),0.6); }
+        .hist-actions .hist-del { margin-left: auto; color: #f2a0a0; }
+        .hist-actions .hist-del:hover { background: rgba(220,60,60,0.18); }
+        @media (max-width: 760px) {
+            .hist-stats { grid-template-columns: repeat(2, 1fr); }
+            .hist-body { grid-template-columns: 1fr; }
+            .hist-detail { display: none; }
+            .hist.reading .hist-detail { display: block; position: fixed; inset: 0; z-index: 2; border-radius: 0; padding: 4.2rem 1rem 1.5rem; background: rgba(10,10,13,0.97); }
+            .hist.reading .hist-close { position: fixed; top: 14px; right: 14px; z-index: 3; }
+            .hist-meta { grid-template-columns: 1fr; }
+            .hist-list { grid-template-columns: 1fr; }
+        }
+        @media (prefers-reduced-motion: reduce) { .hist, .hist-card { animation: none; transition: none; } }
         /* ---- Moments: VQ takes the whole screen until you click ---- */
         #app-container, .vq-face-bg, .arrange-bar, .look-tools { transition: opacity .45s ease; }
         body.moment-on #app-container, body.moment-on .vq-face-bg, body.moment-on .arrange-bar, body.moment-on .ft-prompt, body.moment-on .quick-sheet, body.moment-on .local-note { opacity: 0.04; pointer-events: none; }
@@ -1477,7 +1552,7 @@
 
             <nav class="sidebar-nav">
                 <div class="nav-section">
-                    <div class="nav-label">Recent Chats</div>
+                    <div class="nav-label nav-label-row">Recent Chats <button type="button" class="hist-launch" id="hist-launch" title="See all your chats, full screen (free)" aria-label="See all your chats">⤢ All</button></div>
                     <div id="chat-history" class="chat-history">
                         <div class="empty-state">No conversations yet</div>
                     </div>
@@ -1707,6 +1782,6 @@
     <script src="js/vq-portraits.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-persona-bridge.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-run.js?v=2026-10-08-run"></script>
-    <script src="js/chat-app-test.js?v=2026-10-09-moments"></script>
+    <script src="js/chat-app-test.js?v=2026-10-09-history"></script>
 </body>
 </html>
