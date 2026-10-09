@@ -1259,6 +1259,53 @@
         .cat2.in-panel { padding: 0.2rem 0.15rem 0.6rem; }
         .cat2.in-panel .cat-head { padding-right: 0; }
         .cat2 { container-type: inline-size; container-name: cat; }
+        /* two levels: category tiles, then cards */
+        .cat2 .cat-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr)); gap: 0.5rem; margin-top: 0.6rem; }
+        .cat2[data-view]:not([data-view=""]) .cat-tiles, .cat2.searching .cat-tiles { display: none; }
+        .cat2 .cat-tile { position: relative; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 0.65rem; row-gap: 0.1rem; align-items: center; text-align: left;
+            padding: 0.75rem 0.8rem; border-radius: var(--cat-r); border: 1px solid var(--cat-line); background: rgba(255,255,255,0.03); color: inherit; font: inherit; cursor: pointer;
+            transition: transform .15s, border-color .2s, background .2s, box-shadow .2s; }
+        .cat2 .cat-tile:hover { transform: translateY(-2px); border-color: rgba(var(--ui-accent-rgb),0.45); background: rgba(var(--ui-accent-rgb),0.07); box-shadow: 0 8px 22px rgba(0,0,0,0.3); }
+        .cat2 .cat-tile:focus-visible { outline: 2px solid rgba(var(--ui-accent-rgb),0.7); outline-offset: 2px; }
+        .cat2 .cat-tile .cat-card-ic { grid-row: 1 / 3; }
+        .cat2 .cat-tile-title { font-weight: 650; font-size: 0.92rem; color: var(--text-primary); }
+        .cat2 .cat-tile-tag { font-size: 0.74rem; color: var(--text-tertiary); line-height: 1.3; }
+        .cat2 .cat-tile-n { position: absolute; top: 0.55rem; right: 0.65rem; font-size: 0.68rem; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+        .cat2 .cat-pane { display: none; }
+        .cat2.searching .cat-pane:not([hidden]) { display: block; }
+        .cat2.searching .cat-back { display: none; }
+        .cat2[data-view="Backgrounds"]:not(.searching) .cat-pane[data-g="Backgrounds"], .cat2[data-view="Scene"]:not(.searching) .cat-pane[data-g="Scene"], .cat2[data-view="Moments"]:not(.searching) .cat-pane[data-g="Moments"],
+        .cat2[data-view="VQ"]:not(.searching) .cat-pane[data-g="VQ"], .cat2[data-view="Look"]:not(.searching) .cat-pane[data-g="Look"], .cat2[data-view="Panel and tools"]:not(.searching) .cat-pane[data-g="Panel and tools"] { display: block; animation: paneIn .28s cubic-bezier(.2,.8,.2,1); }
+        @keyframes paneIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: none; } }
+        .cat2 .cat-pane-head { display: flex; align-items: center; gap: 0.6rem; margin: 0.7rem 0 0.45rem; }
+        .cat2 .cat-pane-head .cat-group { margin: 0; }
+        .cat2 .cat-back { height: 2rem; padding: 0 0.75rem; border-radius: 10px; border: 1px solid var(--cat-line); background: rgba(255,255,255,0.04); color: var(--text-secondary); font: inherit; font-size: 0.8rem; cursor: pointer; }
+        .cat2 .cat-back:hover { color: #fff; border-color: rgba(var(--ui-accent-rgb),0.5); }
+        .cat2[data-view]:not([data-view=""]):not(.searching) .quick-set { display: none; }
+        /* quick settings (in Customise and in the ⚙ sheet) */
+        .quick-set { margin-top: 0.7rem; padding: 0.7rem 0.75rem 0.75rem; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); }
+        .quick-set > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0 !important; }
+        .quick-set > summary::-webkit-details-marker { display: none; }
+        .quick-set > summary::after { content: '⌄'; margin-left: auto; font-size: 0.9rem; transition: transform .25s; }
+        .quick-set[open] > summary::after { transform: rotate(180deg); }
+        .quick-set[open] > summary { margin-bottom: 0.55rem !important; }
+        .quick-hint { font-size: 0.72rem; font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--text-tertiary); }
+        .quick-title { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 0.5rem; }
+        .quick-rows { display: grid; gap: 0.45rem; }
+        .quick-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; flex-wrap: wrap; }
+        .quick-label { font-size: 0.82rem; color: var(--text-secondary); }
+        .quick-seg { display: inline-flex; flex-wrap: wrap; gap: 2px; padding: 2px; border-radius: 10px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.07); }
+        .quick-opt { border: 0; background: transparent; color: var(--text-tertiary); font: inherit; font-size: 0.76rem; padding: 0.32rem 0.6rem; border-radius: 8px; cursor: pointer; transition: background .15s, color .15s; }
+        .quick-opt:hover { color: #fff; }
+        .quick-opt.on { background: rgba(var(--ui-accent-rgb),0.85); color: #10100f; font-weight: 600; }
+        .quick-sheet { position: fixed; z-index: 1500; left: 50%; bottom: 5.6rem; transform: translateX(-50%); width: min(30rem, calc(100vw - 24px)); max-height: 70vh; overflow: auto;
+            padding: 0.6rem 0.7rem 0.75rem; border-radius: 18px; background: rgba(18,18,22,0.94); border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 18px 50px rgba(0,0,0,0.55);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); animation: sheetIn .25s cubic-bezier(.2,.8,.2,1); }
+        @keyframes sheetIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        .quick-sheet .quick-set { margin-top: 0; border: 0; background: transparent; padding: 0.3rem 0.2rem 0.4rem; }
+        .quick-close { position: absolute; top: 0.55rem; right: 0.6rem; width: 1.9rem; height: 1.9rem; border-radius: 50%; border: 0; background: rgba(255,255,255,0.06); color: var(--text-secondary); cursor: pointer; }
+        .quick-more { width: 100%; margin-top: 0.3rem; padding: 0.55rem; border-radius: 12px; border: 1px solid rgba(var(--ui-accent-rgb),0.4); background: rgba(var(--ui-accent-rgb),0.1); color: var(--text-primary); font: inherit; font-size: 0.82rem; cursor: pointer; }
+        .quick-more:hover { background: rgba(var(--ui-accent-rgb),0.2); }
         @media (max-width: 520px) { .cat2 .cat-badge { display: none; } .cat2 .cat-card-tag { font-size: 0.72rem; } .cat2 .cat-chip { padding: 0.48rem 0.72rem; } }
         @container cat (max-width: 420px) {
             .cat2 .cat-badge, .cat2 .cat-count { display: none; }
@@ -1334,6 +1381,20 @@
         /* Particle layer: VQ's own designs, glowing through the app like the live skies */
         .vq-particles { position: fixed; inset: 0; z-index: 3; pointer-events: none; mix-blend-mode: screen; opacity: 0.9; transition: opacity .6s; }
         .vq-particles[hidden] { display: none; }
+        /* ---- Moments: VQ takes the whole screen until you click ---- */
+        #app-container, .vq-face-bg, .arrange-bar, .look-tools { transition: opacity .45s ease; }
+        body.moment-on #app-container, body.moment-on .vq-face-bg, body.moment-on .arrange-bar, body.moment-on .ft-prompt, body.moment-on .quick-sheet, body.moment-on .local-note { opacity: 0.04; pointer-events: none; }
+        body.moment-on .vq-particles { z-index: 2600; opacity: 1; }
+        .vq-stage { position: fixed; inset: 0; z-index: 2500; cursor: pointer; opacity: 0; transition: opacity .45s ease; background: radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.35)); }
+        .vq-stage.in { opacity: 1; }
+        .vq-stage-layers, .vq-stage-layers > * { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; pointer-events: none; }
+        .vq-stage-face { opacity: 0.92; color-scheme: dark; background: transparent; }
+        .vq-stage-title { position: absolute; left: 50%; top: 12%; transform: translateX(-50%); max-width: 90vw; text-align: center; pointer-events: none;
+            font-family: "Cinzel", Georgia, serif; font-weight: 700; font-size: clamp(1.6rem, 5vw, 3.6rem); color: #fff; letter-spacing: 0.04em;
+            text-shadow: 0 0 24px rgba(var(--ui-accent-rgb),0.8), 0 2px 8px rgba(0,0,0,0.7); animation: stageTitle 1.2s cubic-bezier(.2,.8,.2,1) both; }
+        @keyframes stageTitle { from { opacity: 0; transform: translate(-50%, 14px) scale(0.96); } to { opacity: 1; transform: translate(-50%, 0); } }
+        .vq-stage-hint { position: absolute; right: 14px; bottom: 12px; padding: 0.3rem 0.65rem; border-radius: 999px; font-size: 0.72rem; color: rgba(255,255,255,0.75);
+            background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.18); backdrop-filter: blur(6px); pointer-events: none; letter-spacing: 0.02em; }
         .vq-moment { position: fixed; inset: 0; width: 100vw; height: 100vh; border: 0; z-index: 2000; pointer-events: none; background: transparent; color-scheme: normal; }
         .vq-particles canvas { width: 100% !important; height: 100% !important; pointer-events: none !important; }
         body[data-fx="medium"] .vq-particles { opacity: 0.7; }
@@ -1520,6 +1581,7 @@
                         <span class="look-tools" id="look-tools">
                             <button type="button" class="look-btn" id="look-undo" hidden title="Undo the last change to the look (free)">↶ Undo</button>
                             <button type="button" class="look-btn" id="look-arrange" hidden title="Drag scene elements around, or drop them on the bin to remove them (free)">✥ Arrange</button>
+                            <button type="button" class="look-btn" id="look-settings" aria-haspopup="dialog" aria-expanded="false" title="Quick settings: effects, motion, ground, glow (free)">⚙ Settings</button>
                             <button type="button" class="look-btn" id="look-reset" title="Put the look back to the standard setup (free)">⟲ Reset look</button>
                         </span>
                         <span class="footer-links">
@@ -1645,6 +1707,6 @@
     <script src="js/vq-portraits.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-persona-bridge.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-run.js?v=2026-10-08-run"></script>
-    <script src="js/chat-app-test.js?v=2026-10-09-m3"></script>
+    <script src="js/chat-app-test.js?v=2026-10-09-moments"></script>
 </body>
 </html>
