@@ -3504,14 +3504,21 @@ def history_ask():
               "Be brief: one to four short lines, plain text, no markdown, like an old terminal readout. Refer to chats by their title and #number. "
               "If the user wants to open, show, go to or continue a chat, choose the best match and end your reply with a final line exactly 'OPEN #n'. "
               "If nothing matches, say so. Today is " + __import__("datetime").datetime.utcnow().strftime("%Y-%m-%d") + ".\n\nCHAT INDEX:\n" + "\n".join(lines))
-    try:
-        kw = dict(model=DRAW_MODEL, messages=[{"role": "system", "content": sysmsg}, {"role": "user", "content": q}], max_tokens=600, temperature=0.3)
-        if "gpt-oss" in DRAW_MODEL:
-            kw["reasoning_effort"] = "low"
-        r = groq_client.chat.completions.create(**kw)
-        text = re.sub(r"<think>[\s\S]*?</think>", "", (r.choices[0].message.content or "")).strip()
-    except Exception as e:
-        print(f"[HISTORY-ASK] failed: {e}", flush=True)
+    text, last_err = "", None
+    for model in dict.fromkeys([DRAW_MODEL, "openai/gpt-oss-120b", "openai/gpt-oss-20b"]):   # fall back if one model fails or comes back empty
+        try:
+            kw = dict(model=model, messages=[{"role": "system", "content": sysmsg}, {"role": "user", "content": q}], max_tokens=900, temperature=0.3)
+            if "gpt-oss" in model:
+                kw["reasoning_effort"] = "low"
+            r = groq_client.chat.completions.create(**kw)
+            text = re.sub(r"<think>[\s\S]*?</think>", "", (r.choices[0].message.content or "")).strip()
+            if text:
+                break
+            last_err = f"{model}: empty reply"
+        except Exception as e:
+            last_err = f"{model}: {e}"
+        print(f"[HISTORY-ASK] {last_err}", flush=True)
+    if not text:
         return jsonify({"error": "failed", "text": "Signal lost. Try again."}), 502
     m = re.search(r"OPEN\s*#(\d+)\s*$", text)
     out = {"text": re.sub(r"\n?OPEN\s*#\d+\s*$", "", text).strip()[:1200], "open": int(m.group(1)) if m else None}
