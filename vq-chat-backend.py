@@ -1980,10 +1980,72 @@ def draw_svg(spec: dict):
 ASSEMBLY_CAPS = json.loads('{"rigs":{"quadruped":{"motions":["idle","walk","graze","sit","run","play"],"parts":{"head":["round","oval","feline","canine","equine","bovine","ursine","rodent"],"eyes":["cartoon","simple","sleepy","closed"],"body":["bean","barrel","slender","long","round","woolly"],"neck":["standard"],"udder":["none","small"],"muzzle":["none","small","snout","trunk","smile"],"ears":["none","round","pointed","long","floppy","big","tufted","sideways"],"extras":["short-horns","curved-horns","spiral-horns","antlers","ossicones","mane","crest","whiskers","tusks","neck-mane"],"legs":["pawed","hoofed","clawed"],"tail":["none","thin","tufted","bushy","fluffy","reptile","curly"]}},"bird":{"motions":["perch","hop","fly","run","play"],"parts":{"head":["bird","owl","raptor"],"eyes":["cartoon","simple","sleepy","closed"],"body":["round","slender","long","upright"],"neck":["standard"],"muzzle":["beak-short","beak-hooked","beak-long","beak-flat","beak-needle"],"ears":["none"],"extras":["crest","tuft","comb"],"legs":["bird","webbed"],"tail":["none","fan","long-feathers"],"wings":["none","feathered"]}},"fish":{"motions":["swim","idle","play"],"parts":{"head":["fish","shark","whale","dolphin"],"eyes":["cartoon","simple","sleepy","closed"],"body":["streamlined","round","long"],"muzzle":["none","smile"],"ears":["none"],"extras":[],"tail":["fish-fin","whale-fluke"],"fins":["dorsal:rounded","dorsal:triangle","dorsal:tall","dorsal:none","pectoral:pointed","pectoral:rounded","pectoral:flipper","pectoral:none","tail:fork","tail:fan","tail:lunate","tail:fluke"]}},"insect":{"motions":["crawl","fly","idle","run","play"],"parts":{"head":["insect"],"eyes":["cartoon","simple","sleepy","closed"],"body":["segmented","wing-case","slender"],"muzzle":["none","smile"],"ears":["none"],"extras":["antennae"],"legs":["insect"],"tail":["none","stinger"],"wings":["none","clear","butterfly"]}},"serpent":{"motions":["slither","idle","play"],"parts":{"head":["reptile"],"eyes":["cartoon","simple","sleepy","closed"],"body":["serpentine"],"muzzle":["none","small","smile","forked-tongue"],"ears":["none"],"extras":[],"tail":["reptile"]}},"biped":{"motions":["idle","walk","fly","sit","run","play"],"parts":{"head":["dragon","round","oval","reptile"],"eyes":["cartoon","simple","sleepy","closed"],"body":["upright","round"],"neck":["standard"],"muzzle":["none","small","smile","forked-tongue"],"ears":["none","round","pointed","long","floppy","big","tufted","sideways"],"extras":["short-horns","curved-horns","crest","whiskers"],"legs":["pawed","clawed"],"tail":["none","reptile","thin"],"wings":["none","bat","feathered"],"arms":["small","clawed"]}},"turtle":{"motions":["walk","swim","idle","play"],"parts":{"head":["reptile"],"eyes":["cartoon","simple","sleepy","closed"],"body":["shell"],"muzzle":["none","small","smile","forked-tongue"],"ears":["none"],"extras":[],"legs":["clawed","flippers"],"tail":["reptile","none"]}},"octopus":{"motions":["swim","idle","play"],"parts":{"head":["none"],"eyes":["cartoon","simple","sleepy","closed"],"body":["octopus"],"tentacles":["curled","flowing"]}},"crab":{"motions":["walk","idle","run","play"],"parts":{"head":["none"],"eyes":["cartoon","simple","sleepy","closed"],"body":["carapace"],"legs":["crab"],"claws":["rounded","pointed"]}}},"parts":{"head":{"shape":{"values":["round","oval","feline","canine","equine","bovine","ursine","rodent","bird","owl","raptor","fish","shark","whale","dolphin","insect","reptile","dragon","none"],"default":"feline"},"width":{"min":0.65,"max":1.5,"default":1},"length":{"min":0.65,"max":1.5,"default":1},"roundness":{"min":0,"max":1,"default":0.5},"ears":{"values":["none","round","pointed","long","floppy","big","tufted","sideways"],"default":"round"},"eyes":{"values":["cartoon","simple","sleepy","closed"],"default":"simple"},"muzzle":{"values":["none","small","snout","trunk","smile","beak-short","beak-hooked","beak-long","beak-flat","beak-needle","forked-tongue"],"default":"small"},"extras":{"values":["short-horns","curved-horns","spiral-horns","antlers","ossicones","mane","crest","whiskers","tusks","neck-mane","antennae","tuft","comb"],"default":[],"maxItems":3},"size":{"min":0.65,"max":1.3,"default":1}},"neck":{"length":{"min":0,"max":1.8,"default":0.15},"thickness":{"min":0.35,"max":1.6,"default":0.8},"arch":{"min":0,"max":1,"default":0}},"body":{"shape":{"values":["bean","barrel","slender","long","round","woolly","upright","streamlined","segmented","wing-case","serpentine","shell","octopus","carapace"],"default":"bean"},"length":{"min":0.65,"max":1.6,"default":1},"width":{"min":0.65,"max":1.5,"default":1},"udder":{"values":["none","small"],"default":"none"}},"legs":{"type":{"values":["pawed","hoofed","clawed","bird","webbed","insect","flippers","crab"],"default":"pawed"},"length":{"min":0.2,"max":1,"default":0.5},"thickness":{"min":0.5,"max":1.6,"default":0.9}},"tail":{"type":{"values":["none","thin","tufted","bushy","fluffy","reptile","curly","fan","long-feathers","fish-fin","whale-fluke","stinger"],"default":"thin"},"length":{"min":0.1,"max":1.4,"default":0.8},"width":{"min":0.5,"max":1.6,"default":1},"curve":{"min":-1,"max":1,"default":0.25}},"wings":{"type":{"values":["none","feathered","clear","butterfly","bat"],"default":"none"},"pose":{"values":["auto","folded","open"],"default":"auto"},"length":{"min":0.5,"max":1.6,"default":1},"width":{"min":0.5,"max":1.5,"default":1}},"fins":{"dorsal":{"values":["none","rounded","triangle","tall"],"default":"rounded"},"pectoral":{"values":["none","pointed","rounded","flipper"],"default":"rounded"},"tail":{"values":["fork","fan","lunate","fluke"],"default":"fan"},"size":{"min":0.5,"max":1.5,"default":1}},"arms":{"type":{"values":["small","clawed"],"default":"small"},"length":{"min":0.5,"max":1.5,"default":1}},"tentacles":{"type":{"values":["curled","flowing"],"default":"curled"},"length":{"min":0.5,"max":1.5,"default":1}},"claws":{"type":{"values":["rounded","pointed"],"default":"rounded"},"size":{"min":0.5,"max":1.5,"default":1}}},"pattern":{"kind":{"values":["none","stripes","spots","patches","rosettes","fur","scales","feathers","bands"],"default":"none"},"density":{"min":0,"max":1,"default":0.5},"scale":{"min":0.5,"max":2,"default":1},"contrast":{"min":0,"max":1,"default":0.85},"color":{"format":"#hex","default":"colors.detail"}},"fields":{"recipeVersion":{"min":1,"max":1,"default":1},"rig":{"values":["quadruped","bird","fish","insect","serpent","biped","turtle","octopus","crab"],"default":"quadruped"},"name":{"minLength":1,"maxLength":80,"optional":true,"default":"quadruped"},"scale":{"values":["small","medium","large"],"optional":true,"conflictsWith":"size"},"parts":{"optional":true,"default":"All part defaults below"},"motion":{"default":"Per rig","values":["idle","walk","graze","sit","run","play","perch","hop","fly","swim","crawl","slither"]},"gait":{"values":["auto","gallop","bound","trot"],"default":"auto","rigs":["quadruped"]},"posture":{"values":["stand","crouch","sit"],"default":"stand","rigs":["quadruped","biped"]},"material":{"values":["matte","fur","feathers","scales"],"default":"matte"},"rimLight":{"min":0,"max":1,"default":0.28}}}')
 ANIMAL_PRESETS = ["tiger", "lion", "giraffe", "zebra", "elephant", "horse", "cow", "cat", "dog", "fox", "rabbit", "bear", "deer", "pig", "sheep",
                   "owl", "eagle", "parrot", "duck", "penguin", "flamingo", "hummingbird", "bee", "ladybird", "dragonfly", "ant",
-                  "goldfish", "reef fish", "shark", "whale", "dolphin", "turtle", "octopus", "crab", "snake", "dragon", "flying dragon"]
+                  "goldfish", "reef fish", "shark", "whale", "dolphin", "turtle", "octopus", "crab", "snake", "dragon", "flying dragon",
+                  "car", "bus", "train", "bicycle", "tractor", "plane", "jet", "helicopter", "rocket", "hot-air balloon", "airship", "sailboat", "ship",
+                  "rowing boat", "submarine", "cottage", "castle", "lighthouse", "windmill", "church", "barn", "bridge", "tent", "snowy mountain", "waterfall", "palm island"]
+MACHINE_CAPS = json.loads('{"rigs":{"vehicle_land":{"motions":["idle","drive"],"schemas":{"body":{"shape":{"values":["hatchback","sedan","pickup","van","bus","vintage","locomotive","tractor","bicycle"],"default":"hatchback"},"length":{"min":0.5,"max":2.5,"default":1},"width":{"min":0.5,"max":2,"default":1}},"wheels":{"type":{"values":["alloy","spokes","solid","tracks"],"default":"alloy"},"size":{"min":0.6,"max":1.5,"default":1}},"glazing":{"type":{"values":["windows","none"],"default":"windows"}},"fittings":{"type":{"values":["headlights","roof-rack","none"],"default":"headlights"},"carriages":{"min":0,"max":2,"default":0}}}},"vehicle_air":{"motions":["hover","fly","takeoff","land","idle"],"schemas":{"body":{"shape":{"values":["fuselage","jet","helicopter","rocket","balloon","airship","glider"],"default":"fuselage"},"length":{"min":0.5,"max":2.5,"default":1},"width":{"min":0.5,"max":2,"default":1}},"wings":{"type":{"values":["aircraft","delta","glider","none"],"default":"aircraft"}},"propulsion":{"type":{"values":["propeller","jet","rotor","thruster","burner","none"],"default":"propeller"}},"glazing":{"type":{"values":["windows","none"],"default":"windows"}},"fittings":{"type":{"values":["contrail","none"],"default":"contrail"}}}},"vessel":{"motions":["sail","idle","dive"],"schemas":{"body":{"shape":{"values":["sailboat","ship","rowing-boat","submarine"],"default":"sailboat"},"length":{"min":0.5,"max":2.5,"default":1},"width":{"min":0.5,"max":2,"default":1}},"sail":{"type":{"values":["triangle","square","none"],"default":"triangle"}},"cabin":{"type":{"values":["deckhouse","periscope","oars","none"],"default":"deckhouse"}},"fittings":{"type":{"values":["wake","bubbles","none"],"default":"wake"}},"flag":{"type":{"values":["pennant","rectangle","none"],"default":"pennant"}}}},"building":{"motions":["idle"],"schemas":{"body":{"shape":{"values":["cottage","castle","lighthouse","windmill","church","barn","tent"],"default":"cottage"},"length":{"min":0.5,"max":2.5,"default":1},"width":{"min":0.5,"max":2,"default":1}},"walls":{"type":{"values":["plaster","brick","stone","wood","fabric"],"default":"plaster"}},"roof":{"type":{"values":["gable","hip","flat","dome","spire","thatch"],"default":"gable"}},"openings":{"type":{"values":["square","arched","round"],"default":"square"},"windows":{"min":0,"max":8,"default":2}},"details":{"type":{"values":["chimney","battlements","columns","arches","steps","fence","sign","windmill-sails","lighthouse-lamp","none"],"default":"chimney"}},"tower":{"type":{"values":["square","round","none"],"default":"square"}}}},"landmark":{"motions":["idle"],"schemas":{"body":{"shape":{"values":["mountain","rocks","cliff","waterfall","island","bridge"],"default":"mountain"},"length":{"min":0.5,"max":2.5,"default":1},"width":{"min":0.5,"max":2,"default":1}},"surface":{"type":{"values":["snow","stone","sand","wood"],"default":"snow"}},"water":{"type":{"values":["pool","cascade","river","none"],"default":"pool"}},"foliage":{"type":{"values":["palms","none"],"default":"palms"}}}}},"materials":["matte","fur","feathers","scales","painted-metal","brushed-metal","chrome","wood","brick","stone","glass","fabric","rubber","emissive"]}')
 # Which registry field each rig-level slot list constrains
 _RIG_SLOT = {"head": ("head", "shape"), "eyes": ("head", "eyes"), "muzzle": ("head", "muzzle"), "ears": ("head", "ears"),
              "extras": ("head", "extras"), "body": ("body", "shape"), "legs": ("legs", "type"), "tail": ("tail", "type"), "wings": ("wings", "type")}
+
+def clean_machine(r):
+    """Vehicles, boats, buildings and landscapes from the parts kit (milestone 3 rigs)."""
+    rig = r["rig"]; info = MACHINE_CAPS["rigs"][rig]; probs = []
+    hexok = lambda v: isinstance(v, str) and re.fullmatch(r"#?[0-9a-fA-F]{6}", v.strip()) is not None
+    out = {"type": "assembly", "rig": rig, "recipeVersion": 1}
+    parts = {}
+    for slot, fields in info["schemas"].items():
+        src = (r.get("parts") or {}).get(slot) if isinstance(r.get("parts"), dict) else None
+        if not isinstance(src, dict):
+            continue
+        dst = {}
+        for f, v in src.items():
+            spec = fields.get(f)
+            if not spec:
+                probs.append(f"{slot}.{f}"); continue
+            if "values" in spec:
+                if v in spec["values"]: dst[f] = v
+                else: probs.append(f"{slot}.{f}={v!r}")
+            elif "min" in spec:
+                try:
+                    x = min(spec["max"], max(spec["min"], float(v)))
+                    dst[f] = int(round(x)) if f in ("windows", "carriages") else round(x, 2)
+                except (TypeError, ValueError):
+                    probs.append(f"{slot}.{f}={v!r}")
+        if dst:
+            parts[slot] = dst
+    if "body" not in parts:
+        return None, probs + ["body.shape missing"]
+    out["parts"] = parts
+    cols = r.get("colors") if isinstance(r.get("colors"), dict) else {}
+    colors = {k: "#" + cols[k].strip().lstrip("#") for k in ("base", "underside", "detail", "eyes") if hexok(cols.get(k))}
+    if "base" not in colors:
+        return None, probs + ["colors.base missing"]
+    out["colors"] = colors
+    if r.get("motion") in info["motions"]:
+        out["motion"] = r["motion"]
+    if r.get("material") in MACHINE_CAPS["materials"]:
+        out["material"] = r["material"]
+    sc = str(r.get("scale") or "").lower()
+    out["size"] = {"small": 110, "medium": 170, "large": 240, "huge": 320}.get(sc, 180)
+    try:
+        out["count"] = max(1, min(3, int(r.get("count") or 1)))
+    except (TypeError, ValueError):
+        out["count"] = 1
+    out["name"] = re.sub(r"[^\w '\-]", "", str(r.get("name") or rig.replace("_", " ")))[:30].strip() or "machine"
+    return out, probs
+
+
+def _machine_line():
+    out = []
+    for rig, info in MACHINE_CAPS["rigs"].items():
+        bits = []
+        for slot, fields in info["schemas"].items():
+            fs = [f"{f}: " + ("/".join(sp["values"]) if "values" in sp else f"{sp['min']}-{sp['max']}") for f, sp in fields.items()]
+            bits.append(f"{slot} {{" + ", ".join(fs) + "}")
+        out.append(f"{rig} [motions {'/'.join(info['motions'])}; " + "; ".join(bits) + "]")
+    return " MACHINE RIGS: " + " | ".join(out) + ". material: " + "/".join(MACHINE_CAPS["materials"]) + "."
+
 
 def _caps_line():
     out = []
@@ -2003,6 +2065,8 @@ def clean_recipe(r):
     """Keep only parts and values the chosen rig accepts; clamp numbers. Returns (recipe, problems)."""
     if not isinstance(r, dict):
         return None, ["no recipe"]
+    if r.get("rig") in MACHINE_CAPS["rigs"]:
+        return clean_machine(r)
     rig = r.get("rig") if r.get("rig") in ASSEMBLY_CAPS["rigs"] else "quadruped"
     allowed = ASSEMBLY_CAPS["rigs"][rig].get("parts") or {}
     probs, out = [], {"type": "assembly", "rig": rig, "recipeVersion": 1}
@@ -2106,7 +2170,7 @@ UI_SYSTEM_NOTE = (
     "ANIMALS AND CREATURES: these are built in and free: " + ", ".join(ANIMAL_PRESETS) + ". For one of these, use theme_edit add with its name "
     "(e.g. add 'giraffe', 'swimming shark'), never draw. For any OTHER creature (wolf, hippo, seagull, jellyfish, beetle, lizard), call ui_action "
     "with action creature and a recipe built only from the PARTS KIT; pick the rig that fits the body plan:" + _caps_line() + " Think about what makes "
-    "it recognisable (proportions, ears, tail, pattern, horns, beak, fins) and use natural colours. Use draw only for things no rig fits (objects, vehicles, buildings).\n"
+    "it recognisable (proportions, ears, tail, pattern, horns, beak, fins) and use natural colours. For any other vehicle, boat, building or landscape (a red double-decker bus, a stone tower, a fishing boat), also use action creature with a recipe from the machine rigs:" + _machine_line() + " Use draw only for things no rig fits.\n"
     "WHAT CREATURES DO: theme_edit with who (name) and does: a movement (walk, run, play, graze, sit, rest, swim, fly, hop, crawl), or chase/hunt/flee/follow/play "
     "with target (another creature's name), herd, pointer-chase, pointer-flee, or stop. These are also free if the user types them directly "
     "('the dog chases the cat').\n"
