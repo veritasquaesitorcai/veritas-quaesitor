@@ -1707,7 +1707,7 @@
         .rs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); gap: 0.9rem; align-items: start; perspective: 1400px; }
         .rs-grid > .rs-card { width: auto !important; max-width: none !important; margin: 0 !important; cursor: zoom-in; position: relative; }
         .rs-ph { border-radius: 16px; border: 1px dashed rgba(255,255,255,0.08); }
-        .rs .rs-card.zoom { position: fixed !important; z-index: 6; left: 50%; top: 45%; transform: translate(-50%, -50%); width: min(50rem, calc(100vw - 32px)) !important; max-height: 74vh; overflow: auto; cursor: zoom-out;
+        .rs .rs-card.zoom { position: fixed !important; z-index: 8; left: 50%; top: 45%; transform: translate(-50%, -50%); width: min(50rem, calc(100vw - 32px)) !important; max-height: 74vh; overflow: auto; cursor: zoom-out;
             background: linear-gradient(160deg, rgba(40,36,34,0.98), rgba(16,16,20,0.98)) !important; border: 1px solid rgba(var(--ui-accent-rgb),0.75) !important; border-radius: 18px;
             box-shadow: 0 30px 90px rgba(0,0,0,0.7), 0 0 60px rgba(var(--ui-accent-rgb),0.18); font-size: 1.05rem; }
         .rs .rs-card.zoom img { max-height: 40vh; object-fit: cover; }
@@ -1724,6 +1724,8 @@
         .rs .rs-grid > .movie-card img { width: 100%; height: 100%; object-fit: cover; }
         .rs .rs-card.zoom.movie-card > div:first-child { height: auto; max-height: none; }
         body.rs-on .ft-prompt, body.guide-on .ft-prompt, body.hist-on .ft-prompt, .gd ~ .ft-prompt { opacity: 0; pointer-events: none; }
+        .rs .rs-card.zoom .video-thumb { aspect-ratio: 16 / 9; height: auto; }
+        .rs iframe.rs-video { width: 100%; height: 100%; min-height: 40vh; border: 0; display: block; background: #000; }
         .snap .gd-card, .snap .gd-top, .snap .rs-card, .snap .rs-row-t, .snap .rs-q { transition: none !important; animation: none !important; }
         .rs { z-index: 2460; }
         .rs-think { display: none; position: absolute; inset: 0; z-index: 4; flex-direction: column; align-items: center; justify-content: center; gap: 1.4rem; pointer-events: none; }
@@ -1992,6 +1994,6 @@
     <script src="js/vq-portraits.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-persona-bridge.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-run.js?v=2026-10-08-run"></script>
-    <script src="js/chat-app-test.js?v=2026-10-09-fast"></script>
+    <script src="js/chat-app-test.js?v=2026-10-09-fix5"></script>
 </body>
 </html>
