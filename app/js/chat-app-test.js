@@ -26,6 +26,29 @@
         return m(16) | m(8) | m(0);
     }
 
+    const PARTICLE_SHAPES = ['circle', 'star', 'square', 'triangle', 'hexagon', 'line', 'glyph'];
+    const PARTICLE_DIRS = ['none', 'up', 'down', 'left', 'right', 'up-left', 'up-right', 'down-left', 'down-right', 'outward'];
+    const PARTICLE_POINTER = ['none', 'repulse', 'attract', 'grab', 'bubble', 'connect'];
+    const PARTICLE_FROM = ['bottom', 'top', 'left', 'right', 'center', 'random'];
+    const PARTICLE_BUILTINS = {
+        starfield:     { label: 'Starfield', shape: 'circle', colors: ['#ffffff', '#cfe3ff', '#ffe9c4'], count: 140, size: [0.5, 2], opacity: [0.3, 1], speed: 0.12, twinkle: 0.7 },
+        constellations:{ label: 'Constellations', shape: 'circle', colors: ['accent', '#ffffff'], count: 60, size: [1, 2.5], opacity: [0.5, 1], speed: 0.5, links: { distance: 140, opacity: 0.22 }, pointer: 'grab' },
+        embers:        { label: 'Embers', shape: 'circle', colors: ['#ffb347', '#ff7a2a', '#ffd27a'], count: 55, size: [1, 3], opacity: [0.3, 1], speed: 1.1, direction: 'up', drift: 0.6, twinkle: 0.6, glow: 0.6 },
+        fireflies:     { label: 'Fireflies', shape: 'circle', colors: ['#fff3a0', '#d4ff7a', '#ffe680'], count: 32, size: [1.5, 3.2], opacity: [0.1, 1], speed: 0.55, drift: 0.5, twinkle: 1, glow: 0.9, pointer: 'bubble' },
+        snowfall:      { label: 'Snowfall', shape: 'circle', colors: ['#ffffff', '#e6f0ff'], count: 140, size: [1, 4], opacity: [0.4, 0.95], speed: 1, direction: 'down', drift: 0.5 },
+        bubbles:       { label: 'Bubbles', shape: 'circle', colors: ['#bfe9ff', '#8fd3ff', '#ffffff'], count: 30, size: [3, 12], opacity: [0.12, 0.4], speed: 0.9, direction: 'up', drift: 0.4, pointer: 'repulse' },
+        dust:          { label: 'Dust in the light', shape: 'circle', colors: ['#fff4dc', '#ffe2b0'], count: 90, size: [0.5, 1.8], opacity: [0.1, 0.6], speed: 0.2, drift: 0.3, twinkle: 0.4 },
+        orbs:          { label: 'Glow orbs', shape: 'circle', colors: ['accent', '#6aa8ff', '#c38bff'], count: 14, size: [18, 50], opacity: [0.05, 0.18], speed: 0.35, glow: 0.4 },
+        warp:          { label: 'Warp speed', shape: 'line', colors: ['#ffffff', '#cfe3ff', 'accent'], count: 0, size: [1, 2], opacity: [0.4, 1], speed: 9, direction: 'outward', emit: { from: 'center', rate: 12 } },
+        geometry:      { label: 'Geometry', shape: 'triangle', colors: ['accent', '#ffffff'], count: 40, size: [2, 5], opacity: [0.3, 0.8], speed: 0.6, spin: 0.4, links: { distance: 150, opacity: 0.18 } },
+        hearts:        { label: 'Hearts', shape: 'glyph', glyph: '♥', colors: ['#ff6b8a', '#ff9fb3', '#ffd0dc'], count: 26, size: [8, 18], opacity: [0.3, 0.85], speed: 0.8, direction: 'up', drift: 0.6 },
+        starlight:     { label: 'Starlight', shape: 'star', colors: ['#ffe58a', '#fff6cf', 'accent'], count: 40, size: [2, 5], opacity: [0.2, 1], speed: 0.3, spin: 0.3, twinkle: 0.8, glow: 0.5 }
+    };
+    const PARTICLE_WORDS = {};
+    Object.entries(PARTICLE_BUILTINS).forEach(([k, v]) => [k, v.label.toLowerCase()].forEach(w => { PARTICLE_WORDS[w] = k; }));
+    Object.assign(PARTICLE_WORDS, { stars: 'starfield', 'star field': 'starfield', sparks: 'embers', 'rising sparks': 'embers', snow: 'snowfall', motes: 'dust', 'dust motes': 'dust',
+        bokeh: 'orbs', orbs: 'orbs', hyperspace: 'warp', triangles: 'geometry', 'love hearts': 'hearts', 'golden stars': 'starlight' });
+
     const CONFIG = {
         apiEndpoint: 'https://veritas-quaesitor-production.up.railway.app/chat',
         maxMessageLength: 2000,
@@ -2525,6 +2548,7 @@
         lift('accent2', mixHex(s.accent, '#ffffff', 0.35), 4.5, 'brightened the second accent');
         lift('icon', s.accent2, 4.5, 'brightened the icons');
         if (SKY_KEYS.includes(raw.scene)) s.scene = raw.scene;
+        if (raw.particles) { const pc = cleanParticles(raw.particles); if (pc) s.particles = pc; }
         const fxIn = Array.isArray(raw.effects) ? raw.effects : String(raw.effects || '').split(',');
         s.effects = [...new Set(fxIn.map(x => String(x).trim().toLowerCase()).filter(x => FX_LIST.includes(x)))].slice(0, 4);
         const okParam = (k, v) => /^[a-z]{2,14}$/i.test(k) && (typeof v === 'number' && isFinite(v) || typeof v === 'boolean' || (typeof v === 'string' && v.length <= 12));
@@ -2605,6 +2629,7 @@
         uiPrefs.theme = id;
         uiPrefs.accent = 'theme';
         if (spec.scene) { uiPrefs.scene = spec.scene; uiPrefs.mist = spec.scene !== 'none'; }
+        uiPrefs.particles = spec.particles || null;   // a new look brings its own particles, or none
         return { id, spec, fixes };
     }
 
@@ -3281,6 +3306,21 @@
         document.body.style.setProperty('--arrange-top', (hr.top + 12) + 'px');
         return true;
     }
+    // Elements normally keep to their part of the scene (plants on the ground, flyers in the sky). While you arrange,
+    // they can go anywhere: every instance of the element is pinned where it stands now, then the element is freed to
+    // the whole scene, so its siblings don't move and the one in your hand can be carried anywhere and take root there.
+    let freeHeld = null;
+    function freeDrag(id) {
+        try {
+            const nodes = (artEngine && Array.isArray(artEngine.nodes) ? artEngine.nodes : []).filter(n => n && n.e && n.e.id === id);
+            if (!nodes.length) return null;
+            const pos = artEngine.getPositions(id) || [];
+            nodes.forEach(n => { if (!n.position && pos[n.index]) n.position = pos[n.index].slice(); });
+            const e = nodes[0].e, was = e.area;
+            e.area = 'full';
+            return { id, was };
+        } catch (err) { return null; }
+    }
     function wireArrange(host) {
         let grab = [0, 0], pointer = null;
         const point = ev => { const r = host.getBoundingClientRect(); return [ev.clientX - r.left, ev.clientY - r.top]; };
@@ -3291,6 +3331,7 @@
             const [x, y] = point(ev), hit = artEngine.hitTest(x, y);
             if (!hit || hit.ok === false) return;
             if (!artEngine.lift(hit.id, hit.index).ok) return;
+            freeHeld = freeDrag(hit.id);
             const pos = (artEngine.getPositions(hit.id) || [])[hit.index] || [0.5, 0.5];
             const r = host.getBoundingClientRect();
             grab = [x - pos[0] * r.width, y - pos[1] * r.height];
@@ -3302,6 +3343,8 @@
         host.addEventListener('pointermove', ev => {
             if (ev.pointerId !== pointer || !arrangeHeld) return;
             const [x, y] = point(ev);
+            const r = host.getBoundingClientRect(), ty = Math.min(1, Math.max(0, (y - grab[1]) / Math.max(1, r.height)));
+            if (freeHeld && artEngine.lifted && artEngine.lifted.e && artEngine.lifted.e.id === arrangeHeld.id) artEngine.lifted.groundCenter = ty;   // plants and animals take root wherever you carry them
             artEngine.dragTo(x - grab[0], y - grab[1]);
             if (arrangeBin) arrangeBin.classList.toggle('hot', overBin(ev));
         });
@@ -3316,12 +3359,14 @@
             if (!hit || !artEngine) return;
             const d = artEngine.drop();
             if (!d || !d.ok) return;
+            const free = freeHeld ? { area: 'full' } : {};
+            freeHeld = null;
             if (binned) {
                 const r = artEngine.removeInstance(hit.id, hit.index);
-                if (r && r.ok) saveArtEdit(hit.id, { count: r.count, density: 1, positions: artEngine.getPositions(hit.id) });
+                if (r && r.ok) saveArtEdit(hit.id, Object.assign({ count: r.count, density: 1, positions: artEngine.getPositions(hit.id) }, free));
             } else {
                 const pos = artEngine.getPositions(hit.id);
-                if (Array.isArray(pos)) saveArtEdit(hit.id, { count: pos.length, density: 1, positions: pos });
+                if (Array.isArray(pos)) saveArtEdit(hit.id, Object.assign({ count: pos.length, density: 1, positions: pos }, free));
             }
         };
         host.addEventListener('pointerup', finish);
@@ -3647,7 +3692,8 @@
         lastArtWord = a.name;
         return note;
     }
-    window.VQScene = { engine: () => artEngine, ids: () => Object.assign({}, artIdIndex), arrange: (on) => setArrange(on !== false), convert: svgToCustom };   // for testing and tinkering
+    window.VQScene = { engine: () => artEngine, ids: () => Object.assign({}, artIdIndex), arrange: (on) => setArrange(on !== false), convert: svgToCustom,
+        particles: (r) => { setParticles(typeof r === 'string' ? { preset: r } : r); saveUIPrefs(); return applyParticles(); }, particleBox: () => particleBox, celebrate: (k) => celebrate(k) };   // for testing and tinkering
     // An animal VQ assembled from the parts kit: checked by the scene engine, then added like any other element
     function addCreature(act) {
         const r = act.recipe && typeof act.recipe === 'object' ? JSON.parse(JSON.stringify(act.recipe)) : null;
@@ -3911,6 +3957,71 @@
     const SKY_LABEL = { mist: 'Mist', clouds: 'Clouds', sunset: 'Sunset', night: 'Night sky', seaday: 'Seashore', seanight: 'Seashore at night', storm: 'Storm', none: 'Still (no sky)' };
     Object.keys(LIVE_SKIES).forEach(k => { SKY_LABEL[k] = LIVE_SKIES[k].label; });
 
+    // ---------- The customisation catalogue: grouped, searchable, collapsible cards; every chip works ----------
+    const CAT_ICONS = {
+        robot: '<rect x="5" y="8" width="14" height="11" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9.5 16h5"/>',
+        face: '<circle cx="12" cy="12" r="8"/><path d="M9 10h.01M15 10h.01M8.5 14.5c1.8 1.6 5.2 1.6 7 0"/>',
+        sky: '<path d="M7 18h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.3 1.6A3.2 3.2 0 0 0 7 18z"/>',
+        live: '<path d="M3 15c3-4 6 4 9 0s6 4 9 0M3 10c3-4 6 4 9 0s6 4 9 0"/>',
+        sparkles: '<path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/>',
+        party: '<path d="M4 20l5-13 8 8z"/><path d="M14 4v2M19 9h2M17.5 5.5l1.5-1.5M13 9c1-1 2.5-1.5 4-1"/>',
+        flower: '<circle cx="12" cy="9" r="2.2"/><path d="M12 6.8c0-2.5 3-2.5 3 0M12 11.2c0 2.5-3 2.5-3 0M9.8 9c-2.5 0-2.5-3 0-3M14.2 9c2.5 0 2.5 3 0 3M12 11.5V21M12 17c-2-2-4-2-5-1"/>',
+        paw: '<circle cx="7" cy="10" r="1.6"/><circle cx="10.5" cy="6.5" r="1.6"/><circle cx="14.5" cy="6.5" r="1.6"/><circle cx="18" cy="10" r="1.6"/><path d="M12.5 11c-3 0-5.5 4-4.5 6.5 1 2 3 1 4.5 1s3.5 1 4.5-1c1-2.5-1.5-6.5-4.5-6.5z"/>',
+        bird: '<path d="M3 13c4 0 6-3 9-3 2 0 3 1 4 2l5-1-4 3c-1 3-4 5-8 5-3 0-5-2-6-6z"/><path d="M11 10l2-5 2 4"/>',
+        fish: '<path d="M3 12c3-4 9-6 13-2l4-3v10l-4-3c-4 4-10 2-13-2z"/><path d="M8 11h.01"/>',
+        motion: '<path d="M4 12h12M12 7l5 5-5 5M4 7h4M4 17h4"/>',
+        pencil: '<path d="M4 20l1-4 11-11 3 3-11 11z"/><path d="M14 7l3 3"/>',
+        move: '<path d="M12 3v18M3 12h18M12 3l-2.5 2.5M12 3l2.5 2.5M12 21l-2.5-2.5M12 21l2.5-2.5M3 12l2.5-2.5M3 12l2.5 2.5M21 12l-2.5-2.5M21 12l-2.5 2.5"/>',
+        layers: '<path d="M12 4l9 5-9 5-9-5z"/><path d="M3 14l9 5 9-5"/>',
+        galaxy: '<circle cx="12" cy="12" r="1.8"/><path d="M12 4c5 0 8 3 7 6M12 20c-5 0-8-3-7-6M4.5 9.5C6 5 10 4 12 4M19.5 14.5C18 19 14 20 12 20"/>',
+        eraser: '<path d="M4 16l8-8 6 6-5 5H8z"/><path d="M13 19h7"/>',
+        gauge: '<path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l4-5"/>',
+        drop: '<path d="M12 3c3.5 4.5 6 7.6 6 11a6 6 0 0 1-12 0c0-3.4 2.5-6.5 6-11z"/>',
+        palette: '<path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-1 1.4-2-.6-1.4.2-2.6 1.7-2.6H17a4 4 0 0 0 4-4c0-5-4-9.4-9-9.4z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="14.5" cy="7" r="1"/>',
+        type: '<path d="M5 6V4h14v2M12 4v16M9 20h6"/>',
+        layout: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/>',
+        glow: '<circle cx="12" cy="12" r="3.5"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
+        panel: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/>',
+        code: '<path d="M8 8l-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14"/>',
+        undo: '<path d="M9 7L4 12l5 5"/><path d="M4 12h10a6 6 0 0 1 0 12h-2" transform="translate(0 -6)"/>',
+        search: '<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/>',
+        chevron: '<path d="M8 10l4 4 4-4"/>'
+    };
+    const catIcon = (name, cls = 'cat-ic') => `<svg viewBox="0 0 24 24" class="${cls}" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${CAT_ICONS[name] || ''}</svg>`;
+    const SKY_SWATCH = { mist: 'linear-gradient(135deg,#2a2a33,#5a5560)', clouds: 'linear-gradient(135deg,#3b4b63,#8b9bb3)', sunset: 'linear-gradient(135deg,#3a1d3d,#ff8c42)',
+        night: 'radial-gradient(circle at 70% 30%,#e8e4c8 0 18%,#0d1530 22%)', seaday: 'linear-gradient(180deg,#7fb6e0 0 50%,#1f6f99 50%)', seanight: 'linear-gradient(180deg,#0d1530 0 50%,#1d3a66 50%)',
+        storm: 'linear-gradient(135deg,#1b1f2a,#4a5468)', none: 'linear-gradient(135deg,#151515,#262626)',
+        livefog: 'radial-gradient(circle at 30% 30%,#ff6a3d,#1b2a4a 70%)', lowpolysea: 'conic-gradient(from 30deg,#0d3a4a,#1f6f8b,#0b2530,#2a8aa8,#0d3a4a)', cloudsky: 'linear-gradient(180deg,#5a7fa8,#c9d4e6)',
+        flock: 'radial-gradient(circle at 60% 40%,#88ccff 0 14%,#0b0f19 18%)', network: 'repeating-linear-gradient(45deg,#ff3f81 0 1px,#23153c 1px 5px)', cells: 'radial-gradient(circle at 35% 35%,#2bb5a6,#0b2a33 65%)',
+        dotfield: 'radial-gradient(circle,#ff8820 0 22%,#202020 26%)', globe: 'radial-gradient(circle at 40% 40%,#ff3f81,#23153c 70%)', halo: 'radial-gradient(circle,#0b0f19 0 30%,#7a5cff 40%,#2ad1ff 55%,#0b0f19 70%)',
+        rings: 'repeating-radial-gradient(circle,#88ff00 0 1.5px,#202428 1.5px 4px)', ripple: 'repeating-radial-gradient(circle,#2bb5a6 0 1px,#0b2a33 1px 4px)', flowlines: 'repeating-linear-gradient(120deg,#89964e 0 1px,#002222 1px 4px)',
+        threads: 'repeating-radial-gradient(circle,#98465f 0 1px,#222426 1px 3px)' };
+    const catOpenKey = 'vq-catalog-open';
+    function catOpenGet() { try { return new Set(JSON.parse(localStorage.getItem(catOpenKey) || '[]')); } catch (e) { return new Set(); } }
+    function catOpenSet(set) { try { localStorage.setItem(catOpenKey, JSON.stringify([...set])); } catch (e) { } }
+
+    // What's switched on right now, so the matching chips show as selected
+    function catActive() {
+        const on = new Set();
+        const lc = v => String(v || '').toLowerCase();
+        on.add(`${lc(uiPrefs.theme)} theme`);
+        if (uiPrefs.accent !== 'theme') on.add(`${lc(uiPrefs.accent)} accent`);
+        on.add(`${lc(uiPrefs.font || 'default')} font`);
+        on.add(`effects ${uiPrefs.fx || 'high'}`);
+        const sk = uiPrefs.scene || 'mist';
+        on.add({ mist: 'mist', clouds: 'clouds', sunset: 'sunset', night: 'night sky', seaday: 'seashore', seanight: 'seashore at night', storm: 'storm', none: 'no sky' }[sk] || (SKY_LABEL[sk] || '').toLowerCase() + ' sky');
+        on.add(uiPrefs.skyColours === 'original' ? 'sky colours original' : 'sky colours accent');
+        const p = uiPrefs.particles; if (p && p.preset && PARTICLE_BUILTINS[p.preset] && !p.name) on.add(PARTICLE_BUILTINS[p.preset].label.toLowerCase() + ' particles');
+        if (p && p.preset && PARTICLE_BUILTINS[p.preset] && p.name === PARTICLE_BUILTINS[p.preset].label) on.add(PARTICLE_BUILTINS[p.preset].label.toLowerCase() + ' particles');
+        if (!p) on.add('particles off');
+        on.add(uiPrefs.ground === 'box' ? 'ground above the message box' : 'ground at the bottom');
+        on.add(uiPrefs.bubbles ? 'bubbles on' : 'bubbles off');
+        on.add(uiPrefs.glow === false ? 'glow off' : 'glow on');
+        on.add(`text static ${uiPrefs.textStatic || 'reduced'}`);
+        on.add(uiPrefs.skyColours === 'original' ? 'sky colours original' : 'sky colours accent');
+        return on;
+    }
+
     // host: the side panel's Customise tab; without one, the list opens in the chat
     function showCatalog(host) {
         if (!host) {
@@ -3918,79 +4029,186 @@
             hideWelcomeScreen();
             elements.chatContainer.classList.add('has-messages');
         }
-        const box = el('div', 'ft-offer catalog' + (host ? ' in-panel' : ''));
-        box.appendChild(el('div', 'ft-offer-title', 'Everything you can customise'));
-        box.appendChild(el('div', 'ft-offer-text', 'Tap any item to try it, or type it yourself. Press and hold anywhere on this list to see through it. Themes, skies, elements, arranging, effects, effects strength, text static, bigger/smaller, focus, undo and reset are instant and free; the rest are passed to VQ and use a message.'));
         const run = (cmd) => { elements.messageInput.value = cmd; sendMessage(); };
-        const section = (title, note, items) => {
-            const sec = el('div', 'cat-sec');
-            sec.appendChild(el('div', 'cat-title', title));
-            if (note) sec.appendChild(el('div', 'cat-note', note));
+        const suggest = (text) => { elements.messageInput.value = text; elements.messageInput.focus(); try { elements.messageInput.dispatchEvent(new Event('input')); } catch (e) { } };
+        const active = catActive();
+        const accentHex = a => (ACCENTS[String(a).toLowerCase()] || ['#888'])[0];
+        const S = [];   // sections: { id, group, icon, title, tag, note, cost, items:[[label, cmd, swatch?, fontStack?]] }
+        const add = (o) => S.push(o);
+
+        add({ id: 'vq', group: 'VQ', icon: 'robot', title: 'VQ himself', tag: 'His animated robot body', cost: 'free',
+            note: 'He looks at you, follows the conversation, thinks, speaks and shows moods. On a night sky he sits on the moon and fishes.',
+            items: [['In the header', 'vq in the header'], ['In the side panel', 'show vq'], ['Walking around', 'let vq walk around'], ['Flying', 'let vq fly'], ['On the moon, fishing', 'vq on the moon'], ['Hide VQ', 'hide vq']] });
+        add({ id: 'face', group: 'VQ', icon: 'face', title: 'VQ’s face', tag: 'A living face made of text characters', cost: 'free',
+            note: 'It thinks while VQ works, speaks as his answer streams in, blinks and follows your pointer. The robot style becomes O.R.I.A. when she speaks.',
+            items: [['Face in the panel', 'show the face'], ['As the background', 'face background'], ['Background off', 'face background off'], ['VQ robot style', 'robot face'], ['Human style', 'human face']] });
+
+        add({ id: 'skies', group: 'Backgrounds', icon: 'sky', title: 'Skies', tag: `${SKY_KEYS.length} moving skies, painted or live 3D`, cost: 'free',
+            note: 'One sky at a time, behind everything. The live skies (from Living fog on) are 3D and glow through the app.',
+            items: SKY_KEYS.map(k => [SKY_LABEL[k], { mist: 'mist', clouds: 'clouds', sunset: 'sunset', night: 'night sky', seaday: 'seashore', seanight: 'seashore at night', storm: 'storm', none: 'no sky' }[k] || SKY_LABEL[k].toLowerCase() + ' sky',
+                SKY_SWATCH[k] || (LIVE_SKIES[k] ? `linear-gradient(135deg,#0b0f19, rgb(var(--ui-accent-rgb)))` : null)]) });
+        add({ id: 'skycol', group: 'Backgrounds', icon: 'live', title: 'Live sky colours', tag: 'Your accent, or each sky’s own colours', cost: 'free',
+            items: [['Follow my accent', 'sky colours accent', 'rgb(var(--ui-accent-rgb))'], ['Original colours', 'sky colours original', 'linear-gradient(135deg,#7a3cff,#ff3c8e)']] });
+        add({ id: 'particles', group: 'Backgrounds', icon: 'sparkles', title: 'Particles', tag: 'A layer of light VQ designs himself', cost: 'mixed',
+            note: 'These twelve are free. Or ask VQ for any particle effect and he designs it: “slow golden embers rising”, “blue snow drifting sideways”, “a star map that reacts to my pointer” (uses a message).',
+            items: Object.entries(PARTICLE_BUILTINS).map(([k, v]) => [v.label, v.label.toLowerCase() + ' particles', `linear-gradient(135deg, ${v.colors.map(c => c === 'accent' ? 'rgb(var(--ui-accent-rgb))' : c).concat(v.colors.length < 2 ? [v.colors[0] === 'accent' ? 'rgb(var(--ui-accent-rgb))' : v.colors[0]] : []).join(',')})`])
+                .concat([['Particles off', 'particles off'], ['“golden embers rising slowly”', null], ['“a star map that reacts to my pointer”', null]]) });
+        add({ id: 'moments', group: 'Backgrounds', icon: 'party', title: 'Celebrations', tag: 'A few seconds of fireworks or confetti', cost: 'free',
+            items: [['Fireworks', 'fireworks'], ['Confetti', 'confetti'], ['Confetti rain', 'confetti rain']] });
+        add({ id: 'effects', group: 'Backgrounds', icon: 'layers', title: 'Effects', tag: 'Drawn in your theme’s colours', cost: 'free',
+            items: [['Grass', 'add grass'], ['Mountains', 'add mountains'], ['Stars', 'add stars'], ['Comet', 'add a comet'], ['Planet', 'add a planet'], ['Aurora', 'add an aurora'],
+                ['Fireflies', 'add fireflies'], ['Snow', 'add snow'], ['Falling leaves', 'add leaves'], ['TV static', 'add static'], ['Old-TV screen', 'add crt'], ['TV set', 'add the tv set']] });
+        add({ id: 'space', group: 'Backgrounds', icon: 'galaxy', title: 'Light and space', tag: 'Richer canvas layers', cost: 'free',
+            items: [['Galaxy', 'add a galaxy'], ['Nebula', 'add a nebula'], ['Constellations', 'add constellations'], ['Comets', 'add comets'], ['Waves', 'add waves'], ['Surf', 'add surf'],
+                ['Ripples', 'add ripples'], ['Falling code', 'add falling code'], ['Circuits', 'add circuits'], ['Retro grid', 'add a grid'], ['Tunnel', 'add a tunnel'], ['Vortex', 'add a vortex'],
+                ['Orbits', 'add orbits'], ['Clouds layer', 'add clouds'], ['Mist layer', 'add mist'], ['Film grain', 'add film grain']] });
+        add({ id: 'strength', group: 'Backgrounds', icon: 'gauge', title: 'Effects strength', tag: 'How strong all the movement is', cost: 'free',
+            items: [['High', 'effects high'], ['Medium', 'effects medium'], ['Low', 'effects low']] });
+
+        add({ id: 'elements', group: 'Scene', icon: 'flower', title: 'Plants and flyers', tag: 'Flowers, trees, butterflies and birds', cost: 'free',
+            note: 'Added one at a time. Name a colour or number too: “add 6 red tulips”.',
+            items: [['Daisies', 'add daisies'], ['Tulips', 'add tulips'], ['Roses', 'add roses'], ['Poppies', 'add poppies'], ['Lavender', 'add lavender'], ['Sunflowers', 'add sunflowers'], ['Wildflowers', 'add wildflowers'], ['Lilies', 'add lilies'],
+                ['Monarch butterflies', 'add monarch butterflies'], ['Blue butterflies', 'add blue butterflies'], ['Swallowtails', 'add swallowtail butterflies'], ['Moths', 'add moths'],
+                ['Pine trees', 'add pine trees'], ['Oaks', 'add oak trees'], ['Birches', 'add birch trees'], ['Palms', 'add palm trees'], ['Willows', 'add willow trees'], ['Cherry blossom', 'add cherry blossom trees'],
+                ['Ferns', 'add ferns'], ['Bushes', 'add bushes'], ['Reeds', 'add reeds'], ['Birds', 'add birds'], ['Falling petals', 'add falling petals']] });
+        add({ id: 'animals', group: 'Scene', icon: 'paw', title: 'Animals', tag: 'Living creatures from VQ’s parts kit', cost: 'mixed',
+            note: 'They breathe, blink and look around, and can walk, run, play, swim or fly. These are free; ask VQ for any other (“a wolf”, “a hippo”) and he builds one from the same parts.',
+            items: [['Tiger', 'add a tiger'], ['Lion', 'add a lion'], ['Giraffe', 'add a giraffe'], ['Zebra', 'add a zebra'], ['Elephant', 'add an elephant'], ['Horse', 'add a horse'], ['Cow', 'add a cow'],
+                ['Cat', 'add a cat'], ['Dog', 'add a dog'], ['Fox', 'add a fox'], ['Rabbit', 'add a rabbit'], ['Bear', 'add a bear'], ['Deer', 'add a deer'], ['Pig', 'add a pig'], ['Sheep', 'add a sheep']] });
+        add({ id: 'birds', group: 'Scene', icon: 'bird', title: 'Birds, bugs and creatures', tag: 'Owls to dragons', cost: 'free',
+            items: [['Owl', 'add an owl'], ['Eagle', 'add an eagle'], ['Parrot', 'add a parrot'], ['Duck', 'add a duck'], ['Penguin', 'add a penguin'], ['Flamingo', 'add a flamingo'], ['Hummingbird', 'add a hummingbird'],
+                ['Bee', 'add a bee'], ['Ladybird', 'add a ladybird'], ['Dragonfly', 'add a dragonfly'], ['Ant', 'add an ant'], ['Snake', 'add a snake'], ['Dragon', 'add a dragon'], ['Flying dragon', 'add a flying dragon']] });
+        add({ id: 'sea', group: 'Scene', icon: 'fish', title: 'Sea life', tag: 'Best with a seashore sky', cost: 'free',
+            items: [['Goldfish', 'add a goldfish'], ['Reef fish', 'add a reef fish'], ['Shark', 'add a shark'], ['Whale', 'add a whale'], ['Dolphin', 'add a dolphin'], ['Turtle', 'add a turtle'], ['Octopus', 'add an octopus'], ['Crab', 'add a crab']] });
+        add({ id: 'doing', group: 'Scene', icon: 'motion', title: 'What they do', tag: 'Run, play, chase, herd, follow', cost: 'free',
+            note: 'Say it with the animal’s name. Tap one to put it in the message box, then change the names.',
+            items: [['“make the dog run”', null], ['“let the cat play”', null], ['“the cow should graze”', null], ['“the eagle should fly”', null], ['“the dog chases the cat”', null], ['“the rabbit runs away from the fox”', null],
+                ['“the duck follows the cow”', null], ['“let the dog and the cat play”', null], ['“the sheep herd together”', null], ['“the cat chases my pointer”', null], ['“the dog stops chasing”', null],
+                ['“make the whale fill the scene”', null], ['“make the shark huge”', null], ['“remove the snake”', null]] });
+        add({ id: 'draw', group: 'Scene', icon: 'pencil', title: 'VQ draws his own', tag: 'Original designs with moving parts', cost: 'message',
+            note: 'Ask for anything not in the lists. He designs his own version and its parts move: propellers spin, wings flap, lights twinkle. One drawing per request. No real people, known characters or brands, but he can make an original one of his own.',
+            items: [['Hot-air balloon', 'draw a hot-air balloon'], ['Plane flying past', 'draw a small plane flying past'], ['Lighthouse', 'draw a lighthouse'],
+                ['Sailboat', 'draw a sailboat'], ['Kite', 'draw a kite'], ['Windmill', 'draw a windmill'], ['Little cottage', 'draw a little cottage'],
+                ['Fish', 'draw 3 fish swimming'], ['Lantern', 'draw a glowing lantern'], ['Your own dragon', 'draw a friendly dragon of your own design'],
+                ['“remove the plane”', null], ['“2 more balloons”', null], ['“make the rocket bigger”', null]] });
+        add({ id: 'arrange', group: 'Scene', icon: 'move', title: 'Arrange', tag: 'Drag anything anywhere; drop it on the bin', cost: 'free',
+            note: 'Tap ✥ Arrange under the message box (or say “arrange”). Anything can go anywhere: carry a flower up a hill or a bird down to the ground. Every move can be undone; tap Done or press Esc when finished.',
+            items: [['Arrange now', 'arrange'], ['Undo last move', 'undo'], ['Ground at the screen bottom', 'ground at the bottom'], ['Ground above the message box', 'ground above the message box']] });
+        add({ id: 'remove', group: 'Scene', icon: 'eraser', title: 'Removing things', tag: 'One at a time, by name', cost: 'free',
+            items: [['“remove the comet”', null], ['“remove butterflies”', null], ['No sky', 'no sky'], ['Particles off', 'particles off']] });
+
+        add({ id: 'themes', group: 'Look', icon: 'palette', title: 'Themes', tag: 'Ten built-in looks, or one VQ designs', cost: 'mixed',
+            note: 'Each comes with matching icons and accent. Or ask VQ to design a new one from any description, sky and particles included: “a theme like a quiet night by the sea, with fireflies” (uses a message).',
+            items: CHOICES.theme.map(t => { const k = t.toLowerCase(), th = THEMES[k]; return [t, `${k} theme`, th ? `linear-gradient(135deg, ${th[0]} 0 55%, ${accentHex(THEME_ACCENT[k] || 'orange')} 55%)` : `linear-gradient(135deg,#1f1b18 0 55%,#ff8c42 55%)`]; }) });
+        add({ id: 'accent', group: 'Look', icon: 'drop', title: 'Accent colour', tag: 'Buttons, highlights and live skies', cost: 'free',
+            items: CHOICES.accent.map(a => [a, `${a.toLowerCase()} accent`, accentHex(a)]) });
+        add({ id: 'fonts', group: 'Look', icon: 'type', title: 'Fonts', tag: 'Thirteen styles for the conversation', cost: 'free',
+            items: CHOICES.font.map(f => [f, `${f.toLowerCase()} font`, null, (FONTS[f.toLowerCase()] || {}).stack]) });
+        add({ id: 'text', group: 'Look', icon: 'layout', title: 'Text and layout', tag: 'Size, spacing, width, bubbles, focus', cost: 'free',
+            items: [['Bigger', 'bigger'], ['Smaller', 'smaller'], ['More line spacing', 'more line spacing'], ['Wider chat', 'wider chat'], ['Narrower chat', 'narrower chat'],
+                ['Bubbles on', 'bubbles on'], ['Bubbles off', 'bubbles off'], ['Focus', 'focus'], ['Unfocus', 'unfocus'], ['High contrast', 'high contrast'], ['Less motion', 'reduce motion']] });
+        add({ id: 'glow', group: 'Look', icon: 'glow', title: 'Icons and static', tag: 'Icon glow and TV static on text', cost: 'free',
+            items: [['Glow on', 'glow on'], ['Glow off', 'glow off'], ['Text over static: clear', 'text static clear'], ['Reduced', 'text static reduced'], ['Full', 'text static full']] });
+
+        add({ id: 'panel', group: 'Panel and tools', icon: 'panel', title: 'Side panel', tag: 'Open, width, detail and notes', cost: 'free',
+            note: 'Videos, pictures and cards can also be shown here with their cast button (⧉).',
+            items: [['Open', 'open the panel'], ['Close', 'close the panel'], ['Wide', 'wide panel'], ['Standard', 'standard panel'], ['Plain details', 'plain details'], ['Technical details', 'technical details'], ['Notes', 'show my notes']] });
+        add({ id: 'code', group: 'Panel and tools', icon: 'code', title: 'Code', tag: 'Copy and ▶ Run inside the app', cost: 'message',
+            note: 'Run shows web pages, Python results and charts, and data charts in the side panel, safely on your device.',
+            items: [['“make me a small web page with a button”', null], ['“plot a sine wave in Python”', null]] });
+        add({ id: 'undo', group: 'Panel and tools', icon: 'undo', title: 'Undo and reset', tag: 'Step back, or start fresh', cost: 'free',
+            items: [['Undo', 'undo'], ['Reset everything', 'reset']] });
+
+        const COST = { free: ['Free', 'free'], mixed: ['Free + ask VQ', 'mixed'], message: ['Uses a message', 'paid'] };
+        const box = el('div', 'ft-offer catalog cat2' + (host ? ' in-panel' : ''));
+        const head = el('div', 'cat-head');
+        head.innerHTML = `<div class="cat-head-text"><div class="ft-offer-title">Customise</div><div class="cat-sub">${S.reduce((n, s) => n + s.items.filter(i => i[1]).length, 0)} things to try. Tap a heading to open it, then tap any option. Hold anywhere to see through this list.</div></div>`;
+        box.appendChild(head);
+        const tools = el('div', 'cat-tools');
+        const searchWrap = el('label', 'cat-search');
+        searchWrap.innerHTML = catIcon('search', 'cat-search-ic');
+        const search = document.createElement('input');
+        search.type = 'search'; search.placeholder = 'Search: sky, dog, gold, font…'; search.setAttribute('aria-label', 'Search the customisations');
+        searchWrap.appendChild(search);
+        const toggleAll = el('button', 'cat-toggle-all', 'Open all'); toggleAll.type = 'button';
+        tools.append(searchWrap, toggleAll);
+        if (host) [['↶', 'undo', 'Undo'], ['⟲', 'reset', 'Reset look']].forEach(([l, c, t]) => { const b = el('button', 'cat-tool-btn', l); b.type = 'button'; b.title = t; b.setAttribute('aria-label', t); b.addEventListener('click', () => runFreeCommand(c)); tools.appendChild(b); });
+        box.appendChild(tools);
+
+        const open = catOpenGet();
+        const cards = [];
+        let lastGroup = '';
+        S.forEach(sec => {
+            if (sec.group !== lastGroup) { lastGroup = sec.group; box.appendChild(el('div', 'cat-group', sec.group)); }
+            const card = el('section', 'cat-card');
+            card.dataset.id = sec.id;
+            const bodyId = 'cat-body-' + sec.id + (host ? '-p' : '-c');
+            const hd = el('button', 'cat-card-head'); hd.type = 'button';
+            hd.setAttribute('aria-controls', bodyId);
+            const nOn = sec.items.filter(i => i[1] && active.has(i[1])).length;
+            hd.innerHTML = `<span class="cat-card-ic">${catIcon(sec.icon)}</span><span class="cat-card-text"><span class="cat-card-title">${sec.title}</span><span class="cat-card-tag">${sec.tag}</span></span>`
+                + `<span class="cat-badge ${COST[sec.cost][1]}">${COST[sec.cost][0]}</span><span class="cat-count">${sec.items.length}</span>${catIcon('chevron', 'cat-chev')}`;
+            const body = el('div', 'cat-card-body'); body.id = bodyId; body.setAttribute('role', 'region');
+            const inner = el('div', 'cat-card-inner');
+            if (sec.note) inner.appendChild(el('div', 'cat-note', sec.note));
             const row = el('div', 'cat-chips');
-            items.forEach(([label, cmd]) => {
-                const b = el('button', 'cat-chip', label); b.type = 'button';
-                if (cmd) b.addEventListener('click', () => run(cmd)); else b.disabled = true;
+            sec.items.forEach(([label, cmd, swatch, font]) => {
+                const b = el('button', 'cat-chip' + (cmd ? '' : ' example')); b.type = 'button';
+                if (swatch) { const d = el('span', 'cat-sw'); d.style.background = swatch; b.appendChild(d); }
+                const t = el('span', 'cat-chip-label', label); if (font) t.style.fontFamily = font; b.appendChild(t);
+                b.dataset.search = (label + ' ' + (cmd || '') + ' ' + sec.title + ' ' + sec.tag).toLowerCase();
+                b._cmd = cmd;
+                if (cmd) {
+                    const isOn = active.has(cmd);
+                    if (isOn) { b.classList.add('on'); b.setAttribute('aria-pressed', 'true'); }
+                    b.addEventListener('click', () => { run(cmd); setTimeout(() => refreshCatalogState(box), 450); });
+                } else {
+                    b.title = 'Put this in the message box to edit and send';
+                    b.addEventListener('click', () => suggest(label.replace(/^[“"]|[”"]$/g, '').replace(/\s*\(.*\)\s*$/, '')));
+                }
                 row.appendChild(b);
             });
-            sec.appendChild(row);
-            box.appendChild(sec);
-        };
-        section('VQ himself', 'VQ’s animated robot body. He looks at you, follows the conversation, thinks, speaks and shows moods. On a night sky he sits on the moon and fishes.', [
-            ['In the header', 'vq in the header'], ['In the side panel', 'show vq'], ['Walking around', 'let vq walk around'], ['Flying', 'let vq fly'],
-            ['On the moon, fishing', 'vq on the moon'], ['Hide VQ', 'hide vq']]);
-        section('VQ’s face', 'A living face drawn entirely in text characters. It thinks while VQ works, speaks as his answer streams in, blinks and follows your pointer. The robot style also becomes O.R.I.A. when she speaks. Free.', [
-            ['Face in the panel', 'show the face'], ['As the background', 'face background'], ['Background off', 'face background off'], ['VQ robot style', 'robot face'], ['Human style', 'human face']]);
-        section('Themes', 'Ten built-in looks, each with matching icons and accent. Or ask VQ to design a new one from any description.',
-            CHOICES.theme.map(t => [t, `${t.toLowerCase()} theme`]));
-        section('Skies', 'One moving sky at a time, behind everything.',
-            SKY_KEYS.map(k => [SKY_LABEL[k], { mist: 'mist', clouds: 'clouds', sunset: 'sunset', night: 'night sky', seaday: 'seashore', seanight: 'seashore at night', storm: 'storm', none: 'no sky' }[k] || SKY_LABEL[k].toLowerCase() + ' sky']));
-        section('Live sky colours', 'The live skies (living fog to threads) can follow your accent colour or keep their own original colours.', [['Follow my accent', 'sky colours accent'], ['Original colours', 'sky colours original']]);
-        section('Scene elements', 'Animated and added one at a time. Name a colour or number too: “add 6 red tulips”.', [
-            ['Daisies', 'add daisies'], ['Tulips', 'add tulips'], ['Roses', 'add roses'], ['Poppies', 'add poppies'], ['Lavender', 'add lavender'], ['Sunflowers', 'add sunflowers'], ['Wildflowers', 'add wildflowers'], ['Lilies', 'add lilies'],
-            ['Monarch butterflies', 'add monarch butterflies'], ['Blue butterflies', 'add blue butterflies'], ['Swallowtails', 'add swallowtail butterflies'], ['Moths', 'add moths'],
-            ['Pine trees', 'add pine trees'], ['Oaks', 'add oak trees'], ['Birches', 'add birch trees'], ['Palms', 'add palm trees'], ['Willows', 'add willow trees'], ['Cherry blossom', 'add cherry blossom trees'],
-            ['Ferns', 'add ferns'], ['Bushes', 'add bushes'], ['Reeds', 'add reeds'], ['Birds', 'add birds'], ['Falling petals', 'add falling petals']]);
-        section('Animals', 'Living creatures built from VQ’s parts kit: they breathe, blink and look around, and can walk, run, play, swim or fly. Free and instant. Ask VQ for others (“a wolf”, “a hippo”, “a seagull”) and he assembles one from the same parts.', [
-            ['Tiger', 'add a tiger'], ['Lion', 'add a lion'], ['Giraffe', 'add a giraffe'], ['Zebra', 'add a zebra'], ['Elephant', 'add an elephant'], ['Horse', 'add a horse'], ['Cow', 'add a cow'],
-            ['Cat', 'add a cat'], ['Dog', 'add a dog'], ['Fox', 'add a fox'], ['Rabbit', 'add a rabbit'], ['Bear', 'add a bear'], ['Deer', 'add a deer'], ['Pig', 'add a pig'], ['Sheep', 'add a sheep']]);
-        section('Birds, bugs and creatures', null, [
-            ['Owl', 'add an owl'], ['Eagle', 'add an eagle'], ['Parrot', 'add a parrot'], ['Duck', 'add a duck'], ['Penguin', 'add a penguin'], ['Flamingo', 'add a flamingo'], ['Hummingbird', 'add a hummingbird'],
-            ['Bee', 'add a bee'], ['Ladybird', 'add a ladybird'], ['Dragonfly', 'add a dragonfly'], ['Ant', 'add an ant'], ['Snake', 'add a snake'], ['Dragon', 'add a dragon'], ['Flying dragon', 'add a flying dragon']]);
-        section('Sea life', 'Best with a seashore sky.', [
-            ['Goldfish', 'add a goldfish'], ['Reef fish', 'add a reef fish'], ['Shark', 'add a shark'], ['Whale', 'add a whale'], ['Dolphin', 'add a dolphin'], ['Turtle', 'add a turtle'], ['Octopus', 'add an octopus'], ['Crab', 'add a crab']]);
-        section('What they do', 'Free and instant. Say it with the animal’s name.', [
-            ['“make the dog run”', null], ['“let the cat play”', null], ['“the cow should graze”', null], ['“the eagle should fly”', null], ['“the dog chases the cat”', null], ['“the rabbit runs away from the fox”', null],
-            ['“the duck follows the cow”', null], ['“let the dog and the cat play”', null], ['“the sheep herd together”', null], ['“the cat chases my pointer”', null], ['“the dog stops chasing”', null],
-            ['“make the whale fill the scene”', null], ['“make the shark huge”', null], ['“remove the snake”', null]]);
-        section('VQ draws his own', 'Want something that isn’t in the lists? Ask VQ to draw it. He designs his own original version, and its parts move: propellers spin, wings flap, lights twinkle. Say what it is, and optionally how many and where (“2 hot-air balloons in the sky”). He picks a size that suits it (a butterfly small, a lighthouse large); say “make the … bigger” or “smaller” to adjust it, free. One drawing per request; each uses a message. He can’t draw real people, known characters or brands, but he can make an original one of his own.', [
-            ['Hot-air balloon', 'draw a hot-air balloon'], ['Plane flying past', 'draw a small plane flying past'], ['Lighthouse', 'draw a lighthouse'],
-            ['Sailboat', 'draw a sailboat'], ['Kite', 'draw a kite'], ['Windmill', 'draw a windmill'], ['Little cottage', 'draw a little cottage'],
-            ['Fish', 'draw 3 fish swimming'], ['Lantern', 'draw a glowing lantern'], ['Your own dragon', 'draw a friendly dragon of your own design'],
-            ['“remove the plane”', null], ['“more balloons” (say how many)', null], ['“make the rocket bigger”', null], ['“make the kite smaller”', null]]);
-        section('Arrange', 'Move anything in the scene by hand: tap ✥ Arrange under the message box (or say “arrange”). Drag a flower, tree, butterfly or drawing where you like; plants stay on the ground. Drop something on the bin to remove it. Every move can be undone; tap Done (or press Esc) when you’re finished. Free.', [
-            ['Arrange now', 'arrange'], ['Undo last move', 'undo'], ['Ground at the screen bottom', 'ground at the bottom'], ['Ground above the message box', 'ground above the message box']]);
-        section('Effects', 'Drawn in your theme’s colours.', [
-            ['Grass', 'add grass'], ['Mountains', 'add mountains'], ['Stars', 'add stars'], ['Comet', 'add a comet'], ['Planet', 'add a planet'], ['Aurora', 'add an aurora'],
-            ['Fireflies', 'add fireflies'], ['Snow', 'add snow'], ['Falling leaves', 'add leaves'], ['TV static', 'add static'], ['Old-TV screen', 'add crt'], ['TV set', 'add the tv set']]);
-        section('Light and space', 'Richer canvas layers.', [
-            ['Galaxy', 'add a galaxy'], ['Nebula', 'add a nebula'], ['Constellations', 'add constellations'], ['Comets', 'add comets'], ['Waves', 'add waves'], ['Surf', 'add surf'],
-            ['Ripples', 'add ripples'], ['Falling code', 'add falling code'], ['Circuits', 'add circuits'], ['Retro grid', 'add a grid'], ['Tunnel', 'add a tunnel'], ['Vortex', 'add a vortex'],
-            ['Orbits', 'add orbits'], ['Clouds layer', 'add clouds'], ['Mist layer', 'add mist'], ['Film grain', 'add film grain']]);
-        section('Removing things', null, [['“remove the comet”', null], ['“remove butterflies”', null], ['“no sky”', 'no sky']]);
-        section('Effects strength', 'How strong all the movement is.', [['High', 'effects high'], ['Medium', 'effects medium'], ['Low', 'effects low']]);
-        section('Accent colour', null, CHOICES.accent.map(a => [a, `${a.toLowerCase()} accent`]));
-        section('Fonts', null, CHOICES.font.map(f => [f, `${f.toLowerCase()} font`]));
-        section('Text and layout', null, [['Bigger', 'bigger'], ['Smaller', 'smaller'], ['More line spacing', 'more line spacing'], ['Wider chat', 'wider chat'], ['Narrower chat', 'narrower chat'],
-            ['Bubbles on', 'bubbles on'], ['Bubbles off', 'bubbles off'], ['Focus', 'focus'], ['Unfocus', 'unfocus'], ['High contrast', 'high contrast'], ['Less motion', 'reduce motion']]);
-        section('Icons and static', null, [['Glow on', 'glow on'], ['Glow off', 'glow off'], ['Text over static: clear', 'text static clear'], ['Reduced', 'text static reduced'], ['Full', 'text static full']]);
-        section('Side panel', 'Videos, pictures and cards can also be shown here with their cast button (⧉).', [['Open', 'open the panel'], ['Close', 'close the panel'], ['Wide', 'wide panel'], ['Standard', 'standard panel'], ['Plain details', 'plain details'], ['Technical details', 'technical details'], ['Notes', 'show my notes']]);
-        section('Code', 'Code in VQ’s answers has Copy and ▶ Run. Run shows web pages, Python results and charts, and data charts in the side panel, safely on your device.', [['“make me a small web page with a button”', null], ['“plot a sine wave in Python”', null]]);
-        section('Undo and reset', null, [['Undo', 'undo'], ['Reset everything', 'reset']]);
+            inner.appendChild(row);
+            body.appendChild(inner);
+            card.append(hd, body);
+            const setOpen = (on, save = true) => {
+                card.classList.toggle('open', on); hd.setAttribute('aria-expanded', String(on));
+                if (save) { if (on) open.add(sec.id); else open.delete(sec.id); catOpenSet(open); }
+            };
+            setOpen(open.has(sec.id), false);
+            hd.addEventListener('click', () => setOpen(!card.classList.contains('open')));
+            card._setOpen = setOpen;
+            if (nOn) card.classList.add('has-on');
+            cards.push(card);
+            box.appendChild(card);
+        });
+        const empty = el('div', 'cat-empty', 'Nothing matches. Try another word, or just ask VQ: he can design skies, particles, creatures and drawings that aren’t in the list.');
+        empty.hidden = true;
+        box.appendChild(empty);
+
+        const syncToggle = () => { toggleAll.textContent = cards.every(c => c.classList.contains('open')) ? 'Close all' : 'Open all'; };
+        toggleAll.addEventListener('click', () => { const to = !cards.every(c => c.classList.contains('open')); cards.forEach(c => c._setOpen(to)); syncToggle(); });
+        cards.forEach(c => c.querySelector('.cat-card-head').addEventListener('click', syncToggle));
+        syncToggle();
+        // Search: show only matching options, open the cards that have them, hide group headings with nothing left
+        search.addEventListener('input', () => {
+            const q = search.value.trim().toLowerCase();
+            box.classList.toggle('searching', !!q);
+            let any = false;
+            cards.forEach(c => {
+                let hits = 0;
+                c.querySelectorAll('.cat-chip').forEach(ch => { const m = !q || ch.dataset.search.includes(q); ch.hidden = !m; if (m) hits++; });
+                c.hidden = !!q && !hits;
+                if (q) c.classList.toggle('open', hits > 0); else c.classList.toggle('open', open.has(c.dataset.id));
+                c.querySelector('.cat-card-head').setAttribute('aria-expanded', String(c.classList.contains('open')));
+                if (hits) any = true;
+            });
+            box.querySelectorAll('.cat-group').forEach(g => { let n = g.nextElementSibling, vis = false; while (n && !n.classList.contains('cat-group')) { if (n.classList.contains('cat-card') && !n.hidden) vis = true; n = n.nextElementSibling; } g.hidden = !vis; });
+            empty.hidden = !q || any;
+        });
+
         if (host) {
             host.textContent = '';
-            const bar = el('div', 'cat-sticky');
-            [['↶ Undo', 'undo'], ['⟲ Reset look', 'reset']].forEach(([l, c]) => { const b = el('button', 'look-btn', l); b.type = 'button'; b.addEventListener('click', () => runFreeCommand(c)); bar.appendChild(b); });
-            host.appendChild(bar);
             host.appendChild(box);
             enablePeek(box);
             return;
@@ -4001,6 +4219,19 @@
         elements.messagesArea.appendChild(box);
         box.scrollIntoView({ behavior: 'smooth', block: 'start' });
         enablePeek(box);
+    }
+    // After a chip is used, move the "selected" marks to whatever is now switched on
+    function refreshCatalogState(box) {
+        if (!box || !box.isConnected) return;
+        const active = catActive();
+        box.querySelectorAll('.cat-card').forEach(card => {
+            let n = 0;
+            card.querySelectorAll('.cat-chip:not(.example)').forEach(ch => {
+                const on = active.has(ch._cmd);
+                ch.classList.toggle('on', on); if (on) { ch.setAttribute('aria-pressed', 'true'); n++; } else ch.removeAttribute('aria-pressed');
+            });
+            card.classList.toggle('has-on', n > 0);
+        });
     }
 
     // Press and hold anywhere on a card to see through it (the scene behind), without closing it
@@ -4077,6 +4308,7 @@
         const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches || uiPrefs.motion === 'reduced';
         if (scene === 'storm' && !calm) scheduleLightning(sc);
         applyLiveSky();
+        applyParticles();
     }
     // A live sky runs behind the app like the face background; one at a time, destroyed when you switch away
     let liveSky = null, liveKey = '', liveLoading = '';
@@ -4124,6 +4356,151 @@
                 scale: 1, scaleMobile: 1 }, orig ? {} : def.opts(liveAccent())));
             liveKey = want;
         } catch (e) { console.warn('Live sky failed to start', e); stopLiveSky(); }
+    }
+
+    // ---------- Particle layer: VQ designs these himself from parts (shape, colour, motion, links, glow, emitters) ----------
+    // A recipe is small, checked data; the app turns it into tsParticles options (MIT, bundled in lib/tsparticles).
+    // The built-ins below are only starting points: VQ can change any field, or write a new recipe from scratch.
+    // Check a recipe from VQ (or a built-in) and keep only what's safe and sensible; returns null if nothing usable
+    function cleanParticles(raw) {
+        if (!raw || typeof raw !== 'object') return null;
+        const num = (v, lo, hi, d) => { const n = +v; return isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d; };
+        const range = (v, lo, hi, d) => { const a = Array.isArray(v) ? v : (v != null ? [v, v] : d); const x = num(a[0], lo, hi, d[0]), y = num(a[1], lo, hi, d[1]); return [Math.min(x, y), Math.max(x, y)]; };
+        const pick = (v, list, d) => list.includes(v) ? v : d;
+        const base = typeof raw.preset === 'string' && PARTICLE_BUILTINS[raw.preset] ? PARTICLE_BUILTINS[raw.preset] : {};
+        const r = Object.assign({}, base, raw);
+        const o = {};
+        o.name = String(r.name || r.label || (raw.preset && base.label) || 'Particles').replace(/[<>]/g, '').slice(0, 40);
+        if (raw.preset && base.label) o.preset = raw.preset;
+        o.shape = pick(r.shape, PARTICLE_SHAPES, 'circle');
+        if (o.shape === 'glyph') { const g = String(r.glyph || '').replace(/[<>&"'\s]/g, '').slice(0, 2); if (g) o.glyph = g; else o.shape = 'circle'; }
+        const cols = (Array.isArray(r.colors) ? r.colors : [r.colors]).filter(c => c === 'accent' || isHex(c)).slice(0, 6).map(c => c === 'accent' ? c : '#' + String(c).replace('#', '').toLowerCase());
+        o.colors = cols.length ? cols : ['#ffffff'];
+        o.count = Math.round(num(r.count, 0, 200, 60));
+        o.size = range(r.size, 0.5, 60, [1, 3]);
+        o.opacity = range(r.opacity, 0.03, 1, [0.3, 0.9]);
+        o.speed = num(r.speed, 0, 12, 0.6);
+        o.direction = pick(r.direction, PARTICLE_DIRS, 'none');
+        ['drift', 'twinkle', 'glow', 'spin'].forEach(k => { const v = num(r[k], 0, 1, 0); if (v) o[k] = v; });
+        const g = num(r.gravity, -2, 3, 0); if (g) o.gravity = g;
+        if (r.links) { const l = typeof r.links === 'object' ? r.links : {}; o.links = { distance: num(l.distance, 40, 260, 130), opacity: num(l.opacity, 0.04, 0.6, 0.2) }; if (isHex(l.color) || l.color === 'accent') o.links.color = l.color === 'accent' ? 'accent' : '#' + l.color.replace('#', ''); }
+        o.pointer = pick(r.pointer, PARTICLE_POINTER, 'none');
+        if (r.emit && typeof r.emit === 'object') o.emit = { from: pick(r.emit.from, PARTICLE_FROM, 'bottom'), rate: num(r.emit.rate, 1, 30, 6) };
+        if (!o.count && !o.emit) o.count = 40;
+        return o;
+    }
+
+    // Turn a checked recipe into tsParticles options; fewer particles and no glow on lower effect levels and small screens
+    function particleOptions(rc) {
+        const fx = uiPrefs.fx || 'high', small = innerWidth < 700;
+        const k = (fx === 'low' ? 0.4 : fx === 'medium' ? 0.7 : 1) * (small ? 0.6 : 1);
+        const acc = getComputedStyle(document.documentElement).getPropertyValue('--ui-accent').trim() || '#2bb5a6';
+        const col = c => c === 'accent' ? acc : c;
+        const DIR = { none: 'none', up: 'top', down: 'bottom', left: 'left', right: 'right', 'up-left': 'top-left', 'up-right': 'top-right', 'down-left': 'bottom-left', 'down-right': 'bottom-right', outward: 'none' };
+        const shape = rc.shape === 'triangle' ? { type: 'polygon', options: { polygon: { sides: 3 } } }
+            : rc.shape === 'hexagon' ? { type: 'polygon', options: { polygon: { sides: 6 } } }
+            : rc.shape === 'glyph' ? { type: 'text', options: { text: { value: [rc.glyph || '•'], font: 'system-ui, sans-serif', weight: '400' } } }
+            : { type: rc.shape };
+        const glowOn = rc.glow && fx === 'high' && !small;
+        const opts = {
+            fullScreen: { enable: false }, background: { color: { value: 'transparent' } }, detectRetina: true,
+            fpsLimit: small || fx !== 'high' ? 40 : 60, pauseOnBlur: true, pauseOnOutsideViewport: true,
+            particles: {
+                number: { value: Math.round(rc.count * k), density: { enable: true, width: 1600, height: 900 } },
+                paint: rc.shape === 'line' ? { stroke: { width: Math.max(1, rc.size[0]), color: { value: rc.colors.map(col) } }, fill: { enable: false } }
+                       : { fill: { enable: true, color: { value: rc.colors.map(col) } } },
+                shape,
+                opacity: { value: { min: rc.opacity[0], max: rc.opacity[1] }, animation: { enable: !!rc.twinkle, speed: 0.3 + rc.twinkle * 1.6, sync: false } },
+                size: { value: { min: rc.size[0], max: rc.size[1] } },
+                move: { enable: rc.speed > 0, speed: rc.speed, direction: DIR[rc.direction], random: rc.direction === 'none', straight: rc.direction !== 'none' && !rc.drift,
+                        outModes: { default: 'out' }, gravity: rc.gravity ? { enable: true, acceleration: rc.gravity * 4 } : { enable: false } },
+                links: rc.links ? { enable: true, distance: rc.links.distance, opacity: rc.links.opacity, width: 1, color: { value: col(rc.links.color || rc.colors[0]) } } : { enable: false },
+                rotate: rc.spin ? { value: { min: 0, max: 360 }, direction: 'random', animation: { enable: true, speed: 2 + rc.spin * 18 } } : { value: 0 },
+                wobble: rc.drift ? { enable: true, distance: 4 + rc.drift * 16, speed: { min: -2, max: 2 } } : { enable: false },
+                effect: glowOn ? { type: 'shadow', options: { shadow: { blur: 4 + rc.glow * 14, color: col(rc.colors[0]) } } } : undefined
+            },
+            interactivity: {
+                detectsOn: 'window',
+                events: { onHover: { enable: rc.pointer !== 'none', mode: rc.pointer === 'connect' ? 'connect' : rc.pointer }, onClick: { enable: false } },
+                modes: { grab: { distance: 160, links: { opacity: 0.45 } }, repulse: { distance: 110, duration: 0.6 }, attract: { distance: 180 },
+                         bubble: { distance: 140, size: rc.size[1] * 1.8, opacity: 1, duration: 1 }, connect: { distance: 90, radius: 160, links: { opacity: 0.3 } } }
+            }
+        };
+        if (rc.shape === 'line') { opts.particles.size = { value: { min: rc.size[0] * 6, max: rc.size[1] * 10 } }; opts.particles.rotate = { path: true }; }
+        if (!opts.particles.effect) delete opts.particles.effect;
+        if (rc.direction === 'outward' && !rc.emit) opts.particles.move.direction = 'outside';
+        if (rc.emit) {
+            const at = { bottom: { x: 50, y: 102 }, top: { x: 50, y: -2 }, left: { x: -2, y: 50 }, right: { x: 102, y: 50 }, center: { x: 50, y: 50 }, random: undefined }[rc.emit.from];
+            const wide = rc.emit.from === 'top' || rc.emit.from === 'bottom' ? { width: 100, height: 0 } : rc.emit.from === 'center' ? { width: 4, height: 4 } : rc.emit.from === 'random' ? { width: 100, height: 100 } : { width: 0, height: 100 };
+            opts.emitters = { position: at, size: wide, rate: { quantity: 1, delay: 1 / Math.max(1, rc.emit.rate * k) }, life: { count: 0 } };
+            opts.particles.number.value = Math.round((rc.count || 0) * k);
+            opts.particles.move.outModes = { default: 'destroy' };
+            if (rc.direction === 'outward') { opts.particles.move.direction = 'outside'; opts.particles.move.random = false; opts.particles.move.straight = true; opts.particles.move.outModes = { default: 'destroy' }; }
+        }
+        return opts;
+    }
+
+    let particleBox = null, particleKey = '', particleLoading = '';
+    function currentParticles() {
+        const p = uiPrefs.particles;
+        return p && typeof p === 'object' ? p : null;
+    }
+    async function applyParticles() {
+        const rc = cleanParticles(currentParticles());
+        const calm = matchMedia('(prefers-reduced-motion: reduce)').matches || uiPrefs.motion === 'reduced';
+        const want = rc && !calm ? JSON.stringify(rc) + '|' + (uiPrefs.fx || 'high') + '|' + getComputedStyle(document.documentElement).getPropertyValue('--ui-accent').trim() : '';
+        if (want === particleKey || (want && want === particleLoading)) return;
+        if (particleBox) { try { particleBox.destroy(); } catch (e) { } particleBox = null; }
+        particleKey = '';
+        let host = document.getElementById('vq-particles');
+        if (!want) { if (host) host.hidden = true; particleLoading = ''; return; }
+        particleLoading = want;
+        try {
+            await loadScript('lib/tsparticles/tsparticles.bundle.min.js');
+            await loadScript('lib/tsparticles/tsparticles.effect.shadow.min.js').catch(() => null);   // the soft glow; optional
+            if (!applyParticles.full) applyParticles.full = (async () => { await loadFull(tsParticles); if (window.loadShadowEffect) await loadShadowEffect(tsParticles); })();
+            await applyParticles.full;
+        }
+        catch (e) { console.warn('Particles failed to load', e); particleLoading = ''; return; }
+        if (particleLoading !== want) return;
+        particleLoading = '';
+        if (!host) { host = document.createElement('div'); host.id = 'vq-particles'; host.className = 'vq-particles'; host.setAttribute('aria-hidden', 'true'); document.body.prepend(host); }
+        host.hidden = false;
+        try {
+            particleBox = await tsParticles.load({ id: 'vq-particles', element: host, options: particleOptions(rc) });
+            particleKey = want;
+        } catch (e) { console.warn('Particles failed to start', e); host.hidden = true; }
+    }
+    function setParticles(recipe) {
+        const rc = recipe ? cleanParticles(recipe) : null;
+        uiPrefs.particles = rc;
+        return rc;
+    }
+    function particlesFrom(text) {
+        const t = String(text || '').toLowerCase().replace(/\b(the|a|an|some|particles?|effect|layer|please|add|show|turn on|give me)\b/g, ' ').replace(/\s+/g, ' ').trim();
+        return PARTICLE_WORDS[t] || null;
+    }
+
+    // ---------- Moments: a few seconds of fireworks or confetti, then gone (MIT, bundled in lib/tsparticles) ----------
+    // Each moment runs in its own transparent frame over the app, so its copy of the particle engine stays separate
+    // from the particle layer's, then the frame removes itself.
+    function celebrate(kind) {
+        const calm = matchMedia('(prefers-reduced-motion: reduce)').matches || uiPrefs.motion === 'reduced';
+        if (calm) return false;
+        const acc = (getComputedStyle(document.documentElement).getPropertyValue('--ui-accent').trim() || '#ff8c42').replace(/[^#0-9a-fA-F]/g, '');
+        const colors = JSON.stringify([acc, '#ffffff', '#ffd27a', '#7fd0ff', '#ff7ab6']);
+        const lib = new URL('lib/tsparticles/', location.href).href;
+        const run = kind === 'fireworks'
+            ? `<script src="${lib}tsparticles.fireworks.bundle.min.js"><\/script><script>fireworks({colors:${colors},sounds:false,rate:{min:2,max:4},background:'transparent'}).then(f=>setTimeout(()=>{try{f&&f.stop()}catch(e){}},6500));<\/script>`
+            : kind === 'confetti-rain'
+            ? `<script src="${lib}tsparticles.confetti.bundle.min.js"><\/script><script>for(let i=0;i<7;i++)setTimeout(()=>confetti({count:45,angle:270,spread:180,startVelocity:6,gravity:0.55,drift:Math.random()-0.5,ticks:400,position:{x:8+Math.random()*84,y:-5},colors:${colors}}),i*450);<\/script>`
+            : `<script src="${lib}tsparticles.confetti.bundle.min.js"><\/script><script>confetti({count:90,angle:60,spread:60,startVelocity:55,position:{x:0,y:80},colors:${colors}});confetti({count:90,angle:120,spread:60,startVelocity:55,position:{x:100,y:80},colors:${colors}});<\/script>`;
+        const f = document.createElement('iframe');
+        f.className = 'vq-moment'; f.setAttribute('aria-hidden', 'true'); f.tabIndex = -1;
+        f.srcdoc = `<!doctype html><html><head><style>html,body{margin:0;height:100%;background:transparent;overflow:hidden}</style></head><body>${run}</body></html>`;
+        document.body.appendChild(f);
+        setTimeout(() => f.remove(), kind === 'fireworks' ? 9000 : 7000);
+        return true;
     }
     // Uneven sun rays (crepuscular): random widths, gaps and strengths, so they never look like a pinwheel
     function buildRays(sc) {
@@ -4316,6 +4693,15 @@
                 act._edit = editTheme(act.edit || {});
                 break;
             }
+            case 'particles': {
+                act._particles = act.state === 'off' ? setParticles(null) : setParticles(act.particles || (act.preset ? { preset: act.preset } : null));
+                break;
+            }
+            case 'celebrate': {
+                uiUndo.pop();   // nothing to undo: it's over in a few seconds
+                act._moment = celebrate(['fireworks', 'confetti', 'confetti-rain'].includes(act.moment) ? act.moment : 'fireworks');
+                break;
+            }
             case 'creature': {
                 act._draw = addCreature(act);
                 if (!act._draw.ok) uiUndo.pop();
@@ -4394,7 +4780,7 @@
         const fb = document.getElementById('face-body');
         if (fb) { fb.hidden = view !== 'face'; if (view === 'face') mountPanelFace(); else unmountPanelFace(); }
         const cu = document.getElementById('customise-body');
-        if (cu) { cu.hidden = view !== 'customise'; if (view === 'customise' && !cu.firstChild) showCatalog(cu); }
+        if (cu) { cu.hidden = view !== 'customise'; if (view === 'customise') { if (!cu.firstChild) showCatalog(cu); else refreshCatalogState(cu.firstChild); } }
         document.body.classList.toggle('casting-view', view === 'cast' && document.body.classList.contains('casting'));
         if (view === 'notes') renderNotes();
         if (view === 'enquirer') renderEnquirer();
@@ -5656,6 +6042,15 @@
                     lines.push('Add or remove one thing at a time, for example “add butterflies” or “remove the comet”.');
                     break;
                 }
+                case 'particles': {
+                    const r = a._particles;
+                    lines.push(r ? `New particle layer: **${r.name}**. Say “particles off” to clear it, or ask me to change anything about it: colour, amount, size, speed, direction, glow, twinkle or lines between them.`
+                        : 'Particles off.');
+                    break;
+                }
+                case 'celebrate':
+                    lines.push(a._moment ? '🎉' : 'Celebrations are paused while reduced motion is on.');
+                    break;
                 case 'creature':
                 case 'draw': {
                     const r = a._draw || {};
@@ -5676,7 +6071,7 @@
                     const tkNames = { mist: 'drifting mist', clouds: 'cloud banks', storm: 'a storm', stars: 'a star field', constellations: 'constellations', galaxy: 'a spiral galaxy',
                         nebula: 'a nebula', aurora: 'aurora curtains', waves: 'flowing waves', seashore: 'surf', matrix: 'falling code', orbits: 'orbital rings', vortex: 'a light vortex',
                         tunnel: 'a geometric tunnel', grid: 'a perspective grid', circuit: 'circuit traces', comets: 'comets', ripples: 'water ripples', grain: 'film grain' };
-                    const fxText = (sp.effects || []).map(f => fxNames[f]).concat((sp.layers || []).map(l => tkNames[l.type])).filter(Boolean);
+                    const fxText = (sp.effects || []).map(f => fxNames[f]).concat((sp.layers || []).map(l => tkNames[l.type])).concat(sp.particles ? [`a particle layer, **${sp.particles.name}**`] : []).filter(Boolean);
                     lines.push(`New theme **${sp.name || 'made for you'}** created${sp.scene && sp.scene !== 'none' ? `, with a matching **${sp.scene === 'seaday' ? 'seashore' : sp.scene === 'seanight' ? 'night seashore' : sp.scene}** sky` : ''}` +
                         (fxText.length ? `, and ${fxText.length > 1 ? fxText.slice(0, -1).join(', ') + ' and ' + fxText.slice(-1) : fxText[0]}` : '') + '.' +
                         (r.fixes && r.fixes.length ? ` For readability I ${r.fixes.join(', ')}.` : ''));
@@ -5797,6 +6192,28 @@
             uiUndo.push(snapshotUI());
             uiPrefs.skyColours = skyColAsk; saveUIPrefs(); applyUIPrefs();
             showLocalNote(skyColAsk === 'original' ? 'Live skies now use their original colours' : 'Live skies now follow your accent colour');
+            return;
+        }
+        // Particles: VQ's built-in particle designs by name, free; "particles off" clears them
+        if (/^(?:particles? off|no particles|remove (?:the )?particles|clear (?:the )?particles|stop (?:the )?particles|turn off (?:the )?particles)$/.test(pm)) {
+            elements.messageInput.value = '';
+            uiUndo.push(snapshotUI()); setParticles(null); saveUIPrefs(); applyUIPrefs();
+            showLocalNote('Particles off'); return;
+        }
+        const partAsk = /^(?:(?:add|show|use|turn on|give me|switch to|set)\s+)?(?:the\s+|some\s+)?(.{3,30}?)\s+particles?$|^particles?[:\s]+(.{3,30})$/.exec(pm);
+        const partName = partAsk && particlesFrom(partAsk[1] || partAsk[2]);
+        if (partName) {
+            elements.messageInput.value = '';
+            uiUndo.push(snapshotUI()); setParticles({ preset: partName }); saveUIPrefs(); applyUIPrefs();
+            showLocalNote(`Particles: ${PARTICLE_BUILTINS[partName].label}`); return;
+        }
+        // Moments: a few seconds of fireworks or confetti
+        const momentAsk = /^(?:celebrate|let'?s celebrate|fireworks|set off (?:some )?fireworks|launch (?:some )?fireworks|show (?:me )?fireworks|party time)$/.test(pm) ? 'fireworks'
+            : /^(?:confetti|throw (?:some )?confetti|confetti (?:burst|cannon|pop))$/.test(pm) ? 'confetti'
+            : /^(?:confetti rain|rain(?:ing)? confetti|confetti shower|falling confetti)$/.test(pm) ? 'confetti-rain' : null;
+        if (momentAsk) {
+            elements.messageInput.value = '';
+            showLocalNote(celebrate(momentAsk) ? ({ fireworks: '🎆 Fireworks', confetti: '🎉 Confetti', 'confetti-rain': '🎊 Confetti rain' }[momentAsk]) : 'Celebrations are paused while reduced motion is on');
             return;
         }
         // Arrange the scene: drag things around, drop them on the bin to remove them
