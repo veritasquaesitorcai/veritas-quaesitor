@@ -1739,6 +1739,22 @@
         .rs-think-t { position: relative; font-family: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 0.95rem; letter-spacing: 0.2em; text-transform: uppercase; color: #e8e8e8; }
         .rs-think-t span { animation: rsDot 1.2s infinite; } .rs-think-t span:nth-child(2) { animation-delay: .2s; } .rs-think-t span:nth-child(3) { animation-delay: .4s; }
         @keyframes rsDot { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+        .rs-work { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0.7rem; width: min(56rem, 92vw); }
+        .rs-cloud { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+        .rs-frag { position: absolute; white-space: nowrap; transform: translate(-50%, -50%); font-family: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 0.74rem; letter-spacing: 0.06em;
+            color: rgba(255,255,255,0.85); padding: 0.15rem 0.45rem; border: 1px solid rgba(var(--ui-accent-rgb),0.45); border-radius: 4px; background: rgba(0,0,0,0.55);
+            animation: rsFrag 0.9s cubic-bezier(.2,.8,.2,1) both; }
+        @keyframes rsFrag { from { opacity: 0; translate: var(--sx) var(--sy); filter: blur(3px); } 60% { opacity: 1; } to { opacity: 0.7; translate: var(--ex) var(--ey); filter: none; } }
+        .rs-steps { list-style: none; margin: 0.4rem 0 0; padding: 0; font-family: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 0.82rem; text-align: center; }
+        .rs-step { color: #f2f2f2; animation: rsStep .25s ease both; } .rs-step.old { color: rgba(255,255,255,0.38); }
+        .rs-step::before { content: "› "; color: rgb(var(--ui-accent-rgb)); }
+        @keyframes rsStep { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+        .rs-count { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(var(--ui-accent-rgb),0.95); min-height: 1em; }
+        .rs-found { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; max-width: 52rem; }
+        .rs-lock { font-size: 0.82rem; padding: 0.3rem 0.65rem; border-radius: 6px; color: #fff; border: 1px solid rgba(var(--ui-accent-rgb),0.8); background: rgba(var(--ui-accent-rgb),0.14);
+            box-shadow: 0 0 18px rgba(var(--ui-accent-rgb),0.25); animation: rsLock .45s cubic-bezier(.2,.9,.2,1) both; }
+        @keyframes rsLock { 0% { opacity: 0; transform: scale(1.35); filter: blur(4px); letter-spacing: 0.3em; } 100% { opacity: 1; transform: none; filter: none; } }
+        @media (prefers-reduced-motion: reduce) { .rs-frag, .rs-lock, .rs-step { animation: none; } }
         .rs-answer { max-width: 62rem; margin-bottom: 1.6rem; }
         .rs-answer-body { font-size: clamp(1rem, 1.5vw, 1.2rem); line-height: 1.7; color: var(--text-primary); padding: 1.1rem 1.3rem; border-radius: 16px; border: 1px solid rgba(var(--ui-accent-rgb),0.3); background: linear-gradient(160deg, rgba(var(--ui-accent-rgb),0.08), rgba(255,255,255,0.02)); }
         .rs-answer-body p { margin: 0 0 0.8em; }
@@ -1994,6 +2010,6 @@
     <script src="js/vq-portraits.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-persona-bridge.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-run.js?v=2026-10-08-run"></script>
-    <script src="js/chat-app-test.js?v=2026-10-09-fix5"></script>
+    <script src="js/chat-app-test.js?v=2026-10-09-live"></script>
 </body>
 </html>
