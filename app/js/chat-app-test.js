@@ -4244,6 +4244,7 @@
             return true;
         };
         const build = (sets) => {
+            ov.querySelectorAll(':scope > .rs-card').forEach(n => n.remove());   // a card lifted out for zooming belongs to the old results
             zoomed = null; ov.classList.remove('zooming'); setsEl.innerHTML = ''; cards = [];
             const ex = lastExchange();
             if (ex.q && !(sets.length && sets[sets.length - 1].msg === ex.msg)) {
