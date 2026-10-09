@@ -4116,7 +4116,7 @@
         const check = () => {
             if (isTyping) {                                         // VQ is answering: hand over to the results stage
                 showResultsStage({ q: text, thinking: true });
-                setTimeout(() => Object.keys(FS_VIEWS).forEach(k => k !== 'results' && FS_VIEWS[k].open() && FS_VIEWS[k].close(true)), 750);
+                setTimeout(() => Object.keys(FS_VIEWS).forEach(k => k !== 'results' && FS_VIEWS[k].open() && FS_VIEWS[k].close(true)), 420);
                 return;
             }
             const opened = Object.keys(FS_VIEWS).filter(k => FS_VIEWS[k].open() && !before.includes(k));
@@ -4273,7 +4273,7 @@
         const close = () => {
             if (!rsOpen) return; rsOpen = null; mo.disconnect(); clearInterval(typingPoll);
             document.removeEventListener('keydown', key); document.body.classList.remove('rs-on');
-            ov.classList.remove('in'); setTimeout(() => ov.remove(), 650);
+            ov.classList.remove('in'); setTimeout(() => ov.remove(), 300);
             setTimeout(() => elements.messagesArea?.scrollTo?.({ top: elements.messagesArea.scrollHeight, behavior: 'smooth' }), 300);
         };
         const key = (e) => { if (e.key === 'Escape') { if (!unzoom()) close(); } };
