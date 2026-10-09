@@ -1690,6 +1690,40 @@
         .hist-card .hist-t, .hist-card h4 { color: var(--text-primary); }
         .hist-card:hover { transform: none; filter: brightness(1.12); }
         .hist-card { animation: none; }
+    
+        /* ---- Results stage: search cards full screen, synced with the chat ---- */
+        .rs { position: fixed; inset: 0; z-index: 2440; overflow: hidden; display: flex; flex-direction: column; padding: clamp(14px, 2.6vw, 40px) clamp(14px, 2.6vw, 40px) 0; color: var(--text-primary);
+            background: radial-gradient(ellipse at 50% 0%, rgba(var(--ui-accent-rgb),0.12), transparent 60%), rgba(8,8,12,0.97); }
+        .rs.fs-iris:not(.in) { clip-path: circle(0px at 50% 50%); }
+        body.rs-on #app-container { filter: blur(6px) brightness(0.5); }
+        .rs-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0.6rem; }
+        .rs-h { margin: 0.3rem 0 0; font-family: "Cinzel", Georgia, serif; font-size: clamp(1.3rem, 3vw, 2.4rem); line-height: 1.15; max-width: 70rem; }
+        .rs-sets { flex: 1; min-height: 0; overflow: auto; padding: 0.3rem 0.2rem 9rem; }
+        .rs-set + .rs-set { margin-top: 2rem; padding-top: 1rem; border-top: 1px dashed rgba(255,255,255,0.1); }
+        .rs-set.older { opacity: 0.75; }
+        .rs-q { font-size: 0.85rem; color: var(--text-tertiary); margin-bottom: 0.4rem; font-style: italic; }
+        .rs-row-t { margin: 0.9rem 0 0.5rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ui-accent-2, #ffb27a); }
+        .rs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); gap: 0.9rem; align-items: start; perspective: 1400px; }
+        .rs-grid > .rs-card { width: auto !important; max-width: none !important; margin: 0 !important; cursor: zoom-in; position: relative; }
+        .rs-ph { border-radius: 16px; border: 1px dashed rgba(255,255,255,0.08); }
+        .rs .rs-card.zoom { position: fixed !important; z-index: 6; left: 50%; top: 45%; transform: translate(-50%, -50%); width: min(50rem, calc(100vw - 32px)) !important; max-height: 74vh; overflow: auto; cursor: zoom-out;
+            background: linear-gradient(160deg, rgba(40,36,34,0.98), rgba(16,16,20,0.98)) !important; border: 1px solid rgba(var(--ui-accent-rgb),0.75) !important; border-radius: 18px;
+            box-shadow: 0 30px 90px rgba(0,0,0,0.7), 0 0 60px rgba(var(--ui-accent-rgb),0.18); font-size: 1.05rem; }
+        .rs .rs-card.zoom img { max-height: 40vh; object-fit: cover; }
+        .rs .rs-card.zoom .pcard-extra { display: block !important; }
+        .rs.zooming .rs-card:not(.zoom), .rs.zooming .rs-row-t, .rs.zooming .rs-q { transform: var(--fe, scale(0.94)); transform-origin: 50% 50%; filter: blur(var(--fb, 2px)) brightness(var(--fl, 0.55)) saturate(0.85); }
+        .rs-lens { position: fixed; inset: 0; z-index: 5; pointer-events: none; opacity: 0; transition: opacity .3s; background: radial-gradient(circle at 50% 45%, transparent 40%, rgba(0,0,0,0.35) 70%, rgba(0,0,0,0.85) 100%); }
+        .rs.zooming .rs-lens { opacity: 1; pointer-events: auto; }
+        .rs-bar.vq-console { position: fixed; z-index: 7; left: 50%; bottom: 40px; transform: translateX(-50%); display: block; padding: 0; width: min(56rem, calc(100vw - 24px)); }
+        .rs-hint { position: fixed; right: 14px; bottom: 10px; z-index: 7; }
+        .rs-empty { color: var(--text-secondary); font-size: 1rem; }
+        .rs-open { margin-left: 0.6rem; padding: 0.15rem 0.6rem; border-radius: 999px; border: 1px solid rgba(var(--ui-accent-rgb),0.45); background: rgba(var(--ui-accent-rgb),0.1); color: var(--text-secondary); font: inherit; font-size: 0.7rem; letter-spacing: 0.04em; text-transform: none; cursor: pointer; vertical-align: middle; }
+        .rs-open:hover { color: #fff; background: rgba(var(--ui-accent-rgb),0.25); }
+        .rs .rs-grid > .movie-card .movie-poster, .rs .rs-grid > .movie-card > div:first-child { max-height: 18rem; aspect-ratio: auto; height: 18rem; }
+        .rs .rs-grid > .movie-card img { width: 100%; height: 100%; object-fit: cover; }
+        .rs .rs-card.zoom.movie-card > div:first-child { height: auto; max-height: none; }
+        body.rs-on .ft-prompt, body.guide-on .ft-prompt, body.hist-on .ft-prompt, .gd ~ .ft-prompt { opacity: 0; pointer-events: none; }
+        @media (max-width: 640px) { .rs-bar input { font-size: 16px; } .rs-bar.vq-console { bottom: 30px; } }
     </style>
     <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23667eea%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23764ba2%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2216%22%20fill%3D%22url%28%23g%29%22/%3E%3Cg%20transform%3D%22translate%284.8%205.2%29%20scale%280.7%29%22%3E%3Cline%20x1%3D%2216%22%20y1%3D%224.2%22%20x2%3D%2216%22%20y2%3D%228%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%223.4%22%20r%3D%222.1%22%20fill%3D%22%23ff8c42%22/%3E%3Crect%20x%3D%225.5%22%20y%3D%228%22%20width%3D%2221%22%20height%3D%2216.5%22%20rx%3D%226.5%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.18%29%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Crect%20x%3D%228.6%22%20y%3D%2211.6%22%20width%3D%2214.8%22%20height%3D%227.6%22%20rx%3D%223.8%22%20fill%3D%22%231b1340%22/%3E%3Ccircle%20cx%3D%2212.6%22%20cy%3D%2215.4%22%20r%3D%222%22%20fill%3D%22%237fe0ff%22/%3E%3Ccircle%20cx%3D%2219.4%22%20cy%3D%2215.4%22%20r%3D%222%22%20fill%3D%22%237fe0ff%22/%3E%3Cpath%20d%3D%22M13%2021.6c1.9%201%204.1%201%206%200%22%20stroke%3D%22%23fff%22%20stroke-width%3D%221.8%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3C/g%3E%3C/svg%3E">
 </head>
@@ -1941,6 +1975,6 @@
     <script src="js/vq-portraits.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-persona-bridge.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-run.js?v=2026-10-08-run"></script>
-    <script src="js/chat-app-test.js?v=2026-10-09-pixel"></script>
+    <script src="js/chat-app-test.js?v=2026-10-09-results"></script>
 </body>
 </html>
