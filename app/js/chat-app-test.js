@@ -375,7 +375,7 @@
     function ensureActiveChat() {
         if (store.activeId && store.chats[store.activeId]) return;
         const id = newId();
-        store.chats[id] = { id, title: 'New chat', messages: [], updated: Date.now() };
+        store.chats[id] = { id, title: 'New chat', messages: [], created: Date.now(), updated: Date.now() };
         store.activeId = id;
         conversationHistory = store.chats[id].messages;
     }
@@ -3704,7 +3704,7 @@
         lastArtWord = a.name;
         return note;
     }
-    window.VQScene = { moment: (m) => startMoment(m), endMoment: () => endMoment(), engine: () => artEngine, ids: () => Object.assign({}, artIdIndex), arrange: (on) => setArrange(on !== false), convert: svgToCustom,
+    window.VQScene = { history: (o) => showHistory(o), moment: (m) => startMoment(m), endMoment: () => endMoment(), engine: () => artEngine, ids: () => Object.assign({}, artIdIndex), arrange: (on) => setArrange(on !== false), convert: svgToCustom,
         particles: (r) => { setParticles(typeof r === 'string' ? { preset: r } : r); saveUIPrefs(); return applyParticles(); }, particleBox: () => particleBox, celebrate: (k) => celebrate(k) };   // for testing and tinkering
     // An animal VQ assembled from the parts kit: checked by the scene engine, then added like any other element
     function addCreature(act) {
@@ -4034,6 +4034,140 @@
         return on;
     }
 
+    // ---------- Your chats, presented: VQ opens a full-screen gallery of the conversation history ----------
+    const HIST_STOP = new Set('the a an and or but of to in on for with is are was were be been it this that what which who how why when where do does did can could would should will i you he she we they me my your our their about from as at by if not no so than then there these those just also into more most some any all very really please tell explain show give make let get'.split(' '));
+    function chatFacts(c) {
+        const msgs = c.messages || [];
+        const users = msgs.filter(m => m.role === 'user'), vq = msgs.filter(m => m.role !== 'user');
+        const strip = t => String(t || '').replace(/```[\s\S]*?```/g, ' [code] ').replace(/[#*_>`\[\]()]/g, '').replace(/\s+/g, ' ').trim();
+        const words = {};
+        users.forEach(m => strip(m.content).toLowerCase().split(/[^a-zÀ-ɏ'-]+/).forEach(w => { if (w.length > 3 && !HIST_STOP.has(w)) words[w] = (words[w] || 0) + 1; }));
+        const topics = Object.entries(words).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([w]) => w);
+        const chars = msgs.reduce((n, m) => n + String(m.content || '').length, 0);
+        return {
+            id: c.id, title: c.title || 'Untitled chat', created: c.created || null, updated: c.updated || 0,
+            count: msgs.length, asked: users.length, answered: vq.length, minutes: Math.max(1, Math.round(chars / 1100)),
+            first: strip(users[0] && users[0].content).slice(0, 220),
+            questions: users.slice(0, 6).map(m => strip(m.content).slice(0, 140)),
+            last: strip(vq.length ? vq[vq.length - 1].content : '').slice(0, 360),
+            code: msgs.some(m => /```/.test(m.content || '')), topics, active: c.id === store.activeId
+        };
+    }
+    function histWhen(t) {
+        if (!t) return 'Earlier';
+        const d = new Date(t), now = new Date(), day = 864e5;
+        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        if (t >= start) return 'Today';
+        if (t >= start - day) return 'Yesterday';
+        if (t >= start - 6 * day) return 'This week';
+        if (t >= start - 30 * day) return 'This month';
+        return d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    }
+    const histDate = t => t ? new Date(t).toLocaleString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Not recorded';
+    const histAgo = t => { if (!t) return ''; const s = (Date.now() - t) / 1000; return s < 90 ? 'just now' : s < 3600 ? Math.round(s / 60) + ' min ago' : s < 86400 ? Math.round(s / 3600) + ' h ago' : Math.round(s / 86400) + ' d ago'; };
+    let histOpen = null;
+    function showHistory(opts = {}) {
+        closeHistory(true);
+        const all = Object.values(store.chats || {}).filter(c => (c.messages || []).length).map(chatFacts).sort((a, b) => b.updated - a.updated);
+        const ov = el('div', 'hist'); ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', 'Your chats');
+        const totalQ = all.reduce((n, c) => n + c.asked, 0);
+        const oldest = all.reduce((m, c) => Math.min(m, c.created || c.updated || Infinity), Infinity);
+        const topicCount = {}; all.forEach(c => c.topics.forEach(t => topicCount[t] = (topicCount[t] || 0) + 1));
+        const topTopics = Object.entries(topicCount).sort((a, b) => b[1] - a[1]).slice(0, 8).map(x => x[0]);
+        ov.innerHTML = `
+          <div class="hist-glow" aria-hidden="true"></div>
+          <header class="hist-top">
+            <div class="hist-brand"><span class="hist-eyebrow">VQ · your conversations</span><h2>${all.length ? 'Here’s everything we’ve talked about' : 'No conversations yet'}</h2></div>
+            <button type="button" class="hist-close" aria-label="Close">✕</button>
+          </header>
+          <div class="hist-stats">
+            <div class="hist-stat"><b>${all.length}</b><span>chats</span></div>
+            <div class="hist-stat"><b>${totalQ}</b><span>questions asked</span></div>
+            <div class="hist-stat"><b>${all.reduce((n, c) => n + c.minutes, 0)}</b><span>minutes of reading</span></div>
+            <div class="hist-stat"><b>${isFinite(oldest) ? new Date(oldest).toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) : '–'}</b><span>since</span></div>
+          </div>
+          <div class="hist-tools">
+            <label class="hist-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" placeholder="Search titles, questions and answers…" aria-label="Search your chats"></label>
+            <div class="hist-topics">${topTopics.map(t => `<button type="button" class="hist-topic" data-t="${t}">${t}</button>`).join('')}</div>
+          </div>
+          <div class="hist-body">
+            <div class="hist-list" role="list"></div>
+            <aside class="hist-detail" aria-live="polite"><div class="hist-empty-detail">Pick a chat to see its details.</div></aside>
+          </div>`;
+        const list = ov.querySelector('.hist-list'), detail = ov.querySelector('.hist-detail'), input = ov.querySelector('.hist-search input');
+        let selected = null, topic = '';
+        const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+        const showDetail = (c) => {
+            selected = c.id;
+            list.querySelectorAll('.hist-card').forEach(x => x.classList.toggle('sel', x.dataset.id === c.id));
+            detail.innerHTML = `
+              <div class="hist-d-head"><span class="hist-when">${histWhen(c.updated)}${c.active ? ' · <em>open now</em>' : ''}</span><h3>${esc(c.title)}</h3></div>
+              <dl class="hist-meta">
+                <div><dt>Started</dt><dd>${esc(histDate(c.created))}</dd></div>
+                <div><dt>Last active</dt><dd>${esc(histDate(c.updated))} <small>${histAgo(c.updated)}</small></dd></div>
+                <div><dt>Messages</dt><dd>${c.count} <small>(${c.asked} from you, ${c.answered} from VQ)</small></dd></div>
+                <div><dt>Reading time</dt><dd>about ${c.minutes} min${c.code ? ' · includes code' : ''}</dd></div>
+              </dl>
+              ${c.topics.length ? `<div class="hist-d-topics">${c.topics.map(t => `<span>${esc(t)}</span>`).join('')}</div>` : ''}
+              <div class="hist-sec"><h4>You asked</h4><ol>${c.questions.map(q => `<li>${esc(q)}</li>`).join('')}</ol>${c.asked > c.questions.length ? `<p class="hist-more">and ${c.asked - c.questions.length} more</p>` : ''}</div>
+              ${c.last ? `<div class="hist-sec"><h4>VQ’s last answer</h4><blockquote>${esc(c.last)}${c.last.length >= 360 ? '…' : ''}</blockquote></div>` : ''}
+              <div class="hist-actions">
+                <button type="button" class="hist-open">Open this chat</button>
+                <button type="button" class="hist-sum" title="VQ reads the chat and writes a short summary (uses a message)">✦ Ask VQ to summarise</button>
+                <button type="button" class="hist-del" title="Delete this chat">Delete</button>
+              </div>`;
+            detail.querySelector('.hist-open').addEventListener('click', () => { closeHistory(); switchChat(c.id); });
+            detail.querySelector('.hist-sum').addEventListener('click', () => {
+                closeHistory(); switchChat(c.id);
+                setTimeout(() => { elements.messageInput.value = 'Please give me a short summary of this conversation so far: the main questions, your key answers, and anything left open.'; sendMessage(); }, 250);
+            });
+            detail.querySelector('.hist-del').addEventListener('click', () => { const before = Object.keys(store.chats).length; deleteChat(c.id); if (Object.keys(store.chats).length < before) showHistory(); });
+            if (innerWidth < 760) ov.classList.add('reading');
+        };
+        const render = () => {
+            const q = input.value.trim().toLowerCase();
+            list.textContent = '';
+            let last = '', n = 0;
+            all.forEach((c, i) => {
+                const hay = (c.title + ' ' + c.questions.join(' ') + ' ' + c.last + ' ' + c.topics.join(' ')).toLowerCase();
+                if (q && !hay.includes(q)) return;
+                if (topic && !c.topics.includes(topic)) return;
+                const g = histWhen(c.updated);
+                if (g !== last) { last = g; list.appendChild(el('div', 'hist-group', g)); }
+                const card = el('button', 'hist-card' + (c.active ? ' active' : '')); card.type = 'button'; card.dataset.id = c.id; card.setAttribute('role', 'listitem');
+                card.style.animationDelay = Math.min(n, 14) * 35 + 'ms';
+                card.innerHTML = `<span class="hist-c-title">${esc(c.title)}</span><span class="hist-c-first">${esc(c.first || '…')}</span>
+                  <span class="hist-c-meta"><span>${histAgo(c.updated)}</span><span>${c.count} messages</span>${c.code ? '<span>code</span>' : ''}${c.active ? '<span class="hist-now">open now</span>' : ''}</span>`;
+                card.addEventListener('click', () => showDetail(c));
+                card.addEventListener('dblclick', () => { closeHistory(); switchChat(c.id); });
+                list.appendChild(card); n++;
+            });
+            if (!n) list.appendChild(el('div', 'hist-none', all.length ? 'Nothing matches that search.' : 'Start a conversation and it will appear here.'));
+        };
+        input.addEventListener('input', render);
+        ov.querySelectorAll('.hist-topic').forEach(b => b.addEventListener('click', () => { topic = topic === b.dataset.t ? '' : b.dataset.t; ov.querySelectorAll('.hist-topic').forEach(x => x.classList.toggle('on', x.dataset.t === topic)); render(); }));
+        ov.querySelector('.hist-close').addEventListener('click', () => { if (ov.classList.contains('reading')) ov.classList.remove('reading'); else closeHistory(); });
+        const key = (e) => { if (e.key === 'Escape') { if (ov.classList.contains('reading')) ov.classList.remove('reading'); else closeHistory(); } };
+        document.addEventListener('keydown', key);
+        render();
+        document.body.appendChild(ov);
+        document.body.classList.add('hist-on');
+        requestAnimationFrame(() => ov.classList.add('in'));
+        const pick = (opts.select && all.find(c => c.id === opts.select)) || (innerWidth >= 760 && all[0]);
+        if (pick) showDetail(pick);
+        setTimeout(() => input.focus({ preventScroll: true }), 300);
+        histOpen = { ov, key };
+        return all.length;
+    }
+    function closeHistory(instant) {
+        if (!histOpen) return;
+        const { ov, key } = histOpen; histOpen = null;
+        document.removeEventListener('keydown', key);
+        document.body.classList.remove('hist-on');
+        ov.classList.remove('in');
+        setTimeout(() => ov.remove(), instant ? 0 : 320);
+    }
+
     // ---------- Quick settings: the switches that affect everything ----------
     const QUICK = [
         ['Effects', [['High', 'effects high'], ['Medium', 'effects medium'], ['Low', 'effects low']]],
@@ -4087,7 +4221,7 @@
         const away = (ev) => { if (!sh.contains(ev.target) && ev.target.id !== 'look-settings') { sh.remove(); document.removeEventListener('pointerdown', away, true); document.getElementById('look-settings')?.setAttribute('aria-expanded', 'false'); } };
         setTimeout(() => document.addEventListener('pointerdown', away, true), 0);
     }
-    setTimeout(() => document.getElementById('look-settings')?.addEventListener('click', () => toggleQuickSheet()), 400);
+    setTimeout(() => { document.getElementById('look-settings')?.addEventListener('click', () => toggleQuickSheet()); document.getElementById('hist-launch')?.addEventListener('click', (e) => { e.stopPropagation(); showHistory(); }); }, 400);
 
     // host: the side panel's Customise tab; without one, the list opens in the chat
     function showCatalog(host) {
@@ -4182,7 +4316,7 @@
                 ['Bubbles on', 'bubbles on'], ['Bubbles off', 'bubbles off'], ['Focus', 'focus'], ['Unfocus', 'unfocus'], ['High contrast', 'high contrast'], ['Less motion', 'reduce motion']] });
         add({ id: 'panel', group: 'Panel and tools', icon: 'panel', title: 'Side panel', tag: 'Open, width, detail and notes', cost: 'free',
             note: 'Videos, pictures and cards can also be shown here with their cast button (⧉).',
-            items: [['Open', 'open the panel'], ['Close', 'close the panel'], ['Wide', 'wide panel'], ['Standard', 'standard panel'], ['Plain details', 'plain details'], ['Technical details', 'technical details'], ['Notes', 'show my notes']] });
+            items: [['Your chats, full screen', 'show my chats'], ['Open', 'open the panel'], ['Close', 'close the panel'], ['Wide', 'wide panel'], ['Standard', 'standard panel'], ['Plain details', 'plain details'], ['Technical details', 'technical details'], ['Notes', 'show my notes']] });
         add({ id: 'code', group: 'Panel and tools', icon: 'code', title: 'Code', tag: 'Copy and ▶ Run inside the app', cost: 'message',
             note: 'Run shows web pages, Python results and charts, and data charts in the side panel, safely on your device.',
             items: [['“make me a small web page with a button”', null], ['“plot a sine wave in Python”', null]] });
@@ -4890,6 +5024,12 @@
             }
             case 'particles': {
                 act._particles = act.state === 'off' ? setParticles(null) : setParticles(act.particles || (act.preset ? { preset: act.preset } : null));
+                break;
+            }
+            case 'history': {
+                uiUndo.pop();
+                setTimeout(() => showHistory(), 400);
+                act._hist = Object.values(store.chats || {}).filter(c => (c.messages || []).length).length;
                 break;
             }
             case 'moment': {
@@ -6248,6 +6388,9 @@
                         : 'Particles off.');
                     break;
                 }
+                case 'history':
+                    lines.push(a._hist ? `Here are your ${a._hist} chats. Pick one to see its details, or search them.` : 'You have no saved chats yet.');
+                    break;
                 case 'moment':
                     lines.push(a._moment ? '✨ (click anywhere to return)' : 'Moments are paused while reduced motion is on.');
                     break;
@@ -6395,6 +6538,12 @@
             uiUndo.push(snapshotUI());
             uiPrefs.skyColours = skyColAsk; saveUIPrefs(); applyUIPrefs();
             showLocalNote(skyColAsk === 'original' ? 'Live skies now use their original colours' : 'Live skies now follow your accent colour');
+            return;
+        }
+        // Your chats, presented full screen
+        if (/^(?:(?:show|open|see|list|view)(?: me)? (?:my |all my |all |the )?(?:recent |past |previous |old |saved )?(?:chats|conversations|chat history|history)|(?:my )?(?:recent |past |previous )?(?:chats|conversations)|chat history|history)$/.test(pm)) {
+            elements.messageInput.value = '';
+            showHistory();
             return;
         }
         // Quick settings, free and instant
