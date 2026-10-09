@@ -4016,11 +4016,53 @@ def chat():
         
         # Streaming reply: words are sent to the browser as they are generated
         if data.get('stream'):
+            # Live work events ("ev") ride alongside the normal stream so the app can show VQ's real activity as it happens.
+            # Only things that actually happened are reported; ids stay stable so a source or card is announced once.
+            _rid = "r" + str(int(_time.time() * 1000))
+            _seen = {"src": set(), "card": set()}
+            _CARD_KEYS = (("movies", lambda m: "movie-" + str(m.get("id")), "title"), ("news", lambda n: n.get("url") or n.get("title"), "title"),
+                          ("videos", lambda v: "yt-" + str(v.get("id")), "title"), ("books", lambda b: "book-" + str(b.get("id") or b.get("title")), "title"),
+                          ("papers", lambda p: p.get("url") or p.get("title"), "title"), ("verses", lambda v: "verse-" + str(v.get("reference")), "reference"))
+            def _ev(kind, **data):
+                data["requestId"] = _rid
+                return "data: " + json.dumps({"ev": {"type": kind, "data": data}}) + "\n\n"
+            def _diff_trace():
+                out = []
+                for src in (trace.get("sources") or []):
+                    u = src.get("url") or src.get("title")
+                    if u and u not in _seen["src"]:
+                        _seen["src"].add(u)
+                        out.append(_ev("source", id=u[:300], domain=(_urlparse(u).hostname or "")[:80] if str(u).startswith("http") else "",
+                                       title=str(src.get("title") or "")[:140], decision="kept"))
+                for key, idf, tk in _CARD_KEYS:
+                    for rank, item in enumerate(trace.get(key) or []):
+                        try:
+                            cid = str(idf(item))[:300]
+                        except Exception:
+                            continue
+                        if cid and cid not in _seen["card"]:
+                            _seen["card"].add(cid)
+                            out.append(_ev("card", id=cid, title=str(item.get(tk) or "")[:140], rank=rank, kind=key, phase="ready"))
+                return "".join(out)
             def _sse(obj):
-                return "data: " + json.dumps(obj) + "\n\n"
+                extra = ""
+                st = obj.get("status") if isinstance(obj, dict) else None
+                if st:
+                    if st == "Writing the answer":
+                        extra = _diff_trace() + _ev("compose")
+                    elif st.startswith(("Searching", "Finding", "Looking up")):
+                        extra = _ev("search", label=st, query=str(obj.get("detail") or "")[:160])
+                    else:
+                        extra = _ev("tool", label=st + (": " + str(obj.get("detail"))[:80] if obj.get("detail") else ""))
+                if isinstance(obj, dict) and ("meta" in obj or "images" in obj):
+                    extra = _diff_trace()
+                if isinstance(obj, dict) and obj.get("done"):
+                    extra = _diff_trace() + _ev("done")
+                return "data: " + json.dumps(obj) + "\n\n" + extra
 
             def _generate():
                 parts = []
+                yield _ev("read", text=str(clean_message)[:2000])
                 extra = [k for k in trace['knowledge'] if k != 'VQ core identity']
                 yield _sse({"status": "Gathering what's relevant", "detail": ", ".join(extra[:3]) if extra else None})
                 if do_search:
