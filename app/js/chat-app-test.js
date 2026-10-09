@@ -1449,7 +1449,7 @@
         videos.slice(0, 6).forEach(v => {
             if (!v || !/^[A-Za-z0-9_-]{6,20}$/.test(v.id || '')) return;
             const card = el('button', 'video-card');
-            card.type = 'button';
+            card.type = 'button'; card.dataset.vid = v.id; card.dataset.vtitle = str(v.title, 120);
             card.setAttribute('aria-label', `Play: ${str(v.title, 120)}`);
             const th = el('div', 'video-thumb');
             const img = document.createElement('img');
@@ -2648,7 +2648,7 @@
             const r = node.getBoundingClientRect(), w = Math.max(1, Math.ceil(r.width / cell)), h = Math.max(1, Math.ceil(r.height / cell));
             const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const g = cv.getContext('2d');
             const rank = Array.from({ length: w * h }, () => Math.random());
-            const frames = 7, urls = [];
+            const frames = 5, urls = [];
             for (let f = 0; f <= frames; f++) {
                 const k = dir === 'in' ? f / frames : 1 - f / frames; g.clearRect(0, 0, w, h); g.fillStyle = '#000';
                 rank.forEach((v, i) => { if (v < k) g.fillRect(i % w, (i / w) | 0, 1, 1); });
@@ -3828,7 +3828,7 @@
         for (const [type, words] of fx) if (has(words)) return { kind: 'fx', type };
         const tk = [['galaxy', 'galax(y|ies)'], ['nebula', 'nebulae?'], ['constellations', 'constellations?'], ['waves', 'waves'], ['seashore', 'surf'], ['matrix', 'matrix|falling code|code rain'],
             ['orbits', 'orbits?|rings'], ['vortex', 'vortex|whirlpool'], ['tunnel', 'tunnel'], ['grid', 'grid|synthwave'], ['circuit', 'circuits?|circuit traces'], ['comets', 'comets'],
-            ['ripples', 'ripples?'], ['grain', 'grain|film grain'], ['mist', 'mist|fog|haze'], ['clouds', 'clouds?']];
+            ['ripples', 'ripples?'], ['grain', 'grain|film grain'], ['mist', 'mist|fog|haze'], ['clouds', 'clouds']];
         for (const [type, words] of tk) if (has(words)) return { kind: 'tk', type };
         return null;
     }
@@ -4123,7 +4123,7 @@
             if (opened.length) { if (from && !opened.includes(from) && FS_VIEWS[from]) setTimeout(() => FS_VIEWS[from].close(true), 700); return; }   // a local command opened another full screen
             if (++tries < 12) setTimeout(check, 50);
         };
-        setTimeout(check, 30);
+        check();
     }
     // ---------- Results stage: search cards (news, films, books, papers, videos, layouts) full screen, live-synced with the chat ----------
     // The stage is a window onto the chat, not a copy of it: what you type here is sent as a normal chat message,
@@ -4176,8 +4176,8 @@
         if (opts.thinking) think(opts.q);
         const say = (t) => { log.textContent = t; };
         const pressOriginal = (clone, orig, target) => {
-            const sel = 'button, a, .pcard-toggle';
-            const i = [...clone.querySelectorAll(sel)].indexOf(target), o = [...orig.querySelectorAll(sel)][i];
+            const sel = 'button, a, .pcard-toggle', mine = n => !n.closest('.cast-btn') && !n.classList.contains('cast-btn');
+            const i = [...clone.querySelectorAll(sel)].filter(mine).indexOf(target), o = [...orig.querySelectorAll(sel)].filter(mine)[i];
             if (o) o.click();
         };
         const fish = (on) => cards.forEach(c => {
@@ -4187,22 +4187,35 @@
             c.style.setProperty('--fe', `translate(${(-dx * 40 * d).toFixed(1)}px, ${(-dy * 30 * d).toFixed(1)}px) perspective(900px) rotateY(${(dx * 26).toFixed(1)}deg) rotateX(${(-dy * 20).toFixed(1)}deg) scale(${(1.12 - 0.4 * d * d).toFixed(3)})`);
             c.style.setProperty('--fb', (0.6 + d * 3).toFixed(2) + 'px'); c.style.setProperty('--fl', (0.72 - d * 0.32).toFixed(2));
         });
+        // Videos play right inside the zoomed card
+        const playIn = async (c) => {
+            if (zoomed !== c) await zoom(c);
+            if (c.querySelector('iframe')) return;
+            const th = c.querySelector('.video-thumb'); if (!th) return;
+            const f = document.createElement('iframe');
+            f.src = `https://www.youtube-nocookie.com/embed/${c.dataset.vid}?autoplay=1&rel=0`; f.title = c.dataset.vtitle || 'Video';
+            f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true; f.referrerPolicy = 'strict-origin-when-cross-origin';
+            f.className = 'rs-video'; th.replaceChildren(f);
+            say(`Playing “${c.dataset.vtitle || 'the video'}”. Say “back” to stop, or ask me about it.`);
+        };
         const zoom = async (card) => {
             if (zoomed === card) return unzoom();
             ov.classList.add('snap');
             const others = cards.filter(c => c !== card);
-            await Promise.all([pixelFade(card, 'out', 150), ...(zoomed ? [] : others.map(c => pixelFade(c, 'out', 150)))]);
-            if (zoomed) { zoomed.classList.remove('zoom', 'expanded'); zoomed._ph?.remove(); }
+            await Promise.all([pixelFade(card, 'out', 90), ...(zoomed ? [] : others.map(c => pixelFade(c, 'out', 90)))]);
+            if (zoomed) { zoomed.classList.remove('zoom', 'expanded'); zoomed._ph?.replaceWith(zoomed); }
             const ph = el('div', 'rs-ph'); ph.style.height = card.offsetHeight + 'px'; card.before(ph); card._ph = ph;
+            ov.appendChild(card);   // lift it out of the scrolling list so nothing can sit on top of it
             zoomed = card; card.classList.add('zoom', 'expanded'); ov.classList.add('zooming'); fish(true);
-            await Promise.all([pixelFade(card, 'in', 260, 18), ...others.map(c => pixelFade(c, 'in', 220))]);
+            await Promise.all([pixelFade(card, 'in', 160, 18), ...others.map(c => pixelFade(c, 'in', 140))]);
             say(`Zoomed in on “${card._t}”. Say “back” to see them all, or ask me about it.`);
         };
         const unzoom = () => {
             if (!zoomed) return false; const c = zoomed; zoomed = null;
-            Promise.all(cards.map(n => pixelFade(n, 'out', 140))).then(() => {
-                fish(false); c.classList.remove('zoom', 'expanded'); c._ph?.remove(); ov.classList.remove('zooming');
-                return Promise.all(cards.map(n => pixelFade(n, 'in', 220)));
+            const fr = c.querySelector('iframe.rs-video'); if (fr) { const im = document.createElement('img'); im.src = `https://i.ytimg.com/vi/${c.dataset.vid}/hqdefault.jpg`; im.alt = ''; fr.parentElement.replaceChildren(im, el('span', 'video-play', '▶')); }
+            Promise.all(cards.map(n => pixelFade(n, 'out', 90))).then(() => {
+                fish(false); c.classList.remove('zoom', 'expanded'); if (c._ph) c._ph.replaceWith(c); ov.classList.remove('zooming');
+                return Promise.all(cards.map(n => pixelFade(n, 'in', 140)));
             });
             return true;
         };
@@ -4234,7 +4247,8 @@
                         c.removeAttribute('role'); c.tabIndex = 0;
                         c._t = (orig.querySelector('.pcard-title, .news-title, .movie-title, .paper-title, .book-title, .video-title, h3, h4, strong')?.textContent || 'this card').trim();
                         c.addEventListener('click', (e) => {
-                            const t = e.target.closest('button, a, .pcard-toggle');
+                            let t = e.target.closest('button, a, .pcard-toggle'); if (t === c) t = null;
+                            if (!t && c.dataset.vid) { e.preventDefault(); e.stopPropagation(); playIn(c); return; }
                             if (t && t.tagName === 'A' && t.getAttribute('href')) return;          // real links open as normal
                             e.preventDefault(); e.stopPropagation();
                             if (t && !t.classList.contains('pcard-toggle')) { pressOriginal(c, orig, t); if (t.classList.contains('pcard-ask')) say(`Asking about “${c._t}” in your chat…`); return; }
@@ -4260,12 +4274,12 @@
             if (force || s2 !== sig || wasTyping) {
                 const fresh = (sig !== '' && s2 !== sig) || wasTyping; sig = s2; build(sets);
                 if (wasTyping || ov.classList.contains('thinking')) { wasTyping = false; ov.classList.remove('thinking'); }
-                if (fresh) { pixelFade(setsEl, 'in', 360, 16); setsEl.scrollTo({ top: 0 }); }
+                if (fresh) { pixelFade(setsEl, 'in', 200, 16); setsEl.scrollTo({ top: 0 }); }
             }
             const t = isTyping ? 'VQ is thinking…' : lastReplyText();
             if (t !== lastText) { lastText = t; if (t) say(str(t, 420) + (t.length > 420 ? '…' : '')); }
         };
-        let tm = 0; const mo = new MutationObserver(() => { clearTimeout(tm); tm = setTimeout(() => sync(false), 200); });
+        let tm = 0; const mo = new MutationObserver(() => { clearTimeout(tm); tm = setTimeout(() => sync(false), 60); });
         mo.observe(elements.messagesArea || document.body, { childList: true, subtree: true, characterData: true });
         const typingPoll = setInterval(() => sync(false), 700);
         sync(true);
@@ -4285,11 +4299,11 @@
             const q = raw.toLowerCase().replace(/[.!?]+$/, '').replace(/^(?:(?:please|pls|can you|could you)\s+)+/, '').replace(/\s+please$/, '');
             if (/^(?:close|exit|done|back to (?:the )?chat|leave|quit|small screen|exit full ?screen)$/.test(q)) return close();
             if (/^(?:back|zoom out|show (?:them )?all|all cards|unzoom)$/.test(q)) { if (!unzoom()) say('Already showing them all.'); return; }
-            const zm = q.match(/^(?:zoom(?: in)?(?: on)?|open|show(?: me)?|expand|look at)\s+(?:the\s+|card\s+|number\s+|#)?(.+)$/);
+            const zm = q.match(/^(?:zoom(?: in)?(?: on)?|open|show(?: me)?|expand|look at|play|watch)\s+(?:the\s+|card\s+|number\s+|video\s+|#)?(.+)$/);
             if (zm) {
                 const w = zm[1].replace(/^(?:first|1st)( one)?$/, '1').replace(/^(?:second|2nd)( one)?$/, '2').replace(/^(?:third|3rd)( one)?$/, '3').replace(/^(?:last)( one)?$/, String(cards.length)).replace(/ one$/, '');
                 const hit = /^\d+$/.test(w) ? cards[+w - 1] : cards.find(c => c._t.toLowerCase().includes(w));
-                if (hit) { hit.scrollIntoView({ block: 'center' }); setTimeout(() => zoom(hit), 120); return; }
+                if (hit) { hit.scrollIntoView({ block: 'center' }); setTimeout(() => (hit.dataset.vid && /^(?:play|watch|open)/.test(q) ? playIn(hit) : zoom(hit)), 60); return; }
             }
             // Everything else is a normal chat message: same chat, same history, same answer
             const ask = zoomed && /\b(?:this|it|that one|this one)\b/.test(q) ? `${raw} (about “${zoomed._t}”)` : raw;
@@ -4561,13 +4575,13 @@
             if (zoomed === card) return unzoom();
             ov.classList.add('snap');
             const others = [ov.querySelector('.gd-top'), ...grid.children].filter(n => n && n !== card && !n.classList.contains('gd-ph'));
-            await Promise.all([pixelFade(card, 'out', 150), ...(zoomed ? [] : others.map(n => pixelFade(n, 'out', 150)))]);
+            await Promise.all([pixelFade(card, 'out', 90), ...(zoomed ? [] : others.map(n => pixelFade(n, 'out', 90)))]);
             if (zoomed) { zoomed.classList.remove('zoom'); zoomed._ph?.remove(); }
             const r = card.getBoundingClientRect();
             const ph = el('div', 'gd-ph'); ph.style.height = r.height + 'px'; card.before(ph); card._ph = ph;
             zoomed = card; card.classList.add('zoom'); ov.classList.add('zooming');
             fisheye(card);
-            await Promise.all([pixelFade(card, 'in', 260, 18), ...others.map(n => pixelFade(n, 'in', 220))]);
+            await Promise.all([pixelFade(card, 'in', 160, 18), ...others.map(n => pixelFade(n, 'in', 140))]);
             card.querySelector('.guide-q')?.focus({ preventScroll: true });
         };
         // Fish-eye: the cards behind bulge as if seen through a wide lens: larger and nearer towards the middle,
@@ -4590,9 +4604,9 @@
         const unzoom = () => {
             if (!zoomed) return false; const c = zoomed; zoomed = null;
             const all = [ov.querySelector('.gd-top'), ...grid.children].filter(n => n && !n.classList.contains('gd-ph'));
-            Promise.all(all.map(n => pixelFade(n, 'out', 140))).then(() => {
+            Promise.all(all.map(n => pixelFade(n, 'out', 90))).then(() => {
                 unfish(); c.classList.remove('zoom'); c._ph?.remove(); ov.classList.remove('zooming');
-                return Promise.all(all.map(n => pixelFade(n, 'in', 220)));
+                return Promise.all(all.map(n => pixelFade(n, 'in', 140)));
             }).then(() => c.focus({ preventScroll: true }));
             return true;
         };
@@ -4611,7 +4625,7 @@
             const zq = q.replace(/^(?:zoom(?: in)?(?: on| to)?|show(?: me)?|open|tell me about|more (?:on|about)|explain|what about|look at)\s+(?:the\s+)?/, '').replace(/\s+(?:card|section|one)$/, '');
             const words = zq.split(/\s+/).filter(w => w.length > 2);
             const hit = cards.map(c => [c, words.reduce((n, w) => n + ((c._g.t + ' ' + (c._g.k || '')).toLowerCase().includes(w) ? 1 : 0), 0)]).sort((a, b) => b[1] - a[1])[0];
-            const zoomish = zq !== q || words.length <= 3;
+            const zoomish = /^(?:zoom|open|look at|expand)\b/.test(q) || (zq !== q && /^(?:show(?: me)? the|tell me about the|more (?:on|about) the)\b/.test(q)) || cards.some(c => c._g.t.toLowerCase().replace(/^new: /, '') === zq);
             if (hit && hit[1] > 0 && zoomish && !GUIDE.some(g => g.say.concat(g.more || []).some(p => p.toLowerCase() === q))) { zoom(hit[0]); reply(`Zoomed in on “${hit[0]._g.t.replace(/^New: /, '')}”. Say “back” for all cards.`); return; }
             reply('Asking VQ…'); fsAsk(raw, 'guide');
         });
@@ -5292,6 +5306,7 @@
         });
         stage.appendChild(bar);
         document.body.appendChild(stage);
+        setTimeout(() => bar.querySelector('input')?.focus({ preventScroll: true }), 80);
         document.body.classList.add('moment-on');
         void stage.offsetWidth; requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.add('in')));
         const exit = (ev) => { if (ev && ev.type === 'keydown' && ev.key !== 'Escape') return; endMoment(); };
