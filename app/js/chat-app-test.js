@@ -2641,6 +2641,26 @@
     const FX_LIST = ['trees', 'grass', 'mountains', 'stars', 'comet', 'planet', 'aurora', 'fireflies', 'snow', 'leaves', 'static', 'crt', 'tvset'];
     // One small tile of TV noise, made once and reused (shifted around to make it shimmer)
     let noiseTile = null;
+    // Pixel dissolve: an element breaks into square pixels that blink out, or blink in, in random order (no movement)
+    function pixelFade(node, dir = 'in', ms = 260, cell = 14) {
+        return new Promise(res => {
+            if (!node || matchMedia('(prefers-reduced-motion: reduce)').matches) { node && (node.style.opacity = dir === 'out' ? '0' : ''); return res(); }
+            const r = node.getBoundingClientRect(), w = Math.max(1, Math.ceil(r.width / cell)), h = Math.max(1, Math.ceil(r.height / cell));
+            const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const g = cv.getContext('2d');
+            const rank = Array.from({ length: w * h }, () => Math.random());
+            const frames = 7, urls = [];
+            for (let f = 0; f <= frames; f++) {
+                const k = dir === 'in' ? f / frames : 1 - f / frames; g.clearRect(0, 0, w, h); g.fillStyle = '#000';
+                rank.forEach((v, i) => { if (v < k) g.fillRect(i % w, (i / w) | 0, 1, 1); });
+                urls.push(cv.toDataURL());
+            }
+            node.style.opacity = '';
+            const set = u => { node.style.webkitMaskImage = node.style.maskImage = `url(${u})`; node.style.webkitMaskSize = node.style.maskSize = '100% 100%'; };
+            let i = 0; set(urls[0]);
+            const step = () => { i++; if (i > frames) { node.style.webkitMaskImage = node.style.maskImage = ''; if (dir === 'out') node.style.opacity = '0'; return res(); } set(urls[i]); setTimeout(step, ms / frames); };
+            setTimeout(step, ms / frames);
+        });
+    }
     function staticUrl() {
         if (staticUrl.v) return staticUrl.v;
         try { const c = document.createElement('canvas'); c.width = c.height = 160; const x = c.getContext('2d'), img = x.createImageData(160, 160);
@@ -4115,6 +4135,7 @@
         let selected = null, topic = '';
         const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
         const showDetail = (c) => {
+            if (selected !== c.id) requestAnimationFrame(() => pixelFade(detail, 'in', 240));
             selected = c.id;
             list.querySelectorAll('.hist-card').forEach(x => x.classList.toggle('sel', x.dataset.id === c.id));
             detail.innerHTML = `
@@ -4296,16 +4317,17 @@
         });
         // Zoom one card forward; the rest drop back behind a glass lens
         let zoomed = null;
-        const zoom = (card) => {
+        const zoom = async (card) => {
             if (zoomed === card) return unzoom();
+            const others = [ov.querySelector('.gd-top'), ...grid.children].filter(n => n && n !== card && !n.classList.contains('gd-ph'));
+            await Promise.all([pixelFade(card, 'out', 150), ...(zoomed ? [] : others.map(n => pixelFade(n, 'out', 150)))]);
             if (zoomed) { zoomed.classList.remove('zoom'); zoomed._ph?.remove(); }
             const r = card.getBoundingClientRect();
             const ph = el('div', 'gd-ph'); ph.style.height = r.height + 'px'; card.before(ph); card._ph = ph;
             zoomed = card; card.classList.add('zoom'); ov.classList.add('zooming');
             fisheye(card);
-            card.style.setProperty('--fx', Math.round(r.left + r.width / 2 - innerWidth / 2) + 'px');
-            card.style.setProperty('--fy', Math.round(r.top + r.height / 2 - innerHeight / 2) + 'px');
-            setTimeout(() => card.querySelector('.guide-q')?.focus({ preventScroll: true }), 420);
+            await Promise.all([pixelFade(card, 'in', 260, 18), ...others.map(n => pixelFade(n, 'in', 220))]);
+            card.querySelector('.guide-q')?.focus({ preventScroll: true });
         };
         // Fish-eye: the cards behind bulge as if seen through a wide lens: larger and nearer towards the middle,
         // curving away and squeezed towards the edges of the screen
@@ -4324,7 +4346,15 @@
             });
         };
         const unfish = () => [ov.querySelector('.gd-top'), ...grid.children].forEach(n => n && n.style && (n.style.removeProperty('--fe'), n.style.removeProperty('--fb'), n.style.removeProperty('--fl')));
-        const unzoom = () => { if (!zoomed) return false; unfish(); zoomed.classList.remove('zoom'); zoomed._ph?.remove(); ov.classList.remove('zooming'); const c = zoomed; zoomed = null; c.focus({ preventScroll: true }); return true; };
+        const unzoom = () => {
+            if (!zoomed) return false; const c = zoomed; zoomed = null;
+            const all = [ov.querySelector('.gd-top'), ...grid.children].filter(n => n && !n.classList.contains('gd-ph'));
+            Promise.all(all.map(n => pixelFade(n, 'out', 140))).then(() => {
+                unfish(); c.classList.remove('zoom'); c._ph?.remove(); ov.classList.remove('zooming');
+                return Promise.all(all.map(n => pixelFade(n, 'in', 220)));
+            }).then(() => c.focus({ preventScroll: true }));
+            return true;
+        };
         ov.querySelector('.gd-lens').addEventListener('click', unzoom);
         // The text box (and later, the voice): zoom by name, close, or just do what was said
         const bar = ov.querySelector('.gd-bar'), bin = bar.querySelector('input');
