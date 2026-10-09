@@ -47,7 +47,7 @@ def _rate_limited_locked(ip):
 
 @app.before_request
 def _guard_chat():
-    if request.path not in ("/chat", "/account/delete", "/enquirer") or request.method != "POST":
+    if request.path not in ("/chat", "/account/delete", "/enquirer", "/history-ask") or request.method != "POST":
         return None
     origin = request.headers.get("Origin", "")
     if origin not in ALLOWED_ORIGINS:
@@ -2231,6 +2231,15 @@ UI_SYSTEM_NOTE = (
     "embers; blue snow drifting sideways -> preset snowfall, colors [#9fd0ff,#e0f0ff], direction down-right, drift 0.6; star map that reacts to "
     "the pointer -> preset constellations, pointer grab. To change the current particles, send the whole recipe again with the change. "
     "action particles with state off removes them. Built-ins are also free if the user types 'embers particles' or 'particles off'.\n"
+    "TEACHING THE APP BY WORDS: the app is meant to be used by typing (and later speaking) plain sentences, so when a user asks how to do something, "
+    "what you can do, or seems unsure, teach the exact words to say, in quotes, say whether it is free, and offer to do it now. Keep it short: "
+    "the one or two phrases that answer their question, not the whole list. Point to 'help' (all phrases), 'what\'s new' (latest features) and "
+    "'show all customisations' (full list) when useful. Phrases that work directly (free unless marked): 'show my chats' or 'chat history' (full-screen "
+    "gallery of all their conversations, with a console at the bottom where they can type 'open the bayes one' or ask about past chats, which uses a message); "
+    "'celebrate', 'fireworks', 'confetti', 'night show moment', 'moment: castle' (full screen until they click; ask you for a custom moment, uses a message); "
+    "'embers particles', 'particles off'; 'add a castle', 'add a car', 'the dog chases the car'; 'night sky', 'living fog sky'; 'add 6 red tulips', 'make the dog run', "
+    "'arrange'; 'bigger', 'serif font', 'focus'; 'effects low', 'reduce motion' or the Settings button under the message box; 'show the face', 'face background'; "
+    "'undo', 'reset'. Polite wording is fine ('could you please show my chats'). If they ask to do it, do it with the tool instead of only explaining.\n"
     "YOUR CHATS: when the user asks to see their recent chats, chat history or past conversations, call ui_action with action history: the app opens a full-screen gallery of their chats with details. Don't list them in text.\n"
     "MOMENTS: when the user asks for something big and full-screen ('a giant dragon under the stars', 'surprise me', 'a moment to celebrate my exam'), "
     "call ui_action with action moment and a moment_spec you compose from the parts: a sky, a particles recipe, a burst, up to 3 giant heroes "
@@ -3469,6 +3478,46 @@ def enquirer():
         result["quota"] = _quota
     print(f"[ENQUIRER] {result['model']} answered in {result['ms']} ms", flush=True)
     return jsonify(result)
+
+@app.route('/history-ask', methods=['POST'])
+def history_ask():
+    """VQ answers a question about the user's own chat list (sent from their device), console style. Uses one message."""
+    if not groq_client:
+        return jsonify({"error": "unavailable", "text": "My console link is down right now."}), 503
+    data = request.get_json(silent=True) or {}
+    q = re.sub(r"[<>]", "", str(data.get("question") or "")).strip()[:400]
+    idx = data.get("index") if isinstance(data.get("index"), list) else []
+    if not q:
+        return jsonify({"error": "no_question"}), 400
+    _allowed, _quota = use_quota(current_user())
+    if not _allowed:
+        return jsonify({"error": "daily_limit", "text": limit_message(_quota), "quota": _quota}), 429
+    lines = []
+    for c in idx[:60]:
+        if not isinstance(c, dict):
+            continue
+        qs = " | ".join(str(x)[:110] for x in (c.get("questions") or [])[:5])
+        lines.append(f"#{int(c.get('n') or 0)} \"{str(c.get('title'))[:60]}\" started {str(c.get('created') or 'unknown')[:30]}, last active {str(c.get('updated'))[:30]}, "
+                     f"{int(c.get('count') or 0)} messages. Asked: {qs}. Last answer: {str(c.get('last') or '')[:200]}")
+    sysmsg = ("You are VQ's console inside the user's chat history screen. Answer questions about their past chats using ONLY the index below. "
+              "Be brief: one to four short lines, plain text, no markdown, like an old terminal readout. Refer to chats by their title and #number. "
+              "If the user wants to open, show, go to or continue a chat, choose the best match and end your reply with a final line exactly 'OPEN #n'. "
+              "If nothing matches, say so. Today is " + __import__("datetime").datetime.utcnow().strftime("%Y-%m-%d") + ".\n\nCHAT INDEX:\n" + "\n".join(lines))
+    try:
+        kw = dict(model=DRAW_MODEL, messages=[{"role": "system", "content": sysmsg}, {"role": "user", "content": q}], max_tokens=600, temperature=0.3)
+        if "gpt-oss" in DRAW_MODEL:
+            kw["reasoning_effort"] = "low"
+        r = groq_client.chat.completions.create(**kw)
+        text = re.sub(r"<think>[\s\S]*?</think>", "", (r.choices[0].message.content or "")).strip()
+    except Exception as e:
+        print(f"[HISTORY-ASK] failed: {e}", flush=True)
+        return jsonify({"error": "failed", "text": "Signal lost. Try again."}), 502
+    m = re.search(r"OPEN\s*#(\d+)\s*$", text)
+    out = {"text": re.sub(r"\n?OPEN\s*#\d+\s*$", "", text).strip()[:1200], "open": int(m.group(1)) if m else None}
+    if _quota:
+        out["quota"] = _quota
+    return jsonify(out)
+
 
 @app.route('/account/delete', methods=['POST'])
 def delete_account():
