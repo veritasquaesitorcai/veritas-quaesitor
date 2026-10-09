@@ -1461,7 +1461,14 @@ UI_TOOL = {
             "properties": {
                 "action": {"type": "string", "enum": ["text_size", "style", "panel", "focus_mode", "show_reasoning",
                                                        "new_chat", "reset_display", "undo", "panel_view", "add_note",
-                                                       "second_opinion", "swap", "create_theme", "theme_edit", "draw", "creature"]},
+                                                       "second_opinion", "swap", "create_theme", "theme_edit", "draw", "creature", "particles", "celebrate"]},
+                "particles": {"type": "object", "description": ("A particle layer VQ designs himself, drawn over the sky. Fields (all optional): name (2-4 words); preset (start from one: starfield, constellations, embers, fireflies, snowfall, bubbles, dust, orbs, warp, geometry, hearts, starlight; other fields then change it); "
+                           "shape (circle, star, square, triangle, hexagon, line, glyph); glyph (1-2 characters when shape is glyph, e.g. ♥ ✦ ❄); colors (1-6 #hex, or 'accent' for the app accent); "
+                           "count (0-200); size [min,max] in px (0.5-60); opacity [min,max] (0.03-1); speed (0-12; 0.1 drifting, 1 gentle, 5 fast, 10 streaking); "
+                           "direction (none, up, down, left, right, up-left, up-right, down-left, down-right, outward); drift 0-1 (sideways wobble); twinkle 0-1; glow 0-1; spin 0-1; gravity -2..3; "
+                           "links {distance 40-260, opacity 0.04-0.6, color} to join nearby particles with lines; pointer (none, repulse, attract, grab, bubble, connect); "
+                           "emit {from: bottom, top, left, right, center or random; rate 1-30 per second} for a steady stream instead of a fixed count.")},
+                "moment": {"type": "string", "enum": ["fireworks", "confetti", "confetti-rain"], "description": "For celebrate: a few seconds of fireworks, a confetti burst, or confetti rain"},
                 "recipe": {"type": "object", "description": ("For creature: a creature assembled from VQ's parts kit. Fields: name; rig (quadruped, bird, fish, insect, serpent, biped, turtle, octopus, crab); "
                            "parts {head {shape, ears, eyes, muzzle, extras[], width, length, roundness}, neck {length, thickness}, body {shape, length, width}, "
                            "legs {type, length, thickness}, tail {type, length, width, curve}}; colors {base, underside, detail, eyes} as #hex (natural colours); "
@@ -1496,6 +1503,7 @@ UI_TOOL = {
                               "accent2": {"type": "string", "description": "a lighter companion to the accent"},
                               "icon": {"type": "string", "description": "icon and VQ-eye colour, light and vivid"},
                               "scene": {"type": "string", "description": "optional matching sky: mist, clouds, sunset, night, seaday, seanight, storm, none, or a live 3D sky: livefog, lowpolysea, cloudsky, flock, network, cells, dotfield, globe, halo, rings, ripple, flowlines, threads"},
+                              "particles": {"type": "object", "description": "optional: a particle layer for the theme, same fields as the particles field (e.g. warm embers for a fireside theme, slow snowfall for winter, constellations for space)"},
                               "layers": {"type": "array", "description": ("optional: up to 3 canvas effect layers from the visual toolkit, each "
                                          "{type, params}. Types: mist, clouds, storm, stars, constellations, galaxy, nebula, aurora, waves, seashore, matrix "
                                          "(falling code), orbits, vortex, tunnel, grid (retro perspective grid), circuit, comets, ripples, grain (film grain). "
@@ -1569,6 +1577,80 @@ _ACCENT_SYNONYMS = {"red": "rose", "pink": "rose", "crimson": "rose", "scarlet":
                     "aqua": "teal", "mint": "teal", "navy": "blue", "sky": "blue", "azure": "blue",
                     "lime": "green", "emerald": "green", "olive": "green", "peach": "orange", "coral": "orange",
                     "gray": "grey", "silver": "grey", "slate": "grey", "charcoal": "grey", "black": "grey", "white": "grey"}
+
+PARTICLE_PRESETS = ["starfield", "constellations", "embers", "fireflies", "snowfall", "bubbles", "dust", "orbs", "warp", "geometry", "hearts", "starlight"]
+_P_SHAPES = ["circle", "star", "square", "triangle", "hexagon", "line", "glyph"]
+_P_DIRS = ["none", "up", "down", "left", "right", "up-left", "up-right", "down-left", "down-right", "outward"]
+_P_POINTER = ["none", "repulse", "attract", "grab", "bubble", "connect"]
+_P_FROM = ["bottom", "top", "left", "right", "center", "random"]
+
+
+def clean_particles(r):
+    """A particle recipe from VQ, checked and clamped. The app checks it again before drawing. Returns dict or None."""
+    if isinstance(r, str):
+        r = {"preset": r}
+    if not isinstance(r, dict):
+        return None
+    def num(v, lo, hi):
+        try:
+            x = float(v)
+            return None if x != x else round(min(hi, max(lo, x)), 3)
+        except (TypeError, ValueError):
+            return None
+    def rng(v, lo, hi):
+        if isinstance(v, (int, float)):
+            v = [v, v]
+        if not isinstance(v, list) or len(v) < 2:
+            return None
+        a, b = num(v[0], lo, hi), num(v[1], lo, hi)
+        return None if a is None or b is None else [min(a, b), max(a, b)]
+    hexok = lambda c: isinstance(c, str) and re.fullmatch(r"#?[0-9a-fA-F]{3}([0-9a-fA-F]{3})?", c.strip()) is not None
+    o = {}
+    pre = str(r.get("preset") or "").lower().strip().replace(" ", "")
+    pre = {"stars": "starfield", "snow": "snowfall", "sparks": "embers", "bokeh": "orbs", "hyperspace": "warp", "triangles": "geometry", "motes": "dust"}.get(pre, pre)
+    if pre in PARTICLE_PRESETS:
+        o["preset"] = pre
+    name = re.sub(r"[^\w '\-&]", "", str(r.get("name") or "")).strip()[:40]
+    if name:
+        o["name"] = name
+    sh = str(r.get("shape") or "").lower().strip()
+    if sh in _P_SHAPES:
+        o["shape"] = sh
+    g = re.sub(r"[<>&\"'\s]", "", str(r.get("glyph") or ""))[:2]
+    if g:
+        o["glyph"] = g
+    cols = r.get("colors") if isinstance(r.get("colors"), list) else ([r["colors"]] if isinstance(r.get("colors"), str) else [])
+    cols = [("accent" if c == "accent" else "#" + c.strip().lstrip("#").lower()) for c in cols if c == "accent" or hexok(c)][:6]
+    if cols:
+        o["colors"] = cols
+    for k, lo, hi in (("count", 0, 200), ("speed", 0, 12), ("drift", 0, 1), ("twinkle", 0, 1), ("glow", 0, 1), ("spin", 0, 1), ("gravity", -2, 3)):
+        v = num(r.get(k), lo, hi)
+        if v is not None:
+            o[k] = int(v) if k == "count" else v
+    for k, lo, hi in (("size", 0.5, 60), ("opacity", 0.03, 1)):
+        v = rng(r.get(k), lo, hi)
+        if v:
+            o[k] = v
+    d = str(r.get("direction") or "").lower().strip().replace(" ", "-")
+    d = {"upward": "up", "upwards": "up", "rising": "up", "downward": "down", "falling": "down", "outwards": "outward", "random": "none"}.get(d, d)
+    if d in _P_DIRS:
+        o["direction"] = d
+    pt = str(r.get("pointer") or "").lower().strip()
+    if pt in _P_POINTER:
+        o["pointer"] = pt
+    if r.get("links"):
+        l = r["links"] if isinstance(r["links"], dict) else {}
+        lk = {"distance": num(l.get("distance", 130), 40, 260) or 130, "opacity": num(l.get("opacity", 0.2), 0.04, 0.6) or 0.2}
+        if l.get("color") == "accent" or hexok(l.get("color")):
+            lk["color"] = "accent" if l["color"] == "accent" else "#" + l["color"].strip().lstrip("#").lower()
+        o["links"] = lk
+    if isinstance(r.get("emit"), dict):
+        fr = str(r["emit"].get("from") or "bottom").lower().strip()
+        o["emit"] = {"from": fr if fr in _P_FROM else "bottom", "rate": num(r["emit"].get("rate", 6), 1, 30) or 6}
+    if not o or (len(o) == 1 and "name" in o):
+        return None
+    return o
+
 
 def validate_ui_action(args: dict):
     """Keep only allowed actions and values; clamp numbers. Returns (clean_dict, summary) or (None, reason)."""
@@ -1690,6 +1772,18 @@ def validate_ui_action(args: dict):
         except (TypeError, ValueError):
             clean["count"] = 1
         parts = [f"drew {clean['name']}"]
+    if action == "particles":
+        if clean.get("state") == "off":
+            parts = ["particles off"]
+        else:
+            pc = clean_particles(args.get("particles") or args.get("preset"))
+            if not pc:
+                return None, "particles needs a preset or some design fields"
+            clean["particles"] = pc
+            parts = [pc.get("name") or pc.get("preset") or "custom particles"]
+    if action == "celebrate":
+        m = str(args.get("moment") or "fireworks").lower().strip()
+        clean["moment"] = {"confetti rain": "confetti-rain", "rain": "confetti-rain", "party": "confetti"}.get(m, m) if m in ("fireworks", "confetti", "confetti-rain", "confetti rain", "rain", "party") else "fireworks"
     if action == "creature":
         rec, probs = clean_recipe(args.get("recipe"))
         if not rec:
@@ -1735,6 +1829,9 @@ def validate_ui_action(args: dict):
         sc = str(th.get("scene") or "").lower().strip()
         if sc in ("mist", "clouds", "sunset", "night", "seaday", "seanight", "storm", "none", "livefog", "lowpolysea", "cloudsky", "flock", "network", "cells", "dotfield", "globe", "halo", "rings", "ripple", "flowlines", "threads"):
             spec["scene"] = sc
+        pc = clean_particles(th.get("particles")) if th.get("particles") else None
+        if pc:
+            spec["particles"] = pc
         clean["theme"] = spec
         parts = [f"new theme “{spec['name']}”"]
     if action == "add_note":
@@ -1761,6 +1858,8 @@ def validate_ui_action(args: dict):
         "theme_edit": "Theme edit → " + ", ".join(parts) if action == "theme_edit" else "",
         "draw": f"Drew {clean.get('name', 'a drawing')}" if action == "draw" else "",
         "creature": f"Assembled {clean.get('name', 'an animal')} from the parts kit" if action == "creature" else "",
+        "particles": ("Particles → " + ", ".join(parts)) if action == "particles" else "",
+        "celebrate": f"Celebrated with {clean.get('moment', 'fireworks').replace('-', ' ')}" if action == "celebrate" else "",
         "swap": ("Swapped back: VQ has the main chat" if clean.get('state') == 'off' else f"Swapped places: {ENQUIRER_NAME} has the main chat"),
     }
     return clean, labels[action]
@@ -2018,6 +2117,17 @@ UI_SYSTEM_NOTE = (
     "cartoon or game characters), mascots, logos or brands: do not call the tool; say plainly in one sentence that you can't draw that "
     "one because it's someone else's character, and offer an original design of your own instead (e.g. an original masked hero in your "
     "own colours), drawn only if they say yes.\n"
+    "BACKGROUNDS ARE LAYERS you compose: (1) one sky (style.scene: a painted sky or a live 3D sky); (2) a particle layer YOU design; "
+    "(3) scene elements (flowers, animals, your drawings); (4) a short celebration moment. For a request like 'a calm night by the sea with fireflies' combine them: a sky plus a particle layer, then elements one at a time.\n"
+    "PARTICLES: call ui_action with action particles and a particles recipe. You may start from a preset (starfield, constellations, embers, "
+    "fireflies, snowfall, bubbles, dust, orbs, warp, geometry, hearts, starlight) and change any field, or design a new one from the fields "
+    "(shape, colors, count, size, opacity, speed, direction, drift, twinkle, glow, spin, gravity, links, pointer, emit). Design with taste: calm "
+    "and readable behind text, natural motion, 2-3 related colours, counts of 20-120 for most effects. Examples: golden embers rising -> preset "
+    "embers; blue snow drifting sideways -> preset snowfall, colors [#9fd0ff,#e0f0ff], direction down-right, drift 0.6; star map that reacts to "
+    "the pointer -> preset constellations, pointer grab. To change the current particles, send the whole recipe again with the change. "
+    "action particles with state off removes them. Built-ins are also free if the user types 'embers particles' or 'particles off'.\n"
+    "CELEBRATIONS: when the user asks to celebrate, or for fireworks or confetti, call ui_action with action celebrate and moment "
+    "fireworks, confetti or confetti-rain. It lasts a few seconds. Never celebrate unasked.\n"
     "NEVER mention internal tool or action names (ui_action, theme_edit, create_theme) to the user; describe changes in plain words. "
     "If the user asks for a full or complete list of customisations or effects, give a short overview and tell them to say "
     "'show all customisations' to open the complete, tappable list in the app.\n"
@@ -2030,7 +2140,7 @@ UI_SYSTEM_NOTE = (
     "DESIGNING A THEME: when the user asks you to make, design or create a WHOLE NEW theme (e.g. 'a theme like a sunrise over the ocean', "
     "'something calm and green'), call ui_action with action create_theme and a theme you design: dark background, a slightly "
     "lighter surface, light text, an accent and its lighter companion, a vivid icon colour, a short evocative name, a matching "
-    "scene if one fits, and up to three animated effects that bring it to life (trees, grass, mountains, stars, comet, planet, aurora, "
+    "scene if one fits, optionally a particles recipe that suits it, and up to three animated effects that bring it to life (trees, grass, mountains, stars, comet, planet, aurora, "
     "fireflies, snow, leaves, static, crt, tvset), plus up to three canvas 'layers' from the visual toolkit for richer scenes "
     "(galaxy, nebula, matrix, grid, tunnel, vortex, orbits, circuit, ripples and more). Choose what fits; two to four in total is plenty. "
     "LIMITS: at most 4 effects and 3 layers per theme. If the user asks for 'as many as possible', choose the best 4-5 in total and "
