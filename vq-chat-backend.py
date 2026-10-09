@@ -4023,9 +4023,9 @@ def chat():
             _CARD_KEYS = (("movies", lambda m: "movie-" + str(m.get("id")), "title"), ("news", lambda n: n.get("url") or n.get("title"), "title"),
                           ("videos", lambda v: "yt-" + str(v.get("id")), "title"), ("books", lambda b: "book-" + str(b.get("id") or b.get("title")), "title"),
                           ("papers", lambda p: p.get("url") or p.get("title"), "title"), ("verses", lambda v: "verse-" + str(v.get("reference")), "reference"))
-            def _ev(kind, **data):
+            def _ev(_etype, **data):
                 data["requestId"] = _rid
-                return "data: " + json.dumps({"ev": {"type": kind, "data": data}}) + "\n\n"
+                return "data: " + json.dumps({"ev": {"type": _etype, "data": data}}) + "\n\n"
             def _diff_trace():
                 out = []
                 for src in (trace.get("sources") or []):
@@ -4045,6 +4045,12 @@ def chat():
                             out.append(_ev("card", id=cid, title=str(item.get(tk) or "")[:140], rank=rank, kind=key, phase="ready"))
                 return "".join(out)
             def _sse(obj):
+                try:
+                    extra = _ev_extra(obj)
+                except Exception as _xe:           # live events must never break the chat itself
+                    print(f"[EV] {_xe}", flush=True); extra = ""
+                return "data: " + json.dumps(obj) + "\n\n" + extra
+            def _ev_extra(obj):
                 extra = ""
                 st = obj.get("status") if isinstance(obj, dict) else None
                 if st:
@@ -4058,7 +4064,7 @@ def chat():
                     extra = _diff_trace()
                 if isinstance(obj, dict) and obj.get("done"):
                     extra = _diff_trace() + _ev("done")
-                return "data: " + json.dumps(obj) + "\n\n" + extra
+                return extra
 
             def _generate():
                 parts = []
