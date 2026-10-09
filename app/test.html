@@ -1445,7 +1445,7 @@
         .gd .gd-card.zoom { position: fixed; z-index: 6; left: 50%; top: 46%; width: min(48rem, calc(100vw - 32px)); max-height: 78vh; overflow: auto; cursor: zoom-out;
             transform: translate(-50%, -50%); opacity: 1; padding: 1.6rem 1.7rem 1.7rem; border-color: rgba(var(--ui-accent-rgb),0.75);
             background: linear-gradient(160deg, rgba(40,36,34,0.97), rgba(16,16,20,0.97)); box-shadow: 0 30px 90px rgba(0,0,0,0.65), 0 0 0 1px rgba(var(--ui-accent-rgb),0.3), 0 0 60px rgba(var(--ui-accent-rgb),0.18);
-            animation: gdZoom .55s cubic-bezier(.2,.9,.2,1) both; transition: none; }
+            animation: none; transition: none; }
         @keyframes gdZoom { from { transform: translate(calc(-50% + var(--fx)), calc(-50% + var(--fy))) scale(0.55); opacity: 0.6; } to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
         .gd-card.zoom .guide-h { font-size: 1.35rem; }
         .gd-card.zoom .guide-d { font-size: 1rem; }
@@ -1453,7 +1453,7 @@
         .gd-card.zoom .gd-more { display: block; animation: paneIn .4s ease .2s both; }
                 .gd-grid { perspective: 1400px; }
         .gd.zooming .gd-grid .gd-card:not(.zoom), .gd.zooming .gd-top { transform: var(--fe, scale(0.94)); transform-origin: 50% 50%; filter: blur(var(--fb, 2px)) brightness(var(--fl, 0.55)) saturate(0.85);
-            transition: filter .55s ease, transform .7s cubic-bezier(.2,.9,.2,1); transition-delay: 0s; }
+            transition: none; }
         .gd.zooming .gd-foot { opacity: 0.2; }
         .gd-lens { position: fixed; inset: 0; z-index: 5; pointer-events: none; opacity: 0; transition: opacity .5s;
             background: radial-gradient(circle at 50% 46%, transparent 40%, rgba(var(--ui-accent-rgb),0.05) 55%, rgba(0,0,0,0.35) 72%, rgba(0,0,0,0.85) 100%),
@@ -1683,6 +1683,13 @@
         @media (prefers-reduced-motion: reduce) { .vq-console::before { animation: none; } }
         @media (max-width: 640px) { .vq-console input { font-size: 16px; } .vq-console .vc-log { max-height: 4.5rem; } }
         .look-btn.dim { opacity: 0.6; }
+    
+        /* history cards carry the chat window's accent (like your messages) */
+        .hist-card { border-color: rgba(var(--ui-accent-rgb),0.28); background: linear-gradient(90deg, rgba(var(--ui-accent-rgb),0.13), rgba(var(--ui-accent-rgb),0.03) 75%, rgba(255,255,255,0.015)); box-shadow: inset 2px 0 0 rgba(var(--ui-accent-rgb),0.7); }
+        .hist-card.active { box-shadow: inset 3px 0 0 var(--ui-accent), 0 0 18px rgba(var(--ui-accent-rgb),0.15); }
+        .hist-card .hist-t, .hist-card h4 { color: var(--text-primary); }
+        .hist-card:hover { transform: none; filter: brightness(1.12); }
+        .hist-card { animation: none; }
     </style>
     <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23667eea%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23764ba2%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2216%22%20fill%3D%22url%28%23g%29%22/%3E%3Cg%20transform%3D%22translate%284.8%205.2%29%20scale%280.7%29%22%3E%3Cline%20x1%3D%2216%22%20y1%3D%224.2%22%20x2%3D%2216%22%20y2%3D%228%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22/%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%223.4%22%20r%3D%222.1%22%20fill%3D%22%23ff8c42%22/%3E%3Crect%20x%3D%225.5%22%20y%3D%228%22%20width%3D%2221%22%20height%3D%2216.5%22%20rx%3D%226.5%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.18%29%22%20stroke%3D%22%23fff%22%20stroke-width%3D%222%22/%3E%3Crect%20x%3D%228.6%22%20y%3D%2211.6%22%20width%3D%2214.8%22%20height%3D%227.6%22%20rx%3D%223.8%22%20fill%3D%22%231b1340%22/%3E%3Ccircle%20cx%3D%2212.6%22%20cy%3D%2215.4%22%20r%3D%222%22%20fill%3D%22%237fe0ff%22/%3E%3Ccircle%20cx%3D%2219.4%22%20cy%3D%2215.4%22%20r%3D%222%22%20fill%3D%22%237fe0ff%22/%3E%3Cpath%20d%3D%22M13%2021.6c1.9%201%204.1%201%206%200%22%20stroke%3D%22%23fff%22%20stroke-width%3D%221.8%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22/%3E%3C/g%3E%3C/svg%3E">
 </head>
@@ -1934,6 +1941,6 @@
     <script src="js/vq-portraits.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-persona-bridge.js?v=2026-10-08-portraits"></script>
     <script src="js/vq-run.js?v=2026-10-08-run"></script>
-    <script src="js/chat-app-test.js?v=2026-10-09-m4console"></script>
+    <script src="js/chat-app-test.js?v=2026-10-09-pixel"></script>
 </body>
 </html>
