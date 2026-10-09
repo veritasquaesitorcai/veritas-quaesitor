@@ -4164,7 +4164,7 @@
         ov.innerHTML = `
           <div class="rs-glow" aria-hidden="true"></div>
           <header class="rs-top"><div><span class="hist-eyebrow">VQ · results</span><h2 class="rs-h"></h2></div><button type="button" class="hist-close" aria-label="Close">✕</button></header>
-          <div class="rs-think" aria-live="polite"><div class="rs-think-q"></div><div class="rs-think-scan"><i></i></div><div class="rs-think-t">VQ is thinking<span>.</span><span>.</span><span>.</span></div></div>
+          <div class="rs-think" aria-live="polite"><div class="rs-think-q"></div><div class="rs-think-scan"><i></i></div><div class="rs-think-t">VQ is thinking<span>.</span><span>.</span><span>.</span></div><div class="rs-work" aria-hidden="true"><div class="rs-cloud"></div><ol class="rs-steps"></ol><div class="rs-count"></div><div class="rs-found"></div></div></div>
           <div class="rs-sets"></div>
           <div class="rs-lens" aria-hidden="true"></div>
           <form class="rs-bar vq-console" autocomplete="off"><div class="vc-log" role="log" aria-live="polite"></div><label class="vc-prompt"><span aria-hidden="true">VQ&gt;</span><input type="text" maxlength="2000" aria-label="Talk to VQ" placeholder="ask anything — it goes into your chat · “zoom in on 2” · “close”"><i class="vc-caret" aria-hidden="true"></i></label></form>
@@ -4172,7 +4172,31 @@
         document.body.appendChild(ov); document.body.classList.add('rs-on');
         const setsEl = ov.querySelector('.rs-sets'), log = ov.querySelector('.vc-log'), inp = ov.querySelector('.rs-bar input'), head = ov.querySelector('.rs-h');
         let zoomed = null, sig = '', cards = [], wasTyping = false;
-        const think = (q) => { ov.classList.add('thinking'); log.textContent = 'VQ is thinking…'; ov.querySelector('.rs-think-q').textContent = q ? '“' + str(q, 160) + '”' : ''; head.textContent = q ? str(q, 140) : head.textContent; };
+        // VQ's real work, shown while he thinks: every line, fragment and title here comes from a live event the backend sent
+        const work = { steps: ov.querySelector('.rs-steps'), cloud: ov.querySelector('.rs-cloud'), count: ov.querySelector('.rs-count'), found: ov.querySelector('.rs-found'), src: 0, cards: 0 };
+        const resetWork = () => { work.steps.replaceChildren(); work.cloud.replaceChildren(); work.found.replaceChildren(); work.count.textContent = ''; work.src = work.cards = 0; };
+        const step = (t) => { const li = el('li', 'rs-step', t); work.steps.appendChild(li); while (work.steps.children.length > 5) work.steps.firstChild.remove(); [...work.steps.children].forEach((n, i, a) => n.classList.toggle('old', i < a.length - 1)); };
+        const tally = () => { work.count.textContent = [work.src && `${work.src} source${work.src > 1 ? 's' : ''}`, work.cards && `${work.cards} result${work.cards > 1 ? 's' : ''}`].filter(Boolean).join(' · '); };
+        const onEv = (e) => {
+            const ev = e.detail || {}, d = ev.data || {};
+            if (!ov.classList.contains('thinking')) return;
+            if (ev.type === 'read') { resetWork(); step('Reading your question'); }
+            else if (ev.type === 'search' || ev.type === 'tool') step(String(d.label || 'Working') + (d.query ? ` · “${str(d.query, 60)}”` : ''));
+            else if (ev.type === 'compose') step('Writing the answer');
+            else if (ev.type === 'source') {
+                work.src++; tally();
+                const f = el('span', 'rs-frag', str(d.domain || d.title || 'source', 40));
+                const a = Math.random() * Math.PI * 2, r = 46 + Math.random() * 10;
+                f.style.setProperty('--sx', (Math.cos(a) * r).toFixed(1) + 'vw'); f.style.setProperty('--sy', (Math.sin(a) * r).toFixed(1) + 'vh');
+                f.style.setProperty('--ex', ((Math.random() - 0.5) * 34).toFixed(1) + 'vw'); f.style.setProperty('--ey', ((Math.random() - 0.5) * 14 - 16).toFixed(1) + 'vh');
+                work.cloud.appendChild(f); while (work.cloud.children.length > 16) work.cloud.firstChild.remove();
+            } else if (ev.type === 'card') {
+                work.cards++; tally();
+                if (work.found.children.length < 8) { const c = el('span', 'rs-lock', str(d.title || 'result', 48)); c.style.animationDelay = (work.found.children.length * 70) + 'ms'; work.found.appendChild(c); }
+            }
+        };
+        document.addEventListener('vq-ev', onEv);
+        const think = (q) => { if (!ov.classList.contains('thinking')) resetWork(); ov.classList.add('thinking'); log.textContent = 'VQ is thinking…'; ov.querySelector('.rs-think-q').textContent = q ? '“' + str(q, 160) + '”' : ''; head.textContent = q ? str(q, 140) : head.textContent; };
         if (opts.thinking) think(opts.q);
         const say = (t) => { log.textContent = t; };
         const pressOriginal = (clone, orig, target) => {
@@ -4285,7 +4309,7 @@
         sync(true);
         if (!lastText) say('These are the cards from this chat. Ask anything — it goes into your chat and new cards land here.');
         const close = () => {
-            if (!rsOpen) return; rsOpen = null; mo.disconnect(); clearInterval(typingPoll);
+            if (!rsOpen) return; rsOpen = null; mo.disconnect(); clearInterval(typingPoll); document.removeEventListener('vq-ev', onEv);
             document.removeEventListener('keydown', key); document.body.classList.remove('rs-on');
             ov.classList.remove('in'); setTimeout(() => ov.remove(), 300);
             setTimeout(() => elements.messagesArea?.scrollTo?.({ top: elements.messagesArea.scrollHeight, behavior: 'smooth' }), 300);
@@ -7326,6 +7350,7 @@
                     if (!line) continue;
                     let msg;
                     try { msg = JSON.parse(line.slice(5).trim()); } catch (e) { continue; }
+                    if (msg.ev && typeof msg.ev === 'object') { try { document.dispatchEvent(new CustomEvent('vq-ev', { detail: msg.ev })); window.VQPresence?.event?.(msg.ev); } catch (e) {} }
                     if (msg.meta && typeof msg.meta === 'object') { meta = msg.meta; if (meta.quota) updateQuota(meta.quota); }
                     if (msg.ui && typeof msg.ui === 'object') { applyUIAction(msg.ui); uiActs.push(msg.ui); }
                     if (typeof msg.status === 'string') {
