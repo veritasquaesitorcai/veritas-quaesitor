@@ -13,9 +13,9 @@
   /* input: no box. Your words sit in a shallow groove pressed into the sand */
   .bar { position: fixed; left: 50%; top: 9vh; width: min(46rem, calc(100vw - 32px)); transform: translateX(-50%); z-index: 5; transition: opacity .6s; }
   .bar.sunk { opacity: 0; pointer-events: none; }
-  .bar input { width: 100%; padding: 1.05rem 1.3rem; border: 0; outline: 0; background: transparent; font: inherit; font-size: 1.25rem; text-align: center; color: #3e2a16;
+  .bar input { width: 100%; padding: 1.05rem 1.3rem; border: 0; outline: 0; background: transparent; font: inherit; font-size: 1.25rem; text-align: center; color: #2a1a0b; font-weight: 600;
     text-shadow: 0 1px 0 rgba(255,236,205,0.7), 0 -1px 0 rgba(90,60,30,0.25); caret-color: #3e2a16; }
-  .bar input::placeholder { color: rgba(62,42,22,0.62); }
+  .bar input::placeholder { color: rgba(42,26,11,0.6); }
   /* cards that rise: real content (posters) laid over a raised sand slab */
   .card { position: fixed; z-index: 3; border-radius: 12px; overflow: hidden; cursor: pointer; color: var(--ink);
     transform: translateY(14px) scale(0.96); opacity: 0; filter: blur(4px) sepia(0.6);
@@ -27,7 +27,7 @@
   .card .t small { display: block; font-weight: 400; opacity: 0.75; }
   /* long answers: no panel. Words are pressed into the sand and surface one by one */
   .glass { position: fixed; z-index: 4; left: 50%; transform: translateX(-50%); width: min(46rem, calc(100vw - 40px)); overflow: auto; padding: 0.4rem 0.6rem 2rem;
-    color: #3d2914; font-size: 1.12rem; line-height: 1.75; font-weight: 500; scrollbar-width: none;
+    color: #2a1a0b; font-size: 1.12rem; line-height: 1.75; font-weight: 600; scrollbar-width: none;
     text-shadow: 0 1px 0 rgba(255,236,205,0.75), 0 -1px 0 rgba(95,62,28,0.32);
     -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 1.2rem, #000 calc(100% - 2.4rem), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 1.2rem, #000 calc(100% - 2.4rem), transparent 100%);
     opacity: 0; transition: opacity .5s; }
@@ -141,6 +141,10 @@ void main(){
   vec3 day = mix(vec3(0.63,0.45,0.28), vec3(0.98,0.84,0.64), diff);
   vec3 night = mix(vec3(0.07,0.09,0.14), vec3(0.55,0.63,0.78), diff);
   vec3 col = mix(day, night, uNight);
+  // pressed-in text and shapes sit in shade: darken their floors so they read clearly; raised shapes catch a little light
+  float mk = texture(uMask, vec2(px.x/uRes.x, px.y/uRes.y)).r - 0.5;
+  col *= 1. - smoothstep(0.0, 0.35, -mk) * 0.55;
+  col *= 1. + smoothstep(0.0, 0.35, mk) * 0.06;
   col += rim*mix(vec3(1.,.8,.55), vec3(.6,.7,1.), uNight)*0.4;
   // grains: speckles of darker and brighter sand, a few catching the light
   float g = h21(floor(px*0.75)+3.1);
@@ -245,6 +249,7 @@ function cardsFrom(meta) {
   (meta.news || []).forEach(n => out.push({ img: n.image, t: n.title, s: n.source, url: n.url }));
   (meta.videos || []).forEach(v => out.push({ img: v.thumbnail || `https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`, t: v.title, s: v.channel, url: `https://www.youtube.com/watch?v=${v.id}` }));
   (meta.books || []).forEach(b => out.push({ img: b.thumbnail || b.image, t: b.title, s: (b.authors || []).join(', '), url: b.url || b.link }));
+  (meta.images || []).forEach(im => out.push({ img: im.thumbnail || im.url || im.image, t: im.title || '', s: im.source || '', url: im.page || im.url }));
   (meta.papers || []).forEach(p => out.push({ img: '', t: p.title, s: p.venue || p.year, url: p.url }));
   return out.slice(0, 6);
 }
