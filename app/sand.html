@@ -16,9 +16,9 @@
     -webkit-backdrop-filter: blur(3px) saturate(1.2) brightness(1.06); backdrop-filter: blur(3px) saturate(1.2) brightness(1.06);
     transition: opacity .6s, transform .6s cubic-bezier(.2,.9,.2,1); }
   .bar.sunk { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.98); pointer-events: none; }
-  .bar input { width: 100%; padding: 1.05rem 1.3rem; border: 0; outline: 0; background: transparent; font: inherit; font-size: 1.15rem; text-align: center; color: #fffaf2;
-    text-shadow: 0 1px 2px rgba(80,50,20,0.55); caret-color: #fff; }
-  .bar input::placeholder { color: rgba(255,250,242,0.85); }
+  .bar input { width: 100%; padding: 1.05rem 1.3rem; border: 0; outline: 0; background: transparent; font: inherit; font-size: 1.15rem; text-align: center; color: #3e2a16;
+    text-shadow: 0 1px 0 rgba(255,236,205,0.55); caret-color: #3e2a16; }
+  .bar input::placeholder { color: rgba(62,42,22,0.62); }
   /* cards that rise: real content (posters) laid over a raised sand slab */
   .card { position: fixed; z-index: 3; border-radius: 12px; overflow: hidden; cursor: pointer; color: var(--ink);
     transform: translateY(14px) scale(0.96); opacity: 0; filter: blur(4px) sepia(0.6);
@@ -105,23 +105,25 @@ in vec2 p; out vec2 uv; void main(){ uv = p*0.5+0.5; gl_Position = vec4(p,0.,1.)
 const FS = `#version 300 es
 precision highp float;
 in vec2 uv; out vec4 o;
-uniform sampler2D uMask; uniform vec2 uRes; uniform float uT, uWork, uNight, uPulse;
+uniform sampler2D uMask; uniform vec2 uRes; uniform float uT, uWork, uNight, uPulse, uFlow;
 float h21(vec2 p){ p = fract(p*vec2(123.34,456.21)); p += dot(p,p+45.32); return fract(p.x*p.y); }
-float n2(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);
+float n2(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*f*(f*(f*6.-15.)+10.);
   return mix(mix(h21(i),h21(i+vec2(1,0)),f.x), mix(h21(i+vec2(0,1)),h21(i+vec2(1,1)),f.x), f.y); }
-float fbm(vec2 p){ float s=0., a=.5; for(int i=0;i<5;i++){ s+=a*n2(p); p=p*2.03+vec2(1.7,9.2); a*=.5; } return s; }
+float fbm(vec2 p){ float s=0., a=.5; for(int i=0;i<5;i++){ s+=a*n2(p); p=mat2(1.6,1.2,-1.2,1.6)*p+vec2(1.7,9.2); a*=.5; } return s; }
 // height of the sand at pixel position px (CSS px)
 float H(vec2 px){
   vec2 p = px/uRes.y;
-  float dunes = fbm(p*1.6 + vec2(0.,uT*0.004))*0.9;
+  // while VQ works the sand itself flows: a slow swirl around the centre that winds tighter as the work goes on
+  vec2 c = vec2(0.5*uRes.x/uRes.y, 0.46); vec2 r = p-c; float d = length(r);
+  float ang = uFlow*0.55*exp(-d*2.2); float cs = cos(ang), sn = sin(ang);
+  p = c + mat2(cs,-sn,sn,cs)*r;
+  float dunes = fbm(p*1.6)*0.9;
   vec2 w = vec2(fbm(p*3.+3.), fbm(p*3.+7.));
-  float rip = sin((p.x*0.55 + p.y)*58. + w.x*7. + w.y*4.)*0.5+0.5;
+  float rip = sin((p.x*0.55 + p.y)*58. + w.x*7. + w.y*4. - uFlow*2.4)*0.5+0.5;
   rip = pow(rip, 1.6)*0.11*(0.6+0.8*fbm(p*4.));
   // work: rings that travel inward to where the answer will form, plus a slow swirl
-  vec2 c = vec2(0.5*uRes.x/uRes.y, 0.46); float d = length(p-c);
-  float ring = sin(d*70. + uT*3.2 + fbm(p*6.)*3.)*0.5+0.5;
-  float work = uWork * ring * smoothstep(0.9, 0.05, d) * 0.12;
-  float pulse = uPulse * sin(d*40. - uT*9.)*0.05*smoothstep(0.7,0.,d);
+  float work = uWork * 0.05 * smoothstep(0.6, 0.0, d);          // the centre gently heaps up, where the answer will form
+  float pulse = uPulse * 0.04 * sin(d*12. - uT*2.5) * smoothstep(0.8,0.,d);   // one soft, wide swell, not fine rings
   float grain = (h21(floor(px*0.9)) - 0.5)*0.025;
   float m = (texture(uMask, vec2(px.x/uRes.x, px.y/uRes.y)).r - 0.5)*0.9;
   return dunes + rip + work + pulse + grain + m;
@@ -140,12 +142,9 @@ void main(){
   // grains: speckles of darker and brighter sand, a few catching the light
   float g = h21(floor(px*0.75)+3.1);
   col *= 0.9 + 0.2*g;
-  float spark = step(0.9965, h21(floor(px*0.5) + floor(uT*0.6)))*diff;
+  float spark = step(0.9968, h21(floor(px*0.5)))*diff;
   col += spark*mix(vec3(1.,.93,.75), vec3(.8,.9,1.), uNight)*0.7;
   // drifting grains while VQ works: specks streaming toward the centre
-  vec2 c = vec2(0.5*uRes.x, 0.46*uRes.y), dir = normalize(c-px+0.001);
-  vec2 q = px - dir*uT*120.; float flow = step(0.9975, h21(floor(q*0.33)))*uWork*smoothstep(900.,80.,length(c-px));
-  col += flow*vec3(1.,.9,.7)*0.8;
   // soft vignette
   vec2 v = uv-0.5; col *= 1. - dot(v,v)*0.55;
   o = vec4(col,1.);
@@ -159,7 +158,7 @@ function initGL() {
   tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  ['uMask', 'uRes', 'uT', 'uWork', 'uNight', 'uPulse'].forEach(k => U[k] = gl.getUniformLocation(prog, k));
+  ['uMask', 'uRes', 'uT', 'uWork', 'uNight', 'uPulse', 'uFlow'].forEach(k => U[k] = gl.getUniformLocation(prog, k));
 }
 let W = 0, Hh = 0;
 function resize() {
@@ -169,13 +168,14 @@ function resize() {
 }
 
 // ---------- animation state ----------
-const S = { work: 0, workT: 0, night: 0, nightT: 0, pulse: 0 };
+const S = { work: 0, workT: 0, night: 0, nightT: 0, pulse: 0, flow: 0 };
 let t0 = performance.now(), last = t0;
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   S.work += (S.workT - S.work) * Math.min(1, dt * 2.2);
   S.night += (S.nightT - S.night) * Math.min(1, dt * 1.5);
   S.pulse *= Math.pow(0.25, dt);
+  S.flow += dt * S.work * 0.6;
   for (const it of items) {
     const rate = it.target > it.h ? (it.riseRate || 900) : (it.sinkRate || 700);
     const step = dt * 1000 / rate;
@@ -187,7 +187,7 @@ function frame(now) {
   if (maskDirty) { drawMask(); gl.bindTexture(gl.TEXTURE_2D, tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, mask); maskDirty = false; }
   gl.viewport(0, 0, cv.width, cv.height);
   gl.uniform1i(U.uMask, 0); gl.uniform2f(U.uRes, W, Hh); gl.uniform1f(U.uT, reduce ? 0 : (now - t0) / 1000);
-  gl.uniform1f(U.uWork, reduce ? 0 : S.work); gl.uniform1f(U.uNight, S.night); gl.uniform1f(U.uPulse, reduce ? 0 : S.pulse);
+  gl.uniform1f(U.uWork, reduce ? 0 : S.work); gl.uniform1f(U.uNight, S.night); gl.uniform1f(U.uPulse, reduce ? 0 : S.pulse); gl.uniform1f(U.uFlow, reduce ? 0 : S.flow);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   requestAnimationFrame(frame);
 }
@@ -239,12 +239,13 @@ function cardsFrom(meta) {
   return out.slice(0, 6);
 }
 function raiseCards(list) {
-  if (!cur || !list.length || cur.cards.length) return;
+  if (!cur || !list.length || cur.raised) return;
+  cur.raised = true;
   if (cur.qItem) { cur.qItem.y = Hh * 0.2; cur.qItem.size = Math.min(30, W / 30); maskDirty = true; }
   const n = list.length, gap = 18, maxW = Math.min(W - 40, 1150);
   let cw = Math.min(170, (maxW - gap * (n - 1)) / n), ch = Math.round(cw * 1.5) + 50;
   if (ch > L.cardMaxH) { ch = L.cardMaxH; cw = Math.round((ch - 50) / 1.5); }
-  cur.cardBottom = L.cardTop + ch;
+  cur.cardBottom = L.cardTop + ch; if (cur.glass) placeGlass();
   const total = n * cw + (n - 1) * gap, x0 = L.cx - total / 2, y = L.cardTop;
   list.forEach((c, i) => {
     const x = x0 + i * (cw + gap);
@@ -270,9 +271,13 @@ function answerText(full, done) {
   }
   if (!short || cur.cards.length || cur.glass) {
     // longer replies get the glass panel, so they stay easy to read
-    if (!cur.glass) { cur.glass = true; const top = cur.cardBottom ? cur.cardBottom + 22 : Hh * 0.36; glass.style.top = top + 'px'; glass.style.maxHeight = Math.max(120, Hh - top - 48) + 'px'; glass.classList.add('up'); }
+    if (!cur.glass) { cur.glass = true; placeGlass(); glass.classList.add('up'); }
     glass.innerHTML = full.split(/\n{2,}/).map(p => '<p>' + esc(p).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>') + '</p>').join('');
   }
+}
+function placeGlass() {
+  const top = cur && cur.cardBottom ? cur.cardBottom + 22 : Hh * 0.36;
+  glass.style.top = top + 'px'; glass.style.maxHeight = Math.max(120, Hh - top - 48) + 'px';
 }
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 function finish() {
@@ -300,7 +305,7 @@ async function ask(q) {
         if (!line) continue; let m; try { m = JSON.parse(line.slice(5)); } catch (e) { continue; }
         gotAny = true;
         if (m.ev) onEv(m.ev);
-        if (m.meta) { meta = m.meta; }
+        if (m.meta) { meta = m.meta; const cl = cardsFrom(meta); if (cl.length) raiseCards(cl); }
         if (typeof m.delta === 'string') { full += m.delta; if (full.length > 150 || (cur && cur.cards.length)) answerText(full, false); }
         if (typeof m.replace === 'string') full = m.replace;
       }
