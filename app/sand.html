@@ -10,14 +10,11 @@
   html, body { margin: 0; height: 100%; overflow: hidden; background: #c9a57a; font-family: "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; color: var(--ink); }
   canvas#sand { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; }
   /* glass input bar: rises out of the sand */
-  .bar { position: fixed; left: 50%; top: 9vh; width: min(46rem, calc(100vw - 32px)); transform: translateX(-50%); z-index: 5;
-    border-radius: 18px; background: var(--glass); border: 1px solid var(--glass-line);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), inset 0 -10px 24px rgba(255,255,255,0.08), 0 14px 30px rgba(90,60,25,0.28), 0 2px 0 rgba(255,255,255,0.25);
-    -webkit-backdrop-filter: blur(3px) saturate(1.2) brightness(1.06); backdrop-filter: blur(3px) saturate(1.2) brightness(1.06);
-    transition: opacity .6s, transform .6s cubic-bezier(.2,.9,.2,1); }
-  .bar.sunk { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.98); pointer-events: none; }
-  .bar input { width: 100%; padding: 1.05rem 1.3rem; border: 0; outline: 0; background: transparent; font: inherit; font-size: 1.15rem; text-align: center; color: #3e2a16;
-    text-shadow: 0 1px 0 rgba(255,236,205,0.55); caret-color: #3e2a16; }
+  /* input: no box. Your words sit in a shallow groove pressed into the sand */
+  .bar { position: fixed; left: 50%; top: 9vh; width: min(46rem, calc(100vw - 32px)); transform: translateX(-50%); z-index: 5; transition: opacity .6s; }
+  .bar.sunk { opacity: 0; pointer-events: none; }
+  .bar input { width: 100%; padding: 1.05rem 1.3rem; border: 0; outline: 0; background: transparent; font: inherit; font-size: 1.25rem; text-align: center; color: #3e2a16;
+    text-shadow: 0 1px 0 rgba(255,236,205,0.7), 0 -1px 0 rgba(90,60,30,0.25); caret-color: #3e2a16; }
   .bar input::placeholder { color: rgba(62,42,22,0.62); }
   /* cards that rise: real content (posters) laid over a raised sand slab */
   .card { position: fixed; z-index: 3; border-radius: 12px; overflow: hidden; cursor: pointer; color: var(--ink);
@@ -28,14 +25,20 @@
   .card .t { position: absolute; left: 0; right: 0; bottom: 0; height: 3.1rem; padding: 0.4rem 0.6rem; font-size: 0.8rem; font-weight: 600; line-height: 1.2;
     color: #4a3420; text-shadow: 0 1px 0 rgba(255,240,215,0.6); overflow: hidden; }
   .card .t small { display: block; font-weight: 400; opacity: 0.75; }
-  /* glass reading panel: only for long answers */
-  .glass { position: fixed; z-index: 4; left: 50%; transform: translateX(-50%) translateY(16px); width: min(48rem, calc(100vw - 32px)); max-height: 52vh; overflow: auto;
-    padding: 1.3rem 1.5rem; border-radius: 20px; background: rgba(255,247,233,0.22); border: 1px solid var(--glass-line);
-    -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 20px 50px rgba(80,50,20,0.3); color: #2e2012; font-size: 1.05rem; line-height: 1.65;
-    opacity: 0; transition: opacity .7s, transform .7s cubic-bezier(.2,.9,.2,1); }
-  .glass.up { opacity: 1; transform: translateX(-50%); }
-  .glass p { margin: 0 0 0.7em; }
+  /* long answers: no panel. Words are pressed into the sand and surface one by one */
+  .glass { position: fixed; z-index: 4; left: 50%; transform: translateX(-50%); width: min(46rem, calc(100vw - 40px)); overflow: auto; padding: 0.4rem 0.6rem 2rem;
+    color: #3d2914; font-size: 1.12rem; line-height: 1.75; font-weight: 500; scrollbar-width: none;
+    text-shadow: 0 1px 0 rgba(255,236,205,0.75), 0 -1px 0 rgba(95,62,28,0.32);
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 1.2rem, #000 calc(100% - 2.4rem), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 1.2rem, #000 calc(100% - 2.4rem), transparent 100%);
+    opacity: 0; transition: opacity .5s; }
+  .glass::-webkit-scrollbar { display: none; }
+  .glass.up { opacity: 1; }
+  .glass p { margin: 0 0 0.8em; } .glass li { margin: 0 0 0.35em; list-style: none; } .glass ul { margin: 0 0 0.8em; padding: 0; }
+  .glass li::before { content: "·"; margin-right: 0.55em; font-weight: 700; }
+  .glass b { font-weight: 700; }
+  .glass .w { display: inline-block; animation: rise .9s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes rise { from { opacity: 0; filter: blur(5px); transform: translateY(3px); color: #b48a58; text-shadow: none; } to { opacity: 1; filter: none; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .glass .w { animation: none; } }
   .hint { position: fixed; right: 14px; bottom: 10px; z-index: 6; font-size: 0.72rem; color: var(--ink-soft); }
   .hint b { font-weight: 600; }
   .tools { position: fixed; left: 14px; bottom: 10px; z-index: 6; display: flex; gap: 0.4rem; }
@@ -183,7 +186,7 @@ function frame(now) {
     if (nh !== it.h) { it.h = nh; maskDirty = true; }
     if (it.chars != null && it.chars < it.text.length) { it.chars = Math.min(it.text.length, it.chars + dt * (it.cps || 38)); maskDirty = true; }
   }
-  items = items.filter(it => !(it.target === 0 && it.h <= 0));
+  items = items.filter(it => it === groove || !(it.target === 0 && it.h <= 0));
   if (maskDirty) { drawMask(); gl.bindTexture(gl.TEXTURE_2D, tex); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, mask); maskDirty = false; }
   gl.viewport(0, 0, cv.width, cv.height);
   gl.uniform1i(U.uMask, 0); gl.uniform2f(U.uRes, W, Hh); gl.uniform1f(U.uT, reduce ? 0 : (now - t0) / 1000);
@@ -194,16 +197,23 @@ function frame(now) {
 
 // ---------- layout of the scene ----------
 const L = {};
+let groove = null;
+function placeGroove() {
+  const r = bar.getBoundingClientRect();
+  if (groove) { groove.x = r.left; groove.y = r.top + 6; groove.w = r.width; groove.h2 = r.height - 12; maskDirty = true; return; }
+  groove = add({ kind: 'slab', x: r.left, y: r.top + 6, w: r.width, h2: r.height - 12, depth: -0.32, riseRate: 900 });
+}
 function layout() {
   L.cx = W / 2; L.qY = Math.round(Hh * 0.25); L.stepY = Math.round(Hh * 0.36);
   L.cardTop = Math.round(Hh * 0.34); L.cardMaxH = Math.round(Hh * 0.34);
+  if (typeof bar !== 'undefined') placeGroove();
 }
 
 // ---------- the exchange ----------
 let cur = null;   // { q, stepItems, cards, ansItem }
 const live = document.getElementById('live'), glass = document.getElementById('glass'), bar = document.getElementById('bar'), qIn = document.getElementById('q');
 function clearScene(fast) {
-  items.forEach(it => sink(it, fast ? 350 : 800));
+  items.forEach(it => { if (it !== groove) sink(it, fast ? 350 : 800); });
   document.querySelectorAll('.card').forEach(c => { c.classList.remove('up'); setTimeout(() => c.remove(), 900); });
   glass.classList.remove('up'); setTimeout(() => { if (!glass.classList.contains('up')) glass.innerHTML = ''; }, 700);
   S.workT = 0;
@@ -260,8 +270,29 @@ function raiseCards(list) {
     }, i * 140);
   });
 }
+function cleanAnswer(full) {
+  // the app's own layout blocks (```vq-present …```) become cards here, never raw text
+  const blocks = [...full.matchAll(/```vq-present\s*([\s\S]*?)```/g)];
+  for (const b of blocks) { try { const d = JSON.parse(b[1]); const its = (d.items || []).map(it => ({ img: it.image || '', t: it.title, s: it.subtitle || it.tag || '', url: it.url })); if (its.length) raiseCards(its); } catch (e) {} }
+  return full.replace(/```[\s\S]*?(?:```|$)/g, '').replace(/\n{3,}/g, '\n\n').trim();
+}
+function toHtml(text, settled) {
+  let n = 0;
+  const words = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, '\u0001$1\u0002').split(/(\s+)/).map(w => {
+    if (!w.trim()) return w;
+    const i = n++; const ww = w.replace(/\u0001/g, '<b>').replace(/\u0002/g, '</b>');
+    return i >= settled ? `<span class="w" style="animation-delay:${Math.min(600, (i - settled) * 28)}ms">${ww}</span>` : ww;
+  }).join('');
+  const html = text.split(/\n{2,}/).map(par => {
+    const lines = par.split('\n');
+    if (lines.every(l => /^\s*(?:[*\-•]|\d+\.)\s+/.test(l))) return '<ul>' + lines.map(l => '<li>' + words(l.replace(/^\s*(?:[*\-•]|\d+\.)\s+/, '')) + '</li>').join('') + '</ul>';
+    return '<p>' + lines.map(words).join('<br>') + '</p>';
+  }).join('');
+  return { html, count: n };
+}
 function answerText(full, done) {
   if (!cur) return;
+  full = cleanAnswer(full);
   cur.text = full;
   const short = full.length <= 150 && !/\n/.test(full.trim());
   if (done && short && !cur.cards.length && !cur.glass) {
@@ -271,25 +302,26 @@ function answerText(full, done) {
   }
   if (!short || cur.cards.length || cur.glass) {
     // longer replies get the glass panel, so they stay easy to read
-    if (!cur.glass) { cur.glass = true; placeGlass(); glass.classList.add('up'); }
-    glass.innerHTML = full.split(/\n{2,}/).map(p => '<p>' + esc(p).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>') + '</p>').join('');
+    if (!cur.glass) { cur.glass = true; cur.settled = 0; placeGlass(); glass.classList.add('up'); }
+    const r = toHtml(full, cur.settled || 0); glass.innerHTML = r.html; cur.settled = r.count;
   }
 }
 function placeGlass() {
-  const top = cur && cur.cardBottom ? cur.cardBottom + 22 : Hh * 0.36;
+  const top = cur && cur.cardBottom ? cur.cardBottom + 26 : Hh * 0.33;
   glass.style.top = top + 'px'; glass.style.maxHeight = Math.max(120, Hh - top - 48) + 'px';
 }
+function sinkBar() { bar.classList.add('sunk'); if (groove) { groove.target = 0; maskDirty = true; } }
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 function finish() {
   S.workT = 0; S.pulse = 0.5;
   if (cur) cur.steps.forEach(s => sink(s, 900));
-  bar.classList.remove('sunk'); qIn.placeholder = 'anything else?'; qIn.focus({ preventScroll: true });
+  bar.classList.remove('sunk'); if (groove) groove.target = 1; qIn.placeholder = 'anything else?'; qIn.focus({ preventScroll: true });
   live.textContent = cur ? cur.text : '';
 }
 
 // ---------- real backend (live events) ----------
 async function ask(q) {
-  begin(q); bar.classList.add('sunk');
+  begin(q); sinkBar();
   document.getElementById('mode').textContent = 'live';
   let full = '', meta = null, gotAny = false;
   try {
@@ -331,7 +363,7 @@ function deviceId() { try { let id = localStorage.getItem('vq-device-id'); if (!
 const wait = ms => new Promise(r => setTimeout(r, ms));
 async function demoRun(q, fromAsk) {
   q = q || 'show me some old top rated sci-fi films';
-  if (!fromAsk) { begin(q); bar.classList.add('sunk'); }
+  if (!fromAsk) { begin(q); sinkBar(); }
   document.getElementById('mode').textContent = 'demo (scripted, not live)';
   await wait(700); stepLine('finding films');
   for (const d of ['themoviedb.org', 'imdb.com', 'bfi.org.uk', 'rottentomatoes.com']) { await wait(260); sourceFrag(d); }
@@ -339,7 +371,7 @@ async function demoRun(q, fromAsk) {
   await wait(700);
   raiseCards([['2001: A Space Odyssey', '1968'], ['Blade Runner', '1982'], ['Back to the Future', '1985'], ['E.T.', '1982'], ['The Day the Earth Stood Still', '1951']].map(([t, s]) => ({ t, s, img: '' })));
   await wait(900); stepLine('writing the answer');
-  const txt = 'Five classics that still hold up. 2001: A Space Odyssey is the one to start with: slow, vast and unlike anything since. Blade Runner asks what makes a person a person, and The Day the Earth Stood Still is a calm warning from 1951 that never dated.';
+  const txt = 'Five classics that still hold up.\n\n* **2001: A Space Odyssey**: slow, vast and unlike anything since.\n* **Blade Runner** asks what makes a person a person.\n* **The Day the Earth Stood Still**: a calm warning from 1951.\n\n```vq-present\n{"type":"cards","items":[{"title":"x"}]}\n```\n\nStart with 2001 if you have an evening free.' || ' 2001: A Space Odyssey is the one to start with: slow, vast and unlike anything since. Blade Runner asks what makes a person a person, and The Day the Earth Stood Still is a calm warning from 1951 that never dated.';
   for (let i = 0; i <= txt.length; i += 6) { answerText(txt.slice(0, i), false); await wait(30); }
   answerText(txt, true); finish();
 }
