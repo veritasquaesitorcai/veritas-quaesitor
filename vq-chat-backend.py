@@ -1267,6 +1267,8 @@ SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
 accounts_available = bool(SUPABASE_URL and SUPABASE_SERVICE_KEY)
 GUEST_DAILY_LIMIT = int(os.environ.get("GUEST_DAILY_LIMIT", "10"))
 FREE_DAILY_LIMIT = int(os.environ.get("FREE_DAILY_LIMIT", "30"))
+# Signed-in accounts with these emails have no daily limit (comma-separated; override with ADMIN_EMAILS on Railway)
+ADMIN_EMAILS = {e.strip().lower() for e in os.environ.get("ADMIN_EMAILS", "veritasquaesitorai@gmail.com").split(",") if e.strip()}
 GUEST_IP_DAILY_CAP = int(os.environ.get("GUEST_IP_DAILY_CAP", "40"))   # stops device-id rotation abuse
 print(f"{'✓' if accounts_available else '⚠'} Accounts {'ready' if accounts_available else 'not configured (everyone treated as guest)'}", flush=True)
 
@@ -1317,6 +1319,8 @@ def current_user():
 def use_quota(user):
     """Count one message. Returns (allowed, quota_dict)."""
     day = _time.strftime("%Y-%m-%d", _time.gmtime())
+    if user and (user.get("email") or "").lower() in ADMIN_EMAILS:
+        return True, {"tier": "admin", "used": None, "limit": None}   # unlimited; nothing counted, nothing to refund
     if user:
         status, count = _supabase_request("POST", "/rest/v1/rpc/use_message",
                                           {"p_user": user["id"], "p_limit": FREE_DAILY_LIMIT})
