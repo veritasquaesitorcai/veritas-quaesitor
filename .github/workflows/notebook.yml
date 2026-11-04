@@ -1,0 +1,38 @@
+# OP's Notebook: every 15 minutes the published cards are fetched from OP's server and built into notebook/ in the site's look.
+# The server never writes to this repo; this job only pulls what is already public.
+name: Build OP's notebook
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: notebook
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build the notebook pages
+        run: python3 .github/scripts/build_notebook.py
+      - name: Publish if anything changed
+        run: |
+          git add -A notebook
+          if git diff --cached --quiet; then
+            echo "No changes."
+            exit 0
+          fi
+          git config user.name "VQ notebook bot"
+          git config user.email "veritasquaesitorai@gmail.com"
+          git commit -q -m "OP's notebook: update"
+          git pull -q --rebase origin main
+          git push -q origin HEAD:main
