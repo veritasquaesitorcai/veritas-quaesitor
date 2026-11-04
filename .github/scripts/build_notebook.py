@@ -41,7 +41,7 @@ header.hero.nb-hero.small{min-height:clamp(320px,30vw,460px)!important;padding-b
 .nb-hero .tagline{font-size:2rem;color:#fff;margin:0!important;text-shadow:1px 1px 4px rgba(0,0,0,.8);font-weight:300}
 .nb-hero .subtitle{font-size:1.15rem;color:rgba(255,255,255,.95);text-shadow:1px 1px 4px rgba(0,0,0,.8);max-width:800px;margin-top:auto!important;margin-bottom:0!important;line-height:1.7}
 .nb-hero .hero-credit{position:absolute;left:1.25rem;bottom:1.2rem;margin:0;font-size:.8rem;color:rgba(255,255,255,.85);text-shadow:0 1px 2px rgba(0,0,0,.8)}
-@media (max-width:768px){.nb-hero h1{font-size:2.3rem}.nb-hero .tagline{font-size:1.25rem!important}.nb-hero .subtitle{font-size:1.02rem}.nb-hero .hero-credit{font-size:.7rem}}
+@media (max-width:768px){header.hero.nb-hero.small .subtitle{display:none}header.hero.nb-hero.small{min-height:260px!important}.nb-hero h1{font-size:2.3rem}.nb-hero .tagline{font-size:1.25rem!important}.nb-hero .subtitle{font-size:1.02rem}.nb-hero .hero-credit{font-size:.7rem}}
 .glass-panel{background:rgba(255,255,255,.15);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.25);
 box-shadow:0 8px 32px rgba(0,0,0,.3);padding:2.5rem;margin:1.5rem auto;border-radius:20px;max-width:900px;width:90%;box-sizing:border-box;color:#fff}
 .glass-panel h2{color:#ff8c42;margin:0 0 1rem;font-size:clamp(1.5rem,3.5vw,2.1rem);line-height:1.3}
