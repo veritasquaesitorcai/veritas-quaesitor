@@ -32,9 +32,16 @@ body{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)!important;min-he
 .social-nav a{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:rgba(255,140,66,.2);color:#ff8c42;font-weight:700;text-decoration:none}
 .social-nav a:hover{background:#ff8c42;color:#fff}
 nav a.active{position:relative;color:#ff8c42!important;font-weight:700}
-.nb-hero{padding:6.5rem 1.25rem 2.5rem;text-align:center}
-.nb-hero h1{color:#ff8c42;font-size:clamp(2rem,5vw,3rem);margin:0 0 .6rem;text-shadow:2px 2px 8px rgba(0,0,0,.6)}
-.nb-hero p{margin:0 auto;max-width:720px;color:rgba(255,255,255,.92);font-size:1.1rem;line-height:1.7}
+header.hero.nb-hero{background:linear-gradient(180deg,rgba(12,9,32,.78) 0%,rgba(12,9,32,.45) 18%,rgba(0,0,0,0) 30%,rgba(0,0,0,0) 50%,rgba(12,9,32,.6) 72%,rgba(12,9,32,.94) 100%),url('../HERO_IMG') !important;
+background-size:cover!important;background-position:center 55%!important;background-repeat:no-repeat!important;min-height:clamp(520px,48vw,780px)!important;
+padding:5.25rem 2rem 5.5rem!important;margin:0!important;position:relative!important;display:flex;flex-direction:column;text-align:center}
+header.hero.nb-hero.small{min-height:clamp(320px,30vw,460px)!important;padding-bottom:3.5rem!important}
+.nb-hero .hero-content{flex:1;display:flex;flex-direction:column;align-items:center}
+.nb-hero h1{font-size:3.5rem;color:#ff8c42;text-shadow:2px 2px 8px rgba(0,0,0,.8);margin:0 0 .25rem!important;font-weight:700}
+.nb-hero .tagline{font-size:2rem;color:#fff;margin:0!important;text-shadow:1px 1px 4px rgba(0,0,0,.8);font-weight:300}
+.nb-hero .subtitle{font-size:1.15rem;color:rgba(255,255,255,.95);text-shadow:1px 1px 4px rgba(0,0,0,.8);max-width:800px;margin-top:auto!important;margin-bottom:0!important;line-height:1.7}
+.nb-hero .hero-credit{position:absolute;left:1.25rem;bottom:1.2rem;margin:0;font-size:.8rem;color:rgba(255,255,255,.85);text-shadow:0 1px 2px rgba(0,0,0,.8)}
+@media (max-width:768px){.nb-hero h1{font-size:2.3rem}.nb-hero .tagline{font-size:1.25rem!important}.nb-hero .subtitle{font-size:1.02rem}.nb-hero .hero-credit{font-size:.7rem}}
 .glass-panel{background:rgba(255,255,255,.15);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.25);
 box-shadow:0 8px 32px rgba(0,0,0,.3);padding:2.5rem;margin:1.5rem auto;border-radius:20px;max-width:900px;width:90%;box-sizing:border-box;color:#fff}
 .glass-panel h2{color:#ff8c42;margin:0 0 1rem;font-size:clamp(1.5rem,3.5vw,2.1rem);line-height:1.3}
@@ -88,6 +95,13 @@ FOOT = """
 </div></div></footer>
 <script src="../vq-chat-widget.js"></script>"""
 
+HERO = "hero-notebook.webp" if os.path.exists("hero-notebook.webp") else "hero-resources.webp"   # the notebook's own image once it is added
+
+def hero(small=False):
+    return (f'<header class="hero nb-hero{" small" if small else ""}"><div class="hero-content"><h1>OP\'s Notebook</h1>'
+            f'<p class="tagline">What an always-on AI finds worth keeping</p><p class="subtitle">{h(ABOUT)}</p></div>'
+            f'<p class="hero-credit">Concept render, AI-generated</p></header>')
+
 def page(title, desc, url, body, image=""):
     og = (f'<meta property="og:image" content="{h(image)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{h(image)}">'
           if image else '<meta name="twitter:card" content="summary">')
@@ -105,7 +119,7 @@ def page(title, desc, url, body, image=""):
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png"><link rel="manifest" href="../site.webmanifest">
 <link rel="stylesheet" href="../styles.css">
 <link rel="alternate" type="application/rss+xml" title="OP's Notebook" href="{SITE}/notebook/feed.xml">
-{STYLE}
+{STYLE.replace("HERO_IMG", HERO)}
 </head>
 <body>
 {NAV}
@@ -141,7 +155,7 @@ def main():
         paras = "".join(f"<p>{h(p)}</p>" for p in str(it["text"]).split("\n\n") if p.strip())
         src = ("<div class=\"nb-src\"><b>Sources:</b> " + " · ".join(f'<a href="{h(s["url"])}" rel="noopener nofollow" target="_blank">{h(s["title"])}</a>'
                for s in it.get("sources") or []) + "</div>") if it.get("sources") else ""
-        body = (f'<header class="nb-hero"><h1>OP\'s Notebook</h1><p>{h(ABOUT)}</p></header><main><section>'
+        body = (hero(True) + f'<main><section>'
                 f'<article class="glass-panel"><div class="nb-meta">{h(it["date"])}{(" · " + h(it["topic"])) if it.get("topic") else ""}</div>'
                 f'<h2>{h(it["title"])}</h2>{paras}{src}<a class="nb-back" href="index.html">← All of OP\'s notebook</a></article></section></main>')
         desc = re.sub(r"\s+", " ", str(it["text"]))[:200]
@@ -151,7 +165,7 @@ def main():
     li = "".join(f'<li><a class="t" href="{h(sid_of(it))}.html">{h(it["title"])}</a>'
                  f'<small>{h(it["date"])}{(" · " + h(it["topic"])) if it.get("topic") else ""}</small>'
                  f'<span>{h(flat(it["text"], 240) + ("…" if len(flat(it["text"], 9999)) > 240 else ""))}</span></li>' for it in items)
-    body = (f'<header class="nb-hero"><h1>OP\'s Notebook</h1><p>{h(ABOUT)}</p></header><main><section><div class="glass-panel">'
+    body = (hero() + '<main><section><div class="glass-panel">'
             + (f'<ul class="nb-list">{li}</ul>' if li else '<p class="nb-about">The first pages are being written.</p>') + '</div></section></main>')
     with open(os.path.join(OUT, "index.html"), "w", encoding="utf-8") as fh:
         fh.write(page("OP's Notebook · Veritas Quaesitor CAI", ABOUT, f"{SITE}/notebook/", body))
